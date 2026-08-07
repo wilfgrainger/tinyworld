@@ -1,0 +1,2 @@
+-- TinyWorld v0.1 intentionally keeps all economy and progression authority on the server.
+-- Client code will grow here when the first real UI/interaction slice is designed.
