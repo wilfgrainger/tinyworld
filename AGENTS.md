@@ -4,7 +4,17 @@
 
 TinyWorld is a persistent Roblox life sandbox: **Build your life. Explore impossible worlds. Discover the secrets of TinyWorld.**
 
-Read the active design spec and implementation plan under `docs/superpowers/` before changing gameplay.
+## Active product contract
+
+For current work, treat these as authoritative:
+
+1. `docs/superpowers/specs/2026-08-07-tinyworld-v0.01-vertical-slice-design.md`
+2. `docs/superpowers/plans/2026-08-07-tinyworld-v0.01-vertical-slice.md`
+3. `README.md` for the current Studio smoke-test route.
+
+The earlier `tinyworld-foundation` spec/plan are historical context for the first progression scaffold. Where they conflict with the v0.01 vertical-slice documents, **the v0.01 documents win**.
+
+Before adding the next feature slice, run the Superpowers brainstorming/design process and write a new dated spec/plan rather than silently expanding scope.
 
 ## Engineering rules
 
@@ -16,13 +26,28 @@ Read the active design spec and implementation plan under `docs/superpowers/` be
 6. Never silently replace inaccessible saved data with a fresh profile after a DataStore failure.
 7. Prefer clear boring code over framework-heavy abstractions until the game needs them.
 8. Do not add pay-to-win mechanics. Premium content may be cosmetic, expressive, convenient, or a bounded variant, but free players must retain equivalent gameplay power.
+9. Do not add fake Roblox product/game-pass IDs. Monetisation wiring starts only after real experience products exist.
+10. Preserve schema-v2 migration compatibility unless a new spec explicitly defines a migration.
 
 ## Source layout
 
 - `src/shared`: pure Luau domain rules mapped to `ReplicatedStorage/TinyWorld/Shared`.
 - `src/server`: server-only Roblox adapters and services mapped to `ServerScriptService/TinyWorld`.
-- `src/client`: presentation/input bootstrap mapped to `StarterPlayerScripts/TinyWorld`.
-- `tests`: Luau CLI unit tests for pure rules.
+- `src/client`: presentation-only code mapped to `StarterPlayerScripts/TinyWorld`; it must not mint or validate economic state.
+- `tests`: Luau CLI behavior tests for deterministic rules.
+
+## Verification before merge
+
+At minimum:
+
+```sh
+luau tests/run.luau
+luau-analyze src/shared/*.luau tests/*.luau
+luau-compile src/server/*.luau >/dev/null
+luau-compile src/client/*.luau >/dev/null
+```
+
+For gameplay/runtime changes, the README Studio smoke test is also required before merging the active vertical-slice PR.
 
 ## Commit discipline
 
