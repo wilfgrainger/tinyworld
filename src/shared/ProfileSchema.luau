@@ -6,21 +6,21 @@ ProfileSchema.MAX_HOUSE_TIER = 5
 export type GardenBed = { stage: string, readyAt: number }
 export type Inventory = { Carrot: number, SugarCrystal: number }
 export type PlayerProfile = {
-	version: number,
-	coins: number,
-	level: number,
-	xp: number,
-	houseTier: number,
-	inventory: Inventory,
-	courierLevel: number,
-	courierXp: number,
-	ownsTinyBike: boolean,
-	bikeActive: boolean,
-	gardenBeds: { GardenBed },
-	lastDailyDay: string,
-	portalCompletions: number,
-	villageContribution: number,
-	homePrivacy: string,
+version: number,
+coins: number,
+level: number,
+xp: number,
+houseTier: number,
+inventory: Inventory,
+courierLevel: number,
+courierXp: number,
+ownsTinyBike: boolean,
+bikeActive: boolean,
+gardenBeds: { GardenBed },
+lastDailyDay: string,
+portalCompletions: number,
+villageContribution: number,
+homePrivacy: string,
 }
 
 local VALID_GARDEN_STAGES = { empty = true, planted = true, watered = true, ready = true }
