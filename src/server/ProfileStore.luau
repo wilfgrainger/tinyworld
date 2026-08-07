@@ -6,6 +6,7 @@ local ProfileSchema = require(shared:WaitForChild("ProfileSchema"))
 
 local ProfileStore = {}
 
+-- Keep the original DataStore name so schema-v1 test data migrates in place.
 local DATASTORE_NAME = "TinyWorldPlayerProfile_v1"
 local store = DataStoreService:GetDataStore(DATASTORE_NAME)
 local profiles = {}
@@ -15,13 +16,8 @@ local function keyFor(player: Player): string
 end
 
 local function serialise(profile)
-	return {
-		version = profile.version,
-		coins = profile.coins,
-		level = profile.level,
-		xp = profile.xp,
-		houseTier = profile.houseTier,
-	}
+	-- normalize returns a fresh table and strips unexpected runtime values.
+	return ProfileSchema.normalize(profile)
 end
 
 function ProfileStore.load(player: Player)
