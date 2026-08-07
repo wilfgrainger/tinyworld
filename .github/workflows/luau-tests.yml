@@ -1,0 +1,35 @@
+name: Luau tests
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Luau 0.732
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/luau-lang/luau/releases/tags/0.732"
+          asset_url="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$api" | jq -r '.assets[] | select(.name == "luau-ubuntu.zip") | .browser_download_url')"
+          test -n "$asset_url"
+          test "$asset_url" != "null"
+          curl -fsSL "$asset_url" -o /tmp/luau.zip
+          mkdir -p "$RUNNER_TEMP/luau"
+          unzip -q /tmp/luau.zip -d "$RUNNER_TEMP/luau"
+          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze"
+          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
+
+      - name: Run unit tests
+        run: luau tests/run.luau
