@@ -46,10 +46,12 @@ Then:
 1. Open Roblox Studio and create/open a blank Baseplate place.
 2. Open the Rojo plugin and connect it to the running Rojo server.
 3. Sync the project into Studio.
-4. For persistence testing, open **Game Settings → Security** and enable **Studio Access to API Services** on this test place.
-5. Press **Play**.
+4. **Publish the place as a private/test Roblox experience.** DataStore testing in Studio requires a published experience.
+5. Back in Studio, open **File → Experience Settings → Security**.
+6. Enable **Studio Access to API Services** and save the setting. Use a separate test experience rather than a live production game because Studio accesses the same DataStores.
+7. Press **Play**.
 
-Important: the profile service intentionally fails closed if Roblox cannot read saved data. If API Services are disabled, the player may be removed rather than receiving a fake fresh profile. That is deliberate data-safety behaviour.
+Important: the profile service intentionally fails closed if Roblox cannot read saved data. If the place is unpublished or API Services are disabled, the player may be removed rather than receiving a fake fresh profile. That is deliberate data-safety behaviour.
 
 ## 15-minute v0.01 smoke test
 
@@ -148,7 +150,7 @@ luau tests/run.luau
 luau-analyze src/shared/*.luau tests/*.luau
 ```
 
-GitHub Actions runs the same shared-domain verification. The pure rule suite covers profile migration, inventory, garden lifecycle, daily rewards, universal progression, Courier progression, house upgrades, Tiny Bike purchasing, Giant Kitchen rewards, and atomic trade validation.
+GitHub Actions runs the same shared-domain verification. The pure rule suite covers profile migration, inventory, garden lifecycle, daily rewards, universal progression, Courier progression, house upgrades, Tiny Bike purchasing, Giant Kitchen rewards, and atomic trade validation. CI also syntax-compiles all runtime server and client Luau files.
 
 ## Source structure
 
