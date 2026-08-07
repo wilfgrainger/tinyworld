@@ -28,7 +28,7 @@ jobs:
           curl -fsSL "$asset_url" -o /tmp/luau.zip
           mkdir -p "$RUNNER_TEMP/luau"
           unzip -q /tmp/luau.zip -d "$RUNNER_TEMP/luau"
-          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze"
+          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze" "$RUNNER_TEMP/luau/luau-compile"
           echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
 
       - name: Run unit tests
@@ -36,3 +36,8 @@ jobs:
 
       - name: Analyze shared Luau
         run: luau-analyze src/shared/*.luau tests/*.luau
+
+      - name: Compile runtime Luau for syntax
+        run: |
+          luau-compile src/server/*.luau >/dev/null
+          luau-compile src/client/*.luau >/dev/null
