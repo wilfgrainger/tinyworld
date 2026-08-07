@@ -3,23 +3,62 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 1)
+	TestUtil.equal(fresh.version, 2)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
 	TestUtil.equal(fresh.houseTier, 1)
+	TestUtil.equal(fresh.inventory.Carrot, 0)
+	TestUtil.equal(fresh.inventory.SugarCrystal, 0)
+	TestUtil.equal(fresh.courierLevel, 1)
+	TestUtil.equal(fresh.courierXp, 0)
+	TestUtil.isFalse(fresh.ownsTinyBike)
+	TestUtil.isFalse(fresh.bikeActive)
+	TestUtil.equal(#fresh.gardenBeds, 3)
+	TestUtil.equal(fresh.gardenBeds[1].stage, "empty")
+	TestUtil.equal(fresh.lastDailyDay, "")
+	TestUtil.equal(fresh.portalCompletions, 0)
+	TestUtil.equal(fresh.villageContribution, 0)
+	TestUtil.equal(fresh.homePrivacy, "Open")
+
+	local migrated = ProfileSchema.normalize({
+		version = 1,
+		coins = 777,
+		level = 4,
+		xp = 42,
+		houseTier = 3,
+	})
+	TestUtil.equal(migrated.version, 2)
+	TestUtil.equal(migrated.coins, 777)
+	TestUtil.equal(migrated.level, 4)
+	TestUtil.equal(migrated.xp, 42)
+	TestUtil.equal(migrated.houseTier, 3)
+	TestUtil.equal(migrated.inventory.Carrot, 0)
+	TestUtil.equal(migrated.courierLevel, 1)
 
 	local repaired = ProfileSchema.normalize({
-		version = "old",
 		coins = -50,
 		level = 0,
 		xp = -10,
 		houseTier = 99,
+		inventory = { Carrot = -4, SugarCrystal = 2.9 },
+		courierLevel = 0,
+		courierXp = -1,
+		gardenBeds = {
+			{ stage = "broken", readyAt = -1 },
+		},
+		homePrivacy = "Anyone",
 	})
 
-	TestUtil.equal(repaired.version, 1)
 	TestUtil.equal(repaired.coins, 0)
 	TestUtil.equal(repaired.level, 1)
 	TestUtil.equal(repaired.xp, 0)
 	TestUtil.equal(repaired.houseTier, 5)
+	TestUtil.equal(repaired.inventory.Carrot, 0)
+	TestUtil.equal(repaired.inventory.SugarCrystal, 2)
+	TestUtil.equal(repaired.courierLevel, 1)
+	TestUtil.equal(repaired.courierXp, 0)
+	TestUtil.equal(repaired.gardenBeds[1].stage, "empty")
+	TestUtil.equal(repaired.gardenBeds[1].readyAt, 0)
+	TestUtil.equal(repaired.homePrivacy, "Open")
 end
