@@ -123,7 +123,7 @@ function PlotService:_visit(player: Player, plotIndex: number)
 	local allowed = player == owner or profile.homePrivacy == "Open"
 	if not allowed and profile.homePrivacy == "Friends" then
 		local ok, isFriend = pcall(function()
-			return player:IsFriendsWith(owner.UserId)
+			return player:IsFriendsWithAsync(owner.UserId)
 		end)
 		allowed = ok and isFriend
 	end
