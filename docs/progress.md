@@ -1,11 +1,15 @@
 # Development progress
 
-## 2026-08-08 - v0.0.3 living-village implementation and verification attempt
+## 2026-08-08 - v0.0.3 living-village implementation and live verification
 
-- Implemented and committed the v0.0.3 living-village slice on `feat/v0.0.3-living-village` at `81223d5` (`feat: build TinyWorld v0.0.3 living village`). The implementation adds a capacity-aware plot layout, a single woods/cliffs/sea boundary, three daily exploration landmarks, the boundary route reward, and the broad `Ground` surfaces that address the earlier grass-flicker path.
-- Local verification passed before the Studio run: 14 Luau specs, Luau parsing, Luau analysis, Roblox material guard, Rojo XML place build, and `git diff --check`.
-- Computer Use opened the generated Rojo place at `$env:TEMP\\tinyworld-v003-static.rbxlx`, connected the Rojo 7.7.0 plugin to `localhost:34872`, and started Play. The first runtime stop was the expected Roblox DataStore guard because the local place was not yet published: `You must publish this place to the web to access DataStore.`
-- The publish flow reached `Update existing experience...`, but Roblox Studio returned `Fetch failed`; Studio Output reported an unauthenticated Creator API session (`401 User is not authenticated`). No new experience was created, no Studio source was edited manually, and the full published-place route remains an outstanding live gate pending an authenticated Studio session.
+- Implemented and committed the v0.0.3 living-village slice on `feat/v0.0.3-living-village` at `81223d5` (`feat: build TinyWorld v0.0.3 living village`). The implementation adds a capacity-aware plot layout, one woods/cliffs/sea boundary, three daily exploration landmarks, the boundary route reward, and broad `Ground` surfaces that address the earlier grass-flicker path.
+- Repository gates passed before and after the Studio run: 14 Luau specs (`TinyWorld tests passed: 14 specs`), Luau parsing, Luau analysis, the Roblox material guard, a Rojo XML place build, and `git diff --check`.
+- The authenticated Roblox Studio session was connected to the current checkout through Rojo 7.7.0 at `localhost:34872`. The current synced place was published successfully; Studio reported `Published new changes in "TinyWorld Dev" to Roblox` and `Published. Friends and playtesters can play now.` No Studio source was edited manually.
+- The published Play session loaded the saved `Chewy` profile and showed `TINYWORLD | v0.0.3 LIVING`, the upgraded home, active Tiny Bike, Courier progression, and `Explore: 0/3 boundary landmarks | Routes 0`. The running server reported `MaxPlayers = 60`; the generated boundary remained a single perimeter outside the capacity-sized plot layout.
+- Computer Use captured the three live boundary scenes: `WOODLAND TRAIL` beside the woods, `CLIFF LOOKOUT` beside the rock/basalt edge, and `SEA DOCK` beside the water and sand transition. Each landmark prompt was triggered through the live game path and the HUD progressed `0/3` -> `1/3` -> `2/3` -> `3/3`.
+- Returning to the Explorer Board awarded `+250 coins` and `+100 XP`; the HUD changed to `Routes 1` and reset the daily landmark mask to `Explore: 0/3`. A second board interaction left coins unchanged at `1,300` and showed `You already claimed today's Boundary Explorer reward. Come back tomorrow.`
+- A stop/rejoin then restored the saved identity, home, progression, `1,300` coins, route count `1`, and daily protection. The freshly rejoined session's Output pane was empty. The live run used only session-only teleportation and temporary prompt hold-duration aids where Computer Use could not reliably perform long-distance movement or a normal Roblox hold; those aids were not saved to the repository, published place, or profile.
+- The earlier unauthenticated local-place attempt remains historical context only: it hit Roblox's expected DataStore guard and a Creator API `401`. Authentication was restored before the successful publish and live verification recorded above.
 
 ## 2026-08-08 - Full v0.0.2 alpha self-test evidence
 
