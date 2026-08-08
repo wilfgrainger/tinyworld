@@ -23,6 +23,14 @@ The current branch is designed as a 15–30 minute vertical slice of the entire 
 
 The geometry is intentionally made from Roblox primitives. This lets us test whether TinyWorld is fun and understandable before replacing the prototype village with production art.
 
+## v0.0.2 alpha visual candidate
+
+The `feat/v0.0.2-alpha` branch keeps the v0.01 gameplay contract and raises the presentation bar toward the original TinyWorld proposal: a cosy voxel-like village, readable story-card UI, expressive homes, a visible daily work loop, transport, social trade, and a Giant Kitchen portal that feels like an impossible place worth reaching.
+
+The [v0.0.2 family alpha test](docs/v0.0.2-alpha-test.md) records the ten visual/usability checks, the gameplay regression route, and the remaining Studio/device evidence. This is a controlled candidate for testing, not a public release.
+
+The long-term north star is a safe, durable creator-led opportunity that could become a meaningful day job for the young people building TinyWorld. That requires a game people want to return to, with real creative ownership and social value. Future monetization must remain optional and fair: cosmetics, expression, decoration, and bounded convenience may be considered; gameplay power, progression, rare resources, and the core life loop must remain equally playable for free. The alpha contains no purchase prompts, live product IDs, or ads.
+
 ## What you need tomorrow
 
 1. A Roblox account.

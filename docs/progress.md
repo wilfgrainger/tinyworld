@@ -1,5 +1,15 @@
 # Development progress
 
+## 2026-08-08 - TinyWorld v0.0.2 alpha visual candidate
+
+- Current branch: `feat/v0.0.2-alpha`; the v0.0.1 foundation is merged into local `main`.
+- The original proposal photo references are now captured in the v0.0.2 design spec as the visual acceptance bar: cosy village, daily work loop, expressive homes, travel, trade, and an impossible-world portal.
+- Completed visual milestones: shared palette/lighting, village/plaza dressing, plot and house-tier presentation, alpha HUD/onboarding, portal/Giant Kitchen showcase, and courier pickup/drop presentation.
+- The HUD now exposes a clear alpha identity and next action; the stale home-upgrade goal is covered by 12 passing shared-rule specs.
+- The long-term north star now explicitly includes a safe, sustainable creator-led day-job opportunity for the young people building TinyWorld. The alpha has no live Robux products, purchase prompts, or ads; future monetization guardrails are recorded in the [v0.0.2 family alpha test](v0.0.2-alpha-test.md).
+- Static checks currently pass: Luau specs, Luau parsing, shared/test analysis, Roblox material guard, Rojo build, and the north-star review.
+- Remaining acceptance gate: a fresh Roblox Studio Play session with the final synced branch, no red Output errors, and observations from the ten-point family/device checklist.
+
 ## 2026-08-08 - Roblox Studio Courier delivery evidence
 
 - A user-provided Roblox Studio screenshot shows the Courier parcel delivered at the Village Shop after the earlier pickup test.
