@@ -8,6 +8,7 @@
 - The HUD now exposes a clear alpha identity and next action; the stale home-upgrade goal is covered by 12 passing shared-rule specs.
 - The long-term north star now explicitly includes a safe, sustainable creator-led day-job opportunity for the young people building TinyWorld. The alpha has no live Robux products, purchase prompts, or ads; future monetization guardrails are recorded in the [v0.0.2 family alpha test](v0.0.2-alpha-test.md).
 - Static checks currently pass: Luau specs, Luau parsing, shared/test analysis, Roblox material guard, Rojo build, and the north-star review.
+- The final visual polish adds a bounded public pond, bridge, lily pads, and four plaza lanterns to push the village toward the supplied storybook/voxel reference without adding runtime scenery generation.
 - Remaining acceptance gate: a fresh Roblox Studio Play session with the final synced branch, no red Output errors, and observations from the ten-point family/device checklist.
 
 ## 2026-08-08 - Roblox Studio Courier delivery evidence
