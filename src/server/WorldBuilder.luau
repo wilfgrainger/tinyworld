@@ -1,4 +1,5 @@
 local Workspace = game:GetService("Workspace")
+local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local WorldBuilder = {}
 
@@ -36,16 +37,24 @@ local function makeLabel(parent: BasePart, text: string, width: number?): TextLa
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.15
-	label.BackgroundColor3 = Color3.fromRGB(24, 30, 42)
+	label.BackgroundTransparency = 0.08
+	label.BackgroundColor3 = VisualTheme.Colors.ink
 	label.Size = UDim2.fromScale(1, 1)
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-	label.TextStrokeTransparency = 0.7
+	label.TextColor3 = VisualTheme.Colors.paper
+	label.TextStrokeTransparency = 0.85
 	label.TextWrapped = true
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 10)
+	corner.Parent = label
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = VisualTheme.Colors.paper
+	stroke.Transparency = 0.78
+	stroke.Thickness = 1
+	stroke.Parent = label
 	return label
 end
 
@@ -175,6 +184,8 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 end
 
 function WorldBuilder.build()
+	VisualTheme.configureLighting()
+
 	local old = Workspace:FindFirstChild("TinyWorldGenerated")
 	if old then
 		old:Destroy()
@@ -184,9 +195,9 @@ function WorldBuilder.build()
 	root.Name = "TinyWorldGenerated"
 	root.Parent = Workspace
 
-	makePart(root, "VillageGround", Vector3.new(230, 2, 230), Vector3.new(0, -1, 0), Color3.fromRGB(112, 184, 92), Enum.Material.Grass)
-	makePart(root, "RoadNS", Vector3.new(20, 1, 220), Vector3.new(0, 0.1, 0), Color3.fromRGB(73, 78, 82), Enum.Material.Asphalt)
-	makePart(root, "RoadEW", Vector3.new(220, 1, 20), Vector3.new(0, 0.12, 0), Color3.fromRGB(73, 78, 82), Enum.Material.Asphalt)
+	makePart(root, "VillageGround", Vector3.new(230, 2, 230), Vector3.new(0, -1, 0), VisualTheme.Colors.meadow, Enum.Material.Grass)
+	makePart(root, "RoadNS", Vector3.new(20, 1, 220), Vector3.new(0, 0.1, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
+	makePart(root, "RoadEW", Vector3.new(220, 1, 20), Vector3.new(0, 0.12, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "VillageSpawn"
@@ -194,10 +205,10 @@ function WorldBuilder.build()
 	spawn.Position = Vector3.new(0, 1, 0)
 	spawn.Anchored = true
 	spawn.Neutral = true
-	spawn.Color = Color3.fromRGB(243, 222, 112)
+	spawn.Color = VisualTheme.Colors.gold
 	spawn.Parent = root
 
-	local fountain = makePart(root, "DailyFountain", Vector3.new(8, 5, 8), Vector3.new(0, 2.5, 16), Color3.fromRGB(102, 182, 226), Enum.Material.Marble)
+	local fountain = makePart(root, "DailyFountain", Vector3.new(8, 5, 8), Vector3.new(0, 2.5, 16), VisualTheme.Colors.water, Enum.Material.Marble)
 	makeLabel(fountain, "DAILY FOUNTAIN\n200 coins • 50 XP • 1 Carrot", 320)
 	local dailyPrompt = makePrompt(fountain, "Claim Daily Reward", "Village Fountain")
 
