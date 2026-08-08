@@ -94,6 +94,25 @@ if ($worldBuilder -match '"VillageGround".*Enum\.Material\.Grass' -or
     exit 1
 }
 
+$sceneryPath = Join-Path $PSScriptRoot "..\src\server\VillageSceneryBuilder.luau"
+if (-not (Test-Path -LiteralPath $sceneryPath)) {
+    Write-Output "The v0.0.4 civic scenery builder is missing."
+    exit 1
+}
+$sceneryBuilder = Get-Content -Raw -LiteralPath $sceneryPath
+if ($sceneryBuilder -notmatch 'Enum\.Material\.Asphalt' -or
+    $sceneryBuilder -notmatch 'Enum\.Material\.Cobblestone' -or
+    $sceneryBuilder -notmatch 'VillageSquare' -or
+    $sceneryBuilder -notmatch 'RoadNorth' -or
+    $sceneryBuilder -notmatch 'RoadSouth' -or
+    $sceneryBuilder -notmatch 'RoadEast' -or
+    $sceneryBuilder -notmatch 'RoadWest' -or
+    $sceneryBuilder -notmatch 'MarketStall' -or
+    $sceneryBuilder -notmatch 'Lantern') {
+    Write-Output "The v0.0.4 civic scenery builder must contain stable roads, kerbs, market stalls, and lanterns."
+    exit 1
+}
+
 $boundaryBuilder = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\BoundaryBuilder.luau")
 if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
     $boundaryBuilder -notmatch 'Enum\.Material\.Sand' -or

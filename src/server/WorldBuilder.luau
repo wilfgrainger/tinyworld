@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BoundaryBuilder = require(script.Parent:WaitForChild("BoundaryBuilder"))
+local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
 
 local WorldBuilder = {}
 
@@ -338,26 +339,7 @@ function WorldBuilder.build(maxPlayers: number?)
 
 	local villageExtent = layout.perimeterHalfExtent * 2
 	makePart(root, "VillageGround", Vector3.new(villageExtent, 2, villageExtent), Vector3.new(0, -1, 0), VisualTheme.Colors.meadow, Enum.Material.Ground)
-	makePart(root, "RoadNS", Vector3.new(20, 1, villageExtent - 20), Vector3.new(0, 0.1, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
-	makePart(root, "RoadEW", Vector3.new(villageExtent - 20, 1, 20), Vector3.new(0, 0.12, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
-	makeDecoration(root, "PlazaDeck", Vector3.new(50, 0.35, 50), Vector3.new(0, 0.68, 8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeShapeDecoration(root, "PlazaInlay", Vector3.new(42, 0.12, 42), Vector3.new(0, 0.9, 8), VisualTheme.Colors.paper, Enum.Material.Pebble, Enum.PartType.Cylinder)
-	makeStoneBorder(root, "PlazaBorder", Vector3.new(0, 0.9, 8), 50, 50)
-	makeTree(root, "TreeNorthWest", Vector3.new(-102, 0, -24), 1.1)
-	makeTree(root, "TreeNorthEast", Vector3.new(102, 0, -24), 1.1)
-	makeTree(root, "TreeSouthWest", Vector3.new(-102, 0, 24), 1.1)
-	makeTree(root, "TreeSouthEast", Vector3.new(102, 0, 24), 1.1)
-	makeFlowerCluster(root, "FlowersWest", Vector3.new(-28, 0, 30), VisualTheme.Colors.flower)
-	makeFlowerCluster(root, "FlowersEast", Vector3.new(28, 0, 30), VisualTheme.Colors.warmLight)
-	makeLantern(root, "PlazaLanternNorthWest", Vector3.new(-22, 0, 16))
-	makeLantern(root, "PlazaLanternNorthEast", Vector3.new(22, 0, 16))
-	makeLantern(root, "PlazaLanternSouthWest", Vector3.new(-22, 0, -16))
-	makeLantern(root, "PlazaLanternSouthEast", Vector3.new(22, 0, -16))
-	makePond(root, Vector3.new(0, 0, 68))
-	makeDecoration(root, "RoadEdgeNorth", Vector3.new(2, 0.35, villageExtent - 20), Vector3.new(-11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeSouth", Vector3.new(2, 0.35, villageExtent - 20), Vector3.new(11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeWest", Vector3.new(villageExtent - 20, 0.35, 2), Vector3.new(0, 0.67, -11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeEast", Vector3.new(villageExtent - 20, 0.35, 2), Vector3.new(0, 0.67, 11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	local scenery = VillageSceneryBuilder.build(root, layout)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "VillageSpawn"
@@ -420,6 +402,7 @@ function WorldBuilder.build(maxPlayers: number?)
 	return {
 		root = root,
 		layout = layout,
+		scenery = scenery,
 		boundary = boundary,
 		spawn = spawn,
 		dailyPrompt = dailyPrompt,
