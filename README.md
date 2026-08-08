@@ -56,6 +56,16 @@ The v0.0.4 slice preserves the v0.01, v0.0.2, and v0.0.3 contracts while making 
 
 The [v0.0.4 living-world test](docs/v0.0.4-living-world-test.md) is the authoritative route for this MVP. It is a controlled development candidate until the Studio, two-client, publish, and family/device gates are separately evidenced.
 
+## v0.0.5–v0.0.7 release train
+
+The next three releases deliberately deepen the existing slice before adding more game systems:
+
+- **v0.0.5 — Storybook beautification:** a cosmetic-only pass over the arrival route, civic buildings, plots, homes, boundary, portal, lighting, and HUD. Existing rewards, progression, ownership, privacy, trade, transport, and profile data remain unchanged. Follow the [v0.0.5 cosmetic test](docs/v0.0.5-cosmetic-test.md).
+- **v0.0.6 — Persistence and scale foundation:** coalesced profile saves, conditional session leases, retry/backoff, bounded shutdown flushing, non-sensitive diagnostics, and capacity-aware visual budgets. Follow the [v0.0.6 persistence and scale test](docs/v0.0.6-persistence-scale-test.md).
+- **v0.0.7 — Playtest readiness:** visual consistency, evidence separation, and the structured [girls-at-scale playtest](docs/v0.0.7-girls-scale-playtest.md).
+
+The [v0.0.5–v0.0.7 release-train design](docs/superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) and [implementation plan](docs/superpowers/plans/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-implementation.md) justify the backlog through v1.0.0. The ordering keeps visual desirability ahead of larger testing, persistence safety ahead of scale claims, and retention/social proof ahead of any real cosmetic monetisation.
+
 ## What you need tomorrow
 
 1. A Roblox account.

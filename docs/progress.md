@@ -1,5 +1,15 @@
 # Development progress
 
+## 2026-08-08 - v0.0.5–v0.0.7 release-train implementation
+
+- The main-branch vision review found no core-product drift from the original proposal: TinyWorld still contains the home, daily-life, progression, transport, portal, social, and woods/cliffs/sea pillars. The gap is first-impression presentation quality, not the functional direction.
+- Committed the release-train design and implementation plan: [design](superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) and [plan](superpowers/plans/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-implementation.md).
+- Implemented the v0.0.5 storybook direction in source: warmer semantic palette, softer atmosphere/grade, civic/plot/boundary dressing, stronger façades/windows/roof details, portal glow, and a clearer HUD. The gameplay contract remains unchanged.
+- Added visual capacity rules and world diagnostics so richer presentation is bounded at the generated layout’s capacity rather than being an unmeasured part expansion.
+- Replaced immediate profile writes with a coalescing save queue, backward-compatible profile envelope, conditional session lease, retry/backoff, heartbeat, fail-closed conflicts, bounded shutdown release, and non-sensitive save/session diagnostics.
+- Local deterministic verification currently passes 17 specs, Luau analysis, the Roblox material guard, and the profile-store hardening guard. The runtime Studio/Publish gate remains to be run against the current Rojo-synced place before this release train can be called shipped.
+- The evidence routes are [v0.0.5 cosmetic](v0.0.5-cosmetic-test.md), [v0.0.6 persistence/scale](v0.0.6-persistence-scale-test.md), and [v0.0.7 girls-at-scale](v0.0.7-girls-scale-playtest.md). Studio Server & Clients and production-scale claims remain separate evidence levels.
+
 ## 2026-08-08 - v0.0.4 living-world MVP handoff
 
 - Implemented and committed the approved v0.0.4 expansion on `main`: the original capacity-aware woods/cliffs/sea boundary and stable Ground/plot surfaces, plus a visible rideable Tiny Bike, persistent Meadow Seed/Seashell/Wood Token pickups, nursery, three cabins, grounded planters, flowers, lanterns, windows, home-tier dressing, and the Home Charm home-upgrade loop. The slice remains grounded and colourful rather than becoming a combat or high-fantasy game.
