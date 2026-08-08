@@ -248,6 +248,8 @@ function PlotService:rebuildHouse(player: Player, profile)
 	makeHousePart(plot.houseContainer, "FrontRight", Vector3.new(frontSegment, height, 1), anchor + Vector3.new((width - frontSegment) / 2, height / 2, depth / 2), wallColor)
 	makeHousePart(plot.houseContainer, "Roof", Vector3.new(width + 2, 2, depth + 2), anchor + Vector3.new(0, height + 1, 0), roofColor, Enum.Material.Slate)
 	makeHouseDecoration(plot.houseContainer, "RoofTrim", Vector3.new(width + 4, 0.5, 1), anchor + Vector3.new(0, height + 2.2, frontZ), VisualTheme.Colors.gold, Enum.Material.Wood)
+	makeHouseDecoration(plot.houseContainer, "RoofRidge", Vector3.new(1.2, 0.6, depth + 2), anchor + Vector3.new(0, height + 2.55, 0), VisualTheme.Colors.roofLight, Enum.Material.Slate)
+	makeHouseDecoration(plot.houseContainer, "GableAccent", Vector3.new(width * 0.62, 0.45, 0.45), anchor + Vector3.new(0, height + 2.7, frontZ - 1), VisualTheme.Colors.creamDeep, Enum.Material.Wood)
 	makeHouseDecoration(plot.houseContainer, "HouseFacade", Vector3.new(width - 6, 0.7, 0.6), anchor + Vector3.new(0, height - 0.8, frontZ + 0.65), roofColor, Enum.Material.WoodPlanks)
 	makeHousePart(plot.houseContainer, "Porch", Vector3.new(10, 0.6, 4), anchor + Vector3.new(0, 0.8, frontZ + 2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeHousePart(plot.houseContainer, "PorchStep", Vector3.new(8, 0.5, 2), anchor + Vector3.new(0, 0.35, frontZ + 4.5), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
@@ -259,6 +261,8 @@ function PlotService:rebuildHouse(player: Player, profile)
 		makeHouseDecoration(plot.houseContainer, "WindowBox" .. index, Vector3.new(5, 0.8, 1.2), anchor + Vector3.new(x, 3.8, frontZ + 1.2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 		makeHouseDecoration(plot.houseContainer, "HouseFlowerBox" .. index, Vector3.new(4.5, 0.5, 1), anchor + Vector3.new(x, 4.5, frontZ + 1.45), if tier % 2 == 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.Fabric)
 		makeHouseDecoration(plot.houseContainer, "HouseWindowGlow" .. index, Vector3.new(2.2, 1.2, 0.2), anchor + Vector3.new(x, 5.8, frontZ + 0.9), VisualTheme.Colors.warmLight, Enum.Material.Neon)
+		makeHouseDecoration(plot.houseContainer, "HouseShutterLeft" .. index, Vector3.new(0.8, 3.4, 0.35), anchor + Vector3.new(x - 2.6, 5.8, frontZ + 0.9), VisualTheme.Colors.woodLight, Enum.Material.Wood)
+		makeHouseDecoration(plot.houseContainer, "HouseShutterRight" .. index, Vector3.new(0.8, 3.4, 0.35), anchor + Vector3.new(x + 2.6, 5.8, frontZ + 0.9), VisualTheme.Colors.woodLight, Enum.Material.Wood)
 	end
 	local lamp = makeHouseDecoration(plot.houseContainer, "PorchLamp", Vector3.new(0.7, 1.6, 0.7), anchor + Vector3.new(-6, 5.5, frontZ + 0.7), VisualTheme.Colors.gold, Enum.Material.Neon)
 	lamp.Shape = Enum.PartType.Ball
@@ -271,6 +275,8 @@ function PlotService:rebuildHouse(player: Player, profile)
 	if tier >= 2 then
 		makeHousePart(plot.houseContainer, "CabinChimney", Vector3.new(3, 5, 3), anchor + Vector3.new(width / 3, height + 3, -depth / 4), VisualTheme.Colors.path, Enum.Material.Brick)
 		makeHouseDecoration(plot.houseContainer, "CabinChimneyCap", Vector3.new(3.5, 0.5, 3.5), anchor + Vector3.new(width / 3, height + 5.7, -depth / 4), VisualTheme.Colors.inkSoft, Enum.Material.Slate)
+		makeHouseDecoration(plot.houseContainer, "SideGardenBed", Vector3.new(7, 0.7, 4), anchor + Vector3.new((width / 2) + 2, 0.7, 2), VisualTheme.Colors.timberDark, Enum.Material.Ground)
+		makeHouseDecoration(plot.houseContainer, "SideGardenBloom", Vector3.new(3, 1.8, 2), anchor + Vector3.new((width / 2) + 2, 1.8, 2), VisualTheme.Colors.flower, Enum.Material.SmoothPlastic)
 	end
 	if tier == 5 then
 		makeHousePart(plot.houseContainer, "VillaTower", Vector3.new(7, 14, 7), anchor + Vector3.new((width / 2) - 5, height + 6, 0), wallColor)

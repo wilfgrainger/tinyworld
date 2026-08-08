@@ -52,6 +52,14 @@ panelStroke.Transparency = 0.72
 panelStroke.Thickness = 1
 panelStroke.Parent = panel
 
+local panelGradient = Instance.new("UIGradient")
+panelGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, colors.ink),
+	ColorSequenceKeypoint.new(1, colors.inkSoft),
+})
+panelGradient.Rotation = 90
+panelGradient.Parent = panel
+
 local padding = Instance.new("UIPadding")
 padding.PaddingTop = UDim.new(0, 10)
 padding.PaddingBottom = UDim.new(0, 10)
@@ -80,11 +88,14 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / ALPHA PLAYTEST"
+eyebrow.Text = "TODAY / STORYBOOK ALPHA"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.0.4 MVP VILLAGE"
+title.Text = "TINYWORLD | v0.0.5 STORYBOOK VILLAGE"
+local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
+sectionLabel.Text = "YOUR TINY LIFE"
+sectionLabel.TextColor3 = colors.metal
 local displayName = makeLabel("DisplayName", 22, 15, false)
 local stats = makeLabel("Stats", 25, 16, true)
 stats.TextColor3 = colors.gold
@@ -113,6 +124,16 @@ goalStroke.Transparency = 0.65
 goalStroke.Parent = goal
 goal.TextColor3 = colors.warmLight
 
+local statsCorner = Instance.new("UICorner")
+statsCorner.CornerRadius = UDim.new(0, 7)
+statsCorner.Parent = stats
+local statsPadding = Instance.new("UIPadding")
+statsPadding.PaddingLeft = UDim.new(0, 6)
+statsPadding.PaddingRight = UDim.new(0, 6)
+statsPadding.Parent = stats
+stats.BackgroundColor3 = colors.inkSoft
+stats.BackgroundTransparency = 0.22
+
 local message = Instance.new("TextLabel")
 message.Name = "StatusMessage"
 message.AnchorPoint = Vector2.new(0.5, 1)
@@ -134,6 +155,13 @@ local messageStroke = Instance.new("UIStroke")
 messageStroke.Color = colors.metal
 messageStroke.Transparency = 0.78
 messageStroke.Parent = message
+local messageGradient = Instance.new("UIGradient")
+messageGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, colors.inkSoft),
+	ColorSequenceKeypoint.new(1, colors.ink),
+})
+messageGradient.Rotation = 0
+messageGradient.Parent = message
 
 local function attr(name: string, fallback)
 	local value = player:GetAttribute(name)

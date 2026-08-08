@@ -38,21 +38,21 @@ function VisualTheme.configureLighting()
 	Lighting.EnvironmentSpecularScale = 0.2
 
 	local atmosphere = getOrCreate("Atmosphere", "TinyWorldAtmosphere")
-	atmosphere.Density = 0.18
-	atmosphere.Offset = 0.2
+	atmosphere.Density = 0.14
+	atmosphere.Offset = 0.25
 	atmosphere.Color = VisualTheme.Colors.sky
 	atmosphere.Decay = VisualTheme.Colors.inkSoft
-	atmosphere.Glare = 0.08
-	atmosphere.Haze = 0.7
+	atmosphere.Glare = 0.04
+	atmosphere.Haze = 0.55
 
 	local correction = getOrCreate("ColorCorrectionEffect", "TinyWorldColorGrade")
 	correction.Brightness = 0.03
-	correction.Contrast = 0.06
-	correction.Saturation = 0.08
+	correction.Contrast = 0.08
+	correction.Saturation = 0.1
 	correction.TintColor = VisualTheme.Colors.paper
 
 	local bloom = getOrCreate("BloomEffect", "TinyWorldBloom")
-	bloom.Intensity = 0.08
+	bloom.Intensity = 0.06
 	bloom.Size = 24
 	bloom.Threshold = 1.2
 end

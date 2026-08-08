@@ -99,7 +99,19 @@ if (-not (Test-Path -LiteralPath $sceneryPath)) {
     Write-Output "The v0.0.4 civic scenery builder is missing."
     exit 1
 }
+
+$visualTheme = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\VisualTheme.luau")
+$hud = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\client\Main.client.luau")
 $sceneryBuilder = Get-Content -Raw -LiteralPath $sceneryPath
+if ($visualTheme -notmatch 'TinyWorldColorGrade' -or
+    $visualTheme -notmatch 'TinyWorldAtmosphere' -or
+    $hud -notmatch 'STORYBOOK' -or
+    $hud -notmatch 'UIGradient' -or
+    $sceneryBuilder -notmatch 'VillagePlanter' -or
+    $sceneryBuilder -notmatch 'MarketBanner') {
+    Write-Output "The v0.0.5 storybook presentation contract is incomplete."
+    exit 1
+}
 if ($sceneryBuilder -notmatch 'Enum\.Material\.Asphalt' -or
     $sceneryBuilder -notmatch 'Enum\.Material\.Cobblestone' -or
     $sceneryBuilder -notmatch 'VillageSquare' -or

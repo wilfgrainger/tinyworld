@@ -22,4 +22,12 @@ return {
 	warmLight = "#FFE7B0",
 	leaf = "#4F9D61",
 	flower = "#F3A7C6",
+	creamDeep = "#E5C98A",
+	woodLight = "#D49A62",
+	roofLight = "#9A5F78",
+	waterHighlight = "#B7F4EE",
+	pathLight = "#A9A6A0",
+	leafLight = "#8CCB72",
+	inkGlass = "#263446",
+	portalGlow = "#D8B5FF",
 }

@@ -97,6 +97,37 @@ local function makeSandTransition(parent: Instance, name: string, size: Vector3,
 	makeDecoration(parent, name, size, position, VisualTheme.Colors.warmLight, Enum.Material.Sand)
 end
 
+local function makeRockCluster(parent: Instance, name: string, position: Vector3, scale: number)
+	for index, offset in {
+		Vector3.new(-3, 0, 0),
+		Vector3.new(0, 0, 2),
+		Vector3.new(3, 0, -1),
+	} do
+		local rock = makeDecoration(parent, name .. "Rock" .. index, Vector3.new(4 * scale, 3 * scale, 3 * scale), position + offset + Vector3.new(0, 1.5 * scale, 0), VisualTheme.Colors.path, Enum.Material.Rock)
+		rock.Shape = Enum.PartType.Ball
+		rock.Orientation = Vector3.new(0, index * 18, index * 4)
+	end
+end
+
+local function makeReedCluster(parent: Instance, name: string, position: Vector3)
+	for index, offset in {
+		Vector3.new(-2, 0, 0),
+		Vector3.new(0, 0, 1),
+		Vector3.new(2, 0, -1),
+	} do
+		local reed = makeDecoration(parent, name .. "Reed" .. index, Vector3.new(0.35, 3.5, 0.35), position + offset + Vector3.new(0, 1.75, 0), VisualTheme.Colors.leaf, Enum.Material.Grass)
+		reed.Orientation = Vector3.new(0, index * 25, (index - 2) * 8)
+	end
+end
+
+local function makeDockRail(parent: Instance, name: string, position: Vector3)
+	makeDecoration(parent, name .. "Deck", Vector3.new(18, 0.35, 7), position + Vector3.new(0, 0.35, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	for _, x in {-7, 7} do
+		makeDecoration(parent, name .. "Post" .. x, Vector3.new(0.6, 3, 0.6), position + Vector3.new(x, 1.5, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	end
+	makeDecoration(parent, name .. "Rail", Vector3.new(15, 0.45, 0.45), position + Vector3.new(0, 2.7, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+end
+
 local function makeCliffSegment(parent: Instance, name: string, size: Vector3, position: Vector3, height: number)
 	makePart(parent, name .. "Rock", Vector3.new(size.X, height, size.Z), position + Vector3.new(0, height / 2, 0), VisualTheme.Colors.path, Enum.Material.Rock)
 	makePart(parent, name .. "BasaltCap", Vector3.new(math.max(6, size.X - 4), 1.4, math.max(6, size.Z - 2)), position + Vector3.new(0, height + 0.7, 0), VisualTheme.Colors.inkSoft, Enum.Material.Basalt)
@@ -167,6 +198,9 @@ function BoundaryBuilder.build(parent: Instance, layout)
 
 	makeWoodlandClearing(boundary, "WoodlandClearingWest", Vector3.new(-forestLine + 18, 0, 0))
 	makeWoodlandClearing(boundary, "WoodlandClearingEast", Vector3.new(forestLine - 18, 0, 0))
+	makeRockCluster(boundary, "CliffRockCluster", Vector3.new(0, 0, -cliffLine + 10), 0.9)
+	makeReedCluster(boundary, "SeaReeds", Vector3.new(half - 22, 0, 9))
+	makeDockRail(boundary, "SeaDock", Vector3.new(half - 35, 0, 0))
 
 	local landmarkPrompts = {
 		woodlandTrail = makeLandmark(boundary, "WoodlandTrail", "WOODLAND TRAIL\nVisit the village woods", Vector3.new(layout.landmarks.woodlandTrail.x, 0, layout.landmarks.woodlandTrail.z), VisualTheme.Colors.leaf),

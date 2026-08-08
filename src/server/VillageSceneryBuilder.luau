@@ -67,6 +67,37 @@ local function makeMarketStall(parent: Instance, name: string, x: number, z: num
 	end
 end
 
+local function makePlanter(parent: Instance, name: string, x: number, z: number, color: Color3)
+	makeDecorationAtTop(parent, name .. "Box", Vector3.new(5, 1, 3.4), x, z, 1.1, VisualTheme.Colors.woodLight, Enum.Material.WoodPlanks)
+	makeDecorationAtTop(parent, name .. "Soil", Vector3.new(4.1, 0.22, 2.5), x, z, 1.68, VisualTheme.Colors.timberDark, Enum.Material.Ground)
+	for index, offset in {
+		{ x = -1.3, z = 0 },
+		{ x = 0, z = 0.45 },
+		{ x = 1.3, z = -0.2 },
+	} do
+		makeDecorationAtTop(parent, name .. "Leaf" .. index, Vector3.new(0.45, 1.1, 0.45), x + offset.x, z + offset.z, 2.65, VisualTheme.Colors.leafLight, Enum.Material.LeafyGrass)
+		local bloom = makeDecoration(parent, name .. "Bloom" .. index, Vector3.new(0.9, 0.9, 0.9), Vector3.new(x + offset.x, 3.1, z + offset.z), color, Enum.Material.SmoothPlastic)
+		bloom.Shape = Enum.PartType.Ball
+	end
+end
+
+local function makeMarketBanner(parent: Instance, name: string, x: number, z: number, color: Color3)
+	makeDecoration(parent, name .. "LeftPost", Vector3.new(0.4, 4.5, 0.4), Vector3.new(x - 3, 2.5, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, name .. "RightPost", Vector3.new(0.4, 4.5, 0.4), Vector3.new(x + 3, 2.5, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	local banner = makeDecoration(parent, name, Vector3.new(5.4, 2.3, 0.25), Vector3.new(x, 3.6, z), color, Enum.Material.Fabric)
+	banner.Orientation = Vector3.new(0, 0, 3)
+end
+
+local function makePavingInset(parent: Instance, name: string, size: Vector3, x: number, z: number, topY: number)
+	makeDecoration(parent, name, size, Vector3.new(x, topY + (size.Y / 2) + 0.04, z), VisualTheme.Colors.pathLight, Enum.Material.Cobblestone)
+end
+
+local function makeStreetCluster(parent: Instance, name: string, x: number, z: number, color: Color3)
+	makePavingInset(parent, name .. "Inset", Vector3.new(10, 0.08, 8), x, z, 0.12)
+	makePlanter(parent, "VillagePlanter" .. name, x - 3, z, color)
+	makeMarketBanner(parent, "MarketBanner" .. name, x + 3, z, color)
+end
+
 local function makeKerb(parent: Instance, name: string, size: Vector3, x: number, z: number)
 	makeDecorationAtTop(parent, name, size, x, z, 0.3, VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 end
@@ -123,6 +154,8 @@ function VillageSceneryBuilder.build(parent: Instance, layout: any)
 	makeBench(parent, "SquareBenchEast", 20, -10, 0)
 	makeMarketStall(parent, "MarketStallWest", -14, -23, VisualTheme.Colors.warmLight)
 	makeMarketStall(parent, "MarketStallEast", 14, -23, VisualTheme.Colors.berry)
+	makeStreetCluster(parent, "West", -14, -14, VisualTheme.Colors.flower)
+	makeStreetCluster(parent, "East", 14, -14, VisualTheme.Colors.warmLight)
 
 	civic.fountain = civic.square
 	civic.marketStalls = {

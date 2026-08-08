@@ -83,6 +83,8 @@ end
 
 local function makePortalFrame(parent: Instance, name: string, position: Vector3)
 	makeDecoration(parent, name .. "Platform", Vector3.new(26, 0.6, 20), position + Vector3.new(0, 0.3, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	local glowRing = makeShapeDecoration(parent, name .. "GlowRing", Vector3.new(28, 0.18, 22), position + Vector3.new(0, 0.75, 0), VisualTheme.Colors.portalGlow, Enum.Material.Neon, Enum.PartType.Cylinder)
+	glowRing.Transparency = 0.5
 	makeDecoration(parent, name .. "LeftPillar", Vector3.new(3, 16, 3), position + Vector3.new(-8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeDecoration(parent, name .. "RightPillar", Vector3.new(3, 16, 3), position + Vector3.new(8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeDecoration(parent, name .. "TopBeam", Vector3.new(19, 3, 3), position + Vector3.new(0, 16, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
@@ -119,6 +121,15 @@ local function makePlotDressing(parent: Instance, origin: Vector3)
 	makeDecoration(parent, "PlotGateRight", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	makeDecoration(parent, "PlotGate", Vector3.new(7, 0.8, 0.8), origin + Vector3.new(0, 3.2, 29), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeDecoration(parent, "GardenApproach", Vector3.new(6, 0.12, 18), origin + Vector3.new(0, 0.58, 22), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	for index, x in {-18, -9, 9, 18} do
+		makeDecoration(parent, "PlotFencePost" .. index, Vector3.new(0.7, 2.2, 0.7), origin + Vector3.new(x, 1.1, 20), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	end
+	makeDecoration(parent, "PlotFenceRail", Vector3.new(36, 0.45, 0.45), origin + Vector3.new(0, 1.7, 20), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	makeDecoration(parent, "PlotMailbox", Vector3.new(2.5, 2, 2), origin + Vector3.new(18, 2, 26), VisualTheme.Colors.skyDeep, Enum.Material.Metal)
+	makeDecoration(parent, "PlotMailboxPost", Vector3.new(0.45, 2.2, 0.45), origin + Vector3.new(18, 1.1, 26), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, "GardenTrellisLeft", Vector3.new(0.5, 5, 0.5), origin + Vector3.new(-13, 2.5, 12), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, "GardenTrellisRight", Vector3.new(0.5, 5, 0.5), origin + Vector3.new(13, 2.5, 12), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, "GardenTrellisTop", Vector3.new(26, 0.5, 0.5), origin + Vector3.new(0, 5, 12), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 end
 
 local function makePond(parent: Instance, origin: Vector3)
@@ -193,12 +204,21 @@ end
 
 local function amenity(parent: Instance, name: string, position: Vector3, text: string, color: Color3)
 	local building = makePart(parent, name, Vector3.new(24, 12, 20), position + Vector3.new(0, 6, 0), color)
+	makeDecoration(parent, name .. "Footing", Vector3.new(27, 0.7, 23), position + Vector3.new(0, 0.35, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	makeShapeDecoration(parent, name .. "Roof", Vector3.new(28, 4, 24), position + Vector3.new(0, 14, 0), VisualTheme.Colors.roof, Enum.Material.Slate, Enum.PartType.Wedge)
 	makeDecoration(parent, name .. "Door", Vector3.new(5, 7, 0.6), position + Vector3.new(0, 3.5, 10.3), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	makeDecoration(parent, name .. "Awning", Vector3.new(9, 1, 3), position + Vector3.new(0, 8, 11), VisualTheme.Colors.warmLight, Enum.Material.Fabric)
 	makeWindow(parent, name .. "WindowLeft", position + Vector3.new(-7, 6, 10.25), 4, 3)
 	makeWindow(parent, name .. "WindowRight", position + Vector3.new(7, 6, 10.25), 4, 3)
+	makeDecoration(parent, name .. "ShutterLeft", Vector3.new(1, 3.4, 0.45), position + Vector3.new(-10, 6, 10.65), VisualTheme.Colors.woodLight, Enum.Material.Wood)
+	makeDecoration(parent, name .. "ShutterRight", Vector3.new(1, 3.4, 0.45), position + Vector3.new(10, 6, 10.65), VisualTheme.Colors.woodLight, Enum.Material.Wood)
 	makeDecoration(parent, name .. "Trim", Vector3.new(26, 0.6, 21), position + Vector3.new(0, 12.2, 0), VisualTheme.Colors.cream, Enum.Material.WoodPlanks)
+	makeDecoration(parent, name .. "SignBracket", Vector3.new(15, 2.8, 0.45), position + Vector3.new(0, 10.5, 10.9), VisualTheme.Colors.ink, Enum.Material.WoodPlanks)
+	for index, x in {-8, 8} do
+		makeDecoration(parent, name .. "PlanterBox" .. index, Vector3.new(5, 0.8, 2.2), position + Vector3.new(x, 1.2, 11.6), VisualTheme.Colors.woodLight, Enum.Material.WoodPlanks)
+		local bloom = makeDecoration(parent, name .. "PlanterBloom" .. index, Vector3.new(2.2, 1.5, 1.5), position + Vector3.new(x, 2.2, 11.6), if index < 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.SmoothPlastic)
+		bloom.Shape = Enum.PartType.Ball
+	end
 	makeLabel(building, text)
 	return building
 end
