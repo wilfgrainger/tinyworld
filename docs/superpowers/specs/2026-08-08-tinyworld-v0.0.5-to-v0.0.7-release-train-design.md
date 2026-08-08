@@ -1,8 +1,8 @@
 # TinyWorld v0.0.5–v0.0.7 Release Train Design
 
-**Date:** 2026-08-08  
-**Status:** Working design for implementation  
-**Branch target:** `main`  
+**Date:** 2026-08-08
+**Status:** Working design for implementation
+**Branch target:** `main`
 **Product:** TinyWorld persistent Roblox life sandbox
 
 ## North star and review conclusion
@@ -236,4 +236,3 @@ The v0.0.7 playtest handoff will include:
 5. Scale route: supported Server & Clients counts, observed queue depth, errors, and visual/performance notes.
 6. Qualitative questions and a place to record verbatim player feedback.
 7. Known limits and any checks that still require a human in Studio.
-
