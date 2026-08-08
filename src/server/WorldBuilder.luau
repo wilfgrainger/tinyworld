@@ -108,11 +108,11 @@ end
 
 local function makePlotDressing(parent: Instance, origin: Vector3)
 	local hedgeColor = VisualTheme.Colors.leaf
-	for side, offset in { { name = "North", z = -28 }, { name = "South", z = 28 } } do
-		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(50, 1.4, 1), origin + Vector3.new(0, 0.7, offset.z), hedgeColor, Enum.Material.LeafyGrass)
+	for _, side in { { name = "North", z = -28 }, { name = "South", z = 28 } } do
+		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(50, 1.4, 1), origin + Vector3.new(0, 0.7, side.z), hedgeColor, Enum.Material.LeafyGrass)
 	end
-	for side, offset in { { name = "West", x = -28 }, { name = "East", x = 28 } } do
-		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(1, 1.4, 50), origin + Vector3.new(offset.x, 0.7, 0), hedgeColor, Enum.Material.LeafyGrass)
+	for _, side in { { name = "West", x = -28 }, { name = "East", x = 28 } } do
+		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(1, 1.4, 50), origin + Vector3.new(side.x, 0.7, 0), hedgeColor, Enum.Material.LeafyGrass)
 	end
 	makeDecoration(parent, "PlotGateLeft", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(-3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	makeDecoration(parent, "PlotGateRight", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
@@ -129,8 +129,8 @@ local function makePond(parent: Instance, origin: Vector3)
 	makeShapeDecoration(parent, "PondLilyWest", Vector3.new(3, 0.18, 3), origin + Vector3.new(-9, 0.35, -3), VisualTheme.Colors.leaf, Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
 	makeShapeDecoration(parent, "PondLilyEast", Vector3.new(3, 0.18, 3), origin + Vector3.new(9, 0.35, 3), VisualTheme.Colors.leaf, Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
 	makePart(parent, "PondBridge", Vector3.new(8, 0.6, 20), origin + Vector3.new(0, 0.55, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	for side, x in {{name = "West", value = -3.5}, {name = "East", value = 3.5}} do
-		makeDecoration(parent, "PondRail" .. x.name, Vector3.new(0.5, 2.5, 16), origin + Vector3.new(x.value, 2, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	for _, side in {{name = "West", value = -3.5}, {name = "East", value = 3.5}} do
+		makeDecoration(parent, "PondRail" .. side.name, Vector3.new(0.5, 2.5, 16), origin + Vector3.new(side.value, 2, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	end
 end
 

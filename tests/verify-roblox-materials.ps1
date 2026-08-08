@@ -123,6 +123,12 @@ if ($worldBuilder -notmatch 'PlotHedge' -or
     exit 1
 }
 
+if ($worldBuilder -match 'for side, offset in \{\s*\{ name = "North"' -or
+    $worldBuilder -match 'for side, x in \{\{name = "West"') {
+    Write-Output "WorldBuilder side-dressing loops must iterate records through one loop variable."
+    exit 1
+}
+
 $boundaryBuilder = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\BoundaryBuilder.luau")
 if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
     $boundaryBuilder -notmatch 'Enum\.Material\.Sand' -or
