@@ -9,7 +9,17 @@
 
 Turn the current TinyWorld v0.0.1 playable slice into a family-testable v0.0.2 alpha with a warm, polished, low-poly visual identity that feels closer to a small storybook adventure world while preserving the existing gameplay contract and keeping device cost reasonable.
 
-The referenced PDF is not present in the repository or the accessible Codex workspace. This design therefore uses the supplied Studio screenshots, the existing TinyWorld proposal context, and the user's visual brief as the authoritative working target. The implementation will not copy external game assets or branding.
+The original proposal is represented by the supplied photographic references from the PowerPoint/PDF. They are the authoritative visual direction for this pass alongside the existing Studio screenshots and TinyWorld proposal context. The implementation will not copy external game assets or branding.
+
+The north star includes a safe, durable opportunity for the young people building and playing TinyWorld: over time, the game should be capable of becoming a meaningful creator-led business rather than only a disposable prototype. That ambition belongs in the core loop—returnable work, visible mastery, creative ownership, social value, and fair optional monetization—not in pressure tactics, pay-to-win progression, or purchases required to understand the game.
+
+The reference imagery sets five presentation anchors for the alpha:
+
+- **Cosy home village:** colourful voxel-like houses, gardens, paths, water, trees, and a clear sense that every player belongs somewhere.
+- **Daily work loop:** a readable fountain/garden/courier route that makes “what do I do today?” obvious within seconds.
+- **Visible progression:** house tiers, transport, roles, and destinations should look like a growing life, not a menu of disconnected systems.
+- **Impossible-world reveal:** the portal and Giant Kitchen should feel like a genuine visual reward and a reason to keep exploring.
+- **Friendly social economy:** trade, visits, public village spaces, and expressive identity should feel welcoming and safe; optional future monetization must not buy gameplay power.
 
 ## Product constraints
 
