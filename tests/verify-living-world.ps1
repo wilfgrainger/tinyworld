@@ -34,6 +34,9 @@ if ($builder -notmatch 'itemName \.\. "Pickup"') {
 if ($builder -notmatch 'makePrompt\(pickup, "PickupPrompt", "Collect " \.\. itemName, "Village Find"\)') {
     throw "LivingWorldBuilder pickup prompts must pass name, action text, and object text explicitly."
 }
+if ($builder -notmatch 'NurseryPlanter", position \+ Vector3\.new\(-5, 0, 3\)') {
+    throw "LivingWorldBuilder nursery planters must be grounded at the nursery anchor."
+}
 foreach ($contract in @("LivingWorldRules", "collect", "MeadowSeed", "Seashell", "WoodToken")) {
     if ($service -notmatch [regex]::Escape($contract)) {
         throw "LivingWorldService is missing the $contract contract."
