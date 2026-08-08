@@ -129,6 +129,9 @@ if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
     $boundaryBuilder -notmatch 'Enum\.Material\.Rock' -or
     $boundaryBuilder -notmatch 'Enum\.Material\.Basalt' -or
     $boundaryBuilder -notmatch 'VillageBoundary' -or
+    $boundaryBuilder -notmatch 'layout\.budgets\.boundaryTrees' -or
+    $boundaryBuilder -notmatch 'WoodlandClearing' -or
+    $boundaryBuilder -notmatch 'WoodlandShrub' -or
     $boundaryBuilder -notmatch 'WoodlandTrail' -or
     $boundaryBuilder -notmatch 'CliffLookout' -or
     $boundaryBuilder -notmatch 'SeaDock') {

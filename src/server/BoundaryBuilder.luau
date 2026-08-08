@@ -68,6 +68,23 @@ local function makeTree(parent: Instance, name: string, position: Vector3, scale
 	makeDecoration(parent, name .. "CanopyHighlight", Vector3.new(5 * scale, 5 * scale, 5 * scale), position + Vector3.new(2 * scale, 10 * scale, -2 * scale), VisualTheme.Colors.meadowDeep, Enum.Material.LeafyGrass).Shape = Enum.PartType.Ball
 end
 
+local function makeWoodlandShrub(parent: Instance, name: string, position: Vector3, scale: number)
+	local shrub = makeDecoration(parent, name, Vector3.new(4 * scale, 3 * scale, 4 * scale), position + Vector3.new(0, 1.5 * scale, 0), VisualTheme.Colors.leaf, Enum.Material.LeafyGrass)
+	shrub.Shape = Enum.PartType.Ball
+end
+
+local function makeWoodlandClearing(parent: Instance, name: string, position: Vector3)
+	makeDecoration(parent, name, Vector3.new(20, 0.12, 14), position + Vector3.new(0, 0.06, 0), VisualTheme.Colors.meadowDeep, Enum.Material.Ground)
+	for index, offset in {
+		Vector3.new(-7, 0, -4),
+		Vector3.new(7, 0, -4),
+		Vector3.new(-7, 0, 4),
+		Vector3.new(7, 0, 4),
+	} do
+		makeWoodlandShrub(parent, "WoodlandShrub" .. name .. index, position + offset, 0.8 + ((index % 2) * 0.15))
+	end
+end
+
 local function makeSea(parent: Instance, name: string, size: Vector3, position: Vector3)
 	local water = makeDecoration(parent, name, size, position, VisualTheme.Colors.water, Enum.Material.Water)
 	water.Transparency = 0.12
@@ -133,7 +150,8 @@ function BoundaryBuilder.build(parent: Instance, layout)
 	end
 
 	local forestLine = half - 24
-	local treeCount = math.max(4, math.floor((half * 2) / 48))
+	local budgetedTrees = if layout.budgets then layout.budgets.boundaryTrees else 16
+	local treeCount = math.max(4, math.floor(budgetedTrees / 4))
 	for index = 1, treeCount do
 		local ratio = (index - 0.5) / treeCount
 		local offset = (-half) + (ratio * half * 2)
@@ -146,6 +164,9 @@ function BoundaryBuilder.build(parent: Instance, layout)
 			makeTree(boundary, "SouthWood" .. index, Vector3.new(offset, 0, forestLine), 0.9 + ((index % 2) * 0.12))
 		end
 	end
+
+	makeWoodlandClearing(boundary, "WoodlandClearingWest", Vector3.new(-forestLine + 18, 0, 0))
+	makeWoodlandClearing(boundary, "WoodlandClearingEast", Vector3.new(forestLine - 18, 0, 0))
 
 	local landmarkPrompts = {
 		woodlandTrail = makeLandmark(boundary, "WoodlandTrail", "WOODLAND TRAIL\nVisit the village woods", Vector3.new(layout.landmarks.woodlandTrail.x, 0, layout.landmarks.woodlandTrail.z), VisualTheme.Colors.leaf),
