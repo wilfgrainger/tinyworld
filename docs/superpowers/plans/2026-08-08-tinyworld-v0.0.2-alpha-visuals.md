@@ -253,7 +253,7 @@ Require VisualPalette through the existing replicated shared folder, convert its
 - [ ] Step 4: Parse-check and Rojo-build the client changes
 
     $compiler = 'C:\Users\wilf6\scoop\apps\luau\current\luau-compile.exe'
-    Get-ChildItem src,tests -Recurse -Filter *.luau | ForEach-Object { & $compiler --parse-only $_.FullName }
+    Get-ChildItem src,tests -Recurse -Filter *.luau | ForEach-Object { & $compiler --only-parse $_.FullName }
     if ($LASTEXITCODE -ne 0) { throw 'Luau parse check failed' }
     & 'C:\Users\wilf6\.rokit\bin\rojo.exe' build default.project.json --output "$env:TEMP\tinyworld-v0.0.2-ui.rbxlx"
 
@@ -347,7 +347,7 @@ Expected: no diagnostics for the pure shared/test scope.
 - [ ] Step 3: Run parse, material, build, and diff checks
 
     $compiler = 'C:\Users\wilf6\scoop\apps\luau\current\luau-compile.exe'
-    Get-ChildItem src,tests -Recurse -Filter *.luau | ForEach-Object { & $compiler --parse-only $_.FullName }
+    Get-ChildItem src,tests -Recurse -Filter *.luau | ForEach-Object { & $compiler --only-parse $_.FullName }
     if ($LASTEXITCODE -ne 0) { throw 'Luau parse check failed' }
     powershell -NoProfile -ExecutionPolicy Bypass -File tests\verify-roblox-materials.ps1
     & 'C:\Users\wilf6\.rokit\bin\rojo.exe' build default.project.json --output "$env:TEMP\tinyworld-v0.0.2-final.rbxlx"
