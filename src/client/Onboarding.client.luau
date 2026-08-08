@@ -5,8 +5,21 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local OnboardingRules = require(shared:WaitForChild("OnboardingRules"))
+local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local remote = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("OnboardingRemote")
 local playerGui = player:WaitForChild("PlayerGui")
+
+local colors = {
+	ink = Color3.fromHex(VisualPalette.ink),
+	inkSoft = Color3.fromHex(VisualPalette.inkSoft),
+	paper = Color3.fromHex(VisualPalette.paper),
+	warmLight = Color3.fromHex(VisualPalette.warmLight),
+	gold = Color3.fromHex(VisualPalette.gold),
+	meadowDeep = Color3.fromHex(VisualPalette.meadowDeep),
+	skyDeep = Color3.fromHex(VisualPalette.skyDeep),
+	metal = Color3.fromHex(VisualPalette.metal),
+	white = Color3.fromHex(VisualPalette.white),
+}
 
 local old = playerGui:FindFirstChild("TinyWorldOnboarding")
 if old then
@@ -22,7 +35,7 @@ gui.Parent = playerGui
 
 local backdrop = Instance.new("Frame")
 backdrop.Size = UDim2.fromScale(1, 1)
-backdrop.BackgroundColor3 = Color3.fromRGB(10, 14, 23)
+backdrop.BackgroundColor3 = colors.ink
 backdrop.BackgroundTransparency = 0.22
 backdrop.BorderSizePixel = 0
 backdrop.Active = true
@@ -32,7 +45,7 @@ local panel = Instance.new("Frame")
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
 panel.Size = UDim2.new(0.88, 0, 0, 500)
-panel.BackgroundColor3 = Color3.fromRGB(27, 32, 43)
+panel.BackgroundColor3 = colors.ink
 panel.BorderSizePixel = 0
 panel.Parent = backdrop
 
@@ -44,6 +57,12 @@ panelConstraint.Parent = panel
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 18)
 panelCorner.Parent = panel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = colors.metal
+panelStroke.Transparency = 0.62
+panelStroke.Thickness = 1
+panelStroke.Parent = panel
 
 local padding = Instance.new("UIPadding")
 padding.PaddingTop = UDim.new(0, 18)
@@ -62,7 +81,7 @@ local function makeLabel(name: string, height: number, textSize: number, bold: b
 	label.Name = name
 	label.Size = UDim2.new(1, 0, 0, height)
 	label.BackgroundTransparency = 1
-	label.TextColor3 = Color3.fromRGB(248, 248, 250)
+	label.TextColor3 = colors.paper
 	label.TextSize = textSize
 	label.TextWrapped = true
 	label.TextXAlignment = Enum.TextXAlignment.Left
@@ -75,19 +94,21 @@ end
 
 local title = makeLabel("Title", 36, 25, true)
 title.Text = "Welcome to TinyWorld!"
+title.TextColor3 = colors.warmLight
 local subtitle = makeLabel("Subtitle", 32, 15, false)
 subtitle.Text = "Choose your name and a free starter look."
-subtitle.TextColor3 = Color3.fromRGB(202, 211, 226)
+subtitle.TextColor3 = colors.paper
+subtitle.TextTransparency = 0.12
 
 local nameBox = Instance.new("TextBox")
 nameBox.Name = "DisplayName"
 nameBox.Size = UDim2.new(1, 0, 0, 42)
-nameBox.BackgroundColor3 = Color3.fromRGB(47, 56, 72)
+nameBox.BackgroundColor3 = colors.inkSoft
 nameBox.BorderSizePixel = 0
 nameBox.ClearTextOnFocus = false
 nameBox.PlaceholderText = "Your TinyWorld name"
-nameBox.PlaceholderColor3 = Color3.fromRGB(170, 180, 195)
-nameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameBox.PlaceholderColor3 = colors.metal
+nameBox.TextColor3 = colors.white
 nameBox.TextSize = 17
 nameBox.Font = Enum.Font.Gotham
 nameBox.TextXAlignment = Enum.TextXAlignment.Left
@@ -100,6 +121,10 @@ namePadding.Parent = nameBox
 local nameCorner = Instance.new("UICorner")
 nameCorner.CornerRadius = UDim.new(0, 9)
 nameCorner.Parent = nameBox
+local nameStroke = Instance.new("UIStroke")
+nameStroke.Color = colors.metal
+nameStroke.Transparency = 0.72
+nameStroke.Parent = nameBox
 
 local genderLabel = makeLabel("GenderLabel", 20, 14, true)
 genderLabel.Text = "Avatar style"
@@ -123,9 +148,9 @@ local function makeChoice(parent: Frame, name: string, text: string, widthScale:
 	local button = Instance.new("TextButton")
 	button.Name = name
 	button.Size = UDim2.new(widthScale, -3, 1, 0)
-	button.BackgroundColor3 = Color3.fromRGB(47, 56, 72)
+	button.BackgroundColor3 = colors.inkSoft
 	button.BorderSizePixel = 0
-	button.TextColor3 = Color3.fromRGB(248, 248, 250)
+	button.TextColor3 = colors.paper
 	button.TextSize = 15
 	button.Text = text
 	button.Font = Enum.Font.GothamBold
@@ -134,6 +159,10 @@ local function makeChoice(parent: Frame, name: string, text: string, widthScale:
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 9)
 	corner.Parent = button
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = colors.metal
+	stroke.Transparency = 0.76
+	stroke.Parent = button
 	return button
 end
 
@@ -150,15 +179,15 @@ local harborButton = makeChoice(outfitRow, "Harbor", "Harbor", 1 / 3)
 local sunsetButton = makeChoice(outfitRow, "Sunset", "Sunset", 1 / 3)
 
 local status = makeLabel("Status", 40, 14, false)
-status.TextColor3 = Color3.fromRGB(255, 221, 135)
+status.TextColor3 = colors.warmLight
 status.Text = "Pick a style and outfit to continue."
 
 local beginButton = Instance.new("TextButton")
 beginButton.Name = "Begin"
 beginButton.Size = UDim2.new(1, 0, 0, 46)
-beginButton.BackgroundColor3 = Color3.fromRGB(78, 154, 104)
+beginButton.BackgroundColor3 = colors.meadowDeep
 beginButton.BorderSizePixel = 0
-beginButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+beginButton.TextColor3 = colors.white
 beginButton.TextSize = 17
 beginButton.Text = "Begin TinyWorld"
 beginButton.Font = Enum.Font.GothamBold
@@ -168,6 +197,10 @@ beginButton.Parent = panel
 local beginCorner = Instance.new("UICorner")
 beginCorner.CornerRadius = UDim.new(0, 10)
 beginCorner.Parent = beginButton
+local beginStroke = Instance.new("UIStroke")
+beginStroke.Color = colors.warmLight
+beginStroke.Transparency = 0.62
+beginStroke.Parent = beginButton
 
 local selectedGender: string? = nil
 local selectedOutfit: string? = nil
@@ -176,8 +209,8 @@ local blocking = false
 local BLOCK_ACTION = "TinyWorldOnboardingBlockMovement"
 
 local function setChoiceVisual(button: TextButton, selected: boolean)
-	button.BackgroundColor3 = if selected then Color3.fromRGB(88, 139, 205) else Color3.fromRGB(47, 56, 72)
-	button.TextColor3 = if selected then Color3.fromRGB(255, 255, 255) else Color3.fromRGB(248, 248, 250)
+	button.BackgroundColor3 = if selected then colors.skyDeep else colors.inkSoft
+	button.TextColor3 = if selected then colors.white else colors.paper
 end
 
 local function refreshChoices()
@@ -240,8 +273,8 @@ local function updateSubmitState()
 	local validName = OnboardingRules.validateDisplayName(nameBox.Text)
 	local ready = validName and selectedGender ~= nil and selectedOutfit ~= nil
 	beginButton.Active = ready
-	beginButton.BackgroundColor3 = if ready then Color3.fromRGB(78, 154, 104) else Color3.fromRGB(76, 84, 98)
-	beginButton.TextColor3 = if ready then Color3.fromRGB(255, 255, 255) else Color3.fromRGB(190, 196, 206)
+	beginButton.BackgroundColor3 = if ready then colors.meadowDeep else colors.inkSoft
+	beginButton.TextColor3 = if ready then colors.white else colors.metal
 end
 
 boyButton.Activated:Connect(function()
