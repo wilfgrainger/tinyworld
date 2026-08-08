@@ -5,6 +5,7 @@ local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BoundaryBuilder = require(script.Parent:WaitForChild("BoundaryBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
+local LivingWorldBuilder = require(script.Parent:WaitForChild("LivingWorldBuilder"))
 
 local WorldBuilder = {}
 
@@ -355,6 +356,7 @@ function WorldBuilder.build(maxPlayers: number?)
 	local villageExtent = layout.perimeterHalfExtent * 2
 	makePart(root, "VillageGround", Vector3.new(villageExtent, 2, villageExtent), Vector3.new(0, -1, 0), VisualTheme.Colors.meadow, Enum.Material.Ground)
 	local scenery = VillageSceneryBuilder.build(root, layout)
+	local livingWorld = LivingWorldBuilder.build(root, layout)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "VillageSpawn"
@@ -418,6 +420,7 @@ function WorldBuilder.build(maxPlayers: number?)
 		root = root,
 		layout = layout,
 		scenery = scenery,
+		livingWorld = livingWorld,
 		boundary = boundary,
 		spawn = spawn,
 		dailyPrompt = dailyPrompt,

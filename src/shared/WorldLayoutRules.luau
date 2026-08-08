@@ -18,7 +18,8 @@ export type Layout = {
 	landmarks: { [string]: PlotSlot },
 	roads: { mainHalfLength: number, sideOffset: number, laneWidth: number },
 	civic: { fountain: PlotSlot, townHall: PlotSlot, market: PlotSlot, portal: PlotSlot },
-	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number },
+	livingWorld: { cabinLaneZ: number, nursery: PlotSlot, pickupAnchors: { [string]: PlotSlot } },
+	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number, cabins: number, livingPickups: number, planters: number },
 }
 
 local FIRST_PLOTS = {
@@ -104,6 +105,8 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 	local roadHalfLength = math.max(WorldLayoutRules.CORE_HALF_EXTENT, math.min(perimeterHalfExtent - WorldLayoutRules.BOUNDARY_CLEARANCE, 180))
 	local boundaryTrees = WorldLayoutRules.safeCount(math.floor((perimeterHalfExtent * 2) / 48) * 4, 16, 180)
 	local roadParts = 12
+	local cabinLaneZ = WorldLayoutRules.CORE_HALF_EXTENT + 16
+	local pickupOffset = math.max(WorldLayoutRules.CORE_HALF_EXTENT + 8, landmarkOffset - 12)
 
 	return {
 		plotSlots = slots,
@@ -127,11 +130,23 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 			market = { x = 44, z = -44 },
 			portal = { x = -44, z = 44 },
 		},
+		livingWorld = {
+			cabinLaneZ = cabinLaneZ,
+			nursery = { x = -28, z = 26 },
+			pickupAnchors = {
+				MeadowSeed = { x = -28, z = 26 },
+				Seashell = { x = pickupOffset, z = 0 },
+				WoodToken = { x = -pickupOffset, z = 0 },
+			},
+		},
 		budgets = {
 			plots = target,
 			boundaryTrees = boundaryTrees,
 			roadParts = roadParts,
-			totalDecorations = (target * 20) + (boundaryTrees * 3) + 180,
+			totalDecorations = (target * 20) + (boundaryTrees * 3) + 360,
+			cabins = 3,
+			livingPickups = 3,
+			planters = 12,
 		},
 	}
 end
