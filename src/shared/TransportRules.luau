@@ -13,4 +13,27 @@ function TransportRules.buyTinyBike(profile: any): (boolean, string)
 	return true, "purchased"
 end
 
+function TransportRules.mountTinyBike(profile: any): (boolean, string)
+	if not profile.ownsTinyBike then
+		return false, "not_owned"
+	end
+	if profile.bikeActive then
+		return false, "already_mounted"
+	end
+	profile.bikeActive = true
+	return true, "mounted"
+end
+
+function TransportRules.dismountTinyBike(profile: any): (boolean, string)
+	if not profile.bikeActive then
+		return false, "already_parked"
+	end
+	profile.bikeActive = false
+	return true, "parked"
+end
+
+function TransportRules.movementSpeed(profile: any): number
+	return if profile.ownsTinyBike and profile.bikeActive then 24 else 16
+end
+
 return TransportRules

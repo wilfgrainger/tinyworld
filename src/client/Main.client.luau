@@ -162,7 +162,8 @@ local function update()
 	home.Text = string.format("Home: %s (Tier %d)  |  Privacy: %s", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"))
 	inventory.Text = string.format("Bag: %d Carrot(s)  |  %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
 	profession.Text = string.format("Profession: Courier Lv.%d  |  XP %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldCourierXP", 0))
-	local bikeText = if attr("TinyWorldOwnsBike", false) then (if attr("TinyWorldBikeActive", false) then "Tiny Bike ACTIVE" else "Tiny Bike parked") else "Tiny Bike not owned"
+	local bikeState = attr("TinyWorldBikeState", if attr("TinyWorldBikeActive", false) then "mounted" else "parked")
+	local bikeText = if bikeState == "mounted" then "Tiny Bike MOUNTED" elseif bikeState == "parked" and attr("TinyWorldOwnsBike", false) then "Tiny Bike PARKED" else "Tiny Bike not owned"
 	transport.Text = "Transport: " .. bikeText
 	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
@@ -184,6 +185,7 @@ local observed = {
 	"TinyWorldCourierXP",
 	"TinyWorldOwnsBike",
 	"TinyWorldBikeActive",
+	"TinyWorldBikeState",
 	"TinyWorldPortalCompletions",
 	"TinyWorldBoundaryMask",
 	"TinyWorldBoundaryCompletions",
