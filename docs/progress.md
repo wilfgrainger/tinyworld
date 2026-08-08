@@ -9,7 +9,9 @@
 - The long-term north star now explicitly includes a safe, sustainable creator-led day-job opportunity for the young people building TinyWorld. The alpha has no live Robux products, purchase prompts, or ads; future monetization guardrails are recorded in the [v0.0.2 family alpha test](v0.0.2-alpha-test.md).
 - Static checks currently pass: Luau specs, Luau parsing, shared/test analysis, Roblox material guard, Rojo build, and the north-star review.
 - The final visual polish adds a bounded public pond, bridge, lily pads, and four plaza lanterns to push the village toward the supplied storybook/voxel reference without adding runtime scenery generation.
-- Remaining acceptance gate: a fresh Roblox Studio Play session with the final synced branch, no red Output errors, and observations from the ten-point family/device checklist.
+- A fresh final-commit Roblox Studio Play session now shows the alpha HUD, distinct Courier Depot and Village Shop landmarks, the public arrival plaza, active Tiny Bike state, and a clean welcome return message. The Output pane was opened after the run and contained no messages or red runtime errors.
+- The final slice keeps the brief's core promise visible in one place: a child can see who they are, what they own, what to do next, where the daily job lives, where the village shop and transport are, and that the wider home/portal/trade world exists. Duplicate courier signboards and distant plot labels were removed from the starter camera; the underlying counters, prompts, homes, progression, portal, and social spaces remain unchanged.
+- Full local verification passes on the final commit: 12 Luau specs, Luau parse checks, shared/test analysis, Roblox material/runtime guard, Rojo build, and `git diff --check`. The earlier user-provided Studio screenshots also evidence persistence, courier pickup, and courier delivery. The remaining acceptance work is the deliberate ten-point family/device checklist, a fresh-profile onboarding run, and a real permitted remote playtest; those are outside this code-and-sync slice.
 
 ## 2026-08-08 - Roblox Studio Courier delivery evidence
 

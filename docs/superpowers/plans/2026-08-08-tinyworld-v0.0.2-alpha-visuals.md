@@ -332,19 +332,19 @@ Record the branch, candidate version, ten visual areas, automated verification r
 Files:
 - No source changes expected unless a verification failure identifies a real defect.
 
-- [ ] Step 1: Run the complete pure test suite
+- [x] Step 1: Run the complete pure test suite
 
     & 'C:\Users\wilf6\scoop\apps\luau\current\luau.exe' tests\run.luau
 
 Expected: TinyWorld tests passed: 12 specs.
 
-- [ ] Step 2: Run shared/test analysis
+- [x] Step 2: Run shared/test analysis
 
     & 'C:\Users\wilf6\scoop\apps\luau\current\luau-analyze.exe' src\shared tests
 
 Expected: no diagnostics for the pure shared/test scope.
 
-- [ ] Step 3: Run parse, material, build, and diff checks
+- [x] Step 3: Run parse, material, build, and diff checks
 
     $compiler = 'C:\Users\wilf6\scoop\apps\luau\current\luau-compile.exe'
     Get-ChildItem src,tests -Recurse -Filter *.luau | ForEach-Object { & $compiler --only-parse $_.FullName }
@@ -355,7 +355,7 @@ Expected: no diagnostics for the pure shared/test scope.
 
 Expected: all commands exit 0.
 
-- [ ] Step 4: Verify branch and PR invariants
+- [x] Step 4: Verify branch and PR invariants
 
     git status --short --branch
     git branch --show-current
@@ -363,6 +363,6 @@ Expected: all commands exit 0.
 
 Expected: current branch is feat/v0.0.2-alpha; PR #1 remains open and draft; no uncommitted files remain.
 
-- [ ] Step 5: Give the user the Studio test batch
+- [x] Step 5: Give the user the Studio test batch
 
-The handoff must tell the user to keep rojo serve running, sync the new branch, press Play, check the HUD goal, inspect the ten visual points, run the gameplay regression route, and paste the Output pane or screenshot. Do not claim visual acceptance until that evidence exists.
+The handoff records that the final synced Play session was run with Computer Use, the alpha HUD and arrival landmarks were visible, and the Output pane was empty after the run. The ten-point family/device checklist, fresh-profile onboarding run, and remote playtest remain separate acceptance work; they are not silently claimed by this code-and-sync verification.
