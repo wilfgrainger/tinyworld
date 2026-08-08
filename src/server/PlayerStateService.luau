@@ -2,33 +2,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
+local GoalRules = require(shared:WaitForChild("GoalRules"))
 
 local PlayerStateService = {}
-
-local function suggestedGoal(profile): string
-	if not profile.onboardingComplete then
-		return "Complete your TinyWorld setup."
-	end
-	if profile.inventory.Carrot < 1 then
-		return "Claim the fountain reward or grow a Carrot."
-	end
-	if profile.courierXp == 0 and profile.courierLevel == 1 then
-		return "Try a Courier delivery from the depot."
-	end
-	if not profile.ownsTinyBike then
-		return "Save 300 coins and buy the Tiny Bike."
-	end
-	if profile.houseTier < 2 then
-		return "Reach level 2 and upgrade your home."
-	end
-	if profile.portalCompletions < 1 then
-		return "Enter the portal and explore the Giant Kitchen."
-	end
-	if profile.villageContribution < 50 then
-		return "Contribute 50 coins to the Village Fund."
-	end
-	return "Garden, trade, explore, and keep building your TinyWorld life."
-end
 
 function PlayerStateService.setup(player: Player, profile)
 	local leaderstats = player:FindFirstChild("leaderstats")
@@ -88,7 +64,7 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldStarterOutfit", profile.starterOutfit)
 	player:SetAttribute("TinyWorldOnboardingComplete", profile.onboardingComplete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not profile.onboardingComplete)
-	player:SetAttribute("TinyWorldSuggestedGoal", suggestedGoal(profile))
+	player:SetAttribute("TinyWorldSuggestedGoal", GoalRules.suggestedGoal(profile))
 end
 
 function PlayerStateService.message(player: Player, text: string)
