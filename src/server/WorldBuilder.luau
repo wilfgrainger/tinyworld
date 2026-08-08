@@ -130,7 +130,7 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	kitchen.Name = "GiantKitchen"
 	kitchen.Parent = parent
 
-	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, Color3.fromRGB(230, 222, 205), Enum.Material.Tile)
+	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, Color3.fromRGB(230, 222, 205), Enum.Material.Concrete)
 	local tableTop = makePart(kitchen, "GiantTableTop", Vector3.new(100, 4, 70), origin + Vector3.new(0, 30, 10), Color3.fromRGB(148, 99, 61), Enum.Material.WoodPlanks)
 	makeLabel(tableTop, "THE GIANT KITCHEN\nCollect all 3 Sugar Crystals", 380)
 	for _, offset in {
