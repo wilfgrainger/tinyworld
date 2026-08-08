@@ -1,5 +1,14 @@
 # Development progress
 
+## 2026-08-08 - Full v0.0.2 alpha self-test evidence
+
+- The complete self-test ran on `feat/v0.0.2-alpha` against the current Rojo-synced Roblox Studio place. The local gate passed: 12 Luau specs, Luau parse checks, shared/test analysis, Roblox material/runtime guards, Rojo build, and `git diff --check`.
+- The live single-player loop passed in Studio: saved-profile entry, daily reward idempotence, garden plant/water/harvest, Courier pickup and delivery, home upgrade to Cosy Cottage, privacy cycling (`Open` → `Friends` → `Private`), Tiny Bike park/activate, Village Fund contribution, and the single-player trade join/offer/confirm-wait state.
+- The Giant Kitchen route passed live: enter the village portal, collect all three Sugar Crystals, use the return portal, receive `+300 coins`, `+200 XP`, and `+1 permanent Sugar Crystal`, return to the village, and see `Portal: 1 completion(s)`.
+- A fresh stop/rejoin then restored the saved `Chewy` identity, Cosy Cottage, level/coins, carrots, Sugar Crystal, bike state, and portal completion, with `Welcome back to TinyWorld, Chewy.` The new Play session's Output pane was visually empty.
+- Because the Computer Use viewport cannot reliably hold the normal 0.2-second prompt key or move the Studio avatar, the live route used runtime-only teleportation and temporary prompt hold-duration changes as a test aid. These did not edit the repository or published place; ordinary keyboard movement/hold timing remains a user/device acceptance check.
+- Remaining deliberate external gates are a fresh-profile onboarding run, real two-player trade/privacy completion, and the family/device/remote playtest. No Robux products, purchase prompts, or ads are part of this alpha slice.
+
 ## 2026-08-08 - TinyWorld v0.0.2 alpha visual candidate
 
 - Current branch: `feat/v0.0.2-alpha`; the v0.0.1 foundation is merged into local `main`.
