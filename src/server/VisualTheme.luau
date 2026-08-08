@@ -27,7 +27,6 @@ local function getOrCreate(className: string, name: string)
 end
 
 function VisualTheme.configureLighting()
-	Lighting.Technology = Enum.Technology.ShadowMap
 	Lighting.GlobalShadows = true
 	Lighting.Brightness = 2.1
 	Lighting.ClockTime = 14.4

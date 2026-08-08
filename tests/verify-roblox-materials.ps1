@@ -62,4 +62,14 @@ if ($invalidMaterials.Count -gt 0) {
     exit 1
 }
 
+$unsafeStudioWrites = @(
+    Get-ChildItem -Path (Join-Path $PSScriptRoot "..\src") -Recurse -File -Filter *.luau |
+        Select-String -Pattern "Lighting\.Technology\s*="
+)
+if ($unsafeStudioWrites.Count -gt 0) {
+    Write-Output "Unsafe Play-session write detected: Lighting.Technology is Studio-only in the Roblox runtime."
+    $unsafeStudioWrites | ForEach-Object { Write-Output (" - " + $_.Path + ":" + $_.LineNumber) }
+    exit 1
+}
+
 Write-Output ("Roblox material references verified: " + ($usedMaterials -join ", "))
