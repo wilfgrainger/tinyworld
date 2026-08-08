@@ -171,4 +171,12 @@ if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
     exit 1
 }
 
+$layoutSource = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\shared\WorldLayoutRules.luau")
+if ($layoutSource -notmatch 'visual = VisualBudgetRules\.forPlayers' -or
+    $worldBuilder -notmatch 'TinyWorldPlotCapacity' -or
+    $worldBuilder -notmatch 'TinyWorldVisualBudget') {
+    Write-Output "The capacity/visual budget contract is incomplete."
+    exit 1
+}
+
 Write-Output ("Roblox material references verified: " + ($usedMaterials -join ", "))

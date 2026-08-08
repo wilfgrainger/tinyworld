@@ -69,5 +69,5 @@ for _, player in Players:GetPlayers() do
 end
 
 game:BindToClose(function()
-	ProfileStore.saveAll()
+	ProfileStore.shutdown(25)
 end)

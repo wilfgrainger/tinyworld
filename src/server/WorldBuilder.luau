@@ -2,6 +2,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
+local VisualBudgetRules = require(shared:WaitForChild("VisualBudgetRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BoundaryBuilder = require(script.Parent:WaitForChild("BoundaryBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
@@ -435,6 +436,10 @@ function WorldBuilder.build(maxPlayers: number?)
 	for index, slot in layout.plotSlots do
 		plots[index] = buildPlot(root, index, Vector3.new(slot.x, 0, slot.z))
 	end
+	root:SetAttribute("TinyWorldPlotCapacity", #layout.plotSlots)
+	root:SetAttribute("TinyWorldVisualBudget", layout.budgets.visual.totalDecorations)
+	root:SetAttribute("TinyWorldBuiltPlotCount", #plots)
+	root:SetAttribute("TinyWorldScaleBudgetStatus", if VisualBudgetRules.isWithinBudget(layout.budgets.visual) then "within-budget" else "over-budget")
 
 	local boundary = BoundaryBuilder.build(root, layout)
 

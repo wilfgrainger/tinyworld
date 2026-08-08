@@ -1,12 +1,13 @@
 local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local ProfileSchema = require(shared:WaitForChild("ProfileSchema"))
+local ProfileStoreRules = require(shared:WaitForChild("ProfileStoreRules"))
 
 local ProfileStore = {}
 
--- Keep the original DataStore name so schema-v1 test data migrates in place.
 local DATASTORE_NAME = "TinyWorldPlayerProfile_v1"
 local store = DataStoreService:GetDataStore(DATASTORE_NAME)
 local profiles = {}
@@ -15,69 +16,317 @@ local function keyFor(player: Player): string
 	return string.format("player_%d", player.UserId)
 end
 
-local function serialise(profile)
-	-- normalize returns a fresh table and strips unexpected runtime values.
-	return ProfileSchema.normalize(profile)
+local function now(): number
+	return os.time()
+end
+
+local function decode(value)
+	if type(value) == "table" and type(value.profile) == "table" then
+		return ProfileSchema.normalize(value.profile), value.session
+	end
+	return ProfileSchema.normalize(value), nil
+end
+
+local function envelope(profile, token: string, expiresAt: number)
+	return {
+		profile = ProfileSchema.normalize(profile),
+		session = {
+			token = token,
+			expiresAt = expiresAt,
+		},
+	}
+end
+
+local function releasedEnvelope(profile)
+	return {
+		profile = ProfileSchema.normalize(profile),
+	}
+end
+
+local function setDiagnostics(player: Player, record)
+	if player.Parent == nil then
+		return
+	end
+	player:SetAttribute("TinyWorldSaveState", record.state)
+	player:SetAttribute("TinyWorldSaveVersion", record.version)
+	player:SetAttribute("TinyWorldSaveRetryAttempt", record.retryAttempt)
+	player:SetAttribute("TinyWorldSessionState", record.sessionState)
+end
+
+local function setState(player: Player, record, state: string)
+	record.state = state
+	setDiagnostics(player, record)
+end
+
+local function scheduleSave(player: Player, delaySeconds: number)
+	local record = profiles[player]
+	if record == nil or record.releasing or record.scheduled then
+		return
+	end
+
+	record.scheduled = true
+	task.delay(delaySeconds, function()
+		local current = profiles[player]
+		if current == nil then
+			return
+		end
+		current.scheduled = false
+		if current.releasing or current.saving then
+			return
+		end
+		if current.version > current.savedVersion then
+			ProfileStore.saveNow(player)
+		end
+	end)
+end
+
+local function scheduleHeartbeat(player: Player, delaySeconds: number?)
+	task.delay(delaySeconds or (ProfileStoreRules.SESSION_LEASE_SECONDS / 3), function()
+		local record = profiles[player]
+		if record == nil or record.releasing then
+			return
+		end
+
+		local lost = false
+		local ok, result = pcall(function()
+			return store:UpdateAsync(keyFor(player), function(previous)
+				local persistedProfile, session = decode(previous)
+				if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
+					lost = true
+					return nil
+				end
+				return envelope(persistedProfile, record.token, now() + ProfileStoreRules.SESSION_LEASE_SECONDS)
+			end)
+		end)
+
+		if ok and result ~= nil and not lost then
+			record.heartbeatFailures = 0
+			scheduleHeartbeat(player)
+			return
+		end
+
+		record.heartbeatFailures += 1
+		if lost or record.heartbeatFailures >= 3 then
+			record.sessionState = "lost"
+			setState(player, record, "failed")
+			warn(string.format("TinyWorld: session lease lost for %s.", player.Name))
+			if player.Parent ~= nil then
+				player:Kick("TinyWorld could not keep your session safe. Please rejoin in a moment.")
+			end
+			return
+		end
+
+		scheduleHeartbeat(player, 10)
+	end)
 end
 
 function ProfileStore.load(player: Player)
 	if profiles[player] ~= nil then
-		return profiles[player]
+		return profiles[player].profile
 	end
 
+	local token = HttpService:GenerateGUID(false)
+	local conflict = false
 	local ok, result = pcall(function()
-		return store:GetAsync(keyFor(player))
+		return store:UpdateAsync(keyFor(player), function(previous)
+			local persistedProfile, session = decode(previous)
+			if ProfileStoreRules.isLeaseActive(session, now(), token) and session.token ~= token then
+				conflict = true
+				return nil
+			end
+			return envelope(persistedProfile, token, now() + ProfileStoreRules.SESSION_LEASE_SECONDS)
+		end)
 	end)
 
-	if not ok then
-		warn(string.format("TinyWorld: failed to load profile for %s: %s", player.Name, tostring(result)))
+	if not ok or result == nil or conflict then
+		warn(string.format("TinyWorld: failed to acquire a profile session for %s.", player.Name))
 		return nil
 	end
 
-	local profile = ProfileSchema.normalize(result)
-	profiles[player] = profile
+	local profile = decode(result)
+	local record = {
+		profile = profile,
+		token = token,
+		version = 0,
+		savedVersion = 0,
+		state = "clean",
+		retryAttempt = 0,
+		scheduled = false,
+		saving = false,
+		releasing = false,
+		heartbeatFailures = 0,
+		sessionState = "active",
+	}
+	profiles[player] = record
+	setDiagnostics(player, record)
+	scheduleHeartbeat(player)
 	return profile
 end
 
 function ProfileStore.get(player: Player)
-	return profiles[player]
+	local record = profiles[player]
+	return if record then record.profile else nil
 end
 
 function ProfileStore.save(player: Player): boolean
-	local profile = profiles[player]
-	if profile == nil then
-		return true
-	end
-
-	local payload = serialise(profile)
-	local ok, result = pcall(function()
-		store:UpdateAsync(keyFor(player), function(_previous)
-			return payload
-		end)
-	end)
-
-	if not ok then
-		warn(string.format("TinyWorld: failed to save profile for %s: %s", player.Name, tostring(result)))
+	local record = profiles[player]
+	if record == nil or record.releasing then
 		return false
 	end
 
+	record.version += 1
+	setState(player, record, "dirty")
+	scheduleSave(player, ProfileStoreRules.SAVE_DEBOUNCE_SECONDS)
+	return true
+end
+
+local function markSaveFailure(player: Player, record): boolean
+	record.saving = false
+	record.retryAttempt += 1
+	if ProfileStoreRules.shouldRetry(record.retryAttempt) then
+		setState(player, record, "retrying")
+		scheduleSave(player, ProfileStoreRules.retryDelay(record.retryAttempt, math.random()))
+	else
+		setState(player, record, "failed")
+		warn(string.format("TinyWorld: failed to save profile for %s after %d attempts.", player.Name, record.retryAttempt))
+	end
+	return false
+end
+
+function ProfileStore.saveNow(player: Player): boolean
+	local record = profiles[player]
+	if record == nil or record.saving then
+		return false
+	end
+
+	local snapshotVersion = record.version
+	local snapshot = ProfileSchema.normalize(record.profile)
+	local conflict = false
+	record.saving = true
+	setState(player, record, "saving")
+
+	local ok, result = pcall(function()
+		return store:UpdateAsync(keyFor(player), function(previous)
+			local persistedProfile, session = decode(previous)
+			if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
+				conflict = true
+				return nil
+			end
+			return envelope(snapshot, record.token, now() + ProfileStoreRules.SESSION_LEASE_SECONDS)
+		end)
+	end)
+
+	if not ok or result == nil or conflict then
+		if conflict then
+			record.sessionState = "lost"
+			setState(player, record, "failed")
+			warn(string.format("TinyWorld: refusing to overwrite a competing session for %s.", player.Name))
+			record.saving = false
+			return false
+		end
+		return markSaveFailure(player, record)
+	end
+
+	record.saving = false
+	record.savedVersion = snapshotVersion
+	record.retryAttempt = 0
+	if record.version > snapshotVersion then
+		setState(player, record, "queued")
+		scheduleSave(player, ProfileStoreRules.SAVE_DEBOUNCE_SECONDS)
+	else
+		setState(player, record, "clean")
+	end
+	return true
+end
+
+local function releaseSession(player: Player, record): boolean
+	local conflict = false
+	local ok, result = pcall(function()
+		return store:UpdateAsync(keyFor(player), function(previous)
+			local persistedProfile, session = decode(previous)
+			if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
+				conflict = true
+				return nil
+			end
+			return releasedEnvelope(persistedProfile)
+		end)
+	end)
+	if not ok or result == nil or conflict then
+		warn(string.format("TinyWorld: failed to release profile session for %s.", player.Name))
+		return false
+	end
 	return true
 end
 
 function ProfileStore.release(player: Player): boolean
-	local saved = ProfileStore.save(player)
+	local record = profiles[player]
+	if record == nil then
+		return true
+	end
+
+	record.releasing = true
+	setState(player, record, "releasing")
+	local saved = ProfileStore.saveNow(player)
+	local released = if saved then releaseSession(player, record) else false
+	record.sessionState = if released then "released" else record.sessionState
 	profiles[player] = nil
-	return saved
+	return saved and released
 end
 
 function ProfileStore.saveAll(): boolean
 	local allSaved = true
+	local players = {}
 	for player in profiles do
-		if not ProfileStore.save(player) then
+		table.insert(players, player)
+	end
+	for _, player in players do
+		if not ProfileStore.saveNow(player) then
 			allSaved = false
 		end
 	end
 	return allSaved
+end
+
+function ProfileStore.shutdown(timeoutSeconds: number?): boolean
+	local deadline = os.clock() + (timeoutSeconds or 25)
+	local allReleased = true
+	local players = {}
+	for player in profiles do
+		table.insert(players, player)
+	end
+	for _, player in players do
+		if os.clock() >= deadline or not ProfileStore.release(player) then
+			allReleased = false
+		end
+	end
+	return allReleased
+end
+
+function ProfileStore.getDiagnostics(player: Player?)
+	if player then
+		local record = profiles[player]
+		if record == nil then
+			return { state = "unloaded", queueDepth = 0, sessionState = "released" }
+		end
+		return {
+			state = record.state,
+			queueDepth = if record.version > record.savedVersion then 1 else 0,
+			retryAttempt = record.retryAttempt,
+			sessionState = record.sessionState,
+			version = record.version,
+			savedVersion = record.savedVersion,
+		}
+	end
+
+	local active = 0
+	local queued = 0
+	for _, record in profiles do
+		active += 1
+		if record.version > record.savedVersion or record.state == "retrying" then
+			queued += 1
+		end
+	end
+	return { activeProfiles = active, queueDepth = queued }
 end
 
 return ProfileStore

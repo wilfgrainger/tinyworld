@@ -160,7 +160,7 @@ function OnboardingService:_submit(player: Player, payload: any)
 	profile.starterOutfit = payload.starterOutfit
 	profile.onboardingComplete = true
 
-	if not self.ProfileStore.save(player) then
+	if not self.ProfileStore.saveNow(player) then
 		profile.displayName = previous.displayName
 		profile.avatarStyle = previous.avatarStyle
 		profile.starterOutfit = previous.starterOutfit
