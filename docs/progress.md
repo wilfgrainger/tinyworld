@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-08 - v0.0.3 living-village implementation and verification attempt
+
+- Implemented and committed the v0.0.3 living-village slice on `feat/v0.0.3-living-village` at `81223d5` (`feat: build TinyWorld v0.0.3 living village`). The implementation adds a capacity-aware plot layout, a single woods/cliffs/sea boundary, three daily exploration landmarks, the boundary route reward, and the broad `Ground` surfaces that address the earlier grass-flicker path.
+- Local verification passed before the Studio run: 14 Luau specs, Luau parsing, Luau analysis, Roblox material guard, Rojo XML place build, and `git diff --check`.
+- Computer Use opened the generated Rojo place at `$env:TEMP\\tinyworld-v003-static.rbxlx`, connected the Rojo 7.7.0 plugin to `localhost:34872`, and started Play. The first runtime stop was the expected Roblox DataStore guard because the local place was not yet published: `You must publish this place to the web to access DataStore.`
+- The publish flow reached `Update existing experience...`, but Roblox Studio returned `Fetch failed`; Studio Output reported an unauthenticated Creator API session (`401 User is not authenticated`). No new experience was created, no Studio source was edited manually, and the full published-place route remains an outstanding live gate pending an authenticated Studio session.
+
 ## 2026-08-08 - Full v0.0.2 alpha self-test evidence
 
 - The complete self-test ran on `feat/v0.0.2-alpha` against the current Rojo-synced Roblox Studio place. The local gate passed: 12 Luau specs, Luau parse checks, shared/test analysis, Roblox material/runtime guards, Rojo build, and `git diff --check`.
