@@ -114,7 +114,7 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 	if not upgraded then
 		local text = if reason == "level_too_low" then "You need a higher player level for the next home."
 			elseif reason == "not_enough_coins" then "You need more coins for the next home."
-			else "Your home is already at the highest v0.01 tier."
+			else "Your home is already at the highest tier."
 		self.PlayerStateService.message(player, text)
 		return
 	end

@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
 local Profession = require(shared:WaitForChild("Profession"))
+local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local JobService = {}
 JobService.__index = JobService
@@ -30,7 +31,7 @@ local function attachParcel(player: Player)
 	local parcel = Instance.new("Part")
 	parcel.Name = "TinyWorldCourierParcel"
 	parcel.Size = Vector3.new(2.5, 2.5, 2.5)
-	parcel.Color = Color3.fromRGB(171, 112, 64)
+	parcel.Color = VisualTheme.Colors.timber
 	parcel.Material = Enum.Material.Cardboard
 	parcel.CanCollide = false
 	parcel.Massless = true

@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local TransportRules = require(shared:WaitForChild("TransportRules"))
+local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local TransportService = {}
 TransportService.__index = TransportService
@@ -37,13 +38,20 @@ local function addBikeBadge(player: Player)
 	gui.Parent = head
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = Color3.fromRGB(55, 137, 201)
+	label.BackgroundColor3 = VisualTheme.Colors.skyDeep
 	label.BackgroundTransparency = 0.1
-	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextColor3 = VisualTheme.Colors.white
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = "TINY BIKE • ACTIVE"
 	label.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = label
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = VisualTheme.Colors.paper
+	stroke.Transparency = 0.7
+	stroke.Parent = label
 end
 
 function TransportService.new(world, ProfileStore, PlayerStateService)
