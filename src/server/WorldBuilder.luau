@@ -17,6 +17,14 @@ local function makePart(parent: Instance, name: string, size: Vector3, position:
 	return part
 end
 
+local function makeDecoration(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material?): Part
+	local part = makePart(parent, name, size, position, color, material)
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	return part
+end
+
 local function makePrompt(parent: Instance, actionText: string, objectText: string): ProximityPrompt
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = actionText
@@ -69,17 +77,17 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	model.Name = string.format("Plot%d", index)
 	model.Parent = parent
 
-	makePart(model, "PlotBase", Vector3.new(60, 1, 60), origin, Color3.fromRGB(105, 177, 90), Enum.Material.Grass)
-	local sign = makePart(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), Color3.fromRGB(107, 78, 54), Enum.Material.Wood)
+	makePart(model, "PlotBase", Vector3.new(60, 1, 60), origin, VisualTheme.Colors.meadowDeep, Enum.Material.Grass)
+	local sign = makeDecoration(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), VisualTheme.Colors.timber, Enum.Material.Wood)
 	local ownerLabel = makeLabel(sign, "Available Plot", 220)
 
-	local upgradeKiosk = makePart(model, "UpgradeKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(-12, 2, 24), Color3.fromRGB(247, 194, 74))
+	local upgradeKiosk = makePart(model, "UpgradeKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(-12, 2, 24), VisualTheme.Colors.gold)
 	local upgradePrompt = makePrompt(upgradeKiosk, "Upgrade Home", "Home Builder")
 
-	local privacyKiosk = makePart(model, "PrivacyKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(12, 2, 24), Color3.fromRGB(139, 189, 255))
+	local privacyKiosk = makePart(model, "PrivacyKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(12, 2, 24), VisualTheme.Colors.sky)
 	local privacyPrompt = makePrompt(privacyKiosk, "Change Privacy", "Home Access")
 
-	local visitKiosk = makePart(model, "VisitKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, 24), Color3.fromRGB(183, 132, 240))
+	local visitKiosk = makePart(model, "VisitKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, 24), VisualTheme.Colors.portal)
 	local visitPrompt = makePrompt(visitKiosk, "Enter Home", "Front Gate")
 
 	local houseContainer = Instance.new("Model")
@@ -90,7 +98,7 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	local gardenPrompts = {}
 	for bedIndex = 1, 3 do
 		local x = (bedIndex - 2) * 10
-		local bed = makePart(model, string.format("GardenBed%d", bedIndex), Vector3.new(8, 1, 10), origin + Vector3.new(x, 1, 16), Color3.fromRGB(104, 72, 48), Enum.Material.Ground)
+		local bed = makePart(model, string.format("GardenBed%d", bedIndex), Vector3.new(8, 1, 10), origin + Vector3.new(x, 1, 16), VisualTheme.Colors.timberDark, Enum.Material.Ground)
 		gardenBeds[bedIndex] = bed
 		gardenPrompts[bedIndex] = makePrompt(bed, "Plant Carrot", string.format("Garden Bed %d", bedIndex))
 	end
@@ -113,17 +121,17 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 end
 
 local function buildTradePost(parent: Instance, origin: Vector3)
-	makePart(parent, "TradePostBase", Vector3.new(36, 1, 24), origin, Color3.fromRGB(193, 171, 128), Enum.Material.WoodPlanks)
-	local sign = makePart(parent, "TradePostSign", Vector3.new(16, 5, 1), origin + Vector3.new(0, 4, -10), Color3.fromRGB(79, 59, 45), Enum.Material.Wood)
+	makePart(parent, "TradePostBase", Vector3.new(36, 1, 24), origin, VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
+	local sign = makeDecoration(parent, "TradePostSign", Vector3.new(16, 5, 1), origin + Vector3.new(0, 4, -10), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	local statusLabel = makeLabel(sign, "TRADING POST\nTwo players: join → choose item → confirm", 340)
 
 	local sides = {}
 	for side = 1, 2 do
 		local x = if side == 1 then -9 else 9
 		local name = if side == 1 then "A" else "B"
-		local join = makePart(parent, "TradeJoin" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, -2), Color3.fromRGB(88, 164, 218))
-		local offer = makePart(parent, "TradeOffer" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 5), Color3.fromRGB(225, 164, 70))
-		local confirm = makePart(parent, "TradeConfirm" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 12), Color3.fromRGB(86, 181, 111))
+		local join = makePart(parent, "TradeJoin" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, -2), VisualTheme.Colors.skyDeep)
+		local offer = makePart(parent, "TradeOffer" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 5), VisualTheme.Colors.gold)
+		local confirm = makePart(parent, "TradeConfirm" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 12), VisualTheme.Colors.leaf)
 		sides[side] = {
 			joinPrompt = makePrompt(join, "Join Trade " .. name, "Trading Post"),
 			offerPrompt = makePrompt(offer, "Choose Offer", "Trading Post"),
@@ -139,8 +147,8 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	kitchen.Name = "GiantKitchen"
 	kitchen.Parent = parent
 
-	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, Color3.fromRGB(230, 222, 205), Enum.Material.Concrete)
-	local tableTop = makePart(kitchen, "GiantTableTop", Vector3.new(100, 4, 70), origin + Vector3.new(0, 30, 10), Color3.fromRGB(148, 99, 61), Enum.Material.WoodPlanks)
+	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, VisualTheme.Colors.paper, Enum.Material.Concrete)
+	local tableTop = makePart(kitchen, "GiantTableTop", Vector3.new(100, 4, 70), origin + Vector3.new(0, 30, 10), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeLabel(tableTop, "THE GIANT KITCHEN\nCollect all 3 Sugar Crystals", 380)
 	for _, offset in {
 		Vector3.new(-42, 14, -22),
@@ -148,17 +156,17 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 		Vector3.new(-42, 14, 42),
 		Vector3.new(42, 14, 42),
 	} do
-		makePart(kitchen, "TableLeg", Vector3.new(8, 28, 8), origin + offset, Color3.fromRGB(119, 77, 48), Enum.Material.Wood)
+		makePart(kitchen, "TableLeg", Vector3.new(8, 28, 8), origin + offset, VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	end
 
-	makePart(kitchen, "GiantPlate", Vector3.new(50, 2, 36), origin + Vector3.new(12, 34, 10), Color3.fromRGB(244, 244, 238), Enum.Material.SmoothPlastic)
-	makePart(kitchen, "ForkHandle", Vector3.new(7, 2, 48), origin + Vector3.new(-30, 35, 10), Color3.fromRGB(185, 190, 196), Enum.Material.Metal)
+	makeDecoration(kitchen, "GiantPlate", Vector3.new(50, 2, 36), origin + Vector3.new(12, 34, 10), VisualTheme.Colors.paper, Enum.Material.SmoothPlastic)
+	makeDecoration(kitchen, "ForkHandle", Vector3.new(7, 2, 48), origin + Vector3.new(-30, 35, 10), VisualTheme.Colors.metal, Enum.Material.Metal)
 	for tine = 1, 4 do
-		makePart(kitchen, "ForkTine", Vector3.new(3, 2, 18), origin + Vector3.new(-37 + tine * 4, 35, 40), Color3.fromRGB(185, 190, 196), Enum.Material.Metal)
+		makeDecoration(kitchen, "ForkTine", Vector3.new(3, 2, 18), origin + Vector3.new(-37 + tine * 4, 35, 40), VisualTheme.Colors.metal, Enum.Material.Metal)
 	end
 
 	for step = 1, 10 do
-		makePart(kitchen, "TableStep" .. step, Vector3.new(10, 3, 8), origin + Vector3.new(-58 + (step * 5), 1.5 + (step * 3), -25), Color3.fromRGB(222, 178, 107), Enum.Material.WoodPlanks)
+		makePart(kitchen, "TableStep" .. step, Vector3.new(10, 3, 8), origin + Vector3.new(-58 + (step * 5), 1.5 + (step * 3), -25), VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
 	end
 
 	local crystalPositions = {
@@ -168,11 +176,11 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	}
 	local crystalPrompts = {}
 	for index, position in crystalPositions do
-		local crystal = makePart(kitchen, "SugarCrystal" .. index, Vector3.new(4, 8, 4), position, Color3.fromRGB(94, 239, 255), Enum.Material.Neon)
+		local crystal = makePart(kitchen, "SugarCrystal" .. index, Vector3.new(4, 8, 4), position, VisualTheme.Colors.crystal, Enum.Material.Neon)
 		crystalPrompts[index] = makePrompt(crystal, "Collect Crystal", string.format("Sugar Crystal %d/3", index))
 	end
 
-	local exit = makePart(kitchen, "KitchenExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), Color3.fromRGB(184, 100, 255), Enum.Material.Neon)
+	local exit = makePart(kitchen, "KitchenExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeLabel(exit, "RETURN PORTAL")
 	local returnPrompt = makePrompt(exit, "Return to Village", "Portal")
 
@@ -212,31 +220,31 @@ function WorldBuilder.build()
 	makeLabel(fountain, "DAILY FOUNTAIN\n200 coins • 50 XP • 1 Carrot", 320)
 	local dailyPrompt = makePrompt(fountain, "Claim Daily Reward", "Village Fountain")
 
-	amenity(root, "TownHall", Vector3.new(-44, 0, 0), "TOWN HALL\nVillage Fund", Color3.fromRGB(230, 197, 133))
-	local contribution = makePart(root, "ContributionKiosk", Vector3.new(6, 5, 6), Vector3.new(-29, 2.5, 0), Color3.fromRGB(237, 204, 91))
+	amenity(root, "TownHall", Vector3.new(-44, 0, 0), "TOWN HALL\nVillage Fund", VisualTheme.Colors.cream)
+	local contribution = makePart(root, "ContributionKiosk", Vector3.new(6, 5, 6), Vector3.new(-29, 2.5, 0), VisualTheme.Colors.gold)
 	local contributionPrompt = makePrompt(contribution, "Contribute 50 Coins", "Village Fund")
-	local fundSign = makePart(root, "FundSign", Vector3.new(8, 4, 1), Vector3.new(-29, 6, 0), Color3.fromRGB(93, 74, 48))
+	local fundSign = makeDecoration(root, "FundSign", Vector3.new(8, 4, 1), Vector3.new(-29, 6, 0), VisualTheme.Colors.timberDark)
 	local fundLabel = makeLabel(fundSign, "Village Fund: 0 coins", 250)
 
-	amenity(root, "DeliveryDepot", Vector3.new(0, 0, -44), "COURIER DEPOT\nPick up deliveries", Color3.fromRGB(222, 164, 103))
-	local deliveryStart = makePart(root, "DeliveryStart", Vector3.new(6, 4, 6), Vector3.new(0, 2, -30), Color3.fromRGB(205, 133, 76))
+	amenity(root, "DeliveryDepot", Vector3.new(0, 0, -44), "COURIER DEPOT\nPick up deliveries", VisualTheme.Colors.warmLight)
+	local deliveryStart = makePart(root, "DeliveryStart", Vector3.new(6, 4, 6), Vector3.new(0, 2, -30), VisualTheme.Colors.timber)
 	local deliveryStartPrompt = makePrompt(deliveryStart, "Take Parcel", "Courier Job")
 
-	amenity(root, "VillageShop", Vector3.new(44, 0, -44), "VILLAGE SHOP\nDelivery destination", Color3.fromRGB(207, 137, 164))
-	local deliveryEnd = makePart(root, "DeliveryEnd", Vector3.new(6, 4, 6), Vector3.new(30, 2, -44), Color3.fromRGB(205, 133, 76))
+	amenity(root, "VillageShop", Vector3.new(44, 0, -44), "VILLAGE SHOP\nDelivery destination", VisualTheme.Colors.berry)
+	local deliveryEnd = makePart(root, "DeliveryEnd", Vector3.new(6, 4, 6), Vector3.new(30, 2, -44), VisualTheme.Colors.timber)
 	local deliveryEndPrompt = makePrompt(deliveryEnd, "Deliver Parcel", "Courier Job")
 
-	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", Color3.fromRGB(101, 172, 214))
-	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), Color3.fromRGB(68, 142, 190))
+	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", VisualTheme.Colors.sky)
+	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), VisualTheme.Colors.skyDeep)
 	local transportPrompt = makePrompt(transport, "Buy / Toggle Bike", "Transport Shop")
 
 	local trade = buildTradePost(root, Vector3.new(0, 0.5, 44))
 
-	local portal = makePart(root, "VillagePortal", Vector3.new(12, 12, 2), Vector3.new(-44, 6, 44), Color3.fromRGB(184, 100, 255), Enum.Material.Neon)
+	local portal = makePart(root, "VillagePortal", Vector3.new(12, 12, 2), Vector3.new(-44, 6, 44), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeLabel(portal, "PORTAL\nThe Giant Kitchen", 300)
 	local villagePortalPrompt = makePrompt(portal, "Enter Giant Kitchen", "World Portal")
 
-	local premiumSign = makePart(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), Color3.fromRGB(56, 45, 75))
+	local premiumSign = makeDecoration(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), VisualTheme.Colors.ink)
 	makeLabel(premiumSign, "PREMIUM PREVIEW\nStyle & convenience only\nNo pay-to-win", 340)
 
 	local plotOrigins = {
