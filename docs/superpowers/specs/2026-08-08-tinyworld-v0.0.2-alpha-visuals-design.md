@@ -54,11 +54,11 @@ Create `src/shared/GoalRules.luau` as a pure rules module. It will own the sugge
 
 ### Server presentation
 
-Create `src/server/VisualTheme.luau` for Roblox-native palette constants and one-time lighting configuration. Keep visual construction in the existing `WorldBuilder` and `PlotService` boundaries:
+Create `src/shared/VisualPalette.luau` for pure hex colour tokens, and `src/server/VisualTheme.luau` for Roblox-native colour conversion and one-time lighting configuration. The server and client will convert the same tokens locally, so world geometry and UI cannot drift into separate palettes. Keep visual construction in the existing `WorldBuilder` and `PlotService` boundaries:
 
 - `WorldBuilder` owns village ground, plaza, roads, landmarks, prompts, portal, and Giant Kitchen dressing.
 - `PlotService` owns the player's house and plot-specific details.
-- `VisualTheme` owns shared colours and lighting, not gameplay state.
+- `VisualPalette` owns pure colour tokens; `VisualTheme` owns Roblox colour conversion and lighting, not gameplay state.
 
 Decorative parts must be anchored, simple, and bounded. Existing interaction parts and prompt connections remain the authority; visual markers may decorate them but must not grant rewards or bypass validation.
 

@@ -4,7 +4,7 @@
 
 Goal: Fix the stale suggested-goal regression and turn the current TinyWorld playable slice into a polished, low-cost v0.0.2 alpha visual candidate for family testing.
 
-Architecture: Keep deterministic decision logic in src/shared, Roblox-native palette/lighting in src/server/VisualTheme.luau, and visual construction in the existing WorldBuilder, PlotService, and client presentation scripts. Existing services, prompts, profile fields, rewards, and server authority remain unchanged.
+Architecture: Keep deterministic decision logic and pure hex palette tokens in src/shared, Roblox-native palette conversion/lighting in src/server/VisualTheme.luau, and visual construction in the existing WorldBuilder, PlotService, and client presentation scripts. Existing services, prompts, profile fields, rewards, and server authority remain unchanged.
 
 Tech Stack: Luau, Roblox Studio, Rojo 7.7.0, Rokit, PowerShell, Git.
 
@@ -134,17 +134,18 @@ Expected: TinyWorld tests passed: 12 specs.
 ### Task 3: Add the shared visual theme and lighting baseline
 
 Files:
+- Create: src/shared/VisualPalette.luau
 - Create: src/server/VisualTheme.luau
 - Modify: src/server/WorldBuilder.luau
 - Modify: tests/verify-roblox-materials.ps1 only if a newly used material requires an explicit guard entry.
 
 Interfaces:
-- Consumes: Roblox Lighting service during server startup/world build.
-- Produces: VisualTheme.Colors, VisualTheme.configureLighting(), and reusable world/UI colour constants.
+- Consumes: pure hex tokens from VisualPalette and Roblox Lighting service during server startup/world build.
+- Produces: VisualTheme.Colors, VisualTheme.configureLighting(), and one palette shared by world and UI.
 
 - [ ] Step 1: Add VisualTheme palette and lighting configuration
 
-Use named colours for meadow, path, timber, cream, roof, berry, sky, water, gold, portal, and ink. Configure a sunny daytime Lighting setup, Atmosphere, ColorCorrectionEffect, and restrained BloomEffect once, reusing existing instances if the world rebuilds.
+Use named hex tokens for meadow, path, timber, cream, roof, berry, sky, water, gold, portal, and ink in VisualPalette. Convert them with Color3.fromHex in VisualTheme, then configure a sunny daytime Lighting setup, Atmosphere, ColorCorrectionEffect, and restrained BloomEffect once, reusing existing instances if the world rebuilds.
 
 - [ ] Step 2: Route world labels and primary materials through the theme
 
@@ -159,7 +160,7 @@ Expected: the material guard lists only valid Roblox materials and Rojo exits 0.
 
 - [ ] Step 4: Commit the theme baseline
 
-    git add src/server/VisualTheme.luau src/server/WorldBuilder.luau tests/verify-roblox-materials.ps1
+git add src/shared/VisualPalette.luau src/server/VisualTheme.luau src/server/WorldBuilder.luau tests/verify-roblox-materials.ps1
     git commit -m "feat: add TinyWorld alpha visual theme"
 
 ### Task 4: Dress the village plaza, roads, and terrain
@@ -168,7 +169,7 @@ Files:
 - Modify: src/server/WorldBuilder.luau
 
 Interfaces:
-- Consumes: VisualTheme and existing makePart, makeLabel, and prompt helpers.
+- Consumes: VisualTheme, VisualPalette, and existing makePart, makeLabel, and prompt helpers.
 - Produces: fixed-count decorative plaza, path, tree, flower, shrub, stone, and landmark trim geometry with no new gameplay state.
 
 - [ ] Step 1: Add bounded helper constructors
@@ -234,7 +235,7 @@ Files:
 - Modify: src/client/Onboarding.client.luau
 
 Interfaces:
-- Consumes: existing replicated player attributes and onboarding RemoteEvent.
+- Consumes: existing replicated player attributes, VisualPalette, and onboarding RemoteEvent.
 - Produces: responsive v0.0.2 alpha HUD/onboarding visuals with no new client authority.
 
 - [ ] Step 1: Restyle the HUD card
@@ -247,7 +248,7 @@ Continue rendering TinyWorldSuggestedGoal from the server, including parcel-acti
 
 - [ ] Step 3: Restyle onboarding
 
-Use the same palette, rounded cards, selected-state colours, clearer option grouping, and mobile-safe constraints while retaining the name/style/outfit validation and submission flow.
+Require VisualPalette through the existing replicated shared folder, convert its tokens with Color3.fromHex, and use the same palette, rounded cards, selected-state colours, clearer option grouping, and mobile-safe constraints while retaining the name/style/outfit validation and submission flow.
 
 - [ ] Step 4: Parse-check and Rojo-build the client changes
 
