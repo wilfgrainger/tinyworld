@@ -1,0 +1,98 @@
+local TestUtil = require("./TestUtil")
+local ProfileSchema = require("../src/shared/ProfileSchema")
+
+return function()
+	local fresh = ProfileSchema.new()
+	TestUtil.equal(fresh.version, 3)
+	TestUtil.equal(fresh.coins, 100)
+	TestUtil.equal(fresh.level, 1)
+	TestUtil.equal(fresh.xp, 0)
+	TestUtil.equal(fresh.houseTier, 1)
+	TestUtil.equal(fresh.inventory.Carrot, 0)
+	TestUtil.equal(fresh.inventory.SugarCrystal, 0)
+	TestUtil.equal(fresh.courierLevel, 1)
+	TestUtil.equal(fresh.courierXp, 0)
+	TestUtil.isFalse(fresh.ownsTinyBike)
+	TestUtil.isFalse(fresh.bikeActive)
+	TestUtil.equal(#fresh.gardenBeds, 3)
+	TestUtil.equal(fresh.gardenBeds[1].stage, "empty")
+	TestUtil.equal(fresh.lastDailyDay, "")
+	TestUtil.equal(fresh.portalCompletions, 0)
+	TestUtil.equal(fresh.villageContribution, 0)
+	TestUtil.equal(fresh.homePrivacy, "Open")
+	TestUtil.equal(fresh.displayName, "")
+	TestUtil.equal(fresh.avatarStyle, "")
+	TestUtil.equal(fresh.starterOutfit, "")
+	TestUtil.isFalse(fresh.onboardingComplete)
+
+	local migrated = ProfileSchema.normalize({
+		version = 1,
+		coins = 777,
+		level = 4,
+		xp = 42,
+		houseTier = 3,
+	})
+	TestUtil.equal(migrated.version, 3)
+	TestUtil.equal(migrated.coins, 777)
+	TestUtil.equal(migrated.level, 4)
+	TestUtil.equal(migrated.xp, 42)
+	TestUtil.equal(migrated.houseTier, 3)
+	TestUtil.equal(migrated.inventory.Carrot, 0)
+	TestUtil.equal(migrated.courierLevel, 1)
+	TestUtil.equal(migrated.displayName, "")
+	TestUtil.equal(migrated.avatarStyle, "")
+	TestUtil.equal(migrated.starterOutfit, "")
+	TestUtil.isFalse(migrated.onboardingComplete)
+
+	local completed = ProfileSchema.normalize({
+		version = 2,
+		coins = 901,
+		inventory = { Carrot = 7, SugarCrystal = 3 },
+		gardenBeds = {
+			{ stage = "watered", readyAt = 1234 },
+		},
+		displayName = "Mia",
+		avatarStyle = "Girl",
+		starterOutfit = "Sunset",
+		onboardingComplete = true,
+	})
+	TestUtil.equal(completed.version, 3)
+	TestUtil.equal(completed.coins, 901)
+	TestUtil.equal(completed.inventory.Carrot, 7)
+	TestUtil.equal(completed.inventory.SugarCrystal, 3)
+	TestUtil.equal(completed.gardenBeds[1].stage, "watered")
+	TestUtil.equal(completed.displayName, "Mia")
+	TestUtil.equal(completed.avatarStyle, "Girl")
+	TestUtil.equal(completed.starterOutfit, "Sunset")
+	TestUtil.isTrue(completed.onboardingComplete)
+
+	local repaired = ProfileSchema.normalize({
+		coins = -50,
+		level = 0,
+		xp = -10,
+		houseTier = 99,
+		inventory = { Carrot = -4, SugarCrystal = 2.9 },
+		courierLevel = 0,
+		courierXp = -1,
+		gardenBeds = {
+			{ stage = "broken", readyAt = -1 },
+		},
+		homePrivacy = "Anyone",
+	})
+
+	TestUtil.equal(repaired.coins, 0)
+	TestUtil.equal(repaired.level, 1)
+	TestUtil.equal(repaired.xp, 0)
+	TestUtil.equal(repaired.houseTier, 5)
+	TestUtil.equal(repaired.inventory.Carrot, 0)
+	TestUtil.equal(repaired.inventory.SugarCrystal, 2)
+	TestUtil.equal(repaired.courierLevel, 1)
+	TestUtil.equal(repaired.courierXp, 0)
+	TestUtil.equal(repaired.gardenBeds[1].stage, "empty")
+	TestUtil.equal(repaired.gardenBeds[1].readyAt, 0)
+	TestUtil.equal(repaired.homePrivacy, "Open")
+	TestUtil.equal(repaired.displayName, "")
+	TestUtil.equal(repaired.avatarStyle, "")
+	TestUtil.equal(repaired.starterOutfit, "")
+	TestUtil.isFalse(repaired.onboardingComplete)
+end

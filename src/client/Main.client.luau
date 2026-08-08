@@ -1,0 +1,144 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
+local Progression = require(shared:WaitForChild("Progression"))
+
+local playerGui = player:WaitForChild("PlayerGui")
+local old = playerGui:FindFirstChild("TinyWorldHUD")
+if old then
+	old:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TinyWorldHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = false
+gui.Parent = playerGui
+
+local panel = Instance.new("Frame")
+panel.Name = "Panel"
+panel.Size = UDim2.fromOffset(340, 322)
+panel.Position = UDim2.fromOffset(16, 16)
+panel.BackgroundColor3 = Color3.fromRGB(27, 32, 43)
+panel.BackgroundTransparency = 0.08
+panel.BorderSizePixel = 0
+panel.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = panel
+
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0, 10)
+padding.PaddingBottom = UDim.new(0, 10)
+padding.PaddingLeft = UDim.new(0, 12)
+padding.PaddingRight = UDim.new(0, 12)
+padding.Parent = panel
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 3)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = panel
+
+local function makeLabel(name: string, height: number, size: number, bold: boolean): TextLabel
+	local label = Instance.new("TextLabel")
+	label.Name = name
+	label.Size = UDim2.new(1, 0, 0, height)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(248, 248, 250)
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Center
+	label.TextWrapped = true
+	label.TextSize = size
+	label.Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham
+	label.Parent = panel
+	return label
+end
+
+local title = makeLabel("Title", 30, 22, true)
+title.Text = "TINYWORLD • v0.01"
+local displayName = makeLabel("DisplayName", 22, 15, false)
+local stats = makeLabel("Stats", 25, 16, true)
+local home = makeLabel("Home", 25, 15, false)
+local inventory = makeLabel("Inventory", 25, 15, false)
+local profession = makeLabel("Profession", 25, 15, false)
+local transport = makeLabel("Transport", 25, 15, false)
+local portal = makeLabel("Portal", 25, 15, false)
+local goal = makeLabel("Goal", 48, 14, true)
+
+local message = Instance.new("TextLabel")
+message.Name = "StatusMessage"
+message.AnchorPoint = Vector2.new(0.5, 1)
+message.Position = UDim2.new(0.5, 0, 1, -24)
+message.Size = UDim2.new(0.7, 0, 0, 58)
+message.BackgroundColor3 = Color3.fromRGB(27, 32, 43)
+message.BackgroundTransparency = 0.08
+message.BorderSizePixel = 0
+message.TextColor3 = Color3.fromRGB(255, 255, 255)
+message.TextWrapped = true
+message.TextSize = 18
+message.Font = Enum.Font.GothamBold
+message.Text = "Welcome to TinyWorld."
+message.Parent = gui
+local messageCorner = Instance.new("UICorner")
+messageCorner.CornerRadius = UDim.new(0, 12)
+messageCorner.Parent = message
+
+local function attr(name: string, fallback)
+	local value = player:GetAttribute(name)
+	if value == nil then
+		return fallback
+	end
+	return value
+end
+
+local function update()
+	local coins = attr("TinyWorldCoins", 0)
+	local level = attr("TinyWorldLevel", 1)
+	local xp = attr("TinyWorldXP", 0)
+	local threshold = Progression.xpForNextLevel(level)
+	displayName.Text = string.format("Name: %s   |   Style: %s   |   Outfit: %s", attr("TinyWorldDisplayName", "New TinyWorlder"), attr("TinyWorldAvatarStyle", "-"), attr("TinyWorldStarterOutfit", "-"))
+	stats.Text = string.format("Coins: %d   •   Level %d   •   XP %d/%d", coins, level, xp, threshold)
+	home.Text = string.format("Home: %s (Tier %d)   •   Privacy: %s", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"))
+	inventory.Text = string.format("Bag: %d Carrot(s)   •   %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
+	profession.Text = string.format("Profession: Courier Lv.%d   •   XP %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldCourierXP", 0))
+	local bikeText = if attr("TinyWorldOwnsBike", false) then (if attr("TinyWorldBikeActive", false) then "Tiny Bike ACTIVE" else "Tiny Bike parked") else "Tiny Bike not owned"
+	transport.Text = "Transport: " .. bikeText
+	portal.Text = string.format("Portal: %d completion(s)   •   Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
+	local carry = if attr("TinyWorldCarryingParcel", false) then "  •  PARCEL ACTIVE" else ""
+	goal.Text = "NEXT: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
+	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
+end
+
+local observed = {
+	"TinyWorldCoins",
+	"TinyWorldLevel",
+	"TinyWorldXP",
+	"TinyWorldHouseName",
+	"TinyWorldHouseTier",
+	"TinyWorldHomePrivacy",
+	"TinyWorldCarrots",
+	"TinyWorldSugarCrystals",
+	"TinyWorldCourierLevel",
+	"TinyWorldCourierXP",
+	"TinyWorldOwnsBike",
+	"TinyWorldBikeActive",
+	"TinyWorldPortalCompletions",
+	"TinyWorldPortalCrystals",
+	"TinyWorldSuggestedGoal",
+	"TinyWorldCarryingParcel",
+	"TinyWorldMessageNonce",
+	"TinyWorldDisplayName",
+	"TinyWorldAvatarStyle",
+	"TinyWorldStarterOutfit",
+	"TinyWorldOnboardingComplete",
+	"TinyWorldOnboardingRequired",
+}
+
+for _, name in observed do
+	player:GetAttributeChangedSignal(name):Connect(update)
+end
+
+update()

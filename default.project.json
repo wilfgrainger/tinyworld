@@ -1,0 +1,26 @@
+{
+  "name": "TinyWorld",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "TinyWorld": {
+        "$className": "Folder",
+        "Shared": {
+          "$path": "src/shared"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "TinyWorld": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "TinyWorld": {
+          "$path": "src/client"
+        }
+      }
+    }
+  }
+}

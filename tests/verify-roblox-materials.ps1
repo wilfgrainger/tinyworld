@@ -1,0 +1,65 @@
+$validMaterials = @(
+    "Plastic",
+    "SmoothPlastic",
+    "Neon",
+    "Wood",
+    "WoodPlanks",
+    "Marble",
+    "Basalt",
+    "Slate",
+    "CrackedLava",
+    "Concrete",
+    "Limestone",
+    "Granite",
+    "Pavement",
+    "Brick",
+    "Pebble",
+    "Cobblestone",
+    "Rock",
+    "Sandstone",
+    "CorrodedMetal",
+    "DiamondPlate",
+    "Foil",
+    "Metal",
+    "Grass",
+    "LeafyGrass",
+    "Sand",
+    "Fabric",
+    "Snow",
+    "Mud",
+    "Ground",
+    "Asphalt",
+    "Salt",
+    "Ice",
+    "Glacier",
+    "Glass",
+    "ForceField",
+    "Air",
+    "Water",
+    "Cardboard",
+    "Carpet",
+    "CeramicTiles",
+    "ClayRoofTiles",
+    "RoofShingles",
+    "Leather",
+    "Plaster",
+    "Rubber"
+)
+
+$usedMaterials = @(
+    Get-ChildItem -Path (Join-Path $PSScriptRoot "..\src") -Recurse -File -Filter *.luau |
+        ForEach-Object {
+            $source = Get-Content -Raw -LiteralPath $_.FullName
+            [regex]::Matches($source, "Enum\.Material\.([A-Za-z0-9_]+)") |
+                ForEach-Object { $_.Groups[1].Value }
+        } |
+        Sort-Object -Unique
+)
+
+$invalidMaterials = @($usedMaterials | Where-Object { $_ -notin $validMaterials })
+if ($invalidMaterials.Count -gt 0) {
+    Write-Output ("Invalid Roblox Enum.Material references: " + ($invalidMaterials -join ", "))
+    exit 1
+}
+
+Write-Output ("Roblox material references verified: " + ($usedMaterials -join ", "))
