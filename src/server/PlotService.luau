@@ -7,6 +7,13 @@ local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
 local PlotService = {}
 PlotService.__index = PlotService
 
+local function displayNameFor(player: Player, profile): string
+	if profile and type(profile.displayName) == "string" and profile.displayName ~= "" then
+		return profile.displayName
+	end
+	return player.Name
+end
+
 local function makeHousePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material?): Part
 	local part = Instance.new("Part")
 	part.Name = name
@@ -55,6 +62,7 @@ function PlotService.new(world, ProfileStore, PlayerStateService)
 	self.PlayerStateService = PlayerStateService
 	self.playerPlots = {}
 	self.plotOwners = {}
+	self.identityConnections = {}
 
 	for plotIndex, plot in world.plots do
 		plot.upgradePrompt.Triggered:Connect(function(player)
@@ -96,6 +104,7 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 	end
 
 	self:rebuildHouse(player, profile)
+	self:refreshIdentity(player, profile)
 	self.PlayerStateService.sync(player, profile)
 	local house = HouseCatalog.get(profile.houseTier)
 	self.PlayerStateService.message(player, string.format("Home upgraded to %s!", if house then house.name else "the next tier"))
@@ -129,14 +138,14 @@ function PlotService:_visit(player: Player, plotIndex: number)
 	end
 
 	if not allowed then
-		self.PlayerStateService.message(player, owner.Name .. "'s home is private.")
+		self.PlayerStateService.message(player, displayNameFor(owner, profile) .. "'s home is private.")
 		return
 	end
 
 	local character = player.Character
 	if character then
 		character:PivotTo(self.world.plots[plotIndex].insideCFrame)
-		self.PlayerStateService.message(player, "Welcome to " .. owner.Name .. "'s home.")
+		self.PlayerStateService.message(player, "Welcome to " .. displayNameFor(owner, profile) .. "'s home.")
 	end
 end
 
@@ -148,9 +157,16 @@ function PlotService:assign(player: Player, profile)
 		if self.plotOwners[index] == nil then
 			self.plotOwners[index] = player
 			self.playerPlots[player] = index
-			plot.ownerLabel.Text = player.Name .. "'s Plot"
+			plot.ownerLabel.Text = displayNameFor(player, profile) .. "'s Plot"
 			plot.privacyPrompt.ObjectText = "Home Access: " .. profile.homePrivacy
 			self:rebuildHouse(player, profile)
+			self:refreshIdentity(player, profile)
+			self.identityConnections[player] = player:GetAttributeChangedSignal("TinyWorldDisplayName"):Connect(function()
+				local latest = self.ProfileStore.get(player)
+				if latest then
+					self:refreshIdentity(player, latest)
+				end
+			end)
 			return index
 		end
 	end
@@ -197,6 +213,15 @@ function PlotService:rebuildHouse(player: Player, profile)
 	plot.ownerLabel.Text = string.format("%s's Plot • %s", player.Name, if house then house.name else "Home")
 end
 
+function PlotService:refreshIdentity(player: Player, profile)
+	local plotIndex = self.playerPlots[player]
+	if plotIndex == nil then
+		return
+	end
+	local house = HouseCatalog.get(profile.houseTier)
+	self.world.plots[plotIndex].ownerLabel.Text = string.format("%s's Plot - %s", displayNameFor(player, profile), if house then house.name else "Home")
+end
+
 function PlotService:getPlotForPlayer(player: Player)
 	local index = self.playerPlots[player]
 	if index == nil then
@@ -218,6 +243,11 @@ function PlotService:release(player: Player)
 	plot.houseContainer:ClearAllChildren()
 	plot.ownerLabel.Text = "Available Plot"
 	plot.privacyPrompt.ObjectText = "Home Access"
+	local identityConnection = self.identityConnections[player]
+	if identityConnection then
+		identityConnection:Disconnect()
+		self.identityConnections[player] = nil
+	end
 	self.plotOwners[index] = nil
 	self.playerPlots[player] = nil
 end

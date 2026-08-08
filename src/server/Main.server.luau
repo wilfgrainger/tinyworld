@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 
 local ProfileStore = require(script.Parent:WaitForChild("ProfileStore"))
 local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateService"))
+local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local GardenService = require(script.Parent:WaitForChild("GardenService"))
@@ -14,6 +15,7 @@ local VillageService = require(script.Parent:WaitForChild("VillageService"))
 
 local world = WorldBuilder.build()
 local plotService = PlotService.new(world, ProfileStore, PlayerStateService)
+local onboardingService = OnboardingService.new(ProfileStore, PlayerStateService)
 local gardenService = GardenService.new(world, plotService, ProfileStore, PlayerStateService)
 local _dailyRewardService = DailyRewardService.new(world, ProfileStore, PlayerStateService)
 local jobService = JobService.new(world, ProfileStore, PlayerStateService)
@@ -30,6 +32,7 @@ local function onPlayerAdded(player: Player)
 	end
 
 	PlayerStateService.setup(player, profile)
+	onboardingService:setupPlayer(player, profile)
 	plotService:assign(player, profile)
 	gardenService:syncPlayer(player)
 	jobService:trackPlayer(player)
@@ -37,7 +40,11 @@ local function onPlayerAdded(player: Player)
 	transportService:apply(player, profile)
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
 	player:SetAttribute("TinyWorldCarryingParcel", false)
-	PlayerStateService.message(player, "Welcome to TinyWorld v0.01. Your whole virtual life starts in this village.")
+	if profile.onboardingComplete then
+		PlayerStateService.message(player, "Welcome back to TinyWorld, " .. profile.displayName .. ".")
+	else
+		PlayerStateService.message(player, "Welcome to TinyWorld. Choose your name and starter look to begin.")
+	end
 end
 
 local function onPlayerRemoving(player: Player)
@@ -45,6 +52,7 @@ local function onPlayerRemoving(player: Player)
 	portalService:removePlayer(player)
 	jobService:removePlayer(player)
 	transportService:removePlayer(player)
+	onboardingService:removePlayer(player)
 	plotService:release(player)
 	ProfileStore.release(player)
 end

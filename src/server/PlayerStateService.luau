@@ -6,6 +6,9 @@ local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local PlayerStateService = {}
 
 local function suggestedGoal(profile): string
+	if not profile.onboardingComplete then
+		return "Complete your TinyWorld setup."
+	end
 	if profile.inventory.Carrot < 1 then
 		return "Claim the fountain reward or grow a Carrot."
 	end
@@ -80,6 +83,11 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldPortalCompletions", profile.portalCompletions)
 	player:SetAttribute("TinyWorldVillageContribution", profile.villageContribution)
 	player:SetAttribute("TinyWorldHomePrivacy", profile.homePrivacy)
+	player:SetAttribute("TinyWorldDisplayName", profile.displayName)
+	player:SetAttribute("TinyWorldAvatarStyle", profile.avatarStyle)
+	player:SetAttribute("TinyWorldStarterOutfit", profile.starterOutfit)
+	player:SetAttribute("TinyWorldOnboardingComplete", profile.onboardingComplete)
+	player:SetAttribute("TinyWorldOnboardingRequired", not profile.onboardingComplete)
 	player:SetAttribute("TinyWorldSuggestedGoal", suggestedGoal(profile))
 end
 

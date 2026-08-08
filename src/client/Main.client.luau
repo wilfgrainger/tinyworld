@@ -19,7 +19,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.fromOffset(340, 294)
+panel.Size = UDim2.fromOffset(340, 322)
 panel.Position = UDim2.fromOffset(16, 16)
 panel.BackgroundColor3 = Color3.fromRGB(27, 32, 43)
 panel.BackgroundTransparency = 0.08
@@ -59,6 +59,7 @@ end
 
 local title = makeLabel("Title", 30, 22, true)
 title.Text = "TINYWORLD • v0.01"
+local displayName = makeLabel("DisplayName", 22, 15, false)
 local stats = makeLabel("Stats", 25, 16, true)
 local home = makeLabel("Home", 25, 15, false)
 local inventory = makeLabel("Inventory", 25, 15, false)
@@ -98,6 +99,7 @@ local function update()
 	local level = attr("TinyWorldLevel", 1)
 	local xp = attr("TinyWorldXP", 0)
 	local threshold = Progression.xpForNextLevel(level)
+	displayName.Text = string.format("Name: %s   |   Style: %s   |   Outfit: %s", attr("TinyWorldDisplayName", "New TinyWorlder"), attr("TinyWorldAvatarStyle", "-"), attr("TinyWorldStarterOutfit", "-"))
 	stats.Text = string.format("Coins: %d   •   Level %d   •   XP %d/%d", coins, level, xp, threshold)
 	home.Text = string.format("Home: %s (Tier %d)   •   Privacy: %s", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"))
 	inventory.Text = string.format("Bag: %d Carrot(s)   •   %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
@@ -128,6 +130,11 @@ local observed = {
 	"TinyWorldSuggestedGoal",
 	"TinyWorldCarryingParcel",
 	"TinyWorldMessageNonce",
+	"TinyWorldDisplayName",
+	"TinyWorldAvatarStyle",
+	"TinyWorldStarterOutfit",
+	"TinyWorldOnboardingComplete",
+	"TinyWorldOnboardingRequired",
 }
 
 for _, name in observed do
