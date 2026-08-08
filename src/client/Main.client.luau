@@ -80,11 +80,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "A TINY LIFE / ALPHA TEST"
+eyebrow.Text = "TODAY / ALPHA PLAYTEST"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.0.3 LIVING VILLAGE"
+title.Text = "TINYWORLD | v0.0.4 MVP VILLAGE"
 local displayName = makeLabel("DisplayName", 22, 15, false)
 local stats = makeLabel("Stats", 25, 16, true)
 stats.TextColor3 = colors.gold
@@ -167,7 +167,7 @@ local function update()
 	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
 	local carry = if attr("TinyWorldCarryingParcel", false) then "  |  PARCEL ACTIVE" else ""
-	goal.Text = "NEXT: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
+	goal.Text = "TODAY: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
 	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
 end
 
