@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
+local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local PlotService = {}
@@ -90,6 +91,9 @@ function PlotService.new(world, ProfileStore, PlayerStateService)
 		plot.visitPrompt.Triggered:Connect(function(player)
 			self:_visit(player, plotIndex)
 		end)
+		plot.homeCharmPrompt.Triggered:Connect(function(player)
+			self:_decorate(player, plotIndex)
+		end)
 	end
 
 	return self
@@ -101,6 +105,26 @@ function PlotService:_ownerProfile(plotIndex: number)
 		return nil, nil
 	end
 	return owner, self.ProfileStore.get(owner)
+end
+
+function PlotService:_decorate(player: Player, plotIndex: number)
+	local owner, profile = self:_ownerProfile(plotIndex)
+	if owner ~= player or profile == nil then
+		self.PlayerStateService.message(player, "Only the plot owner can add a Home Charm.")
+		return
+	end
+
+	local applied, reason = LivingWorldRules.addHomeCharm(profile)
+	if not applied then
+		self.PlayerStateService.message(player, if reason == "already_applied" then "Your home already has a Home Charm." else "Find a Meadow Seed, Seashell, and Wood Token first.")
+		return
+	end
+
+	self:rebuildHouse(player, profile)
+	self:refreshIdentity(player, profile)
+	self.PlayerStateService.sync(player, profile)
+	self.PlayerStateService.message(player, "Home Charm added: your garden is blooming.")
+	self.ProfileStore.save(player)
 end
 
 function PlotService:_upgrade(player: Player, plotIndex: number)
@@ -230,10 +254,11 @@ function PlotService:rebuildHouse(player: Player, profile)
 	makeHouseDecoration(plot.houseContainer, "FrontDoor", Vector3.new(4, 6, 0.5), anchor + Vector3.new(0, 3.2, frontZ + 0.6), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	makeHouseDecoration(plot.houseContainer, "DoorKnob", Vector3.new(0.45, 0.45, 0.45), anchor + Vector3.new(1.1, 3.2, frontZ + 0.95), VisualTheme.Colors.gold, Enum.Material.Metal)
 	for index, x in {-width * 0.3, width * 0.3} do
-		local window = makeHouseDecoration(plot.houseContainer, "FrontWindow" .. index, Vector3.new(4, 3, 0.45), anchor + Vector3.new(x, 5.8, frontZ + 0.58), VisualTheme.Colors.sky, Enum.Material.Glass)
+		local window = makeHouseDecoration(plot.houseContainer, "HouseWindow" .. index, Vector3.new(4, 3, 0.45), anchor + Vector3.new(x, 5.8, frontZ + 0.58), VisualTheme.Colors.sky, Enum.Material.Glass)
 		window.Reflectance = 0.1
 		makeHouseDecoration(plot.houseContainer, "WindowBox" .. index, Vector3.new(5, 0.8, 1.2), anchor + Vector3.new(x, 3.8, frontZ + 1.2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 		makeHouseDecoration(plot.houseContainer, "HouseFlowerBox" .. index, Vector3.new(4.5, 0.5, 1), anchor + Vector3.new(x, 4.5, frontZ + 1.45), if tier % 2 == 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.Fabric)
+		makeHouseDecoration(plot.houseContainer, "HouseWindowGlow" .. index, Vector3.new(2.2, 1.2, 0.2), anchor + Vector3.new(x, 5.8, frontZ + 0.9), VisualTheme.Colors.warmLight, Enum.Material.Neon)
 	end
 	local lamp = makeHouseDecoration(plot.houseContainer, "PorchLamp", Vector3.new(0.7, 1.6, 0.7), anchor + Vector3.new(-6, 5.5, frontZ + 0.7), VisualTheme.Colors.gold, Enum.Material.Neon)
 	lamp.Shape = Enum.PartType.Ball
@@ -243,9 +268,19 @@ function PlotService:rebuildHouse(player: Player, profile)
 		makeHousePart(plot.houseContainer, "UpperRoof", Vector3.new((width * 0.55) + 2, 2, (depth * 0.5) + 2), anchor + Vector3.new(0, height + 8 + (tier / 2), -2), roofColor, Enum.Material.Slate)
 		makeHouseDecoration(plot.houseContainer, "UpperWindow", Vector3.new(5, 3, 0.5), anchor + Vector3.new(0, height + 5, depth * 0.25), VisualTheme.Colors.sky, Enum.Material.Glass)
 	end
+	if tier >= 2 then
+		makeHousePart(plot.houseContainer, "CabinChimney", Vector3.new(3, 5, 3), anchor + Vector3.new(width / 3, height + 3, -depth / 4), VisualTheme.Colors.path, Enum.Material.Brick)
+		makeHouseDecoration(plot.houseContainer, "CabinChimneyCap", Vector3.new(3.5, 0.5, 3.5), anchor + Vector3.new(width / 3, height + 5.7, -depth / 4), VisualTheme.Colors.inkSoft, Enum.Material.Slate)
+	end
 	if tier == 5 then
 		makeHousePart(plot.houseContainer, "VillaTower", Vector3.new(7, 14, 7), anchor + Vector3.new((width / 2) - 5, height + 6, 0), wallColor)
 		makeHouseDecoration(plot.houseContainer, "VillaTowerWindow", Vector3.new(3, 5, 0.5), anchor + Vector3.new((width / 2) - 5, height + 7, 3.6), VisualTheme.Colors.sky, Enum.Material.Glass)
+	end
+	if profile.homeCharmApplied then
+		makeHouseDecoration(plot.houseContainer, "HomePlanter", Vector3.new(7, 1, 2.4), anchor + Vector3.new(0, 1.5, frontZ + 3.5), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+		makeHouseDecoration(plot.houseContainer, "HomeFlowerCluster", Vector3.new(5, 2, 2), anchor + Vector3.new(0, 2.8, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Fabric)
+		local homeLantern = makeHouseDecoration(plot.houseContainer, "HomeLantern", Vector3.new(1.2, 1.8, 1.2), anchor + Vector3.new(7, 4.6, frontZ + 1.2), VisualTheme.Colors.gold, Enum.Material.Neon)
+		homeLantern.Shape = Enum.PartType.Ball
 	end
 
 	local namePost = makeHousePart(plot.houseContainer, "HouseName", Vector3.new(8, 3, 1), anchor + Vector3.new(0, 3, (depth / 2) + 2), roofColor)

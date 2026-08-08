@@ -59,7 +59,15 @@ return function()
 	finished.portalCompletions = 1
 	finished.villageContribution = 50
 	finished.boundaryCompletions = 1
+	finished.homeCharmApplied = true
 	TestUtil.equal(GoalRules.suggestedGoal(finished), "Trade with a neighbour, explore the boundary, and grow your TinyWorld.")
+
+	local charm = readyProfile()
+	charm.houseTier = 5
+	charm.portalCompletions = 1
+	charm.villageContribution = 50
+	charm.boundaryCompletions = 1
+	TestUtil.equal(GoalRules.suggestedGoal(charm), "Find the three village keepsakes and add a Home Charm.")
 
 	local boundary = readyProfile()
 	boundary.houseTier = 5

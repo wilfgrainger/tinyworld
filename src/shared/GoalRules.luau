@@ -41,6 +41,9 @@ function GoalRules.suggestedGoal(profile): string
 	if profile.boundaryCompletions < 1 then
 		return "Visit the woods, cliffs, and sea around the village."
 	end
+	if not profile.homeCharmApplied then
+		return "Find the three village keepsakes and add a Home Charm."
+	end
 	return "Trade with a neighbour, explore the boundary, and grow your TinyWorld."
 end
 

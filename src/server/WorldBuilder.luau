@@ -227,6 +227,9 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	local visitKiosk = makePart(model, "VisitKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, 24), VisualTheme.Colors.portal)
 	local visitPrompt = makePrompt(visitKiosk, "Enter Home", "Front Gate")
 	makeInteractionMarker(model, "VisitMarker", origin + Vector3.new(0, 0, 24), VisualTheme.Colors.portal)
+	local homeCharmKiosk = makePart(model, "HomeCharmKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, -24), VisualTheme.Colors.flower)
+	local homeCharmPrompt = makePrompt(homeCharmKiosk, "Add Home Charm", "Home Garden")
+	makeInteractionMarker(model, "HomeCharmMarker", origin + Vector3.new(0, 0, -24), VisualTheme.Colors.flower)
 
 	local houseContainer = Instance.new("Model")
 	houseContainer.Name = "House"
@@ -251,6 +254,7 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 		upgradePrompt = upgradePrompt,
 		privacyPrompt = privacyPrompt,
 		visitPrompt = visitPrompt,
+		homeCharmPrompt = homeCharmPrompt,
 		gardenBeds = gardenBeds,
 		gardenPrompts = gardenPrompts,
 		insideCFrame = CFrame.new(origin + Vector3.new(0, 4, -8)),

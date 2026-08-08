@@ -30,7 +30,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.new(0.92, 0, 0, 352)
+panel.Size = UDim2.new(0.92, 0, 0, 380)
 panel.Position = UDim2.fromOffset(12, 12)
 panel.BackgroundColor3 = colors.ink
 panel.BackgroundTransparency = 0.08
@@ -39,7 +39,7 @@ panel.Parent = gui
 
 local panelConstraint = Instance.new("UISizeConstraint")
 panelConstraint.MinSize = Vector2.new(280, 300)
-panelConstraint.MaxSize = Vector2.new(360, 380)
+panelConstraint.MaxSize = Vector2.new(360, 420)
 panelConstraint.Parent = panel
 
 local corner = Instance.new("UICorner")
@@ -90,6 +90,7 @@ local stats = makeLabel("Stats", 25, 16, true)
 stats.TextColor3 = colors.gold
 local home = makeLabel("Home", 25, 15, false)
 local inventory = makeLabel("Inventory", 25, 15, false)
+local lifeKit = makeLabel("LifeKit", 25, 15, false)
 local profession = makeLabel("Profession", 25, 15, false)
 local transport = makeLabel("Transport", 25, 15, false)
 local portal = makeLabel("Portal", 25, 15, false)
@@ -161,6 +162,8 @@ local function update()
 	stats.Text = string.format("Coins: %d  |  Level %d  |  XP %d/%d", coins, level, xp, threshold)
 	home.Text = string.format("Home: %s (Tier %d)  |  Privacy: %s", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"))
 	inventory.Text = string.format("Bag: %d Carrot(s)  |  %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
+	local charm = if attr("TinyWorldHomeCharm", false) then "  |  Home charm" else ""
+	lifeKit.Text = string.format("Life kit: %d seed  |  %d shell  |  %d wood", attr("TinyWorldMeadowSeeds", 0), attr("TinyWorldSeashells", 0), attr("TinyWorldWoodTokens", 0)) .. charm
 	profession.Text = string.format("Profession: Courier Lv.%d  |  XP %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldCourierXP", 0))
 	local bikeState = attr("TinyWorldBikeState", if attr("TinyWorldBikeActive", false) then "mounted" else "parked")
 	local bikeText = if bikeState == "mounted" then "Tiny Bike MOUNTED" elseif bikeState == "parked" and attr("TinyWorldOwnsBike", false) then "Tiny Bike PARKED" else "Tiny Bike not owned"
@@ -181,6 +184,11 @@ local observed = {
 	"TinyWorldHomePrivacy",
 	"TinyWorldCarrots",
 	"TinyWorldSugarCrystals",
+	"TinyWorldMeadowSeeds",
+	"TinyWorldSeashells",
+	"TinyWorldWoodTokens",
+	"TinyWorldLifeKitCount",
+	"TinyWorldHomeCharm",
 	"TinyWorldCourierLevel",
 	"TinyWorldCourierXP",
 	"TinyWorldOwnsBike",
