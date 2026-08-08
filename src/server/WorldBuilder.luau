@@ -129,8 +129,9 @@ end
 local function makeLabel(parent: BasePart, text: string, width: number?): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(width or 250, 70)
-	gui.StudsOffset = Vector3.new(0, 4, 0)
+	gui.Size = UDim2.fromOffset(math.min(width or 200, 200), 52)
+	gui.StudsOffset = Vector3.new(0, 3.4, 0)
+	gui.MaxDistance = 90
 	gui.AlwaysOnTop = true
 	gui.Parent = parent
 
@@ -145,6 +146,10 @@ local function makeLabel(parent: BasePart, text: string, width: number?): TextLa
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
+	local textConstraint = Instance.new("UITextSizeConstraint")
+	textConstraint.MinTextSize = 12
+	textConstraint.MaxTextSize = 22
+	textConstraint.Parent = label
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = label
@@ -163,11 +168,11 @@ local function makeCourierShowcase(parent: Instance)
 		parcel.Orientation = Vector3.new(0, index * 6, 0)
 	end
 	local pickupSign = makeDecoration(parent, "CourierPickupSign", Vector3.new(12, 4, 1), Vector3.new(-8, 6, -34), VisualTheme.Colors.ink, Enum.Material.Wood)
-	makeLabel(pickupSign, "PICK UP PARCEL", 220)
+	makeLabel(pickupSign, "PICK UP PARCEL", 170)
 
 	makeDecoration(parent, "DeliveryDropCounter", Vector3.new(12, 1.5, 4), Vector3.new(30, 1.25, -37), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	local dropSign = makeDecoration(parent, "DeliveryDropSign", Vector3.new(14, 4, 1), Vector3.new(30, 5.5, -37), VisualTheme.Colors.ink, Enum.Material.Wood)
-	makeLabel(dropSign, "DELIVERY DROP", 230)
+	makeLabel(dropSign, "DELIVERY DROP", 170)
 end
 
 local function amenity(parent: Instance, name: string, position: Vector3, text: string, color: Color3)
