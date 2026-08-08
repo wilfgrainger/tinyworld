@@ -31,6 +31,9 @@ foreach ($property in @("CanCollide = false", "CanTouch = false", "CanQuery = fa
 if ($builder -notmatch 'itemName \.\. "Pickup"') {
     throw "LivingWorldBuilder does not create named item pickup carriers."
 }
+if ($builder -notmatch 'makePrompt\(pickup, "PickupPrompt", "Collect " \.\. itemName, "Village Find"\)') {
+    throw "LivingWorldBuilder pickup prompts must pass name, action text, and object text explicitly."
+}
 foreach ($contract in @("LivingWorldRules", "collect", "MeadowSeed", "Seashell", "WoodToken")) {
     if ($service -notmatch [regex]::Escape($contract)) {
         throw "LivingWorldService is missing the $contract contract."
