@@ -53,6 +53,8 @@ Then:
 
 Important: the profile service intentionally fails closed if Roblox cannot read saved data. If the place is unpublished or API Services are disabled, the player may be removed rather than receiving a fake fresh profile. That is deliberate data-safety behaviour.
 
+See [Development progress](docs/progress.md) for dated setup and testing milestones.
+
 ## 15-minute v0.01 smoke test
 
 ### 1. Arrival and home
