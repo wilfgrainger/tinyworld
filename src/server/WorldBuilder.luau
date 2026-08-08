@@ -126,12 +126,12 @@ local function makePrompt(parent: Instance, actionText: string, objectText: stri
 	return prompt
 end
 
-local function makeLabel(parent: BasePart, text: string, width: number?): TextLabel
+local function makeLabel(parent: BasePart, text: string, width: number?, maxDistance: number?): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Label"
 	gui.Size = UDim2.fromOffset(math.min(width or 200, 200), 52)
 	gui.StudsOffset = Vector3.new(0, 3.4, 0)
-	gui.MaxDistance = 80
+	gui.MaxDistance = maxDistance or 80
 	gui.AlwaysOnTop = true
 	gui.Parent = parent
 
@@ -167,12 +167,8 @@ local function makeCourierShowcase(parent: Instance)
 		local parcel = makeDecoration(parent, "DepotParcel" .. index, Vector3.new(3, 3, 3), Vector3.new(x, 4, -34), VisualTheme.Colors.timber, Enum.Material.Cardboard)
 		parcel.Orientation = Vector3.new(0, index * 6, 0)
 	end
-	local pickupSign = makeDecoration(parent, "CourierPickupSign", Vector3.new(12, 4, 1), Vector3.new(-8, 6, -34), VisualTheme.Colors.ink, Enum.Material.Wood)
-	makeLabel(pickupSign, "PARCELS", 120)
 
 	makeDecoration(parent, "DeliveryDropCounter", Vector3.new(12, 1.5, 4), Vector3.new(30, 1.25, -37), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	local dropSign = makeDecoration(parent, "DeliveryDropSign", Vector3.new(14, 4, 1), Vector3.new(30, 5.5, -37), VisualTheme.Colors.ink, Enum.Material.Wood)
-	makeLabel(dropSign, "DROP OFF", 120)
 end
 
 local function amenity(parent: Instance, name: string, position: Vector3, text: string, color: Color3)
@@ -197,7 +193,7 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	makeTree(model, "PlotTree", origin + Vector3.new(-24, 0, -21), 0.7)
 	makeFlowerCluster(model, "PlotFlowers", origin + Vector3.new(20, 0, -20), VisualTheme.Colors.flower)
 	local sign = makeDecoration(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), VisualTheme.Colors.timber, Enum.Material.Wood)
-	local ownerLabel = makeLabel(sign, "Available Plot", 220)
+	local ownerLabel = makeLabel(sign, "Available Plot", 180, 55)
 
 	local upgradeKiosk = makePart(model, "UpgradeKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(-12, 2, 24), VisualTheme.Colors.gold)
 	local upgradePrompt = makePrompt(upgradeKiosk, "Upgrade Home", "Home Builder")

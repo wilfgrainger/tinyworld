@@ -75,7 +75,8 @@ if ($unsafeStudioWrites.Count -gt 0) {
 $worldBuilder = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\WorldBuilder.luau")
 if ($worldBuilder -notmatch "gui\.MaxDistance\s*=\s*80" -or
     $worldBuilder -notmatch "math\.min\(width or 200, 200\)" -or
-    $worldBuilder -notmatch "UITextSizeConstraint") {
+    $worldBuilder -notmatch "UITextSizeConstraint" -or
+    $worldBuilder -notmatch '"Available Plot", 180, 55') {
     Write-Output "World landmark labels must have a bounded size and viewing distance."
     exit 1
 }
