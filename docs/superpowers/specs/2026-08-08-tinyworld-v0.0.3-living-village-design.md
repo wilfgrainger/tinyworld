@@ -62,6 +62,7 @@ The boundary is scenery plus navigation guidance, not a second duplicated world 
 `src/shared/ExplorationRules.luau` owns the deterministic mission state. The profile schema advances to version 4 with these fields:
 
 - `boundaryExplorationDay: string` — the UTC day for the current visit mask;
+- `boundaryExplorationClaimedDay: string` — the UTC day used to make the reward claim idempotent;
 - `boundaryExplorationMask: number` — a three-bit mask for Woodland Trail (`1`), Cliff Lookout (`2`), and Sea Dock (`4`);
 - `boundaryCompletions: number` — the number of daily Boundary Explorer routes claimed.
 

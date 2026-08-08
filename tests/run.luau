@@ -11,6 +11,8 @@ local specs = {
 	require("./TransportRules.spec"),
 	require("./PortalRules.spec"),
 	require("./TradeRules.spec"),
+	require("./WorldLayoutRules.spec"),
+	require("./ExplorationRules.spec"),
 }
 
 for _, runSpec in specs do

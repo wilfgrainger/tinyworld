@@ -30,7 +30,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.new(0.92, 0, 0, 322)
+panel.Size = UDim2.new(0.92, 0, 0, 352)
 panel.Position = UDim2.fromOffset(12, 12)
 panel.BackgroundColor3 = colors.ink
 panel.BackgroundTransparency = 0.08
@@ -39,7 +39,7 @@ panel.Parent = gui
 
 local panelConstraint = Instance.new("UISizeConstraint")
 panelConstraint.MinSize = Vector2.new(280, 300)
-panelConstraint.MaxSize = Vector2.new(360, 340)
+panelConstraint.MaxSize = Vector2.new(360, 380)
 panelConstraint.Parent = panel
 
 local corner = Instance.new("UICorner")
@@ -84,7 +84,7 @@ eyebrow.Text = "A TINY LIFE / ALPHA TEST"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.0.2 ALPHA"
+title.Text = "TINYWORLD | v0.0.3 LIVING VILLAGE"
 local displayName = makeLabel("DisplayName", 22, 15, false)
 local stats = makeLabel("Stats", 25, 16, true)
 stats.TextColor3 = colors.gold
@@ -93,6 +93,7 @@ local inventory = makeLabel("Inventory", 25, 15, false)
 local profession = makeLabel("Profession", 25, 15, false)
 local transport = makeLabel("Transport", 25, 15, false)
 local portal = makeLabel("Portal", 25, 15, false)
+local exploration = makeLabel("Exploration", 25, 15, false)
 local goal = makeLabel("Goal", 48, 14, true)
 goal.BackgroundColor3 = colors.inkSoft
 goal.BackgroundTransparency = 0.12
@@ -141,6 +142,16 @@ local function attr(name: string, fallback)
 	return value
 end
 
+local function boundaryVisitCount(mask: number): number
+	local count = 0
+	for _, bit in { 1, 2, 4 } do
+		if (mask % (bit * 2)) >= bit then
+			count += 1
+		end
+	end
+	return count
+end
+
 local function update()
 	local coins = attr("TinyWorldCoins", 0)
 	local level = attr("TinyWorldLevel", 1)
@@ -154,6 +165,7 @@ local function update()
 	local bikeText = if attr("TinyWorldOwnsBike", false) then (if attr("TinyWorldBikeActive", false) then "Tiny Bike ACTIVE" else "Tiny Bike parked") else "Tiny Bike not owned"
 	transport.Text = "Transport: " .. bikeText
 	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
+	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
 	local carry = if attr("TinyWorldCarryingParcel", false) then "  |  PARCEL ACTIVE" else ""
 	goal.Text = "NEXT: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
 	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
@@ -173,6 +185,8 @@ local observed = {
 	"TinyWorldOwnsBike",
 	"TinyWorldBikeActive",
 	"TinyWorldPortalCompletions",
+	"TinyWorldBoundaryMask",
+	"TinyWorldBoundaryCompletions",
 	"TinyWorldPortalCrystals",
 	"TinyWorldSuggestedGoal",
 	"TinyWorldCarryingParcel",

@@ -81,4 +81,27 @@ if ($worldBuilder -notmatch "gui\.MaxDistance\s*=\s*maxDistance\s+or\s+80" -or
     exit 1
 }
 
+if ($worldBuilder -match '"VillageGround".*Enum\.Material\.Grass' -or
+    $worldBuilder -match '"PlotBase".*Enum\.Material\.Grass' -or
+    $worldBuilder -notmatch '"VillageGround".*Enum\.Material\.Ground' -or
+    $worldBuilder -notmatch '"PlotBase".*Enum\.Material\.Ground' -or
+    $worldBuilder -notmatch 'WorldLayoutRules\.create\(maxPlayers\)' -or
+    $worldBuilder -notmatch 'BoundaryBuilder\.build\(root, layout\)') {
+    Write-Output "Village ground and plots must use stable Ground surfaces and the capacity-aware boundary builder."
+    exit 1
+}
+
+$boundaryBuilder = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\BoundaryBuilder.luau")
+if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
+    $boundaryBuilder -notmatch 'Enum\.Material\.Sand' -or
+    $boundaryBuilder -notmatch 'Enum\.Material\.Rock' -or
+    $boundaryBuilder -notmatch 'Enum\.Material\.Basalt' -or
+    $boundaryBuilder -notmatch 'VillageBoundary' -or
+    $boundaryBuilder -notmatch 'WoodlandTrail' -or
+    $boundaryBuilder -notmatch 'CliffLookout' -or
+    $boundaryBuilder -notmatch 'SeaDock') {
+    Write-Output "The shared boundary must contain scalable sea, sand, cliffs, woods, and all three landmarks."
+    exit 1
+}
+
 Write-Output ("Roblox material references verified: " + ($usedMaterials -join ", "))

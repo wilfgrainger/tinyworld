@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 3
+ProfileSchema.VERSION = 4
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 export type GardenBed = { stage: string, readyAt: number }
@@ -20,6 +20,10 @@ gardenBeds: { GardenBed },
 lastDailyDay: string,
 portalCompletions: number,
 villageContribution: number,
+boundaryExplorationDay: string,
+boundaryExplorationClaimedDay: string,
+boundaryExplorationMask: number,
+boundaryCompletions: number,
 homePrivacy: string,
 displayName: string,
 avatarStyle: string,
@@ -83,7 +87,7 @@ end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 3,
+		version = 4,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -97,6 +101,10 @@ function ProfileSchema.new(): PlayerProfile
 		lastDailyDay = "",
 		portalCompletions = 0,
 		villageContribution = 0,
+		boundaryExplorationDay = "",
+		boundaryExplorationClaimedDay = "",
+		boundaryExplorationMask = 0,
+		boundaryCompletions = 0,
 		homePrivacy = "Open",
 		displayName = "",
 		avatarStyle = "",
@@ -116,7 +124,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 3,
+		version = 4,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -130,6 +138,10 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		lastDailyDay = if type(value.lastDailyDay) == "string" then value.lastDailyDay else "",
 		portalCompletions = normaliseInteger(value.portalCompletions, 0, 0),
 		villageContribution = normaliseInteger(value.villageContribution, 0, 0),
+		boundaryExplorationDay = if type(value.boundaryExplorationDay) == "string" then value.boundaryExplorationDay else "",
+		boundaryExplorationClaimedDay = if type(value.boundaryExplorationClaimedDay) == "string" then value.boundaryExplorationClaimedDay else "",
+		boundaryExplorationMask = normaliseInteger(value.boundaryExplorationMask, 0, 0, 7),
+		boundaryCompletions = normaliseInteger(value.boundaryCompletions, 0, 0),
 		homePrivacy = privacy,
 		displayName = displayName,
 		avatarStyle = avatarStyle,

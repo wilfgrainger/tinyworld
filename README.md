@@ -8,7 +8,7 @@ TinyWorld is a persistent Roblox life sandbox where players build a home, grow a
 
 The current branch is designed as a 15–30 minute vertical slice of the entire TinyWorld vision rather than a single-mechanic prototype. It contains one representative example of each major pillar:
 
-- a generated village with four player plots;
+- a generated village with four initial player plots and capacity-aware expansion;
 - persistent coins, universal Level/XP, inventory, house tier, Courier progress, transport ownership, garden state, daily reward state, portal progress, civic contribution, and home privacy;
 - five visibly different procedural house tiers;
 - three persistent Carrot garden beds per plot;
@@ -30,6 +30,18 @@ The `feat/v0.0.2-alpha` branch keeps the v0.01 gameplay contract and raises the 
 The [v0.0.2 family alpha test](docs/v0.0.2-alpha-test.md) records the ten visual/usability checks, the gameplay regression route, and the remaining Studio/device evidence. This is a controlled candidate for testing, not a public release.
 
 The long-term north star is a safe, durable creator-led opportunity that could become a meaningful day job for the young people building TinyWorld. That requires a game people want to return to, with real creative ownership and social value. Future monetization must remain optional and fair: cosmetics, expression, decoration, and bounded convenience may be considered; gameplay power, progression, rare resources, and the core life loop must remain equally playable for free. The alpha contains no purchase prompts, live product IDs, or ads.
+
+## v0.0.3 living village
+
+The `feat/v0.0.3-living-village` slice turns the prototype square into a readable, capacity-aware village world:
+
+- the original four plot positions are preserved, while additional plot slots are generated from Roblox's configured `Players.MaxPlayers` capacity in deterministic perimeter rings;
+- a single stable `Ground` floor replaces the broad Grass collision slabs that could shimmer against plot surfaces;
+- one shared boundary model scales around the outermost plots with woods, cliffs, rock/basalt steps, sand transition, and sea;
+- the Woodland Trail, Cliff Lookout, and Sea Dock form a free daily Boundary Explorer route worth `+250 coins` and `+100 XP` once per UTC day;
+- the v0.0.3 HUD exposes boundary progress and route completions without changing the server-authoritative economy or the no-pay-to-win direction.
+
+The [v0.0.3 living-village test](docs/v0.0.3-living-village-test.md) is the authoritative route for this slice. This is still a controlled development candidate, not a public release.
 
 ## What you need tomorrow
 
@@ -80,7 +92,7 @@ When the build is ready for family testing from phones, tablets, consoles, or ot
 - Press Play.
 - Confirm a generated TinyWorld village appears around the central spawn.
 - Confirm the HUD appears in the top-left.
-- Confirm your username is assigned to one of the four plots.
+- Confirm your username is assigned to an available plot; the first four plots keep the original layout and larger servers receive additional perimeter plots.
 - Walk to your plot and verify a **Starter Nook** exists physically.
 - Use the privacy kiosk to cycle **Open → Friends → Private → Open**.
 
@@ -143,7 +155,16 @@ House tiers:
 
 This is the miniature version of future taxes, public works, mayoral decisions, elections, and persistent village history.
 
-### 8. Two-player trade
+### 8. Living village boundary
+
+- Walk outward from the central village and find the **Woodland Trail**, **Cliff Lookout**, and **Sea Dock**.
+- Confirm the HUD reports `Explore: 0/3 boundary landmarks` before the route and advances once per landmark.
+- Return to the **Boundary Explorer** board before completing the route; it must refuse the incomplete claim.
+- Visit all three landmarks and return to the board.
+- Expected: **+250 coins, +100 XP**, the HUD route count increases by one, and a second same-day claim is refused.
+- Confirm the edge reads as woods, cliffs, sand, and sea, with no broad Grass/plot surface flicker while walking.
+
+### 9. Two-player trade
 
 Use Studio's multi-client testing mode with at least two players.
 
@@ -155,11 +176,11 @@ Use Studio's multi-client testing mode with at least two players.
 - Changing an offer clears confirmations.
 - The server validates both inventories again before the atomic exchange.
 
-### 9. Persistence
+### 10. Persistence
 
 - Stop Play.
 - Start Play again with API Services enabled.
-- Confirm coins, level/XP, house tier, inventory, Courier progression, bike ownership, garden state, daily claim day, portal completions, contribution, and privacy survive the session.
+- Confirm coins, level/XP, house tier, inventory, Courier progression, bike ownership, garden state, daily claim day, portal completions, contribution, privacy, and Boundary Explorer day/mask/completion state survive the session.
 
 ## Automated verification
 
@@ -170,13 +191,13 @@ luau tests/run.luau
 luau-analyze src/shared/*.luau tests/*.luau
 ```
 
-GitHub Actions runs the same shared-domain verification. The pure rule suite covers profile migration, inventory, garden lifecycle, daily rewards, universal progression, Courier progression, house upgrades, Tiny Bike purchasing, Giant Kitchen rewards, and atomic trade validation. CI also syntax-compiles all runtime server and client Luau files.
+GitHub Actions runs the same shared-domain verification. The pure rule suite covers profile migration, inventory, garden lifecycle, daily rewards, universal progression, Courier progression, house upgrades, Tiny Bike purchasing, Giant Kitchen rewards, atomic trade validation, capacity-aware plot layout, and the daily boundary route. CI also syntax-compiles all runtime server and client Luau files.
 
 ## Source structure
 
 ```text
 src/shared/   deterministic rules and data contracts
-src/server/   persistence, generated world, plots, jobs, garden, transport, portal, trade, village services
+src/server/   persistence, generated world, boundary, plots, jobs, garden, transport, portal, trade, village services
 src/client/   presentation-only HUD
 
 tests/        Luau CLI behaviour tests
@@ -185,7 +206,7 @@ docs/         Superpowers design specs and implementation plans
 
 ## Important prototype limits
 
-v0.01 represents the whole game but does not pretend to be production scale. It has one village, four simultaneous prototype plots, one crop, one profession, one transport upgrade, one portal world, one portal mission, one trade format, and one civic contribution.
+v0.0.3 represents the whole game but does not pretend to be production scale. It has one village, four initial prototype plots plus deterministic capacity-aware expansion up to the Roblox server's configured player capacity, one crop, one profession, one transport upgrade, one portal world, one portal mission, one trade format, one civic contribution, and one daily boundary route. The boundary grows with the outer plot ring and is built once per server; this is layout scalability evidence, not a claim of unrestricted map or DataStore scale.
 
 The future roadmap can scale those proven contracts into multiple villages/worlds, permanent village membership, player businesses, fashion, pets, decoration placement, cars/planes, mayor elections, ceremonial titles, seasonal systems, global challenges, live Robux cosmetics/convenience, and the long-running TinyWorld mystery.
 

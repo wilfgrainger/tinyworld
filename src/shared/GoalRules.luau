@@ -38,6 +38,9 @@ function GoalRules.suggestedGoal(profile): string
 	if profile.villageContribution < 50 then
 		return "Contribute 50 coins to the Village Fund."
 	end
+	if profile.boundaryCompletions < 1 then
+		return "Visit the woods, cliffs, and sea around the village."
+	end
 	return "Garden, trade, explore, and keep building your TinyWorld life."
 end
 

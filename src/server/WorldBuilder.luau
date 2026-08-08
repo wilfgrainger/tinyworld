@@ -1,5 +1,9 @@
 local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
+local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local BoundaryBuilder = require(script.Parent:WaitForChild("BoundaryBuilder"))
 
 local WorldBuilder = {}
 
@@ -188,8 +192,8 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	model.Name = string.format("Plot%d", index)
 	model.Parent = parent
 
-	makePart(model, "PlotBase", Vector3.new(60, 1, 60), origin, VisualTheme.Colors.meadowDeep, Enum.Material.Grass)
-	makeStoneBorder(model, "PlotBorder", origin, 60, 60)
+	makePart(model, "PlotBase", Vector3.new(WorldLayoutRules.PLOT_SIZE, 1, WorldLayoutRules.PLOT_SIZE), origin, VisualTheme.Colors.meadowDeep, Enum.Material.Ground)
+	makeStoneBorder(model, "PlotBorder", origin, WorldLayoutRules.PLOT_SIZE, WorldLayoutRules.PLOT_SIZE)
 	makeTree(model, "PlotTree", origin + Vector3.new(-24, 0, -21), 0.7)
 	makeFlowerCluster(model, "PlotFlowers", origin + Vector3.new(20, 0, -20), VisualTheme.Colors.flower)
 	local sign = makeDecoration(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), VisualTheme.Colors.timber, Enum.Material.Wood)
@@ -314,8 +318,9 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	}
 end
 
-function WorldBuilder.build()
+function WorldBuilder.build(maxPlayers: number?)
 	VisualTheme.configureLighting()
+	local layout = WorldLayoutRules.create(maxPlayers)
 
 	local old = Workspace:FindFirstChild("TinyWorldGenerated")
 	if old then
@@ -326,9 +331,10 @@ function WorldBuilder.build()
 	root.Name = "TinyWorldGenerated"
 	root.Parent = Workspace
 
-	makePart(root, "VillageGround", Vector3.new(230, 2, 230), Vector3.new(0, -1, 0), VisualTheme.Colors.meadow, Enum.Material.Grass)
-	makePart(root, "RoadNS", Vector3.new(20, 1, 220), Vector3.new(0, 0.1, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
-	makePart(root, "RoadEW", Vector3.new(220, 1, 20), Vector3.new(0, 0.12, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
+	local villageExtent = layout.perimeterHalfExtent * 2
+	makePart(root, "VillageGround", Vector3.new(villageExtent, 2, villageExtent), Vector3.new(0, -1, 0), VisualTheme.Colors.meadow, Enum.Material.Ground)
+	makePart(root, "RoadNS", Vector3.new(20, 1, villageExtent - 20), Vector3.new(0, 0.1, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
+	makePart(root, "RoadEW", Vector3.new(villageExtent - 20, 1, 20), Vector3.new(0, 0.12, 0), VisualTheme.Colors.path, Enum.Material.Asphalt)
 	makeDecoration(root, "PlazaDeck", Vector3.new(50, 0.35, 50), Vector3.new(0, 0.68, 8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	makeShapeDecoration(root, "PlazaInlay", Vector3.new(42, 0.12, 42), Vector3.new(0, 0.9, 8), VisualTheme.Colors.paper, Enum.Material.Pebble, Enum.PartType.Cylinder)
 	makeStoneBorder(root, "PlazaBorder", Vector3.new(0, 0.9, 8), 50, 50)
@@ -343,10 +349,10 @@ function WorldBuilder.build()
 	makeLantern(root, "PlazaLanternSouthWest", Vector3.new(-22, 0, -16))
 	makeLantern(root, "PlazaLanternSouthEast", Vector3.new(22, 0, -16))
 	makePond(root, Vector3.new(0, 0, 68))
-	makeDecoration(root, "RoadEdgeNorth", Vector3.new(2, 0.35, 220), Vector3.new(-11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeSouth", Vector3.new(2, 0.35, 220), Vector3.new(11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeWest", Vector3.new(220, 0.35, 2), Vector3.new(0, 0.67, -11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeDecoration(root, "RoadEdgeEast", Vector3.new(220, 0.35, 2), Vector3.new(0, 0.67, 11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(root, "RoadEdgeNorth", Vector3.new(2, 0.35, villageExtent - 20), Vector3.new(-11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(root, "RoadEdgeSouth", Vector3.new(2, 0.35, villageExtent - 20), Vector3.new(11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(root, "RoadEdgeWest", Vector3.new(villageExtent - 20, 0.35, 2), Vector3.new(0, 0.67, -11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(root, "RoadEdgeEast", Vector3.new(villageExtent - 20, 0.35, 2), Vector3.new(0, 0.67, 11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "VillageSpawn"
@@ -397,21 +403,19 @@ function WorldBuilder.build()
 	local premiumSign = makeDecoration(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), VisualTheme.Colors.ink)
 	makeLabel(premiumSign, "PREMIUM PREVIEW\nStyle & convenience only\nNo pay-to-win", 340)
 
-	local plotOrigins = {
-		Vector3.new(-75, 0, -75),
-		Vector3.new(75, 0, -75),
-		Vector3.new(-75, 0, 75),
-		Vector3.new(75, 0, 75),
-	}
 	local plots = {}
-	for index, origin in plotOrigins do
-		plots[index] = buildPlot(root, index, origin)
+	for index, slot in layout.plotSlots do
+		plots[index] = buildPlot(root, index, Vector3.new(slot.x, 0, slot.z))
 	end
+
+	local boundary = BoundaryBuilder.build(root, layout)
 
 	local kitchen = buildKitchen(root, Vector3.new(0, 0, 1000))
 
 	return {
 		root = root,
+		layout = layout,
+		boundary = boundary,
 		spawn = spawn,
 		dailyPrompt = dailyPrompt,
 		contributionPrompt = contributionPrompt,

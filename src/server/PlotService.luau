@@ -186,7 +186,7 @@ function PlotService:assign(player: Player, profile)
 			return index
 		end
 	end
-	self.PlayerStateService.message(player, "All four prototype home plots are occupied; village activities still work.")
+	self.PlayerStateService.message(player, "All home plots are occupied; village activities still work.")
 	return nil
 end
 

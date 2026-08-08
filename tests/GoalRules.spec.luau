@@ -58,5 +58,12 @@ return function()
 	finished.houseTier = 5
 	finished.portalCompletions = 1
 	finished.villageContribution = 50
+	finished.boundaryCompletions = 1
 	TestUtil.equal(GoalRules.suggestedGoal(finished), "Garden, trade, explore, and keep building your TinyWorld life.")
+
+	local boundary = readyProfile()
+	boundary.houseTier = 5
+	boundary.portalCompletions = 1
+	boundary.villageContribution = 50
+	TestUtil.equal(GoalRules.suggestedGoal(boundary), "Visit the woods, cliffs, and sea around the village.")
 end

@@ -1,0 +1,167 @@
+local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+
+local BoundaryBuilder = {}
+
+local function makePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material): Part
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Anchored = true
+	part.Size = size
+	part.Position = position
+	part.Color = color
+	part.Material = material
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = parent
+	return part
+end
+
+local function makeDecoration(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material): Part
+	local part = makePart(parent, name, size, position, color, material)
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	return part
+end
+
+local function makeLabel(parent: BasePart, text: string, width: number): TextLabel
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "Label"
+	gui.Size = UDim2.fromOffset(math.min(width, 280), 58)
+	gui.StudsOffset = Vector3.new(0, 4.5, 0)
+	gui.MaxDistance = 120
+	gui.AlwaysOnTop = true
+	gui.Parent = parent
+
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 0.08
+	label.BackgroundColor3 = VisualTheme.Colors.ink
+	label.Size = UDim2.fromScale(1, 1)
+	label.TextColor3 = VisualTheme.Colors.paper
+	label.TextStrokeTransparency = 0.85
+	label.TextWrapped = true
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBold
+	label.Text = text
+	label.Parent = gui
+	local textConstraint = Instance.new("UITextSizeConstraint")
+	textConstraint.MinTextSize = 12
+	textConstraint.MaxTextSize = 22
+	textConstraint.Parent = label
+	return label
+end
+
+local function makePrompt(parent: Instance, actionText: string, objectText: string): ProximityPrompt
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = actionText
+	prompt.ObjectText = objectText
+	prompt.HoldDuration = 0.2
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = parent
+	return prompt
+end
+
+local function makeTree(parent: Instance, name: string, position: Vector3, scale: number)
+	makeDecoration(parent, name .. "Trunk", Vector3.new(2 * scale, 6 * scale, 2 * scale), position + Vector3.new(0, 3 * scale, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, name .. "Canopy", Vector3.new(9 * scale, 9 * scale, 9 * scale), position + Vector3.new(0, 8 * scale, 0), VisualTheme.Colors.leaf, Enum.Material.LeafyGrass).Shape = Enum.PartType.Ball
+	makeDecoration(parent, name .. "CanopyHighlight", Vector3.new(5 * scale, 5 * scale, 5 * scale), position + Vector3.new(2 * scale, 10 * scale, -2 * scale), VisualTheme.Colors.meadowDeep, Enum.Material.LeafyGrass).Shape = Enum.PartType.Ball
+end
+
+local function makeSea(parent: Instance, name: string, size: Vector3, position: Vector3)
+	local water = makeDecoration(parent, name, size, position, VisualTheme.Colors.water, Enum.Material.Water)
+	water.Transparency = 0.12
+	water.Reflectance = 0.05
+	local foam = makeDecoration(parent, name .. "Foam", Vector3.new(size.X * 0.9, 0.08, size.Z * 0.9), position + Vector3.new(0, 1.05, 0), VisualTheme.Colors.paper, Enum.Material.Neon)
+	foam.Transparency = 0.82
+end
+
+local function makeSandTransition(parent: Instance, name: string, size: Vector3, position: Vector3)
+	makeDecoration(parent, name, size, position, VisualTheme.Colors.warmLight, Enum.Material.Sand)
+end
+
+local function makeCliffSegment(parent: Instance, name: string, size: Vector3, position: Vector3, height: number)
+	makePart(parent, name .. "Rock", Vector3.new(size.X, height, size.Z), position + Vector3.new(0, height / 2, 0), VisualTheme.Colors.path, Enum.Material.Rock)
+	makePart(parent, name .. "BasaltCap", Vector3.new(math.max(6, size.X - 4), 1.4, math.max(6, size.Z - 2)), position + Vector3.new(0, height + 0.7, 0), VisualTheme.Colors.inkSoft, Enum.Material.Basalt)
+end
+
+local function makeLandmark(parent: Instance, name: string, labelText: string, position: Vector3, color: Color3)
+	local anchor = makePart(parent, name .. "Anchor", Vector3.new(8, 2, 8), position + Vector3.new(0, 1, 0), color, Enum.Material.Rock)
+	makeDecoration(parent, name .. "Pillar", Vector3.new(3, 5, 3), position + Vector3.new(0, 4.5, 0), color, Enum.Material.Basalt)
+	local beacon = makeDecoration(parent, name .. "Beacon", Vector3.new(2, 2, 2), position + Vector3.new(0, 8, 0), VisualTheme.Colors.gold, Enum.Material.Neon)
+	beacon.Shape = Enum.PartType.Ball
+	makeLabel(anchor, labelText, 250)
+	local prompt = makePrompt(anchor, "Explore Landmark", "Boundary Explorer")
+	return prompt
+end
+
+function BoundaryBuilder.build(parent: Instance, layout)
+	local boundary = Instance.new("Model")
+	boundary.Name = "VillageBoundary"
+	boundary.Parent = parent
+
+	local half = layout.perimeterHalfExtent
+	local waterBelt = 72
+	local fullWaterExtent = (half * 2) + (waterBelt * 2)
+	local waterCenter = half + (waterBelt / 2)
+	makeSea(boundary, "SeaNorth", Vector3.new(fullWaterExtent, 2, waterBelt), Vector3.new(0, -0.6, waterCenter))
+	makeSea(boundary, "SeaSouth", Vector3.new(fullWaterExtent, 2, waterBelt), Vector3.new(0, -0.6, -waterCenter))
+	makeSea(boundary, "SeaEast", Vector3.new(waterBelt, 2, fullWaterExtent), Vector3.new(waterCenter, -0.6, 0))
+	makeSea(boundary, "SeaWest", Vector3.new(waterBelt, 2, fullWaterExtent), Vector3.new(-waterCenter, -0.6, 0))
+
+	local sandBand = 18
+	local sandCenter = half - (sandBand / 2)
+	makeSandTransition(boundary, "SandNorth", Vector3.new(half * 2, 0.2, sandBand), Vector3.new(0, 0.12, -sandCenter))
+	makeSandTransition(boundary, "SandSouth", Vector3.new(half * 2, 0.2, sandBand), Vector3.new(0, 0.12, sandCenter))
+	makeSandTransition(boundary, "SandEast", Vector3.new(sandBand, 0.2, half * 2), Vector3.new(sandCenter, 0.12, 0))
+	makeSandTransition(boundary, "SandWest", Vector3.new(sandBand, 0.2, half * 2), Vector3.new(-sandCenter, 0.12, 0))
+
+	local segmentCount = math.max(4, math.floor((half * 2) / 72))
+	local segmentWidth = math.max(20, math.min(42, ((half * 2) / segmentCount) - 8))
+	local cliffLine = half - 8
+	for index = 1, segmentCount do
+		local ratio = (index - 0.5) / segmentCount
+		local offset = (-half) + (ratio * half * 2)
+		local height = 5 + ((index % 3) * 2)
+		local centerIndex = math.ceil(segmentCount / 2)
+		if index ~= centerIndex then
+			makeCliffSegment(boundary, "NorthCliff" .. index, Vector3.new(segmentWidth, 1, 10), Vector3.new(offset, 0, -cliffLine), height)
+			makeCliffSegment(boundary, "EastCliff" .. index, Vector3.new(10, 1, segmentWidth), Vector3.new(cliffLine, 0, offset), height)
+			makeCliffSegment(boundary, "WestCliff" .. index, Vector3.new(10, 1, segmentWidth), Vector3.new(-cliffLine, 0, offset), height)
+		end
+		makeCliffSegment(boundary, "SouthCliff" .. index, Vector3.new(segmentWidth, 1, 10), Vector3.new(offset, 0, cliffLine), height)
+	end
+
+	local forestLine = half - 24
+	local treeCount = math.max(4, math.floor((half * 2) / 48))
+	for index = 1, treeCount do
+		local ratio = (index - 0.5) / treeCount
+		local offset = (-half) + (ratio * half * 2)
+		local centerDistance = math.abs(offset) / math.max(1, half)
+		local skipCenter = centerDistance < 0.18
+		if not skipCenter then
+			makeTree(boundary, "NorthWood" .. index, Vector3.new(offset, 0, -forestLine), 0.9 + ((index % 2) * 0.12))
+			makeTree(boundary, "EastWood" .. index, Vector3.new(forestLine, 0, offset), 0.9 + ((index % 2) * 0.12))
+			makeTree(boundary, "WestWood" .. index, Vector3.new(-forestLine, 0, offset), 0.9 + ((index % 2) * 0.12))
+			makeTree(boundary, "SouthWood" .. index, Vector3.new(offset, 0, forestLine), 0.9 + ((index % 2) * 0.12))
+		end
+	end
+
+	local landmarkPrompts = {
+		woodlandTrail = makeLandmark(boundary, "WoodlandTrail", "WOODLAND TRAIL\nVisit the village woods", Vector3.new(layout.landmarks.woodlandTrail.x, 0, layout.landmarks.woodlandTrail.z), VisualTheme.Colors.leaf),
+		cliffLookout = makeLandmark(boundary, "CliffLookout", "CLIFF LOOKOUT\nSee the edge of TinyWorld", Vector3.new(layout.landmarks.cliffLookout.x, 0, layout.landmarks.cliffLookout.z), VisualTheme.Colors.pathEdge),
+		seaDock = makeLandmark(boundary, "SeaDock", "SEA DOCK\nThe village meets the sea", Vector3.new(layout.landmarks.seaDock.x, 0, layout.landmarks.seaDock.z), VisualTheme.Colors.skyDeep),
+	}
+
+	local board = makePart(boundary, "BoundaryExplorerBoard", Vector3.new(12, 5, 2), Vector3.new(0, 2.5, 28), VisualTheme.Colors.timberDark, Enum.Material.WoodPlanks)
+	makeLabel(board, "BOUNDARY EXPLORER\nVisit woods, cliffs, and sea", 300)
+	local explorerPrompt = makePrompt(board, "Claim Explorer Reward", "Boundary Explorer Board")
+
+	return {
+		model = boundary,
+		landmarkPrompts = landmarkPrompts,
+		explorerPrompt = explorerPrompt,
+	}
+end
+
+return BoundaryBuilder

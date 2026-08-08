@@ -12,8 +12,9 @@ local TransportService = require(script.Parent:WaitForChild("TransportService"))
 local PortalService = require(script.Parent:WaitForChild("PortalService"))
 local TradeService = require(script.Parent:WaitForChild("TradeService"))
 local VillageService = require(script.Parent:WaitForChild("VillageService"))
+local ExplorationService = require(script.Parent:WaitForChild("ExplorationService"))
 
-local world = WorldBuilder.build()
+local world = WorldBuilder.build(Players.MaxPlayers)
 local plotService = PlotService.new(world, ProfileStore, PlayerStateService)
 local onboardingService = OnboardingService.new(ProfileStore, PlayerStateService)
 local gardenService = GardenService.new(world, plotService, ProfileStore, PlayerStateService)
@@ -23,6 +24,7 @@ local transportService = TransportService.new(world, ProfileStore, PlayerStateSe
 local portalService = PortalService.new(world, ProfileStore, PlayerStateService)
 local tradeService = TradeService.new(world, ProfileStore, PlayerStateService)
 local _villageService = VillageService.new(world, ProfileStore, PlayerStateService)
+local _explorationService = ExplorationService.new(world, ProfileStore, PlayerStateService)
 
 local function onPlayerAdded(player: Player)
 	local profile = ProfileStore.load(player)

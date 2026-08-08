@@ -3,7 +3,7 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 3)
+	TestUtil.equal(fresh.version, 4)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
@@ -19,6 +19,9 @@ return function()
 	TestUtil.equal(fresh.lastDailyDay, "")
 	TestUtil.equal(fresh.portalCompletions, 0)
 	TestUtil.equal(fresh.villageContribution, 0)
+	TestUtil.equal(fresh.boundaryExplorationDay, "")
+	TestUtil.equal(fresh.boundaryExplorationMask, 0)
+	TestUtil.equal(fresh.boundaryCompletions, 0)
 	TestUtil.equal(fresh.homePrivacy, "Open")
 	TestUtil.equal(fresh.displayName, "")
 	TestUtil.equal(fresh.avatarStyle, "")
@@ -32,7 +35,7 @@ return function()
 		xp = 42,
 		houseTier = 3,
 	})
-	TestUtil.equal(migrated.version, 3)
+	TestUtil.equal(migrated.version, 4)
 	TestUtil.equal(migrated.coins, 777)
 	TestUtil.equal(migrated.level, 4)
 	TestUtil.equal(migrated.xp, 42)
@@ -56,7 +59,7 @@ return function()
 		starterOutfit = "Sunset",
 		onboardingComplete = true,
 	})
-	TestUtil.equal(completed.version, 3)
+	TestUtil.equal(completed.version, 4)
 	TestUtil.equal(completed.coins, 901)
 	TestUtil.equal(completed.inventory.Carrot, 7)
 	TestUtil.equal(completed.inventory.SugarCrystal, 3)
@@ -65,6 +68,19 @@ return function()
 	TestUtil.equal(completed.avatarStyle, "Girl")
 	TestUtil.equal(completed.starterOutfit, "Sunset")
 	TestUtil.isTrue(completed.onboardingComplete)
+
+	local exploration = ProfileSchema.normalize({
+		version = 3,
+		boundaryExplorationDay = "2026-08-08",
+		boundaryExplorationClaimedDay = "2026-08-07",
+		boundaryExplorationMask = 7,
+		boundaryCompletions = 4,
+	})
+	TestUtil.equal(exploration.version, 4)
+	TestUtil.equal(exploration.boundaryExplorationDay, "2026-08-08")
+	TestUtil.equal(exploration.boundaryExplorationClaimedDay, "2026-08-07")
+	TestUtil.equal(exploration.boundaryExplorationMask, 7)
+	TestUtil.equal(exploration.boundaryCompletions, 4)
 
 	local repaired = ProfileSchema.normalize({
 		coins = -50,
@@ -95,4 +111,8 @@ return function()
 	TestUtil.equal(repaired.avatarStyle, "")
 	TestUtil.equal(repaired.starterOutfit, "")
 	TestUtil.isFalse(repaired.onboardingComplete)
+	TestUtil.equal(repaired.boundaryExplorationDay, "")
+	TestUtil.equal(repaired.boundaryExplorationClaimedDay, "")
+	TestUtil.equal(repaired.boundaryExplorationMask, 0)
+	TestUtil.equal(repaired.boundaryCompletions, 0)
 end

@@ -59,11 +59,11 @@ Interfaces:
 - ExplorationRules.TOTAL_MASK = 7
 - ExplorationRules.visit(profile, dayKey, landmark): (boolean, string)
 - ExplorationRules.claim(profile, dayKey): (boolean, string)
-- ProfileSchema version 4 fields boundaryExplorationDay, boundaryExplorationMask, boundaryCompletions.
+- ProfileSchema version 4 fields boundaryExplorationDay, boundaryExplorationClaimedDay, boundaryExplorationMask, boundaryCompletions.
 
 - [ ] Write failing tests for v3-to-v4 preservation, first/duplicate visits, incomplete claim, exact +250 coins/+100 XP completion, same-day duplicate protection, and new-day mask reset.
 - [ ] Run the suite and observe RED.
-- [ ] Normalize day string, mask 0..7, and non-negative completions. visit resets only the mask on a new day and rejects unknown IDs. claim requires mask 7, uses Progression.addXp(profile, 100), adds 250 coins, increments completions, clears the mask, and leaves the day key.
+- [ ] Normalize day strings, mask 0..7, and non-negative completions. visit resets only the mask on a new day and rejects unknown IDs. claim requires mask 7, uses Progression.addXp(profile, 100), adds 250 coins, increments completions, records the claimed day, clears the mask, and leaves the day key.
 - [ ] Run all specs and observe GREEN.
 - [ ] Commit with message feat: add Boundary Explorer profile rules.
 
