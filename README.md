@@ -55,7 +55,17 @@ Important: the profile service intentionally fails closed if Roblox cannot read 
 
 See [Development progress](docs/progress.md) for dated setup and testing milestones.
 
+When the build is ready for family testing from phones, tablets, consoles, or other PCs, follow the [remote family playtest guide](docs/remote-playtest.md). Keep the Dev experience limited to named playtesters until the prototype is ready for wider access.
+
 ## 15-minute v0.01 smoke test
+
+### 0. First-run character setup
+
+- On a profile that has not completed setup, confirm a welcome panel appears before normal play.
+- Enter a 3–16 character display name, choose **Boy** or **Girl**, then choose the free **Meadow**, **Harbor**, or **Sunset** starter outfit.
+- Press **Begin TinyWorld** and confirm the panel closes only after the server accepts and saves the setup.
+- Confirm the HUD and plot label use the in-game display name while the Roblox username remains unchanged.
+- Stop and press Play again. The setup panel should be skipped and the chosen name/outfit should persist.
 
 ### 1. Arrival and home
 
