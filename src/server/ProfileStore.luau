@@ -74,7 +74,7 @@ local function scheduleSave(player: Player, delaySeconds: number)
 		if current.releasing or current.saving then
 			return
 		end
-		if current.version > current.savedVersion then
+		if current.version > current.savedVersion or current.state == "retrying" then
 			ProfileStore.saveNow(player)
 		end
 	end)
@@ -258,7 +258,7 @@ local function releaseSession(player: Player, record): boolean
 	return true
 end
 
-function ProfileStore.release(player: Player): boolean
+function ProfileStore.release(player: Player, timeoutSeconds: number?): boolean
 	local record = profiles[player]
 	if record == nil then
 		return true
@@ -266,7 +266,15 @@ function ProfileStore.release(player: Player): boolean
 
 	record.releasing = true
 	setState(player, record, "releasing")
-	local saved = ProfileStore.saveNow(player)
+	local deadline = os.clock() + (timeoutSeconds or 10)
+	local saved = false
+	repeat
+		saved = ProfileStore.saveNow(player)
+		if saved or record.sessionState == "lost" or os.clock() >= deadline then
+			break
+		end
+		task.wait(math.min(0.5, math.max(0, deadline - os.clock())))
+	until saved
 	local released = if saved then releaseSession(player, record) else false
 	record.sessionState = if released then "released" else record.sessionState
 	profiles[player] = nil
@@ -295,7 +303,8 @@ function ProfileStore.shutdown(timeoutSeconds: number?): boolean
 		table.insert(players, player)
 	end
 	for _, player in players do
-		if os.clock() >= deadline or not ProfileStore.release(player) then
+		local remaining = math.max(0, deadline - os.clock())
+		if remaining <= 0 or not ProfileStore.release(player, remaining) then
 			allReleased = false
 		end
 	end

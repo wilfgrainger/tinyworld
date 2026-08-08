@@ -6,6 +6,8 @@ return function()
 	TestUtil.isTrue(Rules.isLeaseActive({ token = "a", expiresAt = 100 }, 99, "b"))
 	TestUtil.isFalse(Rules.isLeaseActive({ token = "a", expiresAt = 100 }, 101, "b"))
 	TestUtil.isFalse(Rules.isLeaseActive(nil, 101, "b"))
+	TestUtil.isTrue(Rules.isLeaseOwned({ token = "a", expiresAt = 100 }, 99, "a"))
+	TestUtil.isFalse(Rules.isLeaseOwned({ token = "a", expiresAt = 100 }, 99, "b"))
 
 	TestUtil.equal(Rules.retryDelay(0, 0), 5)
 	TestUtil.equal(Rules.retryDelay(1, 0), 10)
