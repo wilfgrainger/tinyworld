@@ -43,6 +43,19 @@ The `feat/v0.0.3-living-village` slice turns the prototype square into a readabl
 
 The [v0.0.3 living-village test](docs/v0.0.3-living-village-test.md) is the authoritative route for this slice. This is still a controlled development candidate, not a public release.
 
+## v0.0.4 living-world MVP
+
+The v0.0.4 slice preserves the v0.01, v0.0.2, and v0.0.3 contracts while making the village feel inhabited and giving the player a short collection-and-home-improvement loop:
+
+- the Tiny Bike is now a visible, server-owned rideable mount with mount/dismount state and faster movement while mounted;
+- three bounded life-kit pickups—Meadow Seed, Seashell, and Wood Token—are collected once per UTC day and persist safely in the profile;
+- the village has a nursery, three non-player cabins, planters, flowers, lanterns, a bike showcase, and more readable home windows and tier dressing;
+- a Home Charm consumes one of each life-kit item and adds a visible planter, flower cluster, and lantern to the player's home;
+- all added dressing remains anchored, non-collidable, and bounded by the capacity-aware v0.0.3 layout so the stable Ground/plot surfaces remain the collision foundation;
+- no combat system or high-fantasy progression is added: the intended tone is a grounded, colourful village with a small sense of wonder.
+
+The [v0.0.4 living-world test](docs/v0.0.4-living-world-test.md) is the authoritative route for this MVP. It is a controlled development candidate until the Studio, two-client, publish, and family/device gates are separately evidenced.
+
 ## What you need tomorrow
 
 1. A Roblox account.
