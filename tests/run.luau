@@ -1,5 +1,6 @@
 local specs = {
-	require("./ProfileSchema.spec"),
+		require("./ProfileSchema.spec"),
+		require("./OnboardingRules.spec"),
 	require("./Progression.spec"),
 	require("./HouseUpgrade.spec"),
 	require("./Inventory.spec"),

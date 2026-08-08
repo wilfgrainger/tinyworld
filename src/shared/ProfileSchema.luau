@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 2
+ProfileSchema.VERSION = 3
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 export type GardenBed = { stage: string, readyAt: number }
@@ -21,10 +21,16 @@ lastDailyDay: string,
 portalCompletions: number,
 villageContribution: number,
 homePrivacy: string,
+displayName: string,
+avatarStyle: string,
+starterOutfit: string,
+onboardingComplete: boolean,
 }
 
 local VALID_GARDEN_STAGES = { empty = true, planted = true, watered = true, ready = true }
 local VALID_PRIVACY = { Open = true, Friends = true, Private = true }
+local VALID_AVATAR_STYLES = { Boy = true, Girl = true }
+local VALID_STARTER_OUTFITS = { Meadow = true, Harbor = true, Sunset = true }
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -36,6 +42,14 @@ local function normaliseInteger(value: any, fallback: number, minimum: number, m
 	if integer < minimum then return minimum end
 	if maximum ~= nil and integer > maximum then return maximum end
 	return integer
+end
+
+local function normaliseDisplayName(value: any): string
+	if type(value) ~= "string" then return "" end
+	local trimmed = string.match(value, "^%s*(.-)%s*$") or ""
+	if #trimmed < 3 or #trimmed > 16 then return "" end
+	if string.match(trimmed, "^[%w%s_%-]+$") == nil then return "" end
+	return trimmed
 end
 
 local function newGardenBed(): GardenBed
@@ -84,14 +98,25 @@ function ProfileSchema.new(): PlayerProfile
 		portalCompletions = 0,
 		villageContribution = 0,
 		homePrivacy = "Open",
+		displayName = "",
+		avatarStyle = "",
+		starterOutfit = "",
+		onboardingComplete = false,
 	}
 end
 
 function ProfileSchema.normalize(value: any): PlayerProfile
 	if type(value) ~= "table" then return ProfileSchema.new() end
 	local privacy = if type(value.homePrivacy) == "string" and VALID_PRIVACY[value.homePrivacy] then value.homePrivacy else "Open"
+	local displayName = normaliseDisplayName(value.displayName)
+	local avatarStyle = if type(value.avatarStyle) == "string" and VALID_AVATAR_STYLES[value.avatarStyle] then value.avatarStyle else ""
+	local starterOutfit = if type(value.starterOutfit) == "string" and VALID_STARTER_OUTFITS[value.starterOutfit] then value.starterOutfit else ""
+	local onboardingComplete = value.onboardingComplete == true
+		and displayName ~= ""
+		and avatarStyle ~= ""
+		and starterOutfit ~= ""
 	return {
-		version = 2,
+		version = 3,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -106,6 +131,10 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		portalCompletions = normaliseInteger(value.portalCompletions, 0, 0),
 		villageContribution = normaliseInteger(value.villageContribution, 0, 0),
 		homePrivacy = privacy,
+		displayName = displayName,
+		avatarStyle = avatarStyle,
+		starterOutfit = starterOutfit,
+		onboardingComplete = onboardingComplete,
 	}
 end
 

@@ -3,7 +3,7 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 2)
+	TestUtil.equal(fresh.version, 3)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
@@ -20,6 +20,10 @@ return function()
 	TestUtil.equal(fresh.portalCompletions, 0)
 	TestUtil.equal(fresh.villageContribution, 0)
 	TestUtil.equal(fresh.homePrivacy, "Open")
+	TestUtil.equal(fresh.displayName, "")
+	TestUtil.equal(fresh.avatarStyle, "")
+	TestUtil.equal(fresh.starterOutfit, "")
+	TestUtil.isFalse(fresh.onboardingComplete)
 
 	local migrated = ProfileSchema.normalize({
 		version = 1,
@@ -28,13 +32,39 @@ return function()
 		xp = 42,
 		houseTier = 3,
 	})
-	TestUtil.equal(migrated.version, 2)
+	TestUtil.equal(migrated.version, 3)
 	TestUtil.equal(migrated.coins, 777)
 	TestUtil.equal(migrated.level, 4)
 	TestUtil.equal(migrated.xp, 42)
 	TestUtil.equal(migrated.houseTier, 3)
 	TestUtil.equal(migrated.inventory.Carrot, 0)
 	TestUtil.equal(migrated.courierLevel, 1)
+	TestUtil.equal(migrated.displayName, "")
+	TestUtil.equal(migrated.avatarStyle, "")
+	TestUtil.equal(migrated.starterOutfit, "")
+	TestUtil.isFalse(migrated.onboardingComplete)
+
+	local completed = ProfileSchema.normalize({
+		version = 2,
+		coins = 901,
+		inventory = { Carrot = 7, SugarCrystal = 3 },
+		gardenBeds = {
+			{ stage = "watered", readyAt = 1234 },
+		},
+		displayName = "Mia",
+		avatarStyle = "Girl",
+		starterOutfit = "Sunset",
+		onboardingComplete = true,
+	})
+	TestUtil.equal(completed.version, 3)
+	TestUtil.equal(completed.coins, 901)
+	TestUtil.equal(completed.inventory.Carrot, 7)
+	TestUtil.equal(completed.inventory.SugarCrystal, 3)
+	TestUtil.equal(completed.gardenBeds[1].stage, "watered")
+	TestUtil.equal(completed.displayName, "Mia")
+	TestUtil.equal(completed.avatarStyle, "Girl")
+	TestUtil.equal(completed.starterOutfit, "Sunset")
+	TestUtil.isTrue(completed.onboardingComplete)
 
 	local repaired = ProfileSchema.normalize({
 		coins = -50,
@@ -61,4 +91,8 @@ return function()
 	TestUtil.equal(repaired.gardenBeds[1].stage, "empty")
 	TestUtil.equal(repaired.gardenBeds[1].readyAt, 0)
 	TestUtil.equal(repaired.homePrivacy, "Open")
+	TestUtil.equal(repaired.displayName, "")
+	TestUtil.equal(repaired.avatarStyle, "")
+	TestUtil.equal(repaired.starterOutfit, "")
+	TestUtil.isFalse(repaired.onboardingComplete)
 end
