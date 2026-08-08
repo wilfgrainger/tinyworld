@@ -85,9 +85,12 @@ if ($worldBuilder -match '"VillageGround".*Enum\.Material\.Grass' -or
     $worldBuilder -match '"PlotBase".*Enum\.Material\.Grass' -or
     $worldBuilder -notmatch '"VillageGround".*Enum\.Material\.Ground' -or
     $worldBuilder -notmatch '"PlotBase".*Enum\.Material\.Ground' -or
+    $worldBuilder -notmatch 'Workspace:FindFirstChild\("Baseplate"\)' -or
+    $worldBuilder -notmatch 'baseplate:Destroy\(\)' -or
+    $worldBuilder -notmatch 'makeStoneBorder\(model, "PlotBorder", origin \+ Vector3\.new\(0, 0\.08, 0\)' -or
     $worldBuilder -notmatch 'WorldLayoutRules\.create\(maxPlayers\)' -or
     $worldBuilder -notmatch 'BoundaryBuilder\.build\(root, layout\)') {
-    Write-Output "Village ground and plots must use stable Ground surfaces and the capacity-aware boundary builder."
+    Write-Output "Village ground and plot borders must use separated stable surfaces, remove the legacy Baseplate, and use the capacity-aware boundary builder."
     exit 1
 }
 
