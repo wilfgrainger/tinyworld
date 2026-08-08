@@ -15,11 +15,19 @@ return function()
 		TestUtil.equal(layout.plotSlots[index].z, expected.z)
 	end
 
-	for _, maxPlayers in { 0, 1, 4, 8, 16, 32, 50 } do
+	for _, maxPlayers in { 0, 1, 4, 8, 16, 32, 50, 60 } do
 		local layout = WorldLayoutRules.create(maxPlayers)
 		local expectedPlots = math.max(4, math.floor(maxPlayers))
 		TestUtil.equal(#layout.plotSlots, expectedPlots)
 		TestUtil.isTrue(layout.perimeterHalfExtent > layout.coreHalfExtent)
+		TestUtil.equal(layout.budgets.plots, expectedPlots)
+		TestUtil.isTrue(layout.roads.mainHalfLength >= layout.coreHalfExtent)
+		TestUtil.isTrue(layout.roads.laneWidth >= 10)
+		TestUtil.equal(layout.civic.fountain.x, 0)
+		TestUtil.equal(layout.civic.fountain.z, 0)
+		TestUtil.isTrue(layout.budgets.boundaryTrees <= 240)
+		TestUtil.isTrue(layout.budgets.roadParts <= 24)
+		TestUtil.isTrue(layout.budgets.totalDecorations <= 2200)
 
 		for index, slot in layout.plotSlots do
 			local halfExtent = math.max(math.abs(slot.x), math.abs(slot.z)) + (layout.plotSize / 2)
@@ -34,4 +42,11 @@ return function()
 			TestUtil.isTrue(landmarkExtent < layout.perimeterHalfExtent)
 		end
 	end
+
+	local fallback = WorldLayoutRules.create(nil)
+	TestUtil.equal(#fallback.plotSlots, 4)
+	TestUtil.equal(WorldLayoutRules.safeCount(nil, 4, 10), 4)
+	TestUtil.equal(WorldLayoutRules.safeCount(math.huge, 4, 10), 10)
+	TestUtil.equal(WorldLayoutRules.safeCount(3.9, 4, 10), 4)
+	TestUtil.equal(WorldLayoutRules.safeCount(99, 4, 10), 10)
 end

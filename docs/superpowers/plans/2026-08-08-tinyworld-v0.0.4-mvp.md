@@ -94,7 +94,7 @@ Also test invalid capacities (nil, 0, math.huge) and the current minimum-four be
 - [ ] **Step 2: Run the focused test to verify it fails**
 
 ~~~powershell
-& "C:\Users\wilf6\scoop\apps\luau\current\luau.exe" tests\WorldLayoutRules.spec.luau
+& "C:\Users\wilf6\scoop\apps\luau\current\luau.exe" tests\run.luau
 ~~~
 
 Expected: failure because the new roads, civic, and budgets fields do not exist.
@@ -106,7 +106,6 @@ Derive civic positions from the existing core extent, derive road length from pe
 - [ ] **Step 4: Run focused and full rule tests**
 
 ~~~powershell
-& "C:\Users\wilf6\scoop\apps\luau\current\luau.exe" tests\WorldLayoutRules.spec.luau
 & "C:\Users\wilf6\scoop\apps\luau\current\luau.exe" tests\run.luau
 ~~~
 

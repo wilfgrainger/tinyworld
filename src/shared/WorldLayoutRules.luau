@@ -1,6 +1,7 @@
 local WorldLayoutRules = {}
 
 WorldLayoutRules.MIN_PLOTS = 4
+WorldLayoutRules.MAX_PLOTS = 60
 WorldLayoutRules.PLOT_SIZE = 60
 WorldLayoutRules.PLOT_SPACING = 72
 WorldLayoutRules.CORE_HALF_EXTENT = 60
@@ -15,6 +16,9 @@ export type Layout = {
 	coreHalfExtent: number,
 	perimeterHalfExtent: number,
 	landmarks: { [string]: PlotSlot },
+	roads: { mainHalfLength: number, sideOffset: number, laneWidth: number },
+	civic: { fountain: PlotSlot, townHall: PlotSlot, market: PlotSlot, portal: PlotSlot },
+	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number },
 }
 
 local FIRST_PLOTS = {
@@ -24,11 +28,24 @@ local FIRST_PLOTS = {
 	{ x = 75, z = 75 },
 }
 
+function WorldLayoutRules.safeCount(value: any, minimum: number, maximum: number): number
+	if type(value) ~= "number" or value ~= value then
+		return minimum
+	end
+	if value == math.huge then
+		return maximum
+	end
+	if value == -math.huge then
+		return minimum
+	end
+	return math.max(minimum, math.min(maximum, math.floor(value)))
+end
+
 local function safeMaxPlayers(maxPlayers: any): number
 	if type(maxPlayers) ~= "number" or maxPlayers ~= maxPlayers or maxPlayers == math.huge or maxPlayers == -math.huge then
 		return WorldLayoutRules.MIN_PLOTS
 	end
-	return math.max(WorldLayoutRules.MIN_PLOTS, math.floor(maxPlayers))
+	return WorldLayoutRules.safeCount(maxPlayers, WorldLayoutRules.MIN_PLOTS, WorldLayoutRules.MAX_PLOTS)
 end
 
 function WorldLayoutRules.boundsOverlap(first: PlotSlot, second: PlotSlot, size: number?, padding: number?): boolean
@@ -84,6 +101,9 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 	end
 	local perimeterHalfExtent = outerExtent + WorldLayoutRules.BOUNDARY_CLEARANCE
 	local landmarkOffset = perimeterHalfExtent - WorldLayoutRules.LANDMARK_INSET
+	local roadHalfLength = math.max(WorldLayoutRules.CORE_HALF_EXTENT, math.min(perimeterHalfExtent - WorldLayoutRules.BOUNDARY_CLEARANCE, 180))
+	local boundaryTrees = WorldLayoutRules.safeCount(math.floor((perimeterHalfExtent * 2) / 48) * 4, 16, 180)
+	local roadParts = 12
 
 	return {
 		plotSlots = slots,
@@ -95,6 +115,23 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 			woodlandTrail = { x = -landmarkOffset, z = 0 },
 			cliffLookout = { x = 0, z = -landmarkOffset },
 			seaDock = { x = landmarkOffset, z = 0 },
+		},
+		roads = {
+			mainHalfLength = roadHalfLength,
+			sideOffset = 28,
+			laneWidth = 18,
+		},
+		civic = {
+			fountain = { x = 0, z = 0 },
+			townHall = { x = -44, z = 0 },
+			market = { x = 44, z = -44 },
+			portal = { x = -44, z = 44 },
+		},
+		budgets = {
+			plots = target,
+			boundaryTrees = boundaryTrees,
+			roadParts = roadParts,
+			totalDecorations = (target * 20) + (boundaryTrees * 3) + 180,
 		},
 	}
 end
