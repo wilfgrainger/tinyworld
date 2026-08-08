@@ -1,5 +1,14 @@
 # Development progress
 
+## 2026-08-08 - v0.0.4 living-world MVP handoff
+
+- Implemented and committed the approved v0.0.4 expansion on `main`: the original capacity-aware woods/cliffs/sea boundary and stable Ground/plot surfaces, plus a visible rideable Tiny Bike, persistent Meadow Seed/Seashell/Wood Token pickups, nursery, three cabins, grounded planters, flowers, lanterns, windows, home-tier dressing, and the Home Charm home-upgrade loop. The slice remains grounded and colourful rather than becoming a combat or high-fantasy game.
+- Fixed two defects found during the release gate: pickup prompts now pass all required metadata to Roblox, and nursery planters are grounded at Y=0. The source guards cover both regressions.
+- The final local gate passed on the committed source: 15 Luau specs, Luau analysis, all server/client compilation, Roblox material guard, rideable-bike guard, living-world guard, Rojo place build, and `git diff --check`.
+- The v0.0.4 implementation, README scope, and [living-world acceptance route](v0.0.4-living-world-test.md) are pushed to `main` at `049e2b87bbda69ab32ddd7ebf4f1a4542c77affa`; the working tree and `origin/main` agree at that SHA.
+- Per the developer's instruction, the Roblox Studio acceptance evidence is treated as approved for this handoff. The unlocked Studio Play capture showed the v0.0.4 HUD, life-kit line, parked-bike state, inhabited village presentation, and an empty Output pane before the session was stopped. The source-side release gates remain the independently reproducible proof; the later stopped-session Output retained a DataStore queue warning but no new code exception.
+- After the synced place was stopped, Studio's normal publish flow recorded `Saved new changes in "TinyWorld Dev" to Roblox.` at 22:13:25. This confirms the current `TinyWorld Dev` place was saved from the Rojo-synced source for SHA `049e2b8`. Family/device acceptance remains a separate release check; no live Robux products, ads, or pay-to-win mechanics are part of this slice.
+
 ## 2026-08-08 - v0.0.3 living-village implementation and live verification
 
 - Implemented and committed the v0.0.3 living-village slice on `feat/v0.0.3-living-village` at `81223d5` (`feat: build TinyWorld v0.0.3 living village`). The implementation adds a capacity-aware plot layout, one woods/cliffs/sea boundary, three daily exploration landmarks, the boundary route reward, and broad `Ground` surfaces that address the earlier grass-flicker path.
