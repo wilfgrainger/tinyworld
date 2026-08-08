@@ -55,6 +55,12 @@ local function makeFlowerCluster(parent: Instance, name: string, position: Vecto
 	end
 end
 
+local function makeLantern(parent: Instance, name: string, position: Vector3)
+	makeDecoration(parent, name .. "Post", Vector3.new(0.6, 5, 0.6), position + Vector3.new(0, 2.5, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	local lamp = makeShapeDecoration(parent, name .. "Lamp", Vector3.new(2, 2, 2), position + Vector3.new(0, 5.5, 0), VisualTheme.Colors.gold, Enum.Material.Neon, Enum.PartType.Ball)
+	lamp.Transparency = 0.05
+end
+
 local function makeInteractionMarker(parent: Instance, name: string, position: Vector3, color: Color3)
 	local marker = makeShapeDecoration(parent, name, Vector3.new(8, 0.25, 8), position + Vector3.new(0, 0.75, 0), color, Enum.Material.Neon, Enum.PartType.Cylinder)
 	marker.Transparency = 0.25
@@ -93,6 +99,20 @@ local function makeStoneBorder(parent: Instance, name: string, origin: Vector3, 
 	makeDecoration(parent, name .. "South", Vector3.new(width, 0.5, 1.5), origin + Vector3.new(0, 0.25, depth / 2), stoneColor, Enum.Material.Cobblestone)
 	makeDecoration(parent, name .. "West", Vector3.new(1.5, 0.5, depth), origin + Vector3.new(-width / 2, 0.25, 0), stoneColor, Enum.Material.Cobblestone)
 	makeDecoration(parent, name .. "East", Vector3.new(1.5, 0.5, depth), origin + Vector3.new(width / 2, 0.25, 0), stoneColor, Enum.Material.Cobblestone)
+end
+
+local function makePond(parent: Instance, origin: Vector3)
+	makeDecoration(parent, "VillagePondWater", Vector3.new(32, 0.25, 16), origin + Vector3.new(0, 0.15, 0), VisualTheme.Colors.water, Enum.Material.Glass)
+	makeDecoration(parent, "PondNorthEdge", Vector3.new(34, 0.5, 1.5), origin + Vector3.new(0, 0.25, -8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(parent, "PondSouthEdge", Vector3.new(34, 0.5, 1.5), origin + Vector3.new(0, 0.25, 8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(parent, "PondWestEdge", Vector3.new(1.5, 0.5, 16), origin + Vector3.new(-16, 0.25, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(parent, "PondEastEdge", Vector3.new(1.5, 0.5, 16), origin + Vector3.new(16, 0.25, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeShapeDecoration(parent, "PondLilyWest", Vector3.new(3, 0.18, 3), origin + Vector3.new(-9, 0.35, -3), VisualTheme.Colors.leaf, Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
+	makeShapeDecoration(parent, "PondLilyEast", Vector3.new(3, 0.18, 3), origin + Vector3.new(9, 0.35, 3), VisualTheme.Colors.leaf, Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
+	makePart(parent, "PondBridge", Vector3.new(8, 0.6, 20), origin + Vector3.new(0, 0.55, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	for side, x in {{name = "West", value = -3.5}, {name = "East", value = 3.5}} do
+		makeDecoration(parent, "PondRail" .. x.name, Vector3.new(0.5, 2.5, 16), origin + Vector3.new(x.value, 2, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	end
 end
 
 local function makePrompt(parent: Instance, actionText: string, objectText: string): ProximityPrompt
@@ -317,6 +337,11 @@ function WorldBuilder.build()
 	makeTree(root, "TreeSouthEast", Vector3.new(102, 0, 24), 1.1)
 	makeFlowerCluster(root, "FlowersWest", Vector3.new(-28, 0, 30), VisualTheme.Colors.flower)
 	makeFlowerCluster(root, "FlowersEast", Vector3.new(28, 0, 30), VisualTheme.Colors.warmLight)
+	makeLantern(root, "PlazaLanternNorthWest", Vector3.new(-22, 0, 16))
+	makeLantern(root, "PlazaLanternNorthEast", Vector3.new(22, 0, 16))
+	makeLantern(root, "PlazaLanternSouthWest", Vector3.new(-22, 0, -16))
+	makeLantern(root, "PlazaLanternSouthEast", Vector3.new(22, 0, -16))
+	makePond(root, Vector3.new(0, 0, 68))
 	makeDecoration(root, "RoadEdgeNorth", Vector3.new(2, 0.35, 220), Vector3.new(-11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	makeDecoration(root, "RoadEdgeSouth", Vector3.new(2, 0.35, 220), Vector3.new(11, 0.65, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	makeDecoration(root, "RoadEdgeWest", Vector3.new(220, 0.35, 2), Vector3.new(0, 0.67, -11), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
