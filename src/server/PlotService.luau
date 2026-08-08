@@ -224,6 +224,7 @@ function PlotService:rebuildHouse(player: Player, profile)
 	makeHousePart(plot.houseContainer, "FrontRight", Vector3.new(frontSegment, height, 1), anchor + Vector3.new((width - frontSegment) / 2, height / 2, depth / 2), wallColor)
 	makeHousePart(plot.houseContainer, "Roof", Vector3.new(width + 2, 2, depth + 2), anchor + Vector3.new(0, height + 1, 0), roofColor, Enum.Material.Slate)
 	makeHouseDecoration(plot.houseContainer, "RoofTrim", Vector3.new(width + 4, 0.5, 1), anchor + Vector3.new(0, height + 2.2, frontZ), VisualTheme.Colors.gold, Enum.Material.Wood)
+	makeHouseDecoration(plot.houseContainer, "HouseFacade", Vector3.new(width - 6, 0.7, 0.6), anchor + Vector3.new(0, height - 0.8, frontZ + 0.65), roofColor, Enum.Material.WoodPlanks)
 	makeHousePart(plot.houseContainer, "Porch", Vector3.new(10, 0.6, 4), anchor + Vector3.new(0, 0.8, frontZ + 2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeHousePart(plot.houseContainer, "PorchStep", Vector3.new(8, 0.5, 2), anchor + Vector3.new(0, 0.35, frontZ + 4.5), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	makeHouseDecoration(plot.houseContainer, "FrontDoor", Vector3.new(4, 6, 0.5), anchor + Vector3.new(0, 3.2, frontZ + 0.6), VisualTheme.Colors.timberDark, Enum.Material.Wood)
@@ -232,6 +233,7 @@ function PlotService:rebuildHouse(player: Player, profile)
 		local window = makeHouseDecoration(plot.houseContainer, "FrontWindow" .. index, Vector3.new(4, 3, 0.45), anchor + Vector3.new(x, 5.8, frontZ + 0.58), VisualTheme.Colors.sky, Enum.Material.Glass)
 		window.Reflectance = 0.1
 		makeHouseDecoration(plot.houseContainer, "WindowBox" .. index, Vector3.new(5, 0.8, 1.2), anchor + Vector3.new(x, 3.8, frontZ + 1.2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+		makeHouseDecoration(plot.houseContainer, "HouseFlowerBox" .. index, Vector3.new(4.5, 0.5, 1), anchor + Vector3.new(x, 4.5, frontZ + 1.45), if tier % 2 == 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.Fabric)
 	end
 	local lamp = makeHouseDecoration(plot.houseContainer, "PorchLamp", Vector3.new(0.7, 1.6, 0.7), anchor + Vector3.new(-6, 5.5, frontZ + 0.7), VisualTheme.Colors.gold, Enum.Material.Neon)
 	lamp.Shape = Enum.PartType.Ball

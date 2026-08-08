@@ -106,6 +106,20 @@ local function makeStoneBorder(parent: Instance, name: string, origin: Vector3, 
 	makeDecoration(parent, name .. "East", Vector3.new(1.5, 0.5, depth), origin + Vector3.new(width / 2, 0.25, 0), stoneColor, Enum.Material.Cobblestone)
 end
 
+local function makePlotDressing(parent: Instance, origin: Vector3)
+	local hedgeColor = VisualTheme.Colors.leaf
+	for side, offset in { { name = "North", z = -28 }, { name = "South", z = 28 } } do
+		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(50, 1.4, 1), origin + Vector3.new(0, 0.7, offset.z), hedgeColor, Enum.Material.LeafyGrass)
+	end
+	for side, offset in { { name = "West", x = -28 }, { name = "East", x = 28 } } do
+		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(1, 1.4, 50), origin + Vector3.new(offset.x, 0.7, 0), hedgeColor, Enum.Material.LeafyGrass)
+	end
+	makeDecoration(parent, "PlotGateLeft", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(-3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, "PlotGateRight", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(parent, "PlotGate", Vector3.new(7, 0.8, 0.8), origin + Vector3.new(0, 3.2, 29), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	makeDecoration(parent, "GardenApproach", Vector3.new(6, 0.12, 18), origin + Vector3.new(0, 0.58, 22), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+end
+
 local function makePond(parent: Instance, origin: Vector3)
 	makeDecoration(parent, "VillagePondWater", Vector3.new(32, 0.25, 16), origin + Vector3.new(0, 0.15, 0), VisualTheme.Colors.water, Enum.Material.Glass)
 	makeDecoration(parent, "PondNorthEdge", Vector3.new(34, 0.5, 1.5), origin + Vector3.new(0, 0.25, -8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
@@ -195,6 +209,7 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 
 	makePart(model, "PlotBase", Vector3.new(WorldLayoutRules.PLOT_SIZE, 1, WorldLayoutRules.PLOT_SIZE), origin, VisualTheme.Colors.meadowDeep, Enum.Material.Ground)
 	makeStoneBorder(model, "PlotBorder", origin + Vector3.new(0, 0.08, 0), WorldLayoutRules.PLOT_SIZE, WorldLayoutRules.PLOT_SIZE)
+	makePlotDressing(model, origin)
 	makeTree(model, "PlotTree", origin + Vector3.new(-24, 0, -21), 0.7)
 	makeFlowerCluster(model, "PlotFlowers", origin + Vector3.new(20, 0, -20), VisualTheme.Colors.flower)
 	local sign = makeDecoration(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), VisualTheme.Colors.timber, Enum.Material.Wood)

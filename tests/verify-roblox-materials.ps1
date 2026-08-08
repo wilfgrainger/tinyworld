@@ -113,6 +113,16 @@ if ($sceneryBuilder -notmatch 'Enum\.Material\.Asphalt' -or
     exit 1
 }
 
+$plotService = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\PlotService.luau")
+if ($worldBuilder -notmatch 'PlotHedge' -or
+    $worldBuilder -notmatch 'PlotGate' -or
+    $worldBuilder -notmatch 'GardenApproach' -or
+    $plotService -notmatch 'HouseFacade' -or
+    $plotService -notmatch 'HouseName') {
+    Write-Output "Plots must have separated hedge/gate approaches and an explicit readable house facade."
+    exit 1
+}
+
 $boundaryBuilder = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "..\src\server\BoundaryBuilder.luau")
 if ($boundaryBuilder -notmatch 'Enum\.Material\.Water' -or
     $boundaryBuilder -notmatch 'Enum\.Material\.Sand' -or
