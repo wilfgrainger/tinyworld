@@ -15,6 +15,7 @@ local specs = {
 	require("./WorldLayoutRules.spec"),
 	require("./ExplorationRules.spec"),
 	require("./VisualBudgetRules.spec"),
+	require("./ProfileStoreRules.spec"),
 }
 
 for _, runSpec in specs do
