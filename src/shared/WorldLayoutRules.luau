@@ -1,4 +1,5 @@
 local WorldLayoutRules = {}
+local VisualBudgetRules = require("./VisualBudgetRules")
 
 WorldLayoutRules.MIN_PLOTS = 4
 WorldLayoutRules.MAX_PLOTS = 60
@@ -19,7 +20,7 @@ export type Layout = {
 	roads: { mainHalfLength: number, sideOffset: number, laneWidth: number },
 	civic: { fountain: PlotSlot, townHall: PlotSlot, market: PlotSlot, portal: PlotSlot },
 	livingWorld: { cabinLaneZ: number, nursery: PlotSlot, pickupAnchors: { [string]: PlotSlot } },
-	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number, cabins: number, livingPickups: number, planters: number },
+	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number, cabins: number, livingPickups: number, planters: number, visual: any },
 }
 
 local FIRST_PLOTS = {
@@ -147,6 +148,7 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 			cabins = 3,
 			livingPickups = 3,
 			planters = 12,
+			visual = VisualBudgetRules.forPlayers(target, boundaryTrees),
 		},
 	}
 end

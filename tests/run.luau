@@ -14,6 +14,7 @@ local specs = {
 	require("./TradeRules.spec"),
 	require("./WorldLayoutRules.spec"),
 	require("./ExplorationRules.spec"),
+	require("./VisualBudgetRules.spec"),
 }
 
 for _, runSpec in specs do

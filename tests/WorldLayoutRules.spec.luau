@@ -35,6 +35,9 @@ return function()
 		TestUtil.isTrue(layout.budgets.boundaryTrees <= 240)
 		TestUtil.isTrue(layout.budgets.roadParts <= 24)
 		TestUtil.isTrue(layout.budgets.totalDecorations <= 2200)
+		TestUtil.isTrue(layout.budgets.visual.totalDecorations <= 4200)
+		TestUtil.isTrue(layout.budgets.visual.boundaryDecorations <= 900)
+		TestUtil.isTrue(layout.budgets.visual.billboards <= 180)
 
 		for index, slot in layout.plotSlots do
 			local halfExtent = math.max(math.abs(slot.x), math.abs(slot.z)) + (layout.plotSize / 2)
