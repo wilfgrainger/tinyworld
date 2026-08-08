@@ -1,0 +1,32 @@
+local TestUtil = require("./TestUtil")
+local ProfileSchema = require("../src/shared/ProfileSchema")
+local Inventory = require("../src/shared/Inventory")
+local LivingWorldRules = require("../src/shared/LivingWorldRules")
+
+return function()
+	local profile = ProfileSchema.new()
+	TestUtil.equal(ProfileSchema.VERSION, 5)
+	TestUtil.equal(Inventory.get(profile, "MeadowSeed"), 0)
+	TestUtil.equal(Inventory.get(profile, "Seashell"), 0)
+	TestUtil.equal(Inventory.get(profile, "WoodToken"), 0)
+
+	TestUtil.isTrue(Inventory.add(profile, "MeadowSeed", 1))
+	TestUtil.equal(Inventory.get(profile, "MeadowSeed"), 1)
+	TestUtil.isTrue(LivingWorldRules.collect(profile, "Seashell", "2026-08-08"))
+	TestUtil.isFalse(LivingWorldRules.collect(profile, "Seashell", "2026-08-08"))
+	TestUtil.equal(LivingWorldRules.collectionCount(profile, "2026-08-08"), 1)
+	TestUtil.equal(Inventory.get(profile, "Seashell"), 1)
+
+	TestUtil.isTrue(LivingWorldRules.collect(profile, "WoodToken", "2026-08-09"))
+	TestUtil.equal(LivingWorldRules.collectionCount(profile, "2026-08-09"), 1)
+	TestUtil.equal(LivingWorldRules.collectionCount(profile, "2026-08-08"), 0)
+	TestUtil.isFalse(LivingWorldRules.collect(profile, "UnknownItem", "2026-08-09"))
+
+	TestUtil.isTrue(LivingWorldRules.canAddHomeCharm(profile))
+	TestUtil.isTrue(LivingWorldRules.addHomeCharm(profile))
+	TestUtil.isTrue(profile.homeCharmApplied)
+	TestUtil.equal(Inventory.get(profile, "MeadowSeed"), 0)
+	TestUtil.equal(Inventory.get(profile, "Seashell"), 0)
+	TestUtil.equal(Inventory.get(profile, "WoodToken"), 0)
+	TestUtil.isFalse(LivingWorldRules.addHomeCharm(profile))
+end

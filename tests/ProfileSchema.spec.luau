@@ -3,17 +3,23 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 4)
+	TestUtil.equal(fresh.version, 5)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
 	TestUtil.equal(fresh.houseTier, 1)
 	TestUtil.equal(fresh.inventory.Carrot, 0)
 	TestUtil.equal(fresh.inventory.SugarCrystal, 0)
+	TestUtil.equal(fresh.inventory.MeadowSeed, 0)
+	TestUtil.equal(fresh.inventory.Seashell, 0)
+	TestUtil.equal(fresh.inventory.WoodToken, 0)
 	TestUtil.equal(fresh.courierLevel, 1)
 	TestUtil.equal(fresh.courierXp, 0)
 	TestUtil.isFalse(fresh.ownsTinyBike)
 	TestUtil.isFalse(fresh.bikeActive)
+	TestUtil.equal(fresh.livingCollectionDay, "")
+	TestUtil.equal(fresh.livingCollectionMask, 0)
+	TestUtil.isFalse(fresh.homeCharmApplied)
 	TestUtil.equal(#fresh.gardenBeds, 3)
 	TestUtil.equal(fresh.gardenBeds[1].stage, "empty")
 	TestUtil.equal(fresh.lastDailyDay, "")
@@ -35,12 +41,18 @@ return function()
 		xp = 42,
 		houseTier = 3,
 	})
-	TestUtil.equal(migrated.version, 4)
+	TestUtil.equal(migrated.version, 5)
 	TestUtil.equal(migrated.coins, 777)
 	TestUtil.equal(migrated.level, 4)
 	TestUtil.equal(migrated.xp, 42)
 	TestUtil.equal(migrated.houseTier, 3)
 	TestUtil.equal(migrated.inventory.Carrot, 0)
+	TestUtil.equal(migrated.inventory.MeadowSeed, 0)
+	TestUtil.equal(migrated.inventory.Seashell, 0)
+	TestUtil.equal(migrated.inventory.WoodToken, 0)
+	TestUtil.equal(migrated.livingCollectionDay, "")
+	TestUtil.equal(migrated.livingCollectionMask, 0)
+	TestUtil.isFalse(migrated.homeCharmApplied)
 	TestUtil.equal(migrated.courierLevel, 1)
 	TestUtil.equal(migrated.displayName, "")
 	TestUtil.equal(migrated.avatarStyle, "")
@@ -50,7 +62,7 @@ return function()
 	local completed = ProfileSchema.normalize({
 		version = 2,
 		coins = 901,
-		inventory = { Carrot = 7, SugarCrystal = 3 },
+		inventory = { Carrot = 7, SugarCrystal = 3, MeadowSeed = 2, Seashell = 1, WoodToken = 4 },
 		gardenBeds = {
 			{ stage = "watered", readyAt = 1234 },
 		},
@@ -59,15 +71,33 @@ return function()
 		starterOutfit = "Sunset",
 		onboardingComplete = true,
 	})
-	TestUtil.equal(completed.version, 4)
+	TestUtil.equal(completed.version, 5)
 	TestUtil.equal(completed.coins, 901)
 	TestUtil.equal(completed.inventory.Carrot, 7)
 	TestUtil.equal(completed.inventory.SugarCrystal, 3)
+	TestUtil.equal(completed.inventory.MeadowSeed, 2)
+	TestUtil.equal(completed.inventory.Seashell, 1)
+	TestUtil.equal(completed.inventory.WoodToken, 4)
 	TestUtil.equal(completed.gardenBeds[1].stage, "watered")
 	TestUtil.equal(completed.displayName, "Mia")
 	TestUtil.equal(completed.avatarStyle, "Girl")
 	TestUtil.equal(completed.starterOutfit, "Sunset")
 	TestUtil.isTrue(completed.onboardingComplete)
+
+	local living = ProfileSchema.normalize({
+		version = 4,
+		inventory = { MeadowSeed = 3, Seashell = 2, WoodToken = 1 },
+		livingCollectionDay = "2026-08-08",
+		livingCollectionMask = 7,
+		homeCharmApplied = true,
+	})
+	TestUtil.equal(living.version, 5)
+	TestUtil.equal(living.inventory.MeadowSeed, 3)
+	TestUtil.equal(living.inventory.Seashell, 2)
+	TestUtil.equal(living.inventory.WoodToken, 1)
+	TestUtil.equal(living.livingCollectionDay, "2026-08-08")
+	TestUtil.equal(living.livingCollectionMask, 7)
+	TestUtil.isTrue(living.homeCharmApplied)
 
 	local exploration = ProfileSchema.normalize({
 		version = 3,
@@ -76,7 +106,7 @@ return function()
 		boundaryExplorationMask = 7,
 		boundaryCompletions = 4,
 	})
-	TestUtil.equal(exploration.version, 4)
+	TestUtil.equal(exploration.version, 5)
 	TestUtil.equal(exploration.boundaryExplorationDay, "2026-08-08")
 	TestUtil.equal(exploration.boundaryExplorationClaimedDay, "2026-08-07")
 	TestUtil.equal(exploration.boundaryExplorationMask, 7)

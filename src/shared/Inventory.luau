@@ -3,6 +3,9 @@ local Inventory = {}
 local SUPPORTED = {
 	Carrot = true,
 	SugarCrystal = true,
+	MeadowSeed = true,
+	Seashell = true,
+	WoodToken = true,
 }
 
 local function validAmount(amount: any): boolean

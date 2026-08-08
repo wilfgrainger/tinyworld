@@ -1,10 +1,10 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 4
+ProfileSchema.VERSION = 5
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 export type GardenBed = { stage: string, readyAt: number }
-export type Inventory = { Carrot: number, SugarCrystal: number }
+export type Inventory = { Carrot: number, SugarCrystal: number, MeadowSeed: number, Seashell: number, WoodToken: number }
 export type PlayerProfile = {
 version: number,
 coins: number,
@@ -29,6 +29,9 @@ displayName: string,
 avatarStyle: string,
 starterOutfit: string,
 onboardingComplete: boolean,
+livingCollectionDay: string,
+livingCollectionMask: number,
+homeCharmApplied: boolean,
 }
 
 local VALID_GARDEN_STAGES = { empty = true, planted = true, watered = true, ready = true }
@@ -82,17 +85,20 @@ local function normaliseInventory(value: any): Inventory
 	return {
 		Carrot = normaliseInteger(inventory.Carrot, 0, 0),
 		SugarCrystal = normaliseInteger(inventory.SugarCrystal, 0, 0),
+		MeadowSeed = normaliseInteger(inventory.MeadowSeed, 0, 0),
+		Seashell = normaliseInteger(inventory.Seashell, 0, 0),
+		WoodToken = normaliseInteger(inventory.WoodToken, 0, 0),
 	}
 end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 4,
+		version = 5,
 		coins = 100,
 		level = 1,
 		xp = 0,
 		houseTier = 1,
-		inventory = { Carrot = 0, SugarCrystal = 0 },
+		inventory = { Carrot = 0, SugarCrystal = 0, MeadowSeed = 0, Seashell = 0, WoodToken = 0 },
 		courierLevel = 1,
 		courierXp = 0,
 		ownsTinyBike = false,
@@ -110,6 +116,9 @@ function ProfileSchema.new(): PlayerProfile
 		avatarStyle = "",
 		starterOutfit = "",
 		onboardingComplete = false,
+		livingCollectionDay = "",
+		livingCollectionMask = 0,
+		homeCharmApplied = false,
 	}
 end
 
@@ -124,7 +133,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 4,
+		version = 5,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -147,6 +156,9 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		avatarStyle = avatarStyle,
 		starterOutfit = starterOutfit,
 		onboardingComplete = onboardingComplete,
+		livingCollectionDay = if type(value.livingCollectionDay) == "string" then value.livingCollectionDay else "",
+		livingCollectionMask = normaliseInteger(value.livingCollectionMask, 0, 0, 7),
+		homeCharmApplied = value.homeCharmApplied == true,
 	}
 end
 
