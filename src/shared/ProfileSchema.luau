@@ -83,7 +83,7 @@ end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 2,
+		version = 3,
 		coins = 100,
 		level = 1,
 		xp = 0,
