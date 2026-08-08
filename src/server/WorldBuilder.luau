@@ -69,6 +69,24 @@ local function makeInteractionMarker(parent: Instance, name: string, position: V
 	return marker
 end
 
+local function makePortalFrame(parent: Instance, name: string, position: Vector3)
+	makeDecoration(parent, name .. "Platform", Vector3.new(26, 0.6, 20), position + Vector3.new(0, 0.3, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+	makeDecoration(parent, name .. "LeftPillar", Vector3.new(3, 16, 3), position + Vector3.new(-8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
+	makeDecoration(parent, name .. "RightPillar", Vector3.new(3, 16, 3), position + Vector3.new(8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
+	makeDecoration(parent, name .. "TopBeam", Vector3.new(19, 3, 3), position + Vector3.new(0, 16, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
+	makeDecoration(parent, name .. "TopTrim", Vector3.new(23, 1.5, 4), position + Vector3.new(0, 18, 0), VisualTheme.Colors.roof, Enum.Material.Slate)
+	for index, x in {-5, 0, 5} do
+		makeShapeDecoration(parent, name .. "Crystal" .. index, Vector3.new(2.4, 2.4, 2.4), position + Vector3.new(x, 19.8, 0), VisualTheme.Colors.crystal, Enum.Material.Neon, Enum.PartType.Ball)
+	end
+end
+
+local function makeCrystalPedestal(parent: Instance, name: string, position: Vector3)
+	local basePosition = position - Vector3.new(0, 2, 0)
+	makeShapeDecoration(parent, name .. "Base", Vector3.new(8, 1, 8), basePosition, VisualTheme.Colors.pathEdge, Enum.Material.Marble, Enum.PartType.Cylinder)
+	local ring = makeShapeDecoration(parent, name .. "Ring", Vector3.new(10, 0.18, 10), basePosition + Vector3.new(0, 0.6, 0), VisualTheme.Colors.crystal, Enum.Material.Neon, Enum.PartType.Cylinder)
+	ring.Transparency = 0.35
+end
+
 local function makeStoneBorder(parent: Instance, name: string, origin: Vector3, width: number, depth: number)
 	local stoneColor = VisualTheme.Colors.pathEdge
 	makeDecoration(parent, name .. "North", Vector3.new(width, 0.5, 1.5), origin + Vector3.new(0, 0.25, -depth / 2), stoneColor, Enum.Material.Cobblestone)
@@ -116,6 +134,20 @@ local function makeLabel(parent: BasePart, text: string, width: number?): TextLa
 	stroke.Thickness = 1
 	stroke.Parent = label
 	return label
+end
+
+local function makeCourierShowcase(parent: Instance)
+	makeDecoration(parent, "CourierParcelCounter", Vector3.new(14, 2, 3), Vector3.new(-8, 1.5, -34), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	for index, x in {-11, -7, -3} do
+		local parcel = makeDecoration(parent, "DepotParcel" .. index, Vector3.new(3, 3, 3), Vector3.new(x, 4, -34), VisualTheme.Colors.timber, Enum.Material.Cardboard)
+		parcel.Orientation = Vector3.new(0, index * 6, 0)
+	end
+	local pickupSign = makeDecoration(parent, "CourierPickupSign", Vector3.new(12, 4, 1), Vector3.new(-8, 6, -34), VisualTheme.Colors.ink, Enum.Material.Wood)
+	makeLabel(pickupSign, "PICK UP PARCEL", 220)
+
+	makeDecoration(parent, "DeliveryDropCounter", Vector3.new(12, 1.5, 4), Vector3.new(30, 1.25, -37), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	local dropSign = makeDecoration(parent, "DeliveryDropSign", Vector3.new(14, 4, 1), Vector3.new(30, 5.5, -37), VisualTheme.Colors.ink, Enum.Material.Wood)
+	makeLabel(dropSign, "DELIVERY DROP", 230)
 end
 
 local function amenity(parent: Instance, name: string, position: Vector3, text: string, color: Color3)
@@ -215,6 +247,7 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	kitchen.Parent = parent
 
 	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, VisualTheme.Colors.paper, Enum.Material.Concrete)
+	makePortalFrame(kitchen, "KitchenArrivalFrame", origin + Vector3.new(0, 0, -72))
 	local tableTop = makePart(kitchen, "GiantTableTop", Vector3.new(100, 4, 70), origin + Vector3.new(0, 30, 10), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeLabel(tableTop, "THE GIANT KITCHEN\nCollect all 3 Sugar Crystals", 380)
 	for _, offset in {
@@ -243,10 +276,12 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	}
 	local crystalPrompts = {}
 	for index, position in crystalPositions do
+		makeCrystalPedestal(kitchen, "CrystalPedestal" .. index, position)
 		local crystal = makePart(kitchen, "SugarCrystal" .. index, Vector3.new(4, 8, 4), position, VisualTheme.Colors.crystal, Enum.Material.Neon)
 		crystalPrompts[index] = makePrompt(crystal, "Collect Crystal", string.format("Sugar Crystal %d/3", index))
 	end
 
+	makePortalFrame(kitchen, "KitchenExitFrame", origin + Vector3.new(0, 0, 75))
 	local exit = makePart(kitchen, "KitchenExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeLabel(exit, "RETURN PORTAL")
 	local returnPrompt = makePrompt(exit, "Return to Village", "Portal")
@@ -318,6 +353,7 @@ function WorldBuilder.build()
 	local deliveryEnd = makePart(root, "DeliveryEnd", Vector3.new(6, 4, 6), Vector3.new(30, 2, -44), VisualTheme.Colors.timber)
 	local deliveryEndPrompt = makePrompt(deliveryEnd, "Deliver Parcel", "Courier Job")
 	makeInteractionMarker(root, "DeliveryEndMarker", Vector3.new(30, 0, -44), VisualTheme.Colors.berry)
+	makeCourierShowcase(root)
 
 	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", VisualTheme.Colors.sky)
 	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), VisualTheme.Colors.skyDeep)
@@ -329,6 +365,7 @@ function WorldBuilder.build()
 	local portal = makePart(root, "VillagePortal", Vector3.new(12, 12, 2), Vector3.new(-44, 6, 44), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeLabel(portal, "PORTAL\nThe Giant Kitchen", 300)
 	local villagePortalPrompt = makePrompt(portal, "Enter Giant Kitchen", "World Portal")
+	makePortalFrame(root, "VillagePortalFrame", Vector3.new(-44, 0, 44))
 	makeInteractionMarker(root, "VillagePortalMarker", Vector3.new(-44, 0, 44), VisualTheme.Colors.portal)
 
 	local premiumSign = makeDecoration(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), VisualTheme.Colors.ink)
