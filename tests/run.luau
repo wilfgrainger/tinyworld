@@ -18,6 +18,7 @@ local specs = {
 	require("./TransportRules.spec"),
 	require("./TraversalRules.spec"),
 	require("./PortalRules.spec"),
+	require("./PortalJournalRules.spec"),
 	require("./TradeRules.spec"),
 	require("./WorldLayoutRules.spec"),
 	require("./VillageComposition.spec"),
