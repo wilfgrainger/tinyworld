@@ -46,6 +46,11 @@ return function()
 	local unsafeCommit, unsafeCommitReason = TradeTransactionRules.commit(recovering)
 	TestUtil.isFalse(unsafeCommit)
 	TestUtil.equal(unsafeCommitReason, "invalid_state")
+	local earlyFinish, earlyFinishReason = TradeTransactionRules.finishRecovery(recovering)
+	TestUtil.isFalse(earlyFinish)
+	TestUtil.equal(earlyFinishReason, "rollback_not_durable")
+	recovering.rollbackSavedA = true
+	recovering.rollbackSavedB = true
 	local recoveryFinished, recoveryFinishedReason = TradeTransactionRules.finishRecovery(recovering)
 	TestUtil.isTrue(recoveryFinished)
 	TestUtil.equal(recoveryFinishedReason, "cancelled")
