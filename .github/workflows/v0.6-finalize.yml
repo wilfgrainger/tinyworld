@@ -1,0 +1,168 @@
+name: v0.6 final verification
+
+on:
+  push:
+    branches:
+      - docs/target-state-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v0.6-final-verification
+  cancel-in-progress: true
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: docs/target-state-v1
+          fetch-depth: 0
+
+      - name: Install Luau 0.732
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/luau-lang/luau/releases/tags/0.732"
+          asset_url="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$api" | jq -r '.assets[] | select(.name == "luau-ubuntu.zip") | .browser_download_url')"
+          test -n "$asset_url"
+          test "$asset_url" != "null"
+          curl -fsSL "$asset_url" -o /tmp/luau.zip
+          mkdir -p "$RUNNER_TEMP/luau"
+          unzip -q /tmp/luau.zip -d "$RUNNER_TEMP/luau"
+          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze" "$RUNNER_TEMP/luau/luau-compile"
+          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
+
+      - name: Install pinned Rokit tools
+        run: |
+          set -euo pipefail
+          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
+          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
+          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.rokit/bin:$PATH"
+          rokit install --no-trust-check
+
+      - name: Normalize Luau first
+        id: normalize
+        run: |
+          set -euo pipefail
+          stylua src tests
+          if git diff --quiet -- src tests; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit normalization and rerun on exact source
+        if: steps.normalize.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src tests
+          git commit -m "style: normalize v0.6.0 Luau with StyLua"
+          git push origin HEAD:docs/target-state-v1
+
+      - name: Stop after normalization push
+        if: steps.normalize.outputs.changed == 'true'
+        run: exit 0
+
+      - name: Run deterministic tests
+        if: steps.normalize.outputs.changed == 'false'
+        run: luau tests/run.luau | tee /tmp/luau-tests.txt
+
+      - name: Analyze shared Luau
+        if: steps.normalize.outputs.changed == 'false'
+        run: luau-analyze src/shared/*.luau tests/*.luau
+
+      - name: Verify formatting is stable
+        if: steps.normalize.outputs.changed == 'false'
+        run: stylua --check src tests
+
+      - name: Compile runtime Luau recursively
+        if: steps.normalize.outputs.changed == 'false'
+        run: |
+          set -euo pipefail
+          find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+          find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+
+      - name: Verify canonical release authority
+        if: steps.normalize.outputs.changed == 'false'
+        run: bash ./tests/verify-v0.6.0-release-authority.sh
+
+      - name: Verify release contract
+        if: steps.normalize.outputs.changed == 'false'
+        run: ./scripts/verify-release-contract.sh
+
+      - name: Verify build contract
+        if: steps.normalize.outputs.changed == 'false'
+        run: ./tests/build-contract.sh
+
+      - name: Build exact candidate
+        if: steps.normalize.outputs.changed == 'false'
+        run: ./scripts/build.sh
+
+      - name: Record successful automated evidence and remove finalizer
+        if: steps.normalize.outputs.changed == 'false'
+        env:
+          VERIFIED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          artifact_sha="$(jq -r '.sha256' dist/release.json)"
+          timestamp="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          cat > docs/releases/v0.6.0/automated-evidence.json <<EOF
+          {
+            "release": "0.6.0",
+            "verifiedSourceSha": "${VERIFIED_SHA}",
+            "verifiedAtUtc": "${timestamp}",
+            "workflowRunId": "${RUN_ID}",
+            "workflowUrl": "${SERVER_URL}/${REPOSITORY}/actions/runs/${RUN_ID}",
+            "profileSchema": 11,
+            "artifact": "TinyWorld-v0.6.0.rbxlx",
+            "artifactSha256": "${artifact_sha}",
+            "gates": {
+              "luauTests": "PASS",
+              "luauAnalyze": "PASS",
+              "stylua": "PASS",
+              "serverCompile": "PASS",
+              "clientCompile": "PASS",
+              "releaseAuthority": "PASS",
+              "releaseContract": "PASS",
+              "buildContract": "PASS",
+              "rojoBuild": "PASS"
+            },
+            "runtimeEvidence": "PENDING"
+          }
+          EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('docs/releases/v0.6.0/acceptance.md')
+          text = p.read_text()
+          replacements = {
+              '| Pure Luau tests | PENDING | GitHub Actions `Luau tests` |': '| Pure Luau tests | PASS | `automated-evidence.json` |',
+              '| Shared Luau analysis | PENDING | GitHub Actions `Luau tests` |': '| Shared Luau analysis | PASS | `automated-evidence.json` |',
+              '| StyLua check | PENDING | GitHub Actions `Luau tests` |': '| StyLua check | PASS | `automated-evidence.json` |',
+              '| Recursive server/client compile | PENDING | GitHub Actions `Luau tests` |': '| Recursive server/client compile | PASS | `automated-evidence.json` |',
+              '| v0.6.0 release contract | PENDING | GitHub Actions `Rojo build` |': '| v0.6.0 release contract | PASS | `automated-evidence.json` |',
+              '| Rojo candidate build | PENDING | GitHub Actions `Rojo build` |': '| Rojo candidate build | PASS | `automated-evidence.json` |',
+              '| Traceability manifest/artifact | PENDING | GitHub Actions artifact |': '| Traceability manifest/artifact | PASS | `automated-evidence.json` |',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing acceptance row: {old}')
+              text = text.replace(old, new)
+          p.write_text(text)
+          PY
+          rm .github/workflows/v0.6-finalize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/releases/v0.6.0/acceptance.md docs/releases/v0.6.0/automated-evidence.json .github/workflows/v0.6-finalize.yml
+          git commit -m "chore: record v0.6.0 automated verification evidence"
+          git push origin HEAD:docs/target-state-v1
