@@ -1,10 +1,11 @@
 {
-  "productVersion": "0.5.3",
-  "releaseName": "Production Engineering Foundation",
-  "profileSchema": 10,
+  "productVersion": "0.6.0",
+  "releaseName": "Target-State Consolidation",
+  "profileSchema": 11,
   "rojoVersion": "7.7.0",
+  "styluaVersion": "2.5.2",
   "rokitVersion": "1.2.0",
   "rokitInstallerCommit": "2f2618428ef31279e2fc80b0b1d73485bc929ddd",
   "projectFile": "default.project.json",
-  "artifactFile": "TinyWorld-v0.5.3.rbxlx"
+  "artifactFile": "TinyWorld-v0.6.0.rbxlx"
 }
