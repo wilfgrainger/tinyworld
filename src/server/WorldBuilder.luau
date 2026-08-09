@@ -373,6 +373,8 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	for index, position in crystalPositions do
 		makeCrystalPedestal(kitchen, "CrystalPedestal" .. index, position)
 		local crystal = makePart(kitchen, "SugarCrystal" .. index, Vector3.new(4, 8, 4), position, VisualTheme.Colors.crystal, Enum.Material.Neon)
+		crystal:SetAttribute("TinyWorldCollectible", "SugarCrystal")
+		crystal:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		crystalPrompts[index] = makePrompt(crystal, "Collect Crystal", string.format("Sugar Crystal %d/3", index))
 	end
 
@@ -426,6 +428,8 @@ local function buildMoonlitMeadow(parent: Instance, origin: Vector3)
 	for index, position in seedPositions do
 		makeCrystalPedestal(meadow, "MoonlitSeedPedestal" .. index, position)
 		local seed = makeShapeDecoration(meadow, "MoonlitSeed" .. index, Vector3.new(3.5, 6, 3.5), position + Vector3.new(0, 3, 0), VisualTheme.Colors.flower, Enum.Material.Neon, Enum.PartType.Ball)
+		seed:SetAttribute("TinyWorldCollectible", "MeadowSeed")
+		seed:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		makeLabel(seed, string.format("MOONLIT SEED %d/3", index), 180)
 		collectPrompts[index] = makePrompt(seed, "Collect Seed", string.format("Moonlit Seed %d/3", index))
 	end

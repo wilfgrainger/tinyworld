@@ -2,18 +2,19 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Inventory = require(shared:WaitForChild("Inventory"))
+local PhysicalAffordanceRules = require(shared:WaitForChild("PhysicalAffordanceRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local PhysicalItemService = {}
 PhysicalItemService.__index = PhysicalItemService
 PhysicalItemService.PHYSICAL_AFFORDANCE_INVARIANT = "world-or-popup"
 
-local ITEMS = {
-	{ id = "Carrot", name = "Carrot", color = VisualTheme.Colors.warmLight, material = Enum.Material.SmoothPlastic },
-	{ id = "SugarCrystal", name = "Sugar Crystal", color = VisualTheme.Colors.crystal, material = Enum.Material.Neon },
-	{ id = "MeadowSeed", name = "Meadow Seed", color = VisualTheme.Colors.leafLight, material = Enum.Material.Grass },
-	{ id = "Seashell", name = "Seashell", color = VisualTheme.Colors.white, material = Enum.Material.SmoothPlastic },
-	{ id = "WoodToken", name = "Wood Token", color = VisualTheme.Colors.woodLight, material = Enum.Material.Wood },
+local VISUALS = {
+	Carrot = { color = VisualTheme.Colors.warmLight, material = Enum.Material.SmoothPlastic },
+	SugarCrystal = { color = VisualTheme.Colors.crystal, material = Enum.Material.Neon },
+	MeadowSeed = { color = VisualTheme.Colors.leafLight, material = Enum.Material.Grass },
+	Seashell = { color = VisualTheme.Colors.white, material = Enum.Material.SmoothPlastic },
+	WoodToken = { color = VisualTheme.Colors.woodLight, material = Enum.Material.Wood },
 }
 
 local function makePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material, shape: Enum.PartType?): Part
@@ -83,10 +84,10 @@ end
 
 local function summary(profile): string
 	local entries = {}
-	for _, item in ITEMS do
-		local count = Inventory.get(profile, item.id)
+	for _, itemId in PhysicalAffordanceRules.inventoryItems() do
+		local count = Inventory.get(profile, itemId)
 		if count > 0 then
-			table.insert(entries, string.format("%s x%d", item.name, count))
+			table.insert(entries, string.format("%s x%d", PhysicalAffordanceRules.displayName(itemId), count))
 		end
 	end
 	return if #entries == 0 then "nothing collected yet" else table.concat(entries, " • ")
@@ -119,16 +120,21 @@ function PhysicalItemService:refresh(player: Player, profile)
 	end
 
 	plot.itemDisplay:ClearAllChildren()
+	plot.itemDisplay:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	local origin = plot.itemChest.Position + Vector3.new(-1.8, 2.8, 0)
 	local visible = 0
-	for index, item in ITEMS do
-		local count = Inventory.get(profile, item.id)
+	for index, itemId in PhysicalAffordanceRules.inventoryItems() do
+		local count = Inventory.get(profile, itemId)
 		if count > 0 then
 			visible += 1
 			local x = ((index - 1) % 3) * 1.8
 			local z = if index > 3 then 1.1 else 0
-			local object = makeInventoryShape(plot.itemDisplay, "InventoryItem_" .. item.id, origin + Vector3.new(x, 0, z), item.color, item.material)
-			makeLabel(object, string.format("%s x%d", item.name, count))
+			local visual = VISUALS[itemId]
+			local object = makeInventoryShape(plot.itemDisplay, "InventoryItem_" .. itemId, origin + Vector3.new(x, 0, z), visual.color, visual.material)
+			object:SetAttribute("TinyWorldItem", itemId)
+			object:SetAttribute("TinyWorldItemCount", count)
+			object:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+			makeLabel(object, string.format("%s x%d", PhysicalAffordanceRules.displayName(itemId), count))
 		end
 	end
 

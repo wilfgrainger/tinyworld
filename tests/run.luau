@@ -5,6 +5,7 @@ local specs = {
 	require("./Progression.spec"),
 	require("./HouseUpgrade.spec"),
 	require("./Inventory.spec"),
+	require("./PhysicalAffordanceRules.spec"),
 	require("./LivingWorldRules.spec"),
 	require("./GardenRules.spec"),
 	require("./DailyReward.spec"),

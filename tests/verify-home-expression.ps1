@@ -42,8 +42,8 @@ foreach ($pattern in @("Decor %d/6", "TinyWorldHomeTheme", "TinyWorldHomeDecorCo
         exit 1
     }
 }
-if ($client -notmatch "v0\.5\.0 TRAVERSAL") {
-    Write-Output "Current HUD is missing the v0.5.0 traversal candidate label."
+if ($client -notmatch "v0\.5\.1 PHYSICAL WORLD") {
+    Write-Output "Current HUD is missing the v0.5.1 physical-world candidate label."
     exit 1
 }
 

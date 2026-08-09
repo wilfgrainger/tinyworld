@@ -30,6 +30,7 @@ local function attachParcel(player: Player)
 	end
 	local parcel = Instance.new("Part")
 	parcel.Name = "TinyWorldCourierParcel"
+	parcel:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	parcel.Size = Vector3.new(2.5, 2.5, 2.5)
 	parcel.Color = VisualTheme.Colors.timber
 	parcel.Material = Enum.Material.Cardboard

@@ -84,6 +84,7 @@ function BikeBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 	model.PrimaryPart = seat
 	model:PivotTo(origin)
 	model:SetAttribute("BikeModel", true)
+	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 
 	return {
 		model = model,

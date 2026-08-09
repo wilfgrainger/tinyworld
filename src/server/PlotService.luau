@@ -152,6 +152,7 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 	self.PlayerStateService.sync(player, profile)
 	local house = HouseCatalog.get(profile.houseTier)
 	self.PlayerStateService.message(player, string.format("Home upgraded to %s!", if house then house.name else "the next tier"))
+	self.ProfileStore.save(player)
 end
 
 function PlotService:_cyclePrivacy(player: Player, plotIndex: number)
@@ -301,6 +302,11 @@ function PlotService:rebuildHouse(player: Player, profile)
 	if profile.homeCharmApplied then
 		makeHouseDecoration(plot.houseContainer, "HomePlanter", Vector3.new(7, 1, 2.4), anchor + Vector3.new(0, 1.5, frontZ + 3.5), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 		makeHouseDecoration(plot.houseContainer, "HomeFlowerCluster", Vector3.new(5, 2, 2), anchor + Vector3.new(0, 2.8, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Fabric)
+		local charm = makeHouseDecoration(plot.houseContainer, "HomeCharmDisplay", Vector3.new(1.8, 1.8, 1.8), anchor + Vector3.new(0, 4.2, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Neon)
+		charm.Shape = Enum.PartType.Ball
+		charm:SetAttribute("TinyWorldItem", "HomeCharm")
+		charm:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+		makeHouseLabel(charm, "HOME CHARM")
 		local homeLantern = makeHouseDecoration(plot.houseContainer, "HomeLantern", Vector3.new(1.2, 1.8, 1.2), anchor + Vector3.new(7, 4.6, frontZ + 1.2), VisualTheme.Colors.gold, Enum.Material.Neon)
 		homeLantern.Shape = Enum.PartType.Ball
 	end

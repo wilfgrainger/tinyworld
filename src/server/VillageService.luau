@@ -29,6 +29,7 @@ function VillageService:_contribute(player: Player)
 	self.world.fundLabel.Text = string.format("Village Fund: %d coins\nFuture public works live here", self.fund)
 	self.PlayerStateService.sync(player, profile)
 	self.PlayerStateService.message(player, "You contributed 50 coins to the Village Fund.")
+	self.ProfileStore.save(player)
 end
 
 return VillageService

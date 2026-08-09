@@ -19,6 +19,7 @@ local function makeFurniturePart(parent: Instance, name: string, size: Vector3, 
 	part.CanCollide = false
 	part.CanTouch = false
 	part.CanQuery = false
+	part:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	part.Color = color
 	part.Material = material
 	part.TopSurface = Enum.SurfaceType.Smooth

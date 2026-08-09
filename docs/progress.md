@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-09 - v0.5.1 physical-world and state hardening
+
+- Centralized the `world-or-popup` physical-affordance invariant in `PhysicalAffordanceRules`; the Item Chest now renders the shared five-item catalog with labelled world objects and explicit physical markers.
+- Added physical markers for crops, village pickups, courier parcels, home furniture, portal collectibles, Tiny Bike, Tiny Boat, and a labelled `HOME CHARM` display. The source guard now checks these paths rather than relying only on HUD inventory counts.
+- Fixed two persistence omissions found during the audit: successful home upgrades and Village Fund contributions now call the coalescing `ProfileStore.save` queue after syncing their visible result.
+- Added the [v0.5.1 physical-world test](v0.5.1-physical-world-test.md). Studio/published parity remains a separate runtime dependency; no live claim is made from source proof alone.
+
 ## 2026-08-09 - v0.5.0 traversal expansion source slice
 
 - Added schema-v10 `ownsTinyBoat`/session `boatActive` defaults and pure server-side purchase/board/return rules for a 600-coin earned Tiny Boat. Existing v0.4 profile fields normalize forward without reset.

@@ -89,6 +89,12 @@ The v0.5.0 slice makes the existing sea boundary a real destination story:
 
 The [v0.5.0 traversal test](docs/v0.5.0-traversal-test.md) is the authoritative route. It contains no new item reward, premium gate, combat, or pay-to-win power. v0.6.0 remains the fair cosmetic economy gate, and later releases remain dependency-gated by safety, content, scale, and operations evidence.
 
+## v0.5.1 physical-world hardening
+
+The v0.5.1 patch makes the item rule executable rather than aspirational: every current inventory item is represented by a labelled physical pickup, crop, or Item Chest object, or by an immediate named popup. Physical markers now cover crops, courier parcels, home furniture, Home Charm, portal collectibles, Tiny Bike, and Tiny Boat. The patch also queues saves for home upgrades and Village Fund contributions, so those visible interactions survive a stop/rejoin.
+
+Follow the [v0.5.1 physical-world test](docs/v0.5.1-physical-world-test.md). It introduces no new economy, paid gate, or progression advantage; v0.6.0 remains the fair cosmetic economy gate.
+
 ## What you need tomorrow
 
 1. A Roblox account.

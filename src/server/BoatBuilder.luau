@@ -65,6 +65,7 @@ function BoatBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 
 	model.PrimaryPart = seat
 	model:SetAttribute("TinyBoat", true)
+	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	model:SetAttribute("TinyWorldPhysicalBoat", true)
 	model:SetAttribute("TinyWorldBoatOwner", name)
 

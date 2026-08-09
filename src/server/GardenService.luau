@@ -53,6 +53,7 @@ local function renderBed(plot, bedIndex: number, stage: string)
 	local model = Instance.new("Model")
 	model.Name = name
 	model:SetAttribute("TinyWorldGardenStage", stage)
+	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	model.Parent = plot.model
 	local bed = plot.gardenBeds[bedIndex]
 	local base = bed.Position + Vector3.new(0, 0.8, 0)
@@ -74,6 +75,8 @@ local function renderBed(plot, bedIndex: number, stage: string)
 	end
 	if stage == "ready" then
 		local carrot = makeCropPart(model, "ReadyCarrot", Vector3.new(1.4, 2, 1.4), base + Vector3.new(0, 1.2, 0), VisualTheme.Colors.warmLight, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+		carrot:SetAttribute("TinyWorldItem", "Carrot")
+		carrot:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		makeCropPart(model, "ReadyCarrotTop", Vector3.new(1.2, 0.45, 1.2), carrot.Position + Vector3.new(0, 1.15, 0), VisualTheme.Colors.leaf, Enum.Material.Grass, Enum.PartType.Ball)
 		local gui = Instance.new("BillboardGui")
 		gui.Name = "ReadyLabel"

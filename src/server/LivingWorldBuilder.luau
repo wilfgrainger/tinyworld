@@ -147,6 +147,7 @@ local function makePickup(parent: Instance, itemName: string, position: Vector3,
 	local pickup = makePart(parent, itemName .. "Pickup", Vector3.new(5, 1, 5), position + Vector3.new(0, 0.5, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	local item = makeShapeDecoration(parent, itemName .. "Object", Vector3.new(2.4, 2.4, 2.4), position + Vector3.new(0, 2.1, 0), color, Enum.Material.Neon, Enum.PartType.Ball)
 	item:SetAttribute("TinyWorldItem", itemName)
+	item:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	makeLabel(pickup, labelText, 180)
 	return makePrompt(pickup, "PickupPrompt", "Collect " .. itemName, "Village Find")
 end
