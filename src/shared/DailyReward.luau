@@ -19,6 +19,9 @@ function DailyReward.claim(profile: any, dayKey: string): (boolean, string)
 	if profile.lastDailyDay == dayKey then
 		return false, "already_claimed"
 	end
+	if not Inventory.canAdd(profile, "Carrot", 1) then
+		return false, "inventory_full"
+	end
 	profile.lastDailyDay = dayKey
 	profile.coins += 200
 	Progression.addXp(profile, 50)
