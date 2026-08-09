@@ -32,6 +32,22 @@ return function()
 	TestUtil.isFalse(outside)
 	TestUtil.equal(outsideReason, "out_of_bounds")
 
+	local edgeInside = FurniturePlacementRules.isInsideBounds("CosyChair", {
+		x = 17.9,
+		y = 0,
+		z = 0,
+		rotation = 0,
+	})
+	TestUtil.isFalse(edgeInside, "the complete furniture footprint must stay inside home bounds")
+	local edgePlacement, edgeReason = FurniturePlacementRules.validate(profile, "CosyChair", {
+		x = 17.9,
+		y = 0,
+		z = 0,
+		rotation = 0,
+	})
+	TestUtil.isFalse(edgePlacement)
+	TestUtil.equal(edgeReason, "out_of_bounds")
+
 	local nan, nanReason = FurniturePlacementRules.validate(profile, "CosyChair", {
 		x = 0 / 0,
 		y = 0,
