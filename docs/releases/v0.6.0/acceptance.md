@@ -23,7 +23,7 @@
 - [x] Server-only `RemoteGuard` and pure validation rules exist.
 - [x] Onboarding is rate-limited and string-length checked before filtering.
 - [x] Home Store accepts IDs only and prices server-side.
-- [x] Furniture placement validates ownership, finite transforms, home bounds, overlap, rotation and count budget server-side.
+- [x] Furniture placement validates ownership, finite transforms, complete-footprint home bounds, existing-placement overlap, structural collision, rotation and count budget server-side.
 - [x] DEV/LIVE DataStore namespaces are separate and Studio defaults to DEV.
 - [x] ProfileStore migrates before normalize and fails closed on unsupported future data.
 - [x] Durable trade transaction IDs/snapshots/journal/idempotent state exist.
@@ -36,23 +36,28 @@
 - [x] House rebuilds re-render persisted placements.
 - [x] Recognisable native-part furniture prefab fallback exists.
 - [x] Responsive Home catalogue and placement UI exists.
-- [x] Placement preview is client-local; confirm sends one mutation request.
+- [x] Placement preview is client-local and red/green using the shared pure ownership/budget/bounds/overlap rules; the server independently revalidates and adds structural collision checks before persistence.
+- [x] Confirm sends one bounded mutation request rather than streaming placement transforms.
 - [x] Touch targets/controller placement bindings are explicit.
 - [x] Wardrobe UI and persisted free appearance selection exist.
+- [x] Asset-free visible character-expression fallback is wired into the runtime without fabricated Roblox asset IDs.
+- [x] Portal completion creates a physical keepsake display back at the resident home.
 
 ## World/operations foundation
 
 - [x] Giant Kitchen and Moonlit Meadow retained.
 - [x] Cloudpost Observatory authored with post office/observatory/wind-route physical identity.
 - [x] Clockwork Orchard authored with orchard/clock/gear physical identity.
+- [x] All four portal worlds require their authored physical mechanic as well as their collectible objective; each also has an optional secret.
 - [x] Small deterministic ambient bird/cat life exists.
 - [x] Stable analytics event taxonomy and Roblox AnalyticsService adapter exist.
 - [x] Performance budgets are machine-readable and documented.
 - [x] Asset manifest rejects invented IDs and requires provenance for production entries.
+- [x] Gameplay server capacity is tied to the sixteen resident plots and fails closed on overflow/configuration drift.
 
 ## Automated gates
 
-These rows are updated only from the current PR head workflow result.
+The implementation source SHA and PR synthetic merge SHA proved by the workflows are recorded in `automated-evidence.json`. Evidence metadata is committed after those workflows, so the resulting evidence-only PR head must separately pass the repository CI before merge. A documentation-only evidence commit does not silently change the implementation artifact it records.
 
 | Gate | Status | Evidence |
 |---|---|---|
@@ -60,7 +65,7 @@ These rows are updated only from the current PR head workflow result.
 | Shared Luau analysis | PASS | `automated-evidence.json` |
 | StyLua check | PASS | `automated-evidence.json` |
 | Recursive server/client compile | PASS | `automated-evidence.json` |
-| v0.6.0 release contract | PASS | `automated-evidence.json` |
+| v0.6.0 release authority/contract | PASS | `automated-evidence.json` |
 | Rojo candidate build | PASS | `automated-evidence.json` |
 | Traceability manifest/artifact | PASS | `automated-evidence.json` |
 
@@ -71,11 +76,12 @@ These rows are updated only from the current PR head workflow result.
 - profile load/rejoin/migration;
 - first 2/10/30 minute route;
 - Home Store purchase;
-- place/rotate/store furniture;
+- place/rotate/store furniture, including red/green preview and server structural rejection;
 - home rebuild retains placements;
-- wardrobe changes;
+- wardrobe changes and visible character fallback;
 - careers/garden/transport;
-- all four portal worlds;
+- all four portal worlds, mechanics, secrets and home keepsakes;
+- 16-player resident-cap route and deliberate overflow-misconfiguration rejection;
 - Output contains no critical errors.
 
 ## Multiplayer evidence
@@ -86,7 +92,8 @@ These rows are updated only from the current PR head workflow result.
 - guests cannot mutate owner furniture;
 - Open/Friends/Private home access;
 - trade happy path, timeout, stale confirmation and disconnect;
-- hostile/malformed placement/shop/onboarding remotes are rejected.
+- hostile/malformed placement/shop/onboarding remotes are rejected;
+- portal mechanics remain correct with concurrent players.
 
 ## Device/accessibility/performance evidence
 
