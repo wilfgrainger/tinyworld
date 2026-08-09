@@ -87,6 +87,11 @@ function PlayerStateService.sync(player: Player, profile)
 		if not profile.ownsTinyBoat then "not owned" elseif profile.boatActive then "in cove" else "parked"
 	)
 	player:SetAttribute("TinyWorldPortalCompletions", profile.portalCompletions)
+	local discoveredWorlds = if type(profile.discoveredWorlds) == "table" then profile.discoveredWorlds else {}
+	player:SetAttribute("TinyWorldDiscoveredGiantKitchen", discoveredWorlds.GiantKitchen == true)
+	player:SetAttribute("TinyWorldDiscoveredMoonlitMeadow", discoveredWorlds.MoonlitMeadow == true)
+	player:SetAttribute("TinyWorldDiscoveredCloudpostObservatory", discoveredWorlds.CloudpostObservatory == true)
+	player:SetAttribute("TinyWorldDiscoveredClockworkOrchard", discoveredWorlds.ClockworkOrchard == true)
 	player:SetAttribute("TinyWorldVillageContribution", profile.villageContribution)
 	player:SetAttribute("TinyWorldBoundaryExplorationDay", profile.boundaryExplorationDay)
 	player:SetAttribute("TinyWorldBoundaryExplorationClaimedDay", profile.boundaryExplorationClaimedDay)
