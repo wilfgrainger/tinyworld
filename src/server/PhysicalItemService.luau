@@ -6,6 +6,7 @@ local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local PhysicalItemService = {}
 PhysicalItemService.__index = PhysicalItemService
+PhysicalItemService.PHYSICAL_AFFORDANCE_INVARIANT = "world-or-popup"
 
 local ITEMS = {
 	{ id = "Carrot", name = "Carrot", color = VisualTheme.Colors.warmLight, material = Enum.Material.SmoothPlastic },

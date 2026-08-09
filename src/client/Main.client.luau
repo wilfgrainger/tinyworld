@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / PROFESSIONS • STORYBOOK"
+eyebrow.Text = "TODAY / TRAVEL • STORYBOOK"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.4.0 PROFESSIONS"
+title.Text = "TINYWORLD | v0.5.0 TRAVERSAL"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -208,7 +208,9 @@ local function update()
 	careers.Text = string.format("Careers: Courier %d  |  Farmer %d  |  Designer %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldFarmerLevel", 1), attr("TinyWorldDesignerLevel", 1))
 	local bikeState = attr("TinyWorldBikeState", if attr("TinyWorldBikeActive", false) then "mounted" else "parked")
 	local bikeText = if bikeState == "mounted" then "Tiny Bike MOUNTED" elseif bikeState == "parked" and attr("TinyWorldOwnsBike", false) then "Tiny Bike PARKED" else "Tiny Bike not owned"
-	transport.Text = "Transport: " .. bikeText
+	local boatState = attr("TinyWorldBoatState", if attr("TinyWorldBoatActive", false) then "in cove" else "parked")
+	local boatText = if boatState == "in cove" then "Tiny Boat IN COVE" elseif boatState == "parked" and attr("TinyWorldOwnsBoat", false) then "Tiny Boat PARKED" else "Tiny Boat not owned"
+	transport.Text = "Transport: " .. bikeText .. "  |  " .. boatText
 	portal.Text = string.format("Portals: %d completion(s)  |  Mission finds %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
 	route.Text = string.format("Return loop: today %d/%d  |  week %d/%d", attr("TinyWorldDailyRouteCount", 0), attr("TinyWorldDailyRouteTotal", 3), attr("TinyWorldWeeklyRouteCount", 0), attr("TinyWorldWeeklyRouteTotal", 3))
@@ -247,6 +249,9 @@ local observed = {
 	"TinyWorldOwnsBike",
 	"TinyWorldBikeActive",
 	"TinyWorldBikeState",
+	"TinyWorldOwnsBoat",
+	"TinyWorldBoatActive",
+	"TinyWorldBoatState",
 	"TinyWorldPortalCompletions",
 	"TinyWorldBoundaryMask",
 	"TinyWorldBoundaryCompletions",

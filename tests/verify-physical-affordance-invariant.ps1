@@ -3,9 +3,11 @@ $root = Split-Path -Parent $PSScriptRoot
 
 $physicalPath = Join-Path $root "src\server\PhysicalItemService.luau"
 $worldPath = Join-Path $root "src\server\WorldBuilder.luau"
+$livingWorldPath = Join-Path $root "src\server\LivingWorldBuilder.luau"
 $statePath = Join-Path $root "src\server\PlayerStateService.luau"
 $physical = Get-Content -Raw -LiteralPath $physicalPath
 $world = Get-Content -Raw -LiteralPath $worldPath
+$livingWorld = Get-Content -Raw -LiteralPath $livingWorldPath
 $state = Get-Content -Raw -LiteralPath $statePath
 
 foreach ($pattern in @(
@@ -18,10 +20,14 @@ foreach ($pattern in @(
     }
 }
 
-foreach ($pattern in @("ItemChest", "itemChestPrompt", "InventoryDisplay", "gardenBeds", "PickupPrompt", "collectPrompts")) {
+foreach ($pattern in @("ItemChest", "itemChestPrompt", "InventoryDisplay", "gardenBeds", "collectPrompts")) {
     if ($world -notmatch [regex]::Escape($pattern)) {
         throw "World is missing concrete item affordance: $pattern."
     }
+}
+
+if ($livingWorld -notmatch "PickupPrompt" -or $livingWorld -notmatch "TinyWorldItem") {
+    throw "LivingWorldBuilder is missing a physical pickup contract."
 }
 
 foreach ($pattern in @("TinyWorldCarrots", "TinyWorldSugarCrystals", "TinyWorldMeadowSeeds", "TinyWorldSeashells", "TinyWorldWoodTokens", "syncListeners")) {
