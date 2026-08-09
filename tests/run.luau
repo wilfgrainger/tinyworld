@@ -10,6 +10,7 @@ local specs = {
 	require("./DailyReward.spec"),
 	require("./Profession.spec"),
 	require("./TransportRules.spec"),
+	require("./TraversalRules.spec"),
 	require("./PortalRules.spec"),
 	require("./TradeRules.spec"),
 	require("./WorldLayoutRules.spec"),
