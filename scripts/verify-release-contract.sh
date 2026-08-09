@@ -257,36 +257,31 @@ for rule in 'dist/' '.rokit/' '.worktrees/' '.superpowers/'; do
   fi
 done
 
-if ! command -v rg >/dev/null 2>&1; then
-  echo "ERROR: required command missing: rg" >&2
-  exit 1
-fi
-
-if rg -n -i 'ROBLOX_[A-Z0-9_]*API_KEY|ROBLOSECURITY|clientSecret|privateKey' config assets >/dev/null; then
+if grep -RniE 'ROBLOX_[A-Z0-9_]*API_KEY|ROBLOSECURITY|clientSecret|privateKey' config assets >/dev/null; then
   echo "ERROR: credential-shaped value found in config/ or assets/" >&2
   exit 1
 else
-  rg_status=$?
-  case "$rg_status" in
+  credential_grep_status=$?
+  case "$credential_grep_status" in
     1)
       ;;
     *)
-      echo "ERROR: credential scan failed with rg exit code $rg_status" >&2
+      echo "ERROR: credential scan failed with grep exit code $credential_grep_status" >&2
       exit 1
       ;;
   esac
 fi
 
-if rg -n -i 'secrets|roblox|opencloud|publish|datastore|upload-place' "$workflow_path" >/dev/null; then
+if grep -RniE 'secrets|roblox|opencloud|publish|datastore|upload-place' "$workflow_path" >/dev/null; then
   echo "ERROR: forbidden publishing or credential token found in $workflow_path" >&2
   exit 1
 else
-  workflow_rg_status=$?
-  case "$workflow_rg_status" in
+  workflow_grep_status=$?
+  case "$workflow_grep_status" in
     1)
       ;;
     *)
-      echo "ERROR: workflow credential scan failed with rg exit code $workflow_rg_status" >&2
+      echo "ERROR: workflow credential scan failed with grep exit code $workflow_grep_status" >&2
       exit 1
       ;;
   esac

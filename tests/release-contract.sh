@@ -29,6 +29,17 @@ run_guard() {
 bash "$ROOT_DIR/scripts/verify-release-contract.sh" >/dev/null
 run_guard >/dev/null
 
+NO_RG_BIN="$TEMP_DIR/no-rg-bin"
+mkdir -p "$NO_RG_BIN"
+for command_name in awk cut dirname grep head jq; do
+  ln -s "$(command -v "$command_name")" "$NO_RG_BIN/$command_name"
+done
+
+if ! PATH="$NO_RG_BIN" TINYWORLD_REPO_ROOT="$FIXTURE_ROOT" "$(command -v bash)" "$GUARD_PATH" >/dev/null 2>&1; then
+  echo "ERROR: release guard requires rg instead of standard grep" >&2
+  exit 1
+fi
+
 cp "$CONFIG_PATH" "$TEMP_DIR/release.json"
 cp "$WORKFLOW_PATH" "$TEMP_DIR/rojo-build.yml"
 
