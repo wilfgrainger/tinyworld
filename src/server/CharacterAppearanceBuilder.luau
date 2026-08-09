@@ -24,7 +24,14 @@ local function stableIndex(text: string, count: number): number
 	return (sum % count) + 1
 end
 
-local function weldedPart(parent: Instance, target: BasePart, name: string, size: Vector3, offset: CFrame, color: Color3): Part
+local function weldedPart(
+	parent: Instance,
+	target: BasePart,
+	name: string,
+	size: Vector3,
+	offset: CFrame,
+	color: Color3
+): Part
 	local part = Instance.new("Part")
 	part.Name = name
 	part.Size = size
@@ -63,17 +70,45 @@ local function buildHair(character: Model, hairId: string)
 
 	weldedPart(folder, head, "HairCap", Vector3.new(1.9, 0.55, 1.8), CFrame.new(0, 0.72, 0), color)
 	if style == 1 then
-		weldedPart(folder, head, "SideSweep", Vector3.new(1.25, 0.42, 0.55), CFrame.new(0.32, 0.68, -0.72) * CFrame.Angles(0, 0, math.rad(-14)), color)
+		weldedPart(
+			folder,
+			head,
+			"SideSweep",
+			Vector3.new(1.25, 0.42, 0.55),
+			CFrame.new(0.32, 0.68, -0.72) * CFrame.Angles(0, 0, math.rad(-14)),
+			color
+		)
 	elseif style == 2 then
-		weldedPart(folder, head, "FringeLeft", Vector3.new(0.55, 0.7, 0.45), CFrame.new(-0.45, 0.55, -0.78) * CFrame.Angles(math.rad(12), 0, math.rad(12)), color)
-		weldedPart(folder, head, "FringeRight", Vector3.new(0.55, 0.7, 0.45), CFrame.new(0.38, 0.55, -0.78) * CFrame.Angles(math.rad(-8), 0, math.rad(-10)), color)
+		weldedPart(
+			folder,
+			head,
+			"FringeLeft",
+			Vector3.new(0.55, 0.7, 0.45),
+			CFrame.new(-0.45, 0.55, -0.78) * CFrame.Angles(math.rad(12), 0, math.rad(12)),
+			color
+		)
+		weldedPart(
+			folder,
+			head,
+			"FringeRight",
+			Vector3.new(0.55, 0.7, 0.45),
+			CFrame.new(0.38, 0.55, -0.78) * CFrame.Angles(math.rad(-8), 0, math.rad(-10)),
+			color
+		)
 	elseif style == 3 then
 		weldedPart(folder, head, "PuffLeft", Vector3.new(0.75, 0.75, 0.75), CFrame.new(-0.82, 0.58, 0), color)
 		weldedPart(folder, head, "PuffRight", Vector3.new(0.75, 0.75, 0.75), CFrame.new(0.82, 0.58, 0), color)
 	elseif style == 4 then
 		weldedPart(folder, head, "LongBack", Vector3.new(1.7, 1.75, 0.45), CFrame.new(0, 0.05, 0.84), color)
 	else
-		weldedPart(folder, head, "Tuft", Vector3.new(0.75, 0.95, 0.65), CFrame.new(0.18, 1.02, -0.08) * CFrame.Angles(0, 0, math.rad(-18)), color)
+		weldedPart(
+			folder,
+			head,
+			"Tuft",
+			Vector3.new(0.75, 0.95, 0.65),
+			CFrame.new(0.18, 1.02, -0.08) * CFrame.Angles(0, 0, math.rad(-18)),
+			color
+		)
 	end
 end
 

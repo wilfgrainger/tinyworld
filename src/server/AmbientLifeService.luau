@@ -87,33 +87,27 @@ function AmbientLifeService.new(world)
 			Vector3.new(38, 3, -28),
 		}
 	do
-		table.insert(
-			self.actors,
-			{
-				model = bird(folder, "VillageBird" .. index, position, birdColor),
-				origin = position,
-				radius = 5 + index,
-				speed = 0.35 + index * 0.04,
-				flying = true,
-			}
-		)
+		table.insert(self.actors, {
+			model = bird(folder, "VillageBird" .. index, position, birdColor),
+			origin = position,
+			radius = 5 + index,
+			speed = 0.35 + index * 0.04,
+			flying = true,
+		})
 	end
 	for index, position in { Vector3.new(-20, 1.2, 10), Vector3.new(28, 1.2, -5) } do
-		table.insert(
-			self.actors,
-			{
-				model = cat(
-					folder,
-					"VillageCat" .. index,
-					position,
-					if index == 1 then Color3.fromRGB(188, 133, 77) else Color3.fromRGB(93, 96, 104)
-				),
-				origin = position,
-				radius = 4,
-				speed = 0.18 + index * 0.03,
-				flying = false,
-			}
-		)
+		table.insert(self.actors, {
+			model = cat(
+				folder,
+				"VillageCat" .. index,
+				position,
+				if index == 1 then Color3.fromRGB(188, 133, 77) else Color3.fromRGB(93, 96, 104)
+			),
+			origin = position,
+			radius = 4,
+			speed = 0.18 + index * 0.03,
+			flying = false,
+		})
 	end
 
 	task.spawn(function()

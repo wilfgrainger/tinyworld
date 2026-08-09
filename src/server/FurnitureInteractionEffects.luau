@@ -80,7 +80,11 @@ local function findDoorLikePart(model: Model): BasePart?
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			local lower = string.lower(descendant.Name)
-			if string.find(lower, "door", 1, true) or string.find(lower, "lid", 1, true) or string.find(lower, "drawer", 1, true) then
+			if
+				string.find(lower, "door", 1, true)
+				or string.find(lower, "lid", 1, true)
+				or string.find(lower, "drawer", 1, true)
+			then
 				return descendant
 			end
 		end
