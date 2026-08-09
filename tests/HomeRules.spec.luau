@@ -14,6 +14,7 @@ return function()
 	TestUtil.equal(reason, "bought")
 	TestUtil.equal(profile.coins, 100 - HomeCatalog.get("KitchenCounter").price)
 	TestUtil.isTrue(HomeRules.has(profile, "KitchenCounter"))
+	TestUtil.equal(profile.ownedFurniture.KitchenCounter, 1)
 
 	bought, reason = HomeRules.buy(profile, "KitchenCounter")
 	TestUtil.isFalse(bought)
@@ -40,7 +41,9 @@ return function()
 	TestUtil.equal(HomeRules.nextItem(profile), "Wardrobe")
 	profile.coins = 1000
 	TestUtil.isTrue(HomeRules.buy(profile, "Wardrobe"))
+	TestUtil.equal(profile.ownedFurniture.Wardrobe, 1)
 	TestUtil.isTrue(HomeRules.buy(profile, "CreativeDesk"))
+	TestUtil.equal(profile.ownedFurniture.CreativeDesk, 1)
 	TestUtil.isTrue(HomeRules.isComplete(profile))
 	TestUtil.equal(HomeRules.nextItem(profile), nil)
 end
