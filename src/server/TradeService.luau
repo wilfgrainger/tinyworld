@@ -307,14 +307,13 @@ function TradeService:_recoverActiveTrade(
 	transaction.rollbackSavedA = self.ProfileStore.saveNow(a)
 	TradeJournal.write(transaction)
 	transaction.rollbackSavedB = self.ProfileStore.saveNow(b)
-	TradeJournal.write(transaction)
+	local wroteCheckpoint, authoritative = TradeJournal.write(transaction)
 	self.PlayerStateService.sync(a, profileA)
 	self.PlayerStateService.sync(b, profileB)
 
-	local recovered = transaction.rollbackSavedA and transaction.rollbackSavedB
-	if recovered then
-		local finished = TradeTransactionRules.finishRecovery(transaction)
-		if finished and TradeJournal.write(transaction) then
+	if wroteCheckpoint and authoritative and authoritative.rollbackSavedA and authoritative.rollbackSavedB then
+		local finished = TradeTransactionRules.finishRecovery(authoritative)
+		if finished and TradeJournal.write(authoritative) then
 			self.PlayerStateService.message(a, "Trade was safely rolled back. Nothing was lost.")
 			self.PlayerStateService.message(b, "Trade was safely rolled back. Nothing was lost.")
 			self:_resetActiveTrade()
@@ -428,9 +427,6 @@ function TradeService:_complete(a: Player, b: Player)
 		return
 	end
 
-	-- The journal's terminal row is written before local success is announced.
-	-- Terminal TradeJournal.write returns false only when that authoritative row
-	-- itself could not be persisted; stale pending indexes self-clean later.
 	local committedSnapshot = table.clone(transaction)
 	committedSnapshot.state = "committed"
 	if not TradeJournal.write(committedSnapshot) then
@@ -457,7 +453,10 @@ function TradeService:_complete(a: Player, b: Player)
 end
 
 function TradeService:setupPlayer(player: Player): boolean
-	local transaction = TradeJournal.pendingForUser(player.UserId)
+	local lookupOk, transaction = TradeJournal.pendingForUser(player.UserId)
+	if not lookupOk then
+		return false
+	end
 	if transaction == nil then
 		return true
 	end
@@ -468,9 +467,11 @@ function TradeService:setupPlayer(player: Player): boolean
 
 	if transaction.state == "committing" then
 		local started = TradeTransactionRules.beginRecovery(transaction, "server_resume")
-		if not started or not TradeJournal.write(transaction) then
+		local wroteRecovery, authoritative = TradeJournal.write(transaction)
+		if not started or not wroteRecovery or authoritative == nil then
 			return false
 		end
+		transaction = authoritative
 	elseif transaction.state ~= "recovering" then
 		return false
 	end
@@ -490,24 +491,36 @@ function TradeService:setupPlayer(player: Player): boolean
 	end
 
 	local durable = restoreReason == "already_before" or self.ProfileStore.saveNow(player)
-	if isA then
-		transaction.rollbackSavedA = durable
-	else
-		transaction.rollbackSavedB = durable
-	end
-	if not TradeJournal.write(transaction) then
+	if not durable then
 		return false
 	end
-	if transaction.rollbackSavedA and transaction.rollbackSavedB then
-		local finished = TradeTransactionRules.finishRecovery(transaction)
-		if not finished or not TradeJournal.write(transaction) then
-			return false
-		end
+	if isA then
+		transaction.rollbackSavedA = true
+	else
+		transaction.rollbackSavedB = true
 	end
-	if durable then
-		self.PlayerStateService.message(player, "TinyWorld recovered an interrupted trade before you rejoined.")
+	local wroteCheckpoint, authoritative = TradeJournal.write(transaction)
+	if not wroteCheckpoint or authoritative == nil then
+		return false
 	end
-	return durable
+	transaction = authoritative
+
+	if not (transaction.rollbackSavedA and transaction.rollbackSavedB) then
+		-- Do not admit either participant until both rollback checkpoints are
+		-- durably represented in one authoritative journal row.
+		return false
+	end
+
+	local finished = TradeTransactionRules.finishRecovery(transaction)
+	if not finished then
+		return false
+	end
+	local wroteTerminal, terminalSnapshot = TradeJournal.write(transaction)
+	if not wroteTerminal or terminalSnapshot == nil or terminalSnapshot.state ~= "cancelled" then
+		return false
+	end
+	self.PlayerStateService.message(player, "TinyWorld recovered an interrupted trade before you rejoined.")
+	return true
 end
 
 function TradeService:_updateSign()
