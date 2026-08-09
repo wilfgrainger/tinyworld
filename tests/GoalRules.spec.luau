@@ -54,9 +54,14 @@ return function()
 	portal.portalCompletions = 0
 	TestUtil.equal(GoalRules.suggestedGoal(portal), "Enter the portal and explore the Giant Kitchen.")
 
+	local secondPortal = readyProfile()
+	secondPortal.houseTier = 5
+	secondPortal.portalCompletions = 1
+	TestUtil.equal(GoalRules.suggestedGoal(secondPortal), "Open the second portal and explore the Moonlit Meadow.")
+
 	local finished = readyProfile()
 	finished.houseTier = 5
-	finished.portalCompletions = 1
+	finished.portalCompletions = 2
 	finished.villageContribution = 50
 	finished.boundaryCompletions = 1
 	finished.homeCharmApplied = true
@@ -64,14 +69,14 @@ return function()
 
 	local charm = readyProfile()
 	charm.houseTier = 5
-	charm.portalCompletions = 1
+	charm.portalCompletions = 2
 	charm.villageContribution = 50
 	charm.boundaryCompletions = 1
 	TestUtil.equal(GoalRules.suggestedGoal(charm), "Find the three village keepsakes and add a Home Charm.")
 
 	local boundary = readyProfile()
 	boundary.houseTier = 5
-	boundary.portalCompletions = 1
+	boundary.portalCompletions = 2
 	boundary.villageContribution = 50
 	TestUtil.equal(GoalRules.suggestedGoal(boundary), "Visit the woods, cliffs, and sea around the village.")
 end

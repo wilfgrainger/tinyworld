@@ -55,7 +55,7 @@ local function onPlayerAdded(player: Player)
 	jobService:trackPlayer(player)
 	transportService:trackPlayer(player)
 	transportService:apply(player, profile)
-	player:SetAttribute("TinyWorldPortalCrystals", 0)
+	portalService:setupPlayer(player)
 	player:SetAttribute("TinyWorldCarryingParcel", false)
 	if profile.onboardingComplete then
 		PlayerStateService.message(player, "Welcome back to TinyWorld, " .. profile.displayName .. ".")

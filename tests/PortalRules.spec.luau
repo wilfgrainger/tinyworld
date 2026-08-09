@@ -10,4 +10,17 @@ return function()
 	TestUtil.equal(profile.xp, 100)
 	TestUtil.equal(profile.inventory.SugarCrystal, 1)
 	TestUtil.equal(profile.portalCompletions, 1)
+
+	local meadow = PortalRules.getWorld("MoonlitMeadow")
+	TestUtil.isTrue(meadow ~= nil)
+	TestUtil.equal(meadow.displayName, "Moonlit Meadow")
+	TestUtil.equal(meadow.collectibleName, "Moonlit Seed")
+
+	local secondProfile = ProfileSchema.new()
+	TestUtil.isTrue(PortalRules.completeWorld(secondProfile, "MoonlitMeadow"))
+	TestUtil.equal(secondProfile.coins, 450)
+	TestUtil.equal(secondProfile.level, 2)
+	TestUtil.equal(secondProfile.xp, 125)
+	TestUtil.equal(secondProfile.inventory.MeadowSeed, 1)
+	TestUtil.isFalse(PortalRules.completeWorld(secondProfile, "UnknownWorld"))
 end

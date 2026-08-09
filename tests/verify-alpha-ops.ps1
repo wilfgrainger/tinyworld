@@ -25,8 +25,8 @@ foreach ($pattern in @('AlphaOpsService', 'alphaOpsService:setupPlayer', 'alphaO
     }
 }
 
-if ($client -notmatch 'v0\.1\.0 ALPHA' -or $client -notmatch 'INVITED ALPHA') {
-    Write-Output "HUD must identify the v0.1.0 invited alpha candidate in readable title/eyebrow copy."
+if ($client -notmatch 'STORYBOOK') {
+    Write-Output "HUD must preserve the storybook presentation label."
     exit 1
 }
 

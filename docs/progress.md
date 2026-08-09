@@ -1,5 +1,11 @@
 # Development progress
 
+## 2026-08-09 - v0.2.0 portal worlds
+
+- Added a reusable `PortalRules.WORLDS` catalog and generic server-authoritative start/collect/return pipeline. Giant Kitchen remains compatible; Moonlit Meadow now has its own portal, arrival space, pond, trees, flowers, three visible Moonlit Seed objects, and return portal.
+- Updated the goal/HUD to point to the second portal after the first completion and to report generic mission finds rather than Giant Kitchen-only copy. No schema drift, paid gate, ads, or progression advantage was added.
+- The [v0.2.0 portal-worlds test](v0.2.0-portal-worlds-test.md) records a green source/assembly gate and the corrected single-client Studio route: both portals, Moonlit Meadow arrival, all three seed prompts, return, and reward completion. Seed 3 was lowered from an inaccessible elevated position before the final run. The stopped Output had no red source/runtime exception but retained the known Studio DataStore queue/competing-session warnings. Two-client, published-place, scale, and family/device claims remain separate.
+
 ## 2026-08-09 - v0.1.0 invited alpha operations
 
 - Added an invited-alpha operations contract: `INVITED_ALPHA`, candidate version `v0.1.0`, a recommended eight-player cohort boundary, and pure health states for setup, saving, recovery-required, and ready.

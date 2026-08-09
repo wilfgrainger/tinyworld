@@ -29,70 +29,101 @@ function PortalService.new(world, ProfileStore, PlayerStateService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
 	self.sessions = {}
+	self.worlds = {
+		GiantKitchen = world.kitchen,
+		MoonlitMeadow = world.moonlitMeadow,
+	}
 
-	world.villagePortalPrompt.Triggered:Connect(function(player)
-		self:_start(player)
-	end)
-	for index, prompt in world.kitchen.crystalPrompts do
-		prompt.Triggered:Connect(function(player)
-			self:_collect(player, index)
-		end)
-	end
-	world.kitchen.returnPrompt.Triggered:Connect(function(player)
-		self:_finish(player)
-	end)
+	self:_connectWorld("GiantKitchen", world.villagePortalPrompt)
+	self:_connectWorld("MoonlitMeadow", world.moonlitPortalPrompt)
 	return self
 end
 
-function PortalService:_start(player: Player)
+function PortalService:_connectWorld(worldId: string, startPrompt: ProximityPrompt)
+	local area = self.worlds[worldId]
+	local definition = PortalRules.getWorld(worldId)
+	if area == nil or definition == nil then
+		return
+	end
+	startPrompt.Triggered:Connect(function(player)
+		self:_start(player, worldId)
+	end)
+	for index, prompt in area.collectPrompts do
+		prompt.Triggered:Connect(function(player)
+			self:_collect(player, worldId, index)
+		end)
+	end
+	area.returnPrompt.Triggered:Connect(function(player)
+		self:_finish(player, worldId)
+	end)
+end
+
+function PortalService:setupPlayer(player: Player)
+		player:SetAttribute("TinyWorldPortalCrystals", 0)
+		player:SetAttribute("TinyWorldPortalWorld", "Village")
+end
+
+function PortalService:_start(player: Player, worldId: string)
 	if self.ProfileStore.get(player) == nil then
 		return
 	end
-	self.sessions[player] = { active = true, collected = {} }
+	local definition = PortalRules.getWorld(worldId)
+	local area = self.worlds[worldId]
+	if definition == nil or area == nil then
+		return
+	end
+	self.sessions[player] = { active = true, worldId = worldId, collected = {} }
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
-	teleport(player, self.world.kitchen.arrivalCFrame)
-	self.PlayerStateService.message(player, "Portal mission started: collect all 3 Sugar Crystals, then find the return portal.")
+	player:SetAttribute("TinyWorldPortalWorld", worldId)
+	teleport(player, area.arrivalCFrame)
+	self.PlayerStateService.message(player, string.format("Portal mission started: find all %d %ss in %s, then return through the portal.", definition.collectibleCount, definition.collectibleName, definition.displayName))
 end
 
-function PortalService:_collect(player: Player, index: number)
+function PortalService:_collect(player: Player, worldId: string, index: number)
 	local session = self.sessions[player]
-	if session == nil or not session.active then
-		self.PlayerStateService.message(player, "Enter the Giant Kitchen through the village portal to start this mission.")
+	local definition = PortalRules.getWorld(worldId)
+	if session == nil or not session.active or session.worldId ~= worldId or definition == nil then
+		self.PlayerStateService.message(player, "Enter this world through its village portal to start the mission.")
 		return
 	end
 	if session.collected[index] then
-		self.PlayerStateService.message(player, "You already collected this crystal on this run.")
+		self.PlayerStateService.message(player, string.format("You already collected this %s on this run.", definition.collectibleName))
 		return
 	end
 	session.collected[index] = true
 	local count = collectedCount(session)
 	player:SetAttribute("TinyWorldPortalCrystals", count)
-	self.PlayerStateService.message(player, string.format("Sugar Crystal found: %d/3.", count))
+	self.PlayerStateService.message(player, string.format("%s found: %d/%d.", definition.collectibleName, count, definition.collectibleCount))
 end
 
-function PortalService:_finish(player: Player)
+function PortalService:_finish(player: Player, worldId: string)
 	local session = self.sessions[player]
-	if session == nil or not session.active then
+	local definition = PortalRules.getWorld(worldId)
+	if session == nil or not session.active or session.worldId ~= worldId or definition == nil then
 		teleport(player, self.world.villageReturnCFrame)
+		player:SetAttribute("TinyWorldPortalWorld", "Village")
 		self.PlayerStateService.message(player, "Returned to TinyWorld village.")
 		return
 	end
 	local count = collectedCount(session)
-	if count < 3 then
-		self.PlayerStateService.message(player, string.format("The portal needs all 3 crystals. You have %d/3.", count))
+	if count < definition.collectibleCount then
+		self.PlayerStateService.message(player, string.format("The portal needs all %d %ss. You have %d/%d.", definition.collectibleCount, definition.collectibleName, count, definition.collectibleCount))
 		return
 	end
 	local profile = self.ProfileStore.get(player)
 	if profile == nil then
 		return
 	end
-	PortalRules.completeGiantKitchen(profile)
+	if not PortalRules.completeWorld(profile, worldId) then
+		return
+	end
 	self.sessions[player] = nil
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
+	player:SetAttribute("TinyWorldPortalWorld", "Village")
 	self.PlayerStateService.sync(player, profile)
 	self.ProfileStore.save(player)
 	teleport(player, self.world.villageReturnCFrame)
-	self.PlayerStateService.message(player, "Giant Kitchen complete: +300 coins, +200 XP, +1 permanent Sugar Crystal!")
+	self.PlayerStateService.message(player, definition.completionMessage)
 end
 
 function PortalService:removePlayer(player: Player)

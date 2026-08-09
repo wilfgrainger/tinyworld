@@ -370,7 +370,61 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 
 	return {
 		arrivalCFrame = CFrame.new(origin + Vector3.new(0, 5, -72)),
+		collectPrompts = crystalPrompts,
 		crystalPrompts = crystalPrompts,
+		returnPrompt = returnPrompt,
+	}
+end
+
+local function buildMoonlitMeadow(parent: Instance, origin: Vector3)
+	local meadow = Instance.new("Model")
+	meadow.Name = "MoonlitMeadow"
+	meadow.Parent = parent
+
+	makePart(meadow, "MoonlitMeadowFloor", Vector3.new(180, 1, 180), origin, VisualTheme.Colors.meadow, Enum.Material.Ground)
+	makePortalFrame(meadow, "MeadowArrivalFrame", origin + Vector3.new(0, 0, -72))
+	local sign = makeDecoration(meadow, "MeadowSign", Vector3.new(30, 7, 1), origin + Vector3.new(0, 7, -60), VisualTheme.Colors.ink, Enum.Material.Wood)
+	makeLabel(sign, "MOONLIT MEADOW\nFind 3 Moonlit Seeds", 340)
+
+	makePond(meadow, origin + Vector3.new(28, 0, 8))
+	for index, position in {
+		Vector3.new(-60, 0, -32),
+		Vector3.new(62, 0, -28),
+		Vector3.new(-58, 0, 48),
+		Vector3.new(62, 0, 50),
+	} do
+		makeTree(meadow, "MeadowTree" .. index, origin + position, if index % 2 == 0 then 0.85 else 0.65)
+	end
+	for index, position in {
+		Vector3.new(-34, 0, -42),
+		Vector3.new(48, 0, -42),
+		Vector3.new(-42, 0, 42),
+		Vector3.new(52, 0, 42),
+	} do
+		makeFlowerCluster(meadow, "MeadowFlowers" .. index, origin + position, if index % 2 == 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight)
+	end
+
+	local seedPositions = {
+		origin + Vector3.new(-34, 3, -18),
+		origin + Vector3.new(48, 3, 20),
+		origin + Vector3.new(8, 5, 42),
+	}
+	local collectPrompts = {}
+	for index, position in seedPositions do
+		makeCrystalPedestal(meadow, "MoonlitSeedPedestal" .. index, position)
+		local seed = makeShapeDecoration(meadow, "MoonlitSeed" .. index, Vector3.new(3.5, 6, 3.5), position + Vector3.new(0, 3, 0), VisualTheme.Colors.flower, Enum.Material.Neon, Enum.PartType.Ball)
+		makeLabel(seed, string.format("MOONLIT SEED %d/3", index), 180)
+		collectPrompts[index] = makePrompt(seed, "Collect Seed", string.format("Moonlit Seed %d/3", index))
+	end
+
+	makePortalFrame(meadow, "MeadowExitFrame", origin + Vector3.new(0, 0, 75))
+	local exit = makePart(meadow, "MeadowExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), VisualTheme.Colors.portal, Enum.Material.Neon)
+	makeLabel(exit, "RETURN PORTAL")
+	local returnPrompt = makePrompt(exit, "Return to Village", "Portal")
+
+	return {
+		arrivalCFrame = CFrame.new(origin + Vector3.new(0, 5, -72)),
+		collectPrompts = collectPrompts,
 		returnPrompt = returnPrompt,
 	}
 end
@@ -449,6 +503,12 @@ function WorldBuilder.build(maxPlayers: number?)
 	makePortalFrame(root, "VillagePortalFrame", Vector3.new(-44, 0, 44))
 	makeInteractionMarker(root, "VillagePortalMarker", Vector3.new(-44, 0, 44), VisualTheme.Colors.portal)
 
+	local moonlitPortal = makePart(root, "MoonlitMeadowPortal", Vector3.new(12, 12, 2), Vector3.new(-8, 6, 44), VisualTheme.Colors.flower, Enum.Material.Neon)
+	makeLabel(moonlitPortal, "PORTAL\nMoonlit Meadow", 300)
+	local moonlitPortalPrompt = makePrompt(moonlitPortal, "Enter Moonlit Meadow", "World Portal")
+	makePortalFrame(root, "MoonlitMeadowPortalFrame", Vector3.new(-8, 0, 44))
+	makeInteractionMarker(root, "MoonlitMeadowPortalMarker", Vector3.new(-8, 0, 44), VisualTheme.Colors.flower)
+
 	local premiumSign = makeDecoration(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), VisualTheme.Colors.ink)
 	makeLabel(premiumSign, "PREMIUM PREVIEW\nStyle & convenience only\nNo pay-to-win", 340)
 
@@ -464,6 +524,7 @@ function WorldBuilder.build(maxPlayers: number?)
 	local boundary = BoundaryBuilder.build(root, layout)
 
 	local kitchen = buildKitchen(root, Vector3.new(0, 0, 1000))
+	local moonlitMeadow = buildMoonlitMeadow(root, Vector3.new(260, 0, 1000))
 
 	return {
 		root = root,
@@ -483,8 +544,10 @@ function WorldBuilder.build(maxPlayers: number?)
 		trade = trade,
 		social = social,
 		villagePortalPrompt = villagePortalPrompt,
+		moonlitPortalPrompt = moonlitPortalPrompt,
 		plots = plots,
 		kitchen = kitchen,
+		moonlitMeadow = moonlitMeadow,
 		villageReturnCFrame = CFrame.new(0, 5, 8),
 	}
 end

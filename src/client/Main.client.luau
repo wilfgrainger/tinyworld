@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / INVITED ALPHA • STORYBOOK"
+eyebrow.Text = "TODAY / PORTAL WORLDS • STORYBOOK"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.1.0 ALPHA"
+title.Text = "TINYWORLD | v0.2.0 PORTALS"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -204,7 +204,7 @@ local function update()
 	local bikeState = attr("TinyWorldBikeState", if attr("TinyWorldBikeActive", false) then "mounted" else "parked")
 	local bikeText = if bikeState == "mounted" then "Tiny Bike MOUNTED" elseif bikeState == "parked" and attr("TinyWorldOwnsBike", false) then "Tiny Bike PARKED" else "Tiny Bike not owned"
 	transport.Text = "Transport: " .. bikeText
-	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
+	portal.Text = string.format("Portals: %d completion(s)  |  Mission finds %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
 	route.Text = string.format("Return loop: today %d/%d  |  week %d/%d", attr("TinyWorldDailyRouteCount", 0), attr("TinyWorldDailyRouteTotal", 3), attr("TinyWorldWeeklyRouteCount", 0), attr("TinyWorldWeeklyRouteTotal", 3))
 	local partyText = if attr("TinyWorldPartyMember", false) then string.format("Village Walk %d/4", attr("TinyWorldPartySize", 0)) else "Village Walk: join Meetup"
@@ -239,6 +239,7 @@ local observed = {
 	"TinyWorldBoundaryMask",
 	"TinyWorldBoundaryCompletions",
 	"TinyWorldPortalCrystals",
+	"TinyWorldPortalWorld",
 	"TinyWorldSuggestedGoal",
 	"TinyWorldCarryingParcel",
 	"TinyWorldDailyRouteCount",

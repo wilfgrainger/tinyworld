@@ -71,6 +71,8 @@ The v0.0.9 social and functional-home slice adds a bounded Village Walk, privacy
 
 The v0.1.0 invited-alpha slice adds aggregate-only recovery, save-pressure, onboarding, and small-cohort readiness signals. Follow the [v0.1.0 invited-alpha test](docs/v0.1.0-invited-alpha-test.md); Roblox access, published-place verification, two-client behavior, and family/device evidence remain separate gates.
 
+The v0.2.0 portal-worlds slice makes the original portal promise repeatable: Giant Kitchen remains intact and Moonlit Meadow adds a second concrete world through the same bounded collect/return pipeline. Follow the [v0.2.0 portal-worlds test](docs/v0.2.0-portal-worlds-test.md).
+
 ## What you need tomorrow
 
 1. A Roblox account.

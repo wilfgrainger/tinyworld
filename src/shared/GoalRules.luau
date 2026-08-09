@@ -35,6 +35,9 @@ function GoalRules.suggestedGoal(profile): string
 	if profile.portalCompletions < 1 then
 		return "Enter the portal and explore the Giant Kitchen."
 	end
+	if profile.portalCompletions < 2 then
+		return "Open the second portal and explore the Moonlit Meadow."
+	end
 	if profile.villageContribution < 50 then
 		return "Contribute 50 coins to the Village Fund."
 	end
