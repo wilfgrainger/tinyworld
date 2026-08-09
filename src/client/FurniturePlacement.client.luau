@@ -10,6 +10,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local tinyWorld = ReplicatedStorage:WaitForChild("TinyWorld")
 local shared = tinyWorld:WaitForChild("Shared")
 local FurnitureDefinitions = require(shared:WaitForChild("FurnitureDefinitions"))
+local FurniturePlacementRules = require(shared:WaitForChild("FurniturePlacementRules"))
 local UiTokens = require(script.Parent:WaitForChild("UiTokens"))
 local UiScaleRules = require(script.Parent:WaitForChild("UiScaleRules"))
 local ButtonFactory = require(script.Parent:WaitForChild("ButtonFactory"))
@@ -22,10 +23,12 @@ local placementRemote = tinyWorld:WaitForChild("FurniturePlacementRemote") :: Re
 local camera = Workspace.CurrentCamera
 local modalController = ModalController.new()
 local ownedFurniture = {}
+local furniturePlacements = {}
 local currentCategory = "living"
 local placementDefinition = nil
 local placementRotation = 0
 local placementPoint = nil
+local placementValid = false
 local previewPart = nil
 
 local gui = Instance.new("ScreenGui")
@@ -191,6 +194,7 @@ local function refreshItems()
 			if (ownedFurniture[definition.id] or 0) > 0 then
 				placementDefinition = definition
 				placementRotation = 0
+				placementValid = false
 				modalController:close(backdrop)
 				backdrop.Visible = false
 				placementBar.Visible = true
@@ -226,6 +230,18 @@ local function openHome()
 	modalController:open(backdrop, itemButtons[1] or closeButton)
 end
 
+local function updateConfirmState(valid: boolean)
+	placementValid = valid
+	confirmButton.Active = valid
+	confirmButton.Selectable = valid
+	confirmButton.AutoButtonColor = valid
+	confirmButton.Text = if valid then "Place" else "Can't place"
+	confirmButton.BackgroundColor3 = if valid then UiTokens.Colors.Meadow else UiTokens.Colors.Danger
+	if previewPart then
+		previewPart.Color = if valid then UiTokens.Colors.GhostValid else UiTokens.Colors.GhostInvalid
+	end
+end
+
 local function removePreview()
 	if previewPart then
 		previewPart:Destroy()
@@ -233,6 +249,7 @@ local function removePreview()
 	end
 	placementDefinition = nil
 	placementPoint = nil
+	placementValid = false
 	placementBar.Visible = false
 	homeButton.Visible = true
 	ContextActionService:UnbindAction("TinyWorldRotateFurniture")
@@ -253,18 +270,19 @@ local function ensurePreview()
 	previewPart.CanQuery = false
 	previewPart.Material = Enum.Material.ForceField
 	previewPart.Transparency = 0.45
-	previewPart.Color = UiTokens.Colors.GhostValid
+	previewPart.Color = UiTokens.Colors.GhostInvalid
 	previewPart.Parent = Workspace
 end
 
 local function rotatePlacement()
 	if placementDefinition then
 		placementRotation = (placementRotation + 90) % 360
+		updateConfirmState(false)
 	end
 end
 
 local function confirmPlacement()
-	if placementDefinition and placementPoint then
+	if placementDefinition and placementPoint and placementValid then
 		placementRemote:FireServer({
 			action = "place",
 			furnitureId = placementDefinition.id,
@@ -313,6 +331,38 @@ local function bindPlacementActions()
 	end, false, Enum.KeyCode.Escape, Enum.KeyCode.ButtonB)
 end
 
+local function previewRequest(worldPoint: Vector3)
+	if not placementDefinition then
+		return nil
+	end
+	local homeCFrame = player:GetAttribute("TinyWorldHomePlacementCFrame")
+	if typeof(homeCFrame) ~= "CFrame" then
+		return nil
+	end
+	local localPoint = homeCFrame:PointToObjectSpace(worldPoint)
+	return {
+		x = localPoint.X,
+		y = localPoint.Y,
+		z = localPoint.Z,
+		rotation = placementRotation,
+	}
+end
+
+local function validatePreview(worldPoint: Vector3): boolean
+	if not placementDefinition then
+		return false
+	end
+	local request = previewRequest(worldPoint)
+	if request == nil then
+		return false
+	end
+	local valid = FurniturePlacementRules.validate({
+		ownedFurniture = ownedFurniture,
+		furniturePlacements = furniturePlacements,
+	}, placementDefinition.id, request)
+	return valid == true
+end
+
 local wasPlacing = false
 RunService.RenderStepped:Connect(function()
 	if not placementDefinition then
@@ -325,6 +375,7 @@ RunService.RenderStepped:Connect(function()
 	end
 	ensurePreview()
 	if camera == nil then
+		updateConfirmState(false)
 		return
 	end
 	local viewport = camera.ViewportSize
@@ -341,6 +392,10 @@ RunService.RenderStepped:Connect(function()
 		placementPoint = hit.Position
 		previewPart.CFrame = CFrame.new(hit.Position + Vector3.new(0, 0.2, 0))
 			* CFrame.Angles(0, math.rad(placementRotation), 0)
+		updateConfirmState(validatePreview(hit.Position))
+	else
+		placementPoint = nil
+		updateConfirmState(false)
 	end
 end)
 
@@ -350,6 +405,7 @@ storeRemote.OnClientEvent:Connect(function(payload)
 	end
 	if payload.kind == "state" and type(payload.ownedFurniture) == "table" then
 		ownedFurniture = payload.ownedFurniture
+		furniturePlacements = if type(payload.furniturePlacements) == "table" then payload.furniturePlacements else {}
 		refreshItems()
 	elseif payload.kind == "result" and payload.ok == false then
 		local reason = tostring(payload.reason or "purchase_failed")
@@ -365,6 +421,7 @@ placementRemote.OnClientEvent:Connect(function(payload)
 		removePreview()
 		storeRemote:FireServer({ action = "state" })
 	elseif payload.ok == false then
+		updateConfirmState(false)
 		player:SetAttribute("TinyWorldHomeUiMessage", tostring(payload.reason or "placement_failed"))
 	end
 end)
