@@ -128,6 +128,36 @@ local function makeDockRail(parent: Instance, name: string, position: Vector3)
 	makeDecoration(parent, name .. "Rail", Vector3.new(15, 0.45, 0.45), position + Vector3.new(0, 2.7, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 end
 
+local function makeBoatDock(parent: Instance, half: number)
+	local dockPosition = Vector3.new(half - 35, 0, 0)
+	makeDecoration(parent, "TinyBoatDock", Vector3.new(20, 0.35, 10), dockPosition + Vector3.new(0, 0.35, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	for _, z in {-4, 4} do
+		makeDecoration(parent, "TinyBoatDockPost" .. tostring(z), Vector3.new(0.7, 3.5, 0.7), dockPosition + Vector3.new(7, 1.75, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	end
+	local shop = makePart(parent, "TinyBoatShop", Vector3.new(6, 5, 6), dockPosition + Vector3.new(-2, 2.5, 9), VisualTheme.Colors.skyDeep, Enum.Material.WoodPlanks)
+	makeLabel(shop, "TINY BOAT DOCK\n600 coins • Tidepool Cove", 320)
+	local prompt = makePrompt(shop, "Buy Tiny Boat", "Sea Dock")
+	return prompt, CFrame.new(dockPosition + Vector3.new(0, 1.6, 0)) * CFrame.Angles(0, math.rad(90), 0)
+end
+
+local function makeTidepoolCove(parent: Instance, half: number)
+	local coveCenter = Vector3.new(half + 108, 0, 0)
+	makePart(parent, "TidepoolCoveIsland", Vector3.new(56, 2, 44), coveCenter + Vector3.new(0, -0.2, 0), VisualTheme.Colors.warmLight, Enum.Material.Sand)
+	makeDecoration(parent, "TidepoolCoveMeadow", Vector3.new(42, 0.2, 30), coveCenter + Vector3.new(0, 0.9, 0), VisualTheme.Colors.meadowDeep, Enum.Material.Grass)
+	makeDockRail(parent, "TidepoolCoveDock", coveCenter + Vector3.new(-14, 0, 0))
+	local beacon = makePart(parent, "TidepoolCoveBeacon", Vector3.new(3, 8, 3), coveCenter + Vector3.new(12, 4, 0), VisualTheme.Colors.gold, Enum.Material.Neon)
+	makeLabel(beacon, "TIDEPOOL COVE\nA new edge of TinyWorld", 280)
+	local storyStone = makePart(parent, "TidepoolCoveStoryStone", Vector3.new(6, 2.5, 3), coveCenter + Vector3.new(4, 1.25, 10), VisualTheme.Colors.path, Enum.Material.Rock)
+	makeLabel(storyStone, "Tide pools remember every journey.", 260)
+	makeReedCluster(parent, "TidepoolCoveReeds", coveCenter + Vector3.new(-16, 0, 12))
+	makeRockCluster(parent, "TidepoolCoveRocks", coveCenter + Vector3.new(16, 0, -12), 0.65)
+
+	return {
+		boatCFrame = CFrame.new(coveCenter + Vector3.new(-14, 1.6, 0)) * CFrame.Angles(0, math.rad(90), 0),
+		arrivalCFrame = CFrame.new(coveCenter + Vector3.new(-2, 4.5, -5)) * CFrame.Angles(0, math.rad(90), 0),
+	}
+end
+
 local function makeCliffSegment(parent: Instance, name: string, size: Vector3, position: Vector3, height: number)
 	makePart(parent, name .. "Rock", Vector3.new(size.X, height, size.Z), position + Vector3.new(0, height / 2, 0), VisualTheme.Colors.path, Enum.Material.Rock)
 	makePart(parent, name .. "BasaltCap", Vector3.new(math.max(6, size.X - 4), 1.4, math.max(6, size.Z - 2)), position + Vector3.new(0, height + 0.7, 0), VisualTheme.Colors.inkSoft, Enum.Material.Basalt)
@@ -201,6 +231,8 @@ function BoundaryBuilder.build(parent: Instance, layout)
 	makeRockCluster(boundary, "CliffRockCluster", Vector3.new(0, 0, -cliffLine + 10), 0.9)
 	makeReedCluster(boundary, "SeaReeds", Vector3.new(half - 22, 0, 9))
 	makeDockRail(boundary, "SeaDock", Vector3.new(half - 35, 0, 0))
+	local boatShopPrompt, boatDockCFrame = makeBoatDock(boundary, half)
+	local tidepool = makeTidepoolCove(boundary, half)
 
 	local landmarkPrompts = {
 		woodlandTrail = makeLandmark(boundary, "WoodlandTrail", "WOODLAND TRAIL\nVisit the village woods", Vector3.new(layout.landmarks.woodlandTrail.x, 0, layout.landmarks.woodlandTrail.z), VisualTheme.Colors.leaf),
@@ -216,6 +248,11 @@ function BoundaryBuilder.build(parent: Instance, layout)
 		model = boundary,
 		landmarkPrompts = landmarkPrompts,
 		explorerPrompt = explorerPrompt,
+		boatShopPrompt = boatShopPrompt,
+		boatDockCFrame = boatDockCFrame,
+		coveBoatCFrame = tidepool.boatCFrame,
+		coveArrivalCFrame = tidepool.arrivalCFrame,
+		villageReturnCFrame = CFrame.new(layout.landmarks.seaDock.x - 8, 4.5, 0),
 	}
 end
 
