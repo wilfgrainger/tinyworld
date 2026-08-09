@@ -1,5 +1,6 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local FurnitureDefinitions = require(shared:WaitForChild("FurnitureDefinitions"))
@@ -7,6 +8,7 @@ local FurniturePlacementRules = require(shared:WaitForChild("FurniturePlacementR
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
 local FurniturePrefabBuilder = require(script.Parent:WaitForChild("FurniturePrefabBuilder"))
+local FurnitureInteractionEffects = require(script.Parent:WaitForChild("FurnitureInteractionEffects"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local FurniturePlacementService = {}
@@ -61,6 +63,39 @@ local function finite(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
 end
 
+local function structuralCollision(plot, placement): boolean
+	local definition = FurnitureDefinitions.get(placement.furnitureId)
+	if definition == nil then
+		return true
+	end
+
+	local width = math.max(0.5, (definition.footprintX or 4) - 0.4)
+	local depth = math.max(0.5, (definition.footprintZ or 4) - 0.4)
+	if placement.rotation == 90 or placement.rotation == 270 then
+		width, depth = depth, width
+	end
+	local queryCFrame = placementCFrame(plot, placement) * CFrame.new(0, 2.25, 0)
+	local querySize = Vector3.new(width, 3.2, depth)
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { plot.houseContainer }
+	params.MaxParts = 100
+
+	local placedFolder = placementFolder(plot)
+	for _, hit in Workspace:GetPartBoundsInBox(queryCFrame, querySize, params) do
+		if hit:IsDescendantOf(placedFolder) then
+			continue
+		end
+		if hit:GetAttribute("TinyWorldInteractionAnchor") == true then
+			continue
+		end
+		if hit.CanCollide then
+			return true
+		end
+	end
+	return false
+end
+
 function FurniturePlacementService.new(ProfileStore, PlayerStateService)
 	local self = setmetatable({}, FurniturePlacementService)
 	self.ProfileStore = ProfileStore
@@ -96,11 +131,7 @@ end
 
 function FurniturePlacementService:_removePlacement(owner: Player, model: Model, placementId: string)
 	local profile = self.ProfileStore.get(owner)
-	if
-		profile == nil
-		or type(profile.furniturePlacements) ~= "table"
-		or profile.furniturePlacements[placementId] == nil
-	then
+	if profile == nil or type(profile.furniturePlacements) ~= "table" or profile.furniturePlacements[placementId] == nil then
 		return false
 	end
 	profile.furniturePlacements[placementId] = nil
@@ -121,55 +152,48 @@ function FurniturePlacementService:_bindInteraction(owner: Player, model: Model,
 	local connections = {}
 	local usePrompt = anchor:FindFirstChild("FurnitureInteractionPrompt")
 	if usePrompt and usePrompt:IsA("ProximityPrompt") then
-		table.insert(
-			connections,
-			usePrompt.Triggered:Connect(function(player)
-				if player ~= owner then
-					self.PlayerStateService.message(
-						player,
-						"You can look around, but only the homeowner can change or use this item."
-					)
-					return
-				end
-				local profile = self.ProfileStore.get(player)
-				if profile == nil then
-					return
-				end
-				local active = model:GetAttribute("TinyWorldFurnitureActive") == true
-				model:SetAttribute("TinyWorldFurnitureActive", not active)
-				profile.homeUseCount += 1
-				player:SetAttribute("TinyWorldHomeLastAction", definition.displayName)
-				self.PlayerStateService.sync(player, profile)
-				self.ProfileStore.save(player)
-				if player:GetAttribute("TinyWorldFirstHomeInteractionLogged") ~= true then
-					player:SetAttribute("TinyWorldFirstHomeInteractionLogged", true)
-					TinyAnalyticsService.log(player, AnalyticsEvents.FirstHomeInteraction)
-				end
-				local messages = {
-					rest = "You settled in for a cosy rest.",
-					sit = "You took a seat and made yourself at home.",
-					open = if active then "Closed." else "Opened.",
-					store = "Storage is ready for your collected things.",
-					read = "You spent a quiet moment reading.",
-					cook = "The kitchen is ready. Something good is cooking.",
-					wash = "All clean and sparkling.",
-					craft = "Creative space ready for your next project.",
-					bathe = "Warm bubbles, TinyWorld style.",
-					shower = "The shower runs warm and bright.",
-					water = "The plants got a good drink.",
-					switch = if active then "Switched off." else "Switched on.",
-					play = "Game time at home.",
-					plant = "Ready for something new to grow.",
-					harvest = "The garden is ready to gather.",
-					dress = "Your wardrobe is ready for a new look.",
-					use = "Used.",
-				}
-				self.PlayerStateService.message(
-					player,
-					messages[definition.interaction] or (definition.displayName .. " used.")
-				)
-			end)
-		)
+		table.insert(connections, usePrompt.Triggered:Connect(function(player)
+			if player ~= owner then
+				self.PlayerStateService.message(player, "You can look around, but only the homeowner can change or use this item.")
+				return
+			end
+			local profile = self.ProfileStore.get(player)
+			if profile == nil then
+				return
+			end
+			local active = model:GetAttribute("TinyWorldFurnitureActive") == true
+			local nextActive = not active
+			model:SetAttribute("TinyWorldFurnitureActive", nextActive)
+			FurnitureInteractionEffects.apply(player, model, definition.interaction, nextActive)
+			profile.homeUseCount += 1
+			player:SetAttribute("TinyWorldHomeLastAction", definition.displayName)
+			self.PlayerStateService.sync(player, profile)
+			self.ProfileStore.save(player)
+			if player:GetAttribute("TinyWorldFirstHomeInteractionLogged") ~= true then
+				player:SetAttribute("TinyWorldFirstHomeInteractionLogged", true)
+				TinyAnalyticsService.log(player, AnalyticsEvents.FirstHomeInteraction)
+			end
+			local messages = {
+				rest = "You settled in for a cosy rest.",
+				sit = "You took a seat and made yourself at home.",
+				open = if active then "Closed." else "Opened.",
+				store = "Storage is ready for your collected things.",
+				read = "You spent a quiet moment reading.",
+				cook = "The kitchen is ready. Something good is cooking.",
+				wash = "All clean and sparkling.",
+				craft = "Creative space ready for your next project.",
+				bathe = "Warm bubbles, TinyWorld style.",
+				shower = "The shower runs warm and bright.",
+				water = "The plants got a good drink.",
+				switch = if active then "Switched off." else "Switched on.",
+				play = "Game time at home.",
+				plant = "Ready for something new to grow.",
+				harvest = "The garden is ready to gather.",
+				dress = "Your wardrobe is ready for a new look.",
+				use = "Used.",
+			}
+			self.PlayerStateService.message(player, messages[definition.interaction] or (definition.displayName .. " used."))
+		end))
 	end
 
 	local storePrompt = anchor:FindFirstChild("StoreFurniturePrompt")
@@ -184,19 +208,16 @@ function FurniturePlacementService:_bindInteraction(owner: Player, model: Model,
 		storePrompt.Parent = anchor
 	end
 	if storePrompt:IsA("ProximityPrompt") then
-		table.insert(
-			connections,
-			storePrompt.Triggered:Connect(function(player)
-				if player ~= owner then
-					self.PlayerStateService.message(player, "Only the homeowner can store this furniture.")
-					return
-				end
-				local placementId = model:GetAttribute("TinyWorldPlacementId")
-				if type(placementId) == "string" then
-					self:_removePlacement(owner, model, placementId)
-				end
-			end)
-		)
+		table.insert(connections, storePrompt.Triggered:Connect(function(player)
+			if player ~= owner then
+				self.PlayerStateService.message(player, "Only the homeowner can store this furniture.")
+				return
+			end
+			local placementId = model:GetAttribute("TinyWorldPlacementId")
+			if type(placementId) == "string" then
+				self:_removePlacement(owner, model, placementId)
+			end
+		end))
 	end
 	self.promptConnections[model] = connections
 	model.Destroying:Connect(function()
@@ -237,6 +258,7 @@ function FurniturePlacementService:renderAll(owner: Player, plot, profile)
 		self:_renderPlacement(owner, plot, placementId, placement)
 	end
 	owner:SetAttribute("TinyWorldFurniturePlacementCount", countPlacements(profile))
+	owner:SetAttribute("TinyWorldHomePlacementCFrame", plot.houseContainer:GetPivot())
 end
 
 function FurniturePlacementService:_ownerContext(player: Player)
@@ -252,9 +274,7 @@ end
 
 function FurniturePlacementService:_localRequest(plot, payload)
 	if finite(payload.worldX) and finite(payload.worldY) and finite(payload.worldZ) then
-		local localPoint = plot.houseContainer
-			:GetPivot()
-			:PointToObjectSpace(Vector3.new(payload.worldX, payload.worldY, payload.worldZ))
+		local localPoint = plot.houseContainer:GetPivot():PointToObjectSpace(Vector3.new(payload.worldX, payload.worldY, payload.worldZ))
 		return { x = localPoint.X, y = localPoint.Y, z = localPoint.Z, rotation = payload.rotation }
 	end
 	return { x = payload.x, y = payload.y, z = payload.z, rotation = payload.rotation }
@@ -288,16 +308,17 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 			self:_reply(player, false, reason)
 			return
 		end
+		if structuralCollision(plot, canonical) then
+			self:_reply(player, false, "structural_collision")
+			return
+		end
 		local placementId = HttpService:GenerateGUID(false)
 		profile.furniturePlacements[placementId] = canonical
 		self:_renderPlacement(player, plot, placementId, canonical)
 		player:SetAttribute("TinyWorldFurniturePlacementCount", countPlacements(profile))
 		self.ProfileStore.save(player)
 		local definition = FurnitureDefinitions.get(payload.furnitureId)
-		self.PlayerStateService.message(
-			player,
-			(definition and definition.displayName or "Furniture") .. " placed in your home."
-		)
+		self.PlayerStateService.message(player, (definition and definition.displayName or "Furniture") .. " placed in your home.")
 		TinyAnalyticsService.log(player, AnalyticsEvents.FurniturePlaced)
 		self:_reply(player, true, "placed", placementId)
 		return
@@ -312,6 +333,10 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 		local valid, reason, canonical = FurniturePlacementRules.validateExisting(profile, payload.placementId, request)
 		if not valid or canonical == nil then
 			self:_reply(player, false, reason)
+			return
+		end
+		if structuralCollision(plot, canonical) then
+			self:_reply(player, false, "structural_collision")
 			return
 		end
 		profile.furniturePlacements[payload.placementId] = canonical
@@ -332,8 +357,7 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 			return
 		end
 		local folder = placementFolder(plot)
-		local model =
-			folder:FindFirstChild("PlacedFurniture_" .. tostring(placement.furnitureId) .. "_" .. payload.placementId)
+		local model = folder:FindFirstChild("PlacedFurniture_" .. tostring(placement.furnitureId) .. "_" .. payload.placementId)
 		if model and model:IsA("Model") then
 			self:_removePlacement(player, model, payload.placementId)
 		else
