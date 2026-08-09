@@ -171,7 +171,8 @@ function TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: 
 	merged.rollbackSavedA = previous.rollbackSavedA == true or incoming.rollbackSavedA == true
 	merged.rollbackSavedB = previous.rollbackSavedB == true or incoming.rollbackSavedB == true
 
-	if previous.state == "recovering" or incoming.state == "recovering" then
+	local recoveryDominates = previous.state == "recovering" or incoming.state == "recovering"
+	if recoveryDominates then
 		merged.state = "recovering"
 		merged.cancelReason = nil
 		merged.recoveryReason = incoming.recoveryReason or previous.recoveryReason or "recovery_required"
@@ -184,7 +185,7 @@ function TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: 
 			merged.state = "recovering"
 			merged.cancelReason = nil
 		end
-	elseif incoming.state == "committed" then
+	elseif incoming.state == "committed" and not recoveryDominates then
 		merged.state = "committed"
 	end
 	return merged
