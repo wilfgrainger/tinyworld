@@ -1,5 +1,10 @@
 local specs = {
 	require("./ProfileSchema.spec"),
+	require("./ProfileMigrations.spec"),
+	require("./ContentDefinitions.spec"),
+	require("./FurniturePlacementRules.spec"),
+	require("./RemoteGuardRules.spec"),
+	require("./TradeTransactionRules.spec"),
 	require("./OnboardingRules.spec"),
 	require("./GoalRules.spec"),
 	require("./Progression.spec"),
