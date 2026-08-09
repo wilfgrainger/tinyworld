@@ -1,0 +1,44 @@
+name: v0.6 one-shot StyLua normalization
+
+on:
+  push:
+    branches:
+      - docs/target-state-v1
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v0.6-stylua-normalization
+  cancel-in-progress: true
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: docs/target-state-v1
+          fetch-depth: 0
+      - name: Install pinned Rokit tools
+        run: |
+          set -euo pipefail
+          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
+          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
+          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.rokit/bin:$PATH"
+          rokit install --no-trust-check
+      - name: Normalize Luau and remove one-shot workflow
+        run: |
+          set -euo pipefail
+          stylua src tests
+          rm .github/workflows/v0.6-autofmt-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src tests .github/workflows/v0.6-autofmt-once.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "style: normalize Luau with StyLua"
+          git push origin HEAD:docs/target-state-v1
