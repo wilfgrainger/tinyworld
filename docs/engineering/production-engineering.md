@@ -65,8 +65,10 @@ The `Rojo build` CI workflow is credential-free PR/main validation: it reads
 Rokit `1.2.0` and immutable installer commit
 `2f2618428ef31279e2fc80b0b1d73485bc929ddd` from `config/release.json`, installs
 that pinned bootstrap with the configured version as its first positional
-installer argument, builds from the pinned toolchain, and uploads the
-artifact and manifest. CI validation is not deployment.
+installer argument, then runs `rokit install --no-trust-check` so
+noninteractive CI accepts only the existing `rokit.toml` tool pin. It does not
+run `rokit add` or mutate the manifest, then builds from the pinned toolchain
+and uploads the artifact and manifest. CI validation is not deployment.
 
 `config/environments/dev.json` and `config/environments/live.json` declare
 separate DEV and LIVE channels. Both are intentionally unconfigured in v0.5.3:

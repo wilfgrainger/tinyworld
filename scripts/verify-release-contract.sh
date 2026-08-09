@@ -180,7 +180,7 @@ require_workflow_match "immutable Rokit Linux installer URL" 'https://raw\.githu
 require_workflow_match "Rokit installer positional version argument" 'bash[[:space:]]+-s[[:space:]]+--[[:space:]]+"\$rokit_version"'
 require_workflow_match "Rokit self-install GITHUB_PATH export" 'echo[[:space:]]+"\$HOME/\.rokit/bin"[[:space:]]*>>[[:space:]]*"\$GITHUB_PATH"'
 require_workflow_match "Rokit self-install shell PATH export" 'export[[:space:]]+PATH="\$HOME/\.rokit/bin:\$PATH"'
-require_workflow_match "rokit install" '^[[:space:]]*rokit[[:space:]]+install[[:space:]]*$'
+require_workflow_match "Rokit noninteractive pinned-tool install" '^[[:space:]]*rokit[[:space:]]+install[[:space:]]+--no-trust-check[[:space:]]*$'
 require_workflow_match "release guard step" 'run:[[:space:]]*\./scripts/verify-release-contract\.sh[[:space:]]*$'
 require_workflow_match "shell build step" 'run:[[:space:]]*\./scripts/build\.sh[[:space:]]*$'
 require_workflow_match "workflow/ref concurrency group" 'group:[[:space:]]*\$\{\{[[:space:]]*github\.workflow[[:space:]]*\}\}-\$\{\{[[:space:]]*github\.ref[[:space:]]*\}\}'
@@ -193,6 +193,11 @@ require_workflow_match "14-day retention" 'retention-days:[[:space:]]*14[[:space
 
 if grep -Fq '$HOME/.local/bin' "$workflow_path"; then
   echo "ERROR: workflow must not use the obsolete Rokit self-install path: \$HOME/.local/bin" >&2
+  exit 1
+fi
+
+if grep -Eq '^[[:space:]]*rokit[[:space:]]+install[[:space:]]*$' "$workflow_path"; then
+  echo "ERROR: workflow must use rokit install --no-trust-check for its pinned tools" >&2
   exit 1
 fi
 

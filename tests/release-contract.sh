@@ -96,6 +96,23 @@ if run_guard >/dev/null 2>&1; then
   echo "ERROR: release guard accepted the obsolete Rokit self-install path" >&2
   exit 1
 fi
+cp "$TEMP_DIR/rojo-build.yml" "$WORKFLOW_PATH"
+
+awk '
+  {
+    marker = "rokit install --no-trust-check"
+    marker_index = index($0, marker)
+    if (marker_index > 0) {
+      print substr($0, 1, marker_index - 1) "rokit install" substr($0, marker_index + length(marker))
+    } else {
+      print
+    }
+  }
+' "$TEMP_DIR/rojo-build.yml" > "$WORKFLOW_PATH"
+if run_guard >/dev/null 2>&1; then
+  echo "ERROR: release guard accepted a plain Rokit install command" >&2
+  exit 1
+fi
 
 [[ "$CONFIG_CHECKSUM" == "$(cksum "$ROOT_DIR/config/release.json")" ]]
 [[ "$WORKFLOW_CHECKSUM" == "$(cksum "$ROOT_DIR/.github/workflows/rojo-build.yml")" ]]
