@@ -30,7 +30,10 @@ function DailyRewardService.new(world, ProfileStore, PlayerStateService, RouteSe
 		elseif reason == "already_claimed" then
 			PlayerStateService.message(player, "You already claimed today's village reward. Come back tomorrow.")
 		elseif reason == "inventory_full" then
-			PlayerStateService.message(player, "Your Carrot stack is full. Make room before claiming today's village reward.")
+			PlayerStateService.message(
+				player,
+				"Your Carrot stack is full. Make room before claiming today's village reward."
+			)
 		end
 	end)
 

@@ -389,8 +389,14 @@ function TradeService:_complete(a: Player, b: Player)
 		TradeTransactionRules.finishRecovery(transaction)
 		TradeJournal.write(transaction)
 		self:_resetActiveTrade()
-		self.PlayerStateService.message(a, "Trade stopped because TinyWorld could not create a recoverable transaction record.")
-		self.PlayerStateService.message(b, "Trade stopped because TinyWorld could not create a recoverable transaction record.")
+		self.PlayerStateService.message(
+			a,
+			"Trade stopped because TinyWorld could not create a recoverable transaction record."
+		)
+		self.PlayerStateService.message(
+			b,
+			"Trade stopped because TinyWorld could not create a recoverable transaction record."
+		)
 		return
 	end
 
