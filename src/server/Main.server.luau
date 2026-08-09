@@ -79,6 +79,11 @@ local function onPlayerAdded(player: Player)
 		player:Kick("TinyWorld could not safely load your saved data. Please rejoin in a moment.")
 		return
 	end
+	if not tradeService:setupPlayer(player) then
+		ProfileStore.release(player)
+		player:Kick("TinyWorld is safely recovering an interrupted trade. Please rejoin in a moment.")
+		return
+	end
 
 	PlayerStateService.setup(player, profile)
 	onboardingService:setupPlayer(player, profile)
