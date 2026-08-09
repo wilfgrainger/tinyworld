@@ -11,7 +11,7 @@ $homeSource = Get-Content -Raw -LiteralPath (Join-Path $root "src\server\HomeSer
 $state = Get-Content -Raw -LiteralPath (Join-Path $root "src\server\PlayerStateService.luau")
 $client = Get-Content -Raw -LiteralPath (Join-Path $root "src\client\Main.client.luau")
 
-foreach ($pattern in @("ProfileSchema.VERSION = 9", "farmerLevel", "farmerXp", "designerLevel", "designerXp")) {
+foreach ($pattern in @("ProfileSchema.VERSION = 10", "farmerLevel", "farmerXp", "designerLevel", "designerXp")) {
     if (($schema + $rules) -notmatch [regex]::Escape($pattern)) {
         throw "Profession schema/rules contract is missing: $pattern."
     }

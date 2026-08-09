@@ -12,7 +12,7 @@ foreach ($pattern in @("LanternNook", "StoryBookStack", "MeadowSeedShelf", "Seas
         exit 1
     }
 }
-foreach ($pattern in @("VERSION = 9", "homeTheme", "homeDecor", "homeShowcaseCount")) {
+foreach ($pattern in @("VERSION = 10", "homeTheme", "homeDecor", "homeShowcaseCount")) {
     if ($schema -notmatch [regex]::Escape($pattern)) {
         Write-Output ("Home expression schema missing: " + $pattern)
         exit 1

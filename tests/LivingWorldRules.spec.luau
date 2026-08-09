@@ -5,7 +5,7 @@ local LivingWorldRules = require("../src/shared/LivingWorldRules")
 
 return function()
 	local profile = ProfileSchema.new()
-	TestUtil.equal(ProfileSchema.VERSION, 9)
+	TestUtil.equal(ProfileSchema.VERSION, 10)
 	TestUtil.equal(Inventory.get(profile, "MeadowSeed"), 0)
 	TestUtil.equal(Inventory.get(profile, "Seashell"), 0)
 	TestUtil.equal(Inventory.get(profile, "WoodToken"), 0)

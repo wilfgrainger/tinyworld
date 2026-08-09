@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 9
+ProfileSchema.VERSION = 10
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 local HomeExpressionRules
@@ -27,6 +27,8 @@ designerLevel: number,
 designerXp: number,
 ownsTinyBike: boolean,
 bikeActive: boolean,
+ownsTinyBoat: boolean,
+boatActive: boolean,
 gardenBeds: { GardenBed },
 lastDailyDay: string,
 portalCompletions: number,
@@ -146,7 +148,7 @@ end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 9,
+		version = 10,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -160,6 +162,8 @@ function ProfileSchema.new(): PlayerProfile
 		designerXp = 0,
 		ownsTinyBike = false,
 		bikeActive = false,
+		ownsTinyBoat = false,
+		boatActive = false,
 		gardenBeds = { newGardenBed(), newGardenBed(), newGardenBed() },
 		lastDailyDay = "",
 		portalCompletions = 0,
@@ -201,7 +205,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 9,
+		version = 10,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -215,6 +219,8 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		designerXp = normaliseInteger(value.designerXp, 0, 0),
 		ownsTinyBike = if type(value.ownsTinyBike) == "boolean" then value.ownsTinyBike else false,
 		bikeActive = if type(value.bikeActive) == "boolean" then value.bikeActive else false,
+		ownsTinyBoat = if type(value.ownsTinyBoat) == "boolean" then value.ownsTinyBoat else false,
+		boatActive = if type(value.boatActive) == "boolean" then value.boatActive else false,
 		gardenBeds = normaliseGardenBeds(value.gardenBeds),
 		lastDailyDay = if type(value.lastDailyDay) == "string" then value.lastDailyDay else "",
 		portalCompletions = normaliseInteger(value.portalCompletions, 0, 0),
