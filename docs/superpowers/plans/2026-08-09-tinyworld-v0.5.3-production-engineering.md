@@ -261,7 +261,7 @@ git commit -m "build: create traceable TinyWorld place artifacts"
 Create a single Ubuntu job with these steps in order:
 
 1. `actions/checkout@v6`.
-2. Read `rokitVersion` and `rokitInstallerCommit` from `config/release.json`, invoke the immutable raw installer URL at that commit with `rokitVersion` as its first positional argument, add `$HOME/.local/bin` to `GITHUB_PATH`, and run `rokit install` so the existing `rokit.toml` supplies the Rojo version.
+2. Read `rokitVersion` and `rokitInstallerCommit` from `config/release.json`, invoke the immutable raw installer URL at that commit with `rokitVersion` as its first positional argument, add `$HOME/.rokit/bin` to `GITHUB_PATH`, export `PATH="$HOME/.rokit/bin:$PATH"`, and run `rokit install` so the existing `rokit.toml` supplies the Rojo version.
 3. Run `./scripts/verify-release-contract.sh`.
 4. Run `./scripts/build.sh`.
 5. Upload the two `dist/` files with `actions/upload-artifact@v4`, `if-no-files-found: error`, and `retention-days: 14`.

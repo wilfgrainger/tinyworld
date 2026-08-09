@@ -23,8 +23,8 @@ jobs:
           rokit_version="$(jq -er '.rokitVersion' config/release.json)"
           rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
           curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          export PATH="$HOME/.local/bin:$PATH"
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.rokit/bin:$PATH"
           rokit install
       - name: Verify release contract
         run: ./scripts/verify-release-contract.sh

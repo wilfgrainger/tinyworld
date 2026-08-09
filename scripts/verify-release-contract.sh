@@ -178,7 +178,8 @@ require_workflow_match "Rokit version read from release config" "rokit_version=.
 require_workflow_match "Rokit installer commit read from release config" "rokit_installer_commit=.*jq[[:space:]]+-er[[:space:]]+'.rokitInstallerCommit'[[:space:]]+config/release\\.json"
 require_workflow_match "immutable Rokit Linux installer URL" 'https://raw\.githubusercontent\.com/rojo-rbx/rokit/\$\{rokit_installer_commit\}/scripts/install\.sh'
 require_workflow_match "Rokit installer positional version argument" 'bash[[:space:]]+-s[[:space:]]+--[[:space:]]+"\$rokit_version"'
-require_workflow_match "Rokit path export" 'echo[[:space:]]+"\$HOME/\.local/bin"[[:space:]]*>>[[:space:]]*"\$GITHUB_PATH"'
+require_workflow_match "Rokit self-install GITHUB_PATH export" 'echo[[:space:]]+"\$HOME/\.rokit/bin"[[:space:]]*>>[[:space:]]*"\$GITHUB_PATH"'
+require_workflow_match "Rokit self-install shell PATH export" 'export[[:space:]]+PATH="\$HOME/\.rokit/bin:\$PATH"'
 require_workflow_match "rokit install" '^[[:space:]]*rokit[[:space:]]+install[[:space:]]*$'
 require_workflow_match "release guard step" 'run:[[:space:]]*\./scripts/verify-release-contract\.sh[[:space:]]*$'
 require_workflow_match "shell build step" 'run:[[:space:]]*\./scripts/build\.sh[[:space:]]*$'
@@ -189,6 +190,11 @@ require_workflow_match "place artifact path" '^[[:space:]]*dist/TinyWorld-v0\.5\
 require_workflow_match "release manifest path" '^[[:space:]]*dist/release\.json[[:space:]]*$'
 require_workflow_match "missing artifact failure" 'if-no-files-found:[[:space:]]*error[[:space:]]*$'
 require_workflow_match "14-day retention" 'retention-days:[[:space:]]*14[[:space:]]*$'
+
+if grep -Fq '$HOME/.local/bin' "$workflow_path"; then
+  echo "ERROR: workflow must not use the obsolete Rokit self-install path: \$HOME/.local/bin" >&2
+  exit 1
+fi
 
 if ! awk '
   /^permissions:[[:space:]]*$/ { in_permissions = 1; next }

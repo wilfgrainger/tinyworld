@@ -12,6 +12,7 @@ trap cleanup EXIT
 
 mkdir -p "$FIXTURE_ROOT"
 git -C "$ROOT_DIR" archive HEAD | tar -x -C "$FIXTURE_ROOT"
+cp "$ROOT_DIR/.github/workflows/rojo-build.yml" "$FIXTURE_ROOT/.github/workflows/rojo-build.yml"
 
 [[ ! -e "$FIXTURE_ROOT/.git" ]]
 
@@ -76,6 +77,23 @@ awk '
 ' "$TEMP_DIR/rojo-build.yml" > "$WORKFLOW_PATH"
 if run_guard >/dev/null 2>&1; then
   echo "ERROR: release guard accepted a Rokit installer --version flag" >&2
+  exit 1
+fi
+cp "$TEMP_DIR/rojo-build.yml" "$WORKFLOW_PATH"
+
+awk '
+  {
+    marker = "$HOME/.rokit/bin"
+    marker_index = index($0, marker)
+    if (marker_index > 0) {
+      print substr($0, 1, marker_index - 1) "$HOME/.local/bin" substr($0, marker_index + length(marker))
+    } else {
+      print
+    }
+  }
+' "$TEMP_DIR/rojo-build.yml" > "$WORKFLOW_PATH"
+if run_guard >/dev/null 2>&1; then
+  echo "ERROR: release guard accepted the obsolete Rokit self-install path" >&2
   exit 1
 fi
 
