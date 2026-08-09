@@ -3,7 +3,7 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 10)
+	TestUtil.equal(fresh.version, 11)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
@@ -13,6 +13,14 @@ return function()
 	TestUtil.equal(fresh.inventory.MeadowSeed, 0)
 	TestUtil.equal(fresh.inventory.Seashell, 0)
 	TestUtil.equal(fresh.inventory.WoodToken, 0)
+	TestUtil.equal(fresh.inventoryStacks.Carrot, 0)
+	TestUtil.equal(type(fresh.inventoryInstances), "table")
+	TestUtil.equal(fresh.ownedFurniture.Bed, 1)
+	TestUtil.equal(type(fresh.furniturePlacements), "table")
+	TestUtil.equal(type(fresh.savedOutfits), "table")
+	TestUtil.equal(fresh.activeOutfitId, "Starter")
+	TestUtil.equal(type(fresh.discoveredWorlds), "table")
+	TestUtil.equal(type(fresh.keepsakes), "table")
 	TestUtil.equal(fresh.courierLevel, 1)
 	TestUtil.equal(fresh.courierXp, 0)
 	TestUtil.equal(fresh.farmerLevel, 1)
@@ -59,7 +67,7 @@ return function()
 		xp = 42,
 		houseTier = 3,
 	})
-	TestUtil.equal(migrated.version, 10)
+	TestUtil.equal(migrated.version, 11)
 	TestUtil.isFalse(migrated.ownsTinyBoat)
 	TestUtil.isFalse(migrated.boatActive)
 	TestUtil.equal(migrated.coins, 777)
@@ -67,6 +75,8 @@ return function()
 	TestUtil.equal(migrated.xp, 42)
 	TestUtil.equal(migrated.houseTier, 3)
 	TestUtil.equal(migrated.inventory.Carrot, 0)
+	TestUtil.equal(migrated.inventoryStacks.Carrot, 0)
+	TestUtil.equal(migrated.ownedFurniture.Bed, 1)
 	TestUtil.equal(migrated.inventory.MeadowSeed, 0)
 	TestUtil.equal(migrated.inventory.Seashell, 0)
 	TestUtil.equal(migrated.inventory.WoodToken, 0)
@@ -84,9 +94,10 @@ return function()
 	TestUtil.isFalse(migrated.onboardingComplete)
 
 	local completed = ProfileSchema.normalize({
-		version = 2,
+		version = 10,
 		coins = 901,
 		inventory = { Carrot = 7, SugarCrystal = 3, MeadowSeed = 2, Seashell = 1, WoodToken = 4 },
+		inventoryStacks = { Carrot = 7, SugarCrystal = 3, MeadowSeed = 2, Seashell = 1, WoodToken = 4 },
 		gardenBeds = {
 			{ stage = "watered", readyAt = 1234 },
 		},
@@ -95,13 +106,14 @@ return function()
 		starterOutfit = "Sunset",
 		onboardingComplete = true,
 	})
-	TestUtil.equal(completed.version, 10)
+	TestUtil.equal(completed.version, 11)
 	TestUtil.equal(completed.coins, 901)
 	TestUtil.equal(completed.inventory.Carrot, 7)
 	TestUtil.equal(completed.inventory.SugarCrystal, 3)
 	TestUtil.equal(completed.inventory.MeadowSeed, 2)
 	TestUtil.equal(completed.inventory.Seashell, 1)
 	TestUtil.equal(completed.inventory.WoodToken, 4)
+	TestUtil.equal(completed.inventoryStacks.Carrot, 7)
 	TestUtil.equal(completed.gardenBeds[1].stage, "watered")
 	TestUtil.equal(completed.displayName, "Mia")
 	TestUtil.equal(completed.avatarStyle, "Girl")
@@ -115,7 +127,7 @@ return function()
 		livingCollectionMask = 7,
 		homeCharmApplied = true,
 	})
-	TestUtil.equal(living.version, 10)
+	TestUtil.equal(living.version, 11)
 	TestUtil.equal(living.inventory.MeadowSeed, 3)
 	TestUtil.equal(living.inventory.Seashell, 2)
 	TestUtil.equal(living.inventory.WoodToken, 1)
@@ -130,7 +142,7 @@ return function()
 		boundaryExplorationMask = 7,
 		boundaryCompletions = 4,
 	})
-	TestUtil.equal(exploration.version, 10)
+	TestUtil.equal(exploration.version, 11)
 	TestUtil.equal(exploration.boundaryExplorationDay, "2026-08-08")
 	TestUtil.equal(exploration.boundaryExplorationClaimedDay, "2026-08-07")
 	TestUtil.equal(exploration.boundaryExplorationMask, 7)
@@ -142,6 +154,7 @@ return function()
 		xp = -10,
 		houseTier = 99,
 		inventory = { Carrot = -4, SugarCrystal = 2.9 },
+		inventoryStacks = { Carrot = -9, Unknown = 2.8 },
 		courierLevel = 0,
 		courierXp = -1,
 		farmerLevel = 0,
@@ -160,6 +173,8 @@ return function()
 	TestUtil.equal(repaired.houseTier, 5)
 	TestUtil.equal(repaired.inventory.Carrot, 0)
 	TestUtil.equal(repaired.inventory.SugarCrystal, 2)
+	TestUtil.equal(repaired.inventoryStacks.Carrot, 0)
+	TestUtil.equal(repaired.inventoryStacks.Unknown, 2)
 	TestUtil.equal(repaired.courierLevel, 1)
 	TestUtil.equal(repaired.courierXp, 0)
 	TestUtil.equal(repaired.farmerLevel, 1)
@@ -178,4 +193,3 @@ return function()
 	TestUtil.equal(repaired.boundaryExplorationMask, 0)
 	TestUtil.equal(repaired.boundaryCompletions, 0)
 end
-
