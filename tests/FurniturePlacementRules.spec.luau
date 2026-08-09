@@ -59,6 +59,18 @@ return function()
 	TestUtil.isFalse(noOwnership)
 	TestUtil.equal(noOwnershipReason, "not_owned")
 
+	profile.furniturePlacements = {
+		existing = { furnitureId = "MeadowLamp", x = 0, y = 0, z = 0, rotation = 0 },
+	}
+	local overlap, overlapReason = FurniturePlacementRules.validate(profile, "CosyChair", {
+		x = 0,
+		y = 0,
+		z = 0,
+		rotation = 0,
+	})
+	TestUtil.isFalse(overlap)
+	TestUtil.equal(overlapReason, "overlap")
+
 	profile.furniturePlacements = {}
 	for index = 1, FurniturePlacementRules.MAX_PLACEMENTS do
 		profile.furniturePlacements["p" .. tostring(index)] = { furnitureId = "CosyChair" }
