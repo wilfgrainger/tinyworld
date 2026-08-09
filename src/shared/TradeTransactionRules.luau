@@ -13,6 +13,21 @@ local function copyOffer(offer: any)
 	return result
 end
 
+local function shallowCopy(value: any)
+	local result = {}
+	if type(value) ~= "table" then
+		return result
+	end
+	for key, child in value do
+		result[key] = child
+	end
+	return result
+end
+
+local function terminal(state: any): boolean
+	return state == "committed" or state == "cancelled"
+end
+
 function TradeTransactionRules.new(
 	id: string,
 	playerAUserId: number,
@@ -129,6 +144,50 @@ function TradeTransactionRules.cancel(transaction: any, reason: string): (boolea
 	transaction.state = "cancelled"
 	transaction.cancelReason = reason
 	return true, "cancelled"
+end
+
+function TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: any): any
+	if type(previous) ~= "table" then
+		return shallowCopy(incoming)
+	end
+	if type(incoming) ~= "table" then
+		return shallowCopy(previous)
+	end
+	if previous.id ~= nil and incoming.id ~= nil and previous.id ~= incoming.id then
+		return shallowCopy(previous)
+	end
+	if terminal(previous.state) then
+		return shallowCopy(previous)
+	end
+
+	local merged = shallowCopy(incoming)
+	for key, value in previous do
+		if merged[key] == nil then
+			merged[key] = value
+		end
+	end
+	merged.persistedA = previous.persistedA == true or incoming.persistedA == true
+	merged.persistedB = previous.persistedB == true or incoming.persistedB == true
+	merged.rollbackSavedA = previous.rollbackSavedA == true or incoming.rollbackSavedA == true
+	merged.rollbackSavedB = previous.rollbackSavedB == true or incoming.rollbackSavedB == true
+
+	if previous.state == "recovering" or incoming.state == "recovering" then
+		merged.state = "recovering"
+		merged.cancelReason = nil
+		merged.recoveryReason = incoming.recoveryReason or previous.recoveryReason or "recovery_required"
+	end
+	if incoming.state == "cancelled" then
+		if merged.rollbackSavedA and merged.rollbackSavedB then
+			merged.state = "cancelled"
+			merged.cancelReason = incoming.cancelReason or merged.recoveryReason or "recovered"
+		else
+			merged.state = "recovering"
+			merged.cancelReason = nil
+		end
+	elseif incoming.state == "committed" then
+		merged.state = "committed"
+	end
+	return merged
 end
 
 return TradeTransactionRules
