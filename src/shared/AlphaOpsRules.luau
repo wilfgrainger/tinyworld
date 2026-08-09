@@ -34,13 +34,24 @@ function AlphaOpsRules.healthState(diagnostics, onboardingComplete: boolean): st
 	if onboardingComplete ~= true then
 		return "setup"
 	end
-	if safeCount(diagnostics.queueDepth) > 0 or diagnostics.state == "dirty" or diagnostics.state == "queued" or diagnostics.state == "saving" or diagnostics.state == "retrying" then
+	if
+		safeCount(diagnostics.queueDepth) > 0
+		or diagnostics.state == "dirty"
+		or diagnostics.state == "queued"
+		or diagnostics.state == "saving"
+		or diagnostics.state == "retrying"
+	then
 		return "saving"
 	end
 	return "ready"
 end
 
-function AlphaOpsRules.aggregateState(activeCount: number, savingCount: number, recoveryCount: number, cohortLimit: number?): { cohort: string, health: string }
+function AlphaOpsRules.aggregateState(
+	activeCount: number,
+	savingCount: number,
+	recoveryCount: number,
+	cohortLimit: number?
+): { cohort: string, health: string }
 	local recovery = safeCount(recoveryCount)
 	local saving = safeCount(savingCount)
 	return {
@@ -50,4 +61,3 @@ function AlphaOpsRules.aggregateState(activeCount: number, savingCount: number, 
 end
 
 return AlphaOpsRules
-

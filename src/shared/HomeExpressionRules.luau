@@ -18,12 +18,60 @@ local THEMES: { Theme } = {
 }
 
 local DECORATIONS: { Decoration } = {
-	{ id = "LanternNook", name = "Lantern Nook", action = "Collect Lantern Nook", costCoins = 80, resource = nil, requiresPortal = false, colour = "gold" },
-	{ id = "StoryBookStack", name = "Story Book Stack", action = "Collect Story Books", costCoins = 120, resource = nil, requiresPortal = false, colour = "paper" },
-	{ id = "MeadowSeedShelf", name = "Meadow Seed Shelf", action = "Craft Seed Shelf", costCoins = 0, resource = "MeadowSeed", requiresPortal = false, colour = "flower" },
-	{ id = "SeashellDisplay", name = "Seashell Display", action = "Craft Seashell Display", costCoins = 0, resource = "Seashell", requiresPortal = false, colour = "sky" },
-	{ id = "WoodlandBench", name = "Woodland Bench", action = "Craft Woodland Bench", costCoins = 0, resource = "WoodToken", requiresPortal = false, colour = "timber" },
-	{ id = "PortalPainting", name = "Portal Painting", action = "Collect Portal Painting", costCoins = 250, resource = nil, requiresPortal = true, colour = "portal" },
+	{
+		id = "LanternNook",
+		name = "Lantern Nook",
+		action = "Collect Lantern Nook",
+		costCoins = 80,
+		resource = nil,
+		requiresPortal = false,
+		colour = "gold",
+	},
+	{
+		id = "StoryBookStack",
+		name = "Story Book Stack",
+		action = "Collect Story Books",
+		costCoins = 120,
+		resource = nil,
+		requiresPortal = false,
+		colour = "paper",
+	},
+	{
+		id = "MeadowSeedShelf",
+		name = "Meadow Seed Shelf",
+		action = "Craft Seed Shelf",
+		costCoins = 0,
+		resource = "MeadowSeed",
+		requiresPortal = false,
+		colour = "flower",
+	},
+	{
+		id = "SeashellDisplay",
+		name = "Seashell Display",
+		action = "Craft Seashell Display",
+		costCoins = 0,
+		resource = "Seashell",
+		requiresPortal = false,
+		colour = "sky",
+	},
+	{
+		id = "WoodlandBench",
+		name = "Woodland Bench",
+		action = "Craft Woodland Bench",
+		costCoins = 0,
+		resource = "WoodToken",
+		requiresPortal = false,
+		colour = "timber",
+	},
+	{
+		id = "PortalPainting",
+		name = "Portal Painting",
+		action = "Collect Portal Painting",
+		costCoins = 250,
+		resource = nil,
+		requiresPortal = true,
+		colour = "portal",
+	},
 }
 
 local THEMES_BY_ID = {}
@@ -136,4 +184,3 @@ function HomeExpressionRules.showcase(profile): number
 end
 
 return HomeExpressionRules
-

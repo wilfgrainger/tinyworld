@@ -45,4 +45,3 @@ return function()
 	TestUtil.equal(secondReason, "already_owned")
 	TestUtil.equal(profile.coins, 100)
 end
-

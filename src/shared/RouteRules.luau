@@ -144,7 +144,9 @@ function RouteRules.isComplete(profile: any, scope: string, periodKey: string): 
 end
 
 function RouteRules.progress(profile: any, scope: string, periodKey: string): (number, number, boolean)
-	return RouteRules.count(profile, scope, periodKey), RouteRules.total(scope, periodKey), RouteRules.isComplete(profile, scope, periodKey)
+	return RouteRules.count(profile, scope, periodKey),
+		RouteRules.total(scope, periodKey),
+		RouteRules.isComplete(profile, scope, periodKey)
 end
 
 function RouteRules.record(profile: any, scope: string, taskId: string, periodKey: string): (boolean, string, boolean)
@@ -184,4 +186,3 @@ function RouteRules.record(profile: any, scope: string, taskId: string, periodKe
 end
 
 return RouteRules
-

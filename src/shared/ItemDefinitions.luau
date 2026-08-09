@@ -11,11 +11,51 @@ export type ItemDefinition = {
 }
 
 local ITEMS = {
-	{ id = "Carrot", displayName = "Carrot", category = "resource", stackable = true, maxStack = 999, tradePolicy = "standard", analyticsCategory = "garden" },
-	{ id = "SugarCrystal", displayName = "Sugar Crystal", category = "resource", stackable = true, maxStack = 999, tradePolicy = "standard", analyticsCategory = "portal" },
-	{ id = "MeadowSeed", displayName = "Meadow Seed", category = "resource", stackable = true, maxStack = 999, tradePolicy = "standard", analyticsCategory = "garden" },
-	{ id = "Seashell", displayName = "Seashell", category = "resource", stackable = true, maxStack = 999, tradePolicy = "standard", analyticsCategory = "exploration" },
-	{ id = "WoodToken", displayName = "Wood Token", category = "resource", stackable = true, maxStack = 999, tradePolicy = "standard", analyticsCategory = "village" },
+	{
+		id = "Carrot",
+		displayName = "Carrot",
+		category = "resource",
+		stackable = true,
+		maxStack = 999,
+		tradePolicy = "standard",
+		analyticsCategory = "garden",
+	},
+	{
+		id = "SugarCrystal",
+		displayName = "Sugar Crystal",
+		category = "resource",
+		stackable = true,
+		maxStack = 999,
+		tradePolicy = "standard",
+		analyticsCategory = "portal",
+	},
+	{
+		id = "MeadowSeed",
+		displayName = "Meadow Seed",
+		category = "resource",
+		stackable = true,
+		maxStack = 999,
+		tradePolicy = "standard",
+		analyticsCategory = "garden",
+	},
+	{
+		id = "Seashell",
+		displayName = "Seashell",
+		category = "resource",
+		stackable = true,
+		maxStack = 999,
+		tradePolicy = "standard",
+		analyticsCategory = "exploration",
+	},
+	{
+		id = "WoodToken",
+		displayName = "Wood Token",
+		category = "resource",
+		stackable = true,
+		maxStack = 999,
+		tradePolicy = "standard",
+		analyticsCategory = "village",
+	},
 }
 
 local KEEPSAKE_NAMES = {

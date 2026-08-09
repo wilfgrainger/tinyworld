@@ -125,7 +125,13 @@ local function scheduleHeartbeat(player: Player, delaySeconds: number?)
 		if lost or migrationFailure ~= nil or record.heartbeatFailures >= 3 then
 			record.sessionState = "lost"
 			setState(player, record, "failed")
-			warn(string.format("TinyWorld: session lease could not be kept safe for %s (%s).", player.Name, tostring(migrationFailure or "lease_failure")))
+			warn(
+				string.format(
+					"TinyWorld: session lease could not be kept safe for %s (%s).",
+					player.Name,
+					tostring(migrationFailure or "lease_failure")
+				)
+			)
 			if player.Parent ~= nil then
 				player:Kick("TinyWorld could not keep your session safe. Please rejoin in a moment.")
 			end
@@ -164,13 +170,21 @@ function ProfileStore.load(player: Player)
 	end)
 
 	if not ok or result == nil or conflict or migrationFailure ~= nil then
-		warn(string.format("TinyWorld: failed to acquire a safe profile session for %s (%s).", player.Name, tostring(migrationFailure or "lease_or_datastore")))
+		warn(
+			string.format(
+				"TinyWorld: failed to acquire a safe profile session for %s (%s).",
+				player.Name,
+				tostring(migrationFailure or "lease_or_datastore")
+			)
+		)
 		return nil
 	end
 
 	local profile, _, decodeError = decode(result)
 	if profile == nil then
-		warn(string.format("TinyWorld: migrated profile decode failed for %s (%s).", player.Name, tostring(decodeError)))
+		warn(
+			string.format("TinyWorld: migrated profile decode failed for %s (%s).", player.Name, tostring(decodeError))
+		)
 		return nil
 	end
 	local record = {
@@ -217,7 +231,13 @@ local function markSaveFailure(player: Player, record): boolean
 		scheduleSave(player, ProfileStoreRules.retryDelay(record.retryAttempt, math.random()))
 	else
 		setState(player, record, "failed")
-		warn(string.format("TinyWorld: failed to save profile for %s after %d attempts.", player.Name, record.retryAttempt))
+		warn(
+			string.format(
+				"TinyWorld: failed to save profile for %s after %d attempts.",
+				player.Name,
+				record.retryAttempt
+			)
+		)
 	end
 	return false
 end
@@ -254,7 +274,13 @@ function ProfileStore.saveNow(player: Player): boolean
 		record.saving = false
 		record.sessionState = "lost"
 		setState(player, record, "failed")
-		warn(string.format("TinyWorld: refusing to overwrite unsupported profile data for %s (%s).", player.Name, migrationFailure))
+		warn(
+			string.format(
+				"TinyWorld: refusing to overwrite unsupported profile data for %s (%s).",
+				player.Name,
+				migrationFailure
+			)
+		)
 		return false
 	end
 	if not ok or result == nil or conflict then
@@ -361,7 +387,13 @@ function ProfileStore.getDiagnostics(player: Player?)
 	if player then
 		local record = profiles[player]
 		if record == nil then
-			return { state = "unloaded", queueDepth = 0, sessionState = "released", environment = EnvironmentConfig.environment(), dataStoreName = DATASTORE_NAME }
+			return {
+				state = "unloaded",
+				queueDepth = 0,
+				sessionState = "released",
+				environment = EnvironmentConfig.environment(),
+				dataStoreName = DATASTORE_NAME,
+			}
 		end
 		return {
 			state = record.state,
@@ -383,7 +415,12 @@ function ProfileStore.getDiagnostics(player: Player?)
 			queued += 1
 		end
 	end
-	return { activeProfiles = active, queueDepth = queued, environment = EnvironmentConfig.environment(), dataStoreName = DATASTORE_NAME }
+	return {
+		activeProfiles = active,
+		queueDepth = queued,
+		environment = EnvironmentConfig.environment(),
+		dataStoreName = DATASTORE_NAME,
+	}
 end
 
 return ProfileStore

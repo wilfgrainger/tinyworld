@@ -15,8 +15,14 @@ return function()
 	TestUtil.equal(Rules.healthState(clean, false), "setup")
 	TestUtil.equal(Rules.healthState({ state = "queued", queueDepth = 1, sessionState = "active" }, true), "saving")
 	TestUtil.equal(Rules.healthState({ state = "retrying", queueDepth = 1, sessionState = "active" }, true), "saving")
-	TestUtil.equal(Rules.healthState({ state = "failed", queueDepth = 0, sessionState = "active" }, true), "recovery-required")
-	TestUtil.equal(Rules.healthState({ state = "clean", queueDepth = 0, sessionState = "lost" }, true), "recovery-required")
+	TestUtil.equal(
+		Rules.healthState({ state = "failed", queueDepth = 0, sessionState = "active" }, true),
+		"recovery-required"
+	)
+	TestUtil.equal(
+		Rules.healthState({ state = "clean", queueDepth = 0, sessionState = "lost" }, true),
+		"recovery-required"
+	)
 	TestUtil.equal(Rules.healthState(nil, true), "recovery-required")
 
 	local aggregate = Rules.aggregateState(3, 0, 0, 8)
@@ -27,4 +33,3 @@ return function()
 	TestUtil.equal(aggregate.health, "recovery-required")
 	TestUtil.equal(Rules.aggregateState(0, 0, 0, 8).health, "ready")
 end
-

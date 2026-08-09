@@ -1,7 +1,14 @@
 local AmbientLifeService = {}
 AmbientLifeService.__index = AmbientLifeService
 
-local function part(model: Model, name: string, size: Vector3, cframe: CFrame, color: Color3, shape: Enum.PartType?): Part
+local function part(
+	model: Model,
+	name: string,
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	shape: Enum.PartType?
+): Part
 	local value = Instance.new("Part")
 	value.Name = name
 	value.Size = size
@@ -14,7 +21,9 @@ local function part(model: Model, name: string, size: Vector3, cframe: CFrame, c
 	value.CanQuery = false
 	value.TopSurface = Enum.SurfaceType.Smooth
 	value.BottomSurface = Enum.SurfaceType.Smooth
-	if shape then value.Shape = shape end
+	if shape then
+		value.Shape = shape
+	end
 	value:SetAttribute("TinyWorldArtRole", "ambient-life-detail")
 	value.Parent = model
 	return value
@@ -46,7 +55,13 @@ local function cat(parent: Instance, name: string, position: Vector3, color: Col
 	part(model, "Head", Vector3.new(1.5, 1.5, 1.5), CFrame.new(1.5, 0.4, 0), color, Enum.PartType.Ball)
 	part(model, "EarLeft", Vector3.new(0.45, 0.7, 0.35), CFrame.new(1.55, 1.35, -0.45), color)
 	part(model, "EarRight", Vector3.new(0.45, 0.7, 0.35), CFrame.new(1.55, 1.35, 0.45), color)
-	part(model, "Tail", Vector3.new(1.8, 0.35, 0.35), CFrame.new(-1.8, 0.4, 0) * CFrame.Angles(0, 0, math.rad(25)), color)
+	part(
+		model,
+		"Tail",
+		Vector3.new(1.8, 0.35, 0.35),
+		CFrame.new(-1.8, 0.4, 0) * CFrame.Angles(0, 0, math.rad(25)),
+		color
+	)
 	for _, z in { -0.45, 0.45 } do
 		part(model, "Leg", Vector3.new(0.35, 1, 0.35), CFrame.new(0.6, -0.8, z), color)
 		part(model, "Leg", Vector3.new(0.35, 1, 0.35), CFrame.new(-0.7, -0.8, z), color)
@@ -64,13 +79,41 @@ function AmbientLifeService.new(world)
 	folder.Name = "TinyWorldAmbientCharacters"
 	folder.Parent = world.root
 	local birdColor = Color3.fromRGB(89, 123, 156)
-	for index, position in {
-		Vector3.new(-32, 3, -18), Vector3.new(-8, 3, 30), Vector3.new(24, 3, 16), Vector3.new(38, 3, -28),
-	} do
-		table.insert(self.actors, { model = bird(folder, "VillageBird" .. index, position, birdColor), origin = position, radius = 5 + index, speed = 0.35 + index * 0.04, flying = true })
+	for index, position in
+		{
+			Vector3.new(-32, 3, -18),
+			Vector3.new(-8, 3, 30),
+			Vector3.new(24, 3, 16),
+			Vector3.new(38, 3, -28),
+		}
+	do
+		table.insert(
+			self.actors,
+			{
+				model = bird(folder, "VillageBird" .. index, position, birdColor),
+				origin = position,
+				radius = 5 + index,
+				speed = 0.35 + index * 0.04,
+				flying = true,
+			}
+		)
 	end
 	for index, position in { Vector3.new(-20, 1.2, 10), Vector3.new(28, 1.2, -5) } do
-		table.insert(self.actors, { model = cat(folder, "VillageCat" .. index, position, if index == 1 then Color3.fromRGB(188, 133, 77) else Color3.fromRGB(93, 96, 104)), origin = position, radius = 4, speed = 0.18 + index * 0.03, flying = false })
+		table.insert(
+			self.actors,
+			{
+				model = cat(
+					folder,
+					"VillageCat" .. index,
+					position,
+					if index == 1 then Color3.fromRGB(188, 133, 77) else Color3.fromRGB(93, 96, 104)
+				),
+				origin = position,
+				radius = 4,
+				speed = 0.18 + index * 0.03,
+				flying = false,
+			}
+		)
 	end
 
 	task.spawn(function()
@@ -80,7 +123,12 @@ function AmbientLifeService.new(world)
 				if actor.model.Parent then
 					local angle = t * actor.speed + index
 					local y = if actor.flying then actor.origin.Y + math.sin(angle * 1.8) * 1.2 else actor.origin.Y
-					local position = actor.origin + Vector3.new(math.cos(angle) * actor.radius, y - actor.origin.Y, math.sin(angle) * actor.radius)
+					local position = actor.origin
+						+ Vector3.new(
+							math.cos(angle) * actor.radius,
+							y - actor.origin.Y,
+							math.sin(angle) * actor.radius
+						)
 					local forward = Vector3.new(-math.sin(angle), 0, math.cos(angle))
 					actor.model:PivotTo(CFrame.lookAt(position, position + forward))
 				end

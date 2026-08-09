@@ -18,4 +18,3 @@ return function()
 	TestUtil.equal(profile.coins, 300)
 	TestUtil.equal(profile.inventory.Carrot, 1)
 end
-

@@ -13,7 +13,14 @@ local function copyOffer(offer: any)
 	return result
 end
 
-function TradeTransactionRules.new(id: string, playerAUserId: number, playerBUserId: number, offerA: any, offerB: any, offerVersion: number)
+function TradeTransactionRules.new(
+	id: string,
+	playerAUserId: number,
+	playerBUserId: number,
+	offerA: any,
+	offerB: any,
+	offerVersion: number
+)
 	return {
 		id = id,
 		playerAUserId = playerAUserId,

@@ -38,7 +38,9 @@ local function migrate10To11(profile: any)
 	end
 
 	local legacyHomeItems = if type(nextProfile.homeItems) == "table" then nextProfile.homeItems else {}
-	local ownedFurniture = if type(nextProfile.ownedFurniture) == "table" then deepCopy(nextProfile.ownedFurniture) else {}
+	local ownedFurniture = if type(nextProfile.ownedFurniture) == "table"
+		then deepCopy(nextProfile.ownedFurniture)
+		else {}
 	for itemId, quantity in legacyHomeItems do
 		if type(itemId) == "string" and ownedFurniture[itemId] == nil then
 			ownedFurniture[itemId] = nonNegativeInteger(quantity)
@@ -87,7 +89,9 @@ function ProfileMigrations.migrate(raw: any): (any?, string?)
 	end
 
 	local working = deepCopy(raw)
-	local rawVersion = if type(working.version) == "number" then math.floor(working.version) else ProfileMigrations.OLDEST_SUPPORTED_VERSION
+	local rawVersion = if type(working.version) == "number"
+		then math.floor(working.version)
+		else ProfileMigrations.OLDEST_SUPPORTED_VERSION
 	if rawVersion > ProfileMigrations.CURRENT_VERSION then
 		return nil, "future_version"
 	end

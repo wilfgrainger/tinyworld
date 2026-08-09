@@ -12,7 +12,12 @@ function AnalyticsService.log(player: Player, eventName: string, value: number?)
 		warn("TinyWorld analytics rejected unknown event: " .. tostring(eventName))
 		return false
 	end
-	local eventValue = if type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge then value else 1
+	local eventValue = if type(value) == "number"
+			and value == value
+			and value ~= math.huge
+			and value ~= -math.huge
+		then value
+		else 1
 	local ok, err = pcall(function()
 		RobloxAnalyticsService:LogCustomEvent(player, eventName, eventValue)
 	end)

@@ -20,7 +20,15 @@ local function actionForBed(bed): string
 	return "Harvest Carrot"
 end
 
-local function makeCropPart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material, shape: Enum.PartType?): Part
+local function makeCropPart(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material,
+	shape: Enum.PartType?
+): Part
 	local part = Instance.new("Part")
 	part.Name = name
 	part.Size = size
@@ -72,17 +80,48 @@ local function renderBed(plot, bedIndex: number, stage: string)
 	for index = 1, count do
 		local offset = offsets[index]
 		local height = if stage == "planted" then 0.9 else 1.5
-		makeCropPart(model, "CarrotLeaf" .. index, Vector3.new(0.35, height, 0.35), base + offset + Vector3.new(0, height / 2, 0), VisualTheme.Colors.leaf, Enum.Material.Grass)
+		makeCropPart(
+			model,
+			"CarrotLeaf" .. index,
+			Vector3.new(0.35, height, 0.35),
+			base + offset + Vector3.new(0, height / 2, 0),
+			VisualTheme.Colors.leaf,
+			Enum.Material.Grass
+		)
 		if stage ~= "planted" then
-			makeCropPart(model, "CarrotLeafTop" .. index, Vector3.new(0.8, 0.35, 0.8), base + offset + Vector3.new(0, height + 0.15, 0), VisualTheme.Colors.leafLight, Enum.Material.Grass, Enum.PartType.Ball)
+			makeCropPart(
+				model,
+				"CarrotLeafTop" .. index,
+				Vector3.new(0.8, 0.35, 0.8),
+				base + offset + Vector3.new(0, height + 0.15, 0),
+				VisualTheme.Colors.leafLight,
+				Enum.Material.Grass,
+				Enum.PartType.Ball
+			)
 		end
 	end
 	if stage == "ready" then
-		local carrot = makeCropPart(model, "ReadyCarrot", Vector3.new(1.4, 2, 1.4), base + Vector3.new(0, 1.2, 0), VisualTheme.Colors.warmLight, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+		local carrot = makeCropPart(
+			model,
+			"ReadyCarrot",
+			Vector3.new(1.4, 2, 1.4),
+			base + Vector3.new(0, 1.2, 0),
+			VisualTheme.Colors.warmLight,
+			Enum.Material.SmoothPlastic,
+			Enum.PartType.Ball
+		)
 		carrot:SetAttribute("TinyWorldItem", "Carrot")
 		carrot:SetAttribute("TinyWorldArtRole", "garden-ready-carrot")
 		carrot:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
-		makeCropPart(model, "ReadyCarrotTop", Vector3.new(1.2, 0.45, 1.2), carrot.Position + Vector3.new(0, 1.15, 0), VisualTheme.Colors.leaf, Enum.Material.Grass, Enum.PartType.Ball)
+		makeCropPart(
+			model,
+			"ReadyCarrotTop",
+			Vector3.new(1.2, 0.45, 1.2),
+			carrot.Position + Vector3.new(0, 1.15, 0),
+			VisualTheme.Colors.leaf,
+			Enum.Material.Grass,
+			Enum.PartType.Ball
+		)
 		local gui = Instance.new("BillboardGui")
 		gui.Name = "ReadyLabel"
 		gui.Size = UDim2.fromOffset(120, 30)
@@ -193,10 +232,16 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 	elseif ok and reason == "harvested" then
 		local suffix = if routeText == "" then "" else " " .. routeText
 		local levelSuffix = if farmerLevels > 0 then " Farmer level up!" else ""
-		self.PlayerStateService.message(player, "Carrot harvested: +1 Carrot and +10 XP. Farmer XP +50." .. levelSuffix .. suffix)
+		self.PlayerStateService.message(
+			player,
+			"Carrot harvested: +1 Carrot and +10 XP. Farmer XP +50." .. levelSuffix .. suffix
+		)
 	else
 		local remaining = math.max(0, bed.readyAt - now)
-		self.PlayerStateService.message(player, string.format("Your Carrot is still growing: about %d seconds.", remaining))
+		self.PlayerStateService.message(
+			player,
+			string.format("Your Carrot is still growing: about %d seconds.", remaining)
+		)
 	end
 end
 

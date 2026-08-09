@@ -39,4 +39,3 @@ function PhysicalAffordanceRules.hasEvidence(hasWorldObject: boolean, hasNamedPo
 end
 
 return PhysicalAffordanceRules
-

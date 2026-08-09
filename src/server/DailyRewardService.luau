@@ -33,4 +33,3 @@ function DailyRewardService.new(world, ProfileStore, PlayerStateService, RouteSe
 end
 
 return DailyRewardService
-

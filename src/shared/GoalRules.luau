@@ -51,4 +51,3 @@ function GoalRules.suggestedGoal(profile): string
 end
 
 return GoalRules
-

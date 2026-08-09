@@ -28,4 +28,3 @@ return function()
 	TestUtil.equal(Profession.addXp(profile, "NotAJob", 100), 0)
 	TestUtil.equal(Profession.addXp(profile, "Designer", -10), 0)
 end
-

@@ -35,10 +35,19 @@ function ExplorationService:_visit(player: Player, landmark: string)
 	local visitedCount = ExplorationRules.count(profile)
 	if visited then
 		self.PlayerStateService.sync(player, profile)
-		self.PlayerStateService.message(player, string.format("Boundary landmark found: %d/3. Return to the Explorer Board when all three are visited.", visitedCount))
+		self.PlayerStateService.message(
+			player,
+			string.format(
+				"Boundary landmark found: %d/3. Return to the Explorer Board when all three are visited.",
+				visitedCount
+			)
+		)
 		self.ProfileStore.save(player)
 	elseif reason == "already_visited" then
-		self.PlayerStateService.message(player, string.format("You already visited this landmark today: %d/3 found.", visitedCount))
+		self.PlayerStateService.message(
+			player,
+			string.format("You already visited this landmark today: %d/3 found.", visitedCount)
+		)
 	end
 end
 
@@ -53,14 +62,22 @@ function ExplorationService:_claim(player: Player)
 		local _routeChanged, routeText = self.RouteService:record(player, "boundary_route")
 		self.PlayerStateService.sync(player, profile)
 		local suffix = if routeText == "" then "" else " " .. routeText
-		self.PlayerStateService.message(player, "Boundary route complete: +250 coins, +100 XP. Come back tomorrow for a new route." .. suffix)
+		self.PlayerStateService.message(
+			player,
+			"Boundary route complete: +250 coins, +100 XP. Come back tomorrow for a new route." .. suffix
+		)
 		self.ProfileStore.save(player)
 	elseif reason == "incomplete" then
-		self.PlayerStateService.message(player, string.format("Visit all three boundary landmarks first: %d/3 found.", ExplorationRules.count(profile)))
+		self.PlayerStateService.message(
+			player,
+			string.format("Visit all three boundary landmarks first: %d/3 found.", ExplorationRules.count(profile))
+		)
 	elseif reason == "already_claimed" then
-		self.PlayerStateService.message(player, "You already claimed today's Boundary Explorer reward. Come back tomorrow.")
+		self.PlayerStateService.message(
+			player,
+			"You already claimed today's Boundary Explorer reward. Come back tomorrow."
+		)
 	end
 end
 
 return ExplorationService
-

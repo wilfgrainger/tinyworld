@@ -18,9 +18,17 @@ else
 end
 
 export type GardenBed = { stage: string, readyAt: number }
-export type Inventory = { Carrot: number, SugarCrystal: number, MeadowSeed: number, Seashell: number, WoodToken: number }
+export type Inventory =
+	{ Carrot: number, SugarCrystal: number, MeadowSeed: number, Seashell: number, WoodToken: number }
 export type InventoryInstance = { itemId: string, metadata: { [string]: any } }
-export type FurniturePlacement = { furnitureId: string, instanceId: string?, x: number, y: number, z: number, rotation: number }
+export type FurniturePlacement = {
+	furnitureId: string,
+	instanceId: string?,
+	x: number,
+	y: number,
+	z: number,
+	rotation: number,
+}
 export type SavedOutfit = { hair: string, top: string, bottom: string, shoes: string, accessory: string }
 export type PlayerProfile = {
 	version: number,
@@ -191,7 +199,13 @@ local function normaliseInventoryInstances(value: any): { [string]: InventoryIns
 		return result
 	end
 	for instanceId, raw in value do
-		if type(instanceId) == "string" and #instanceId <= 64 and type(raw) == "table" and type(raw.itemId) == "string" and ItemDefinitions.get(raw.itemId) ~= nil then
+		if
+			type(instanceId) == "string"
+			and #instanceId <= 64
+			and type(raw) == "table"
+			and type(raw.itemId) == "string"
+			and ItemDefinitions.get(raw.itemId) ~= nil
+		then
 			result[instanceId] = {
 				itemId = raw.itemId,
 				metadata = normaliseMetadata(raw.metadata),
@@ -232,7 +246,8 @@ local function normalisePlacements(value: any): { [string]: FurniturePlacement }
 		if count >= ProfileSchema.MAX_FURNITURE_PLACEMENTS then
 			break
 		end
-		if type(placementId) == "string"
+		if
+			type(placementId) == "string"
 			and #placementId <= 64
 			and type(raw) == "table"
 			and type(raw.furnitureId) == "string"
@@ -364,7 +379,14 @@ function ProfileSchema.new(): PlayerProfile
 		homeItems = homeItems,
 		homeUseCount = 0,
 		homeTheme = "Meadow",
-		homeDecor = { LanternNook = 0, StoryBookStack = 0, MeadowSeedShelf = 0, SeashellDisplay = 0, WoodlandBench = 0, PortalPainting = 0 },
+		homeDecor = {
+			LanternNook = 0,
+			StoryBookStack = 0,
+			MeadowSeedShelf = 0,
+			SeashellDisplay = 0,
+			WoodlandBench = 0,
+			PortalPainting = 0,
+		},
 		homeShowcaseCount = 0,
 		dailyRouteDay = "",
 		dailyRouteMask = 0,
@@ -379,15 +401,27 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 	if type(value) ~= "table" then
 		return ProfileSchema.new()
 	end
-	local privacy = if type(value.homePrivacy) == "string" and VALID_PRIVACY[value.homePrivacy] then value.homePrivacy else "Open"
+	local privacy = if type(value.homePrivacy) == "string" and VALID_PRIVACY[value.homePrivacy]
+		then value.homePrivacy
+		else "Open"
 	local displayName = normaliseDisplayName(value.displayName)
-	local avatarStyle = if type(value.avatarStyle) == "string" and VALID_AVATAR_STYLES[value.avatarStyle] then value.avatarStyle else ""
-	local starterOutfit = if type(value.starterOutfit) == "string" and VALID_STARTER_OUTFITS[value.starterOutfit] then value.starterOutfit else ""
-	local onboardingComplete = value.onboardingComplete == true and displayName ~= "" and avatarStyle ~= "" and starterOutfit ~= ""
+	local avatarStyle = if type(value.avatarStyle) == "string" and VALID_AVATAR_STYLES[value.avatarStyle]
+		then value.avatarStyle
+		else ""
+	local starterOutfit = if type(value.starterOutfit) == "string" and VALID_STARTER_OUTFITS[value.starterOutfit]
+		then value.starterOutfit
+		else ""
+	local onboardingComplete = value.onboardingComplete == true
+		and displayName ~= ""
+		and avatarStyle ~= ""
+		and starterOutfit ~= ""
 	local inventory = normaliseInventory(value.inventory)
 	local homeItems = normaliseHomeItems(value.homeItems)
 	local savedOutfits = normaliseSavedOutfits(value.savedOutfits)
-	local activeOutfitId = if type(value.activeOutfitId) == "string" and savedOutfits[value.activeOutfitId] ~= nil then value.activeOutfitId else "Starter"
+	local activeOutfitId = if type(value.activeOutfitId) == "string"
+			and savedOutfits[value.activeOutfitId] ~= nil
+		then value.activeOutfitId
+		else "Starter"
 	return {
 		version = 11,
 		coins = normaliseInteger(value.coins, 100, 0),
@@ -417,8 +451,12 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		lastDailyDay = if type(value.lastDailyDay) == "string" then value.lastDailyDay else "",
 		portalCompletions = normaliseInteger(value.portalCompletions, 0, 0),
 		villageContribution = normaliseInteger(value.villageContribution, 0, 0),
-		boundaryExplorationDay = if type(value.boundaryExplorationDay) == "string" then value.boundaryExplorationDay else "",
-		boundaryExplorationClaimedDay = if type(value.boundaryExplorationClaimedDay) == "string" then value.boundaryExplorationClaimedDay else "",
+		boundaryExplorationDay = if type(value.boundaryExplorationDay) == "string"
+			then value.boundaryExplorationDay
+			else "",
+		boundaryExplorationClaimedDay = if type(value.boundaryExplorationClaimedDay) == "string"
+			then value.boundaryExplorationClaimedDay
+			else "",
 		boundaryExplorationMask = normaliseInteger(value.boundaryExplorationMask, 0, 0, 7),
 		boundaryCompletions = normaliseInteger(value.boundaryCompletions, 0, 0),
 		homePrivacy = privacy,
@@ -439,7 +477,9 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		dailyRouteClaimedDay = if type(value.dailyRouteClaimedDay) == "string" then value.dailyRouteClaimedDay else "",
 		weeklyRouteWeek = if type(value.weeklyRouteWeek) == "string" then value.weeklyRouteWeek else "",
 		weeklyRouteMask = normaliseInteger(value.weeklyRouteMask, 0, 0, 15),
-		weeklyRouteClaimedWeek = if type(value.weeklyRouteClaimedWeek) == "string" then value.weeklyRouteClaimedWeek else "",
+		weeklyRouteClaimedWeek = if type(value.weeklyRouteClaimedWeek) == "string"
+			then value.weeklyRouteClaimedWeek
+			else "",
 	}
 end
 

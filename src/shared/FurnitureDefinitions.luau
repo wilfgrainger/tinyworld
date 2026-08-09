@@ -16,7 +16,16 @@ export type FurnitureDefinition = {
 local ITEMS = {}
 local BY_ID = {}
 
-local function add(category: string, id: string, displayName: string, price: number, prefabRole: string, interaction: string, footprintX: number?, footprintZ: number?)
+local function add(
+	category: string,
+	id: string,
+	displayName: string,
+	price: number,
+	prefabRole: string,
+	interaction: string,
+	footprintX: number?,
+	footprintZ: number?
+)
 	local item = {
 		id = id,
 		displayName = displayName,

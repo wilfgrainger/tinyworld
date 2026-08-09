@@ -120,7 +120,10 @@ function TradeService:_join(player: Player, side: number)
 	self.offers[player] = nil
 	self:_touch(player)
 	self:_invalidateConfirmations()
-	self.PlayerStateService.message(player, string.format("Joined Trading Post side %s. Choose an item to offer.", if side == 1 then "A" else "B"))
+	self.PlayerStateService.message(
+		player,
+		string.format("Joined Trading Post side %s. Choose an item to offer.", if side == 1 then "A" else "B")
+	)
 	self:_updateSign()
 end
 
@@ -253,8 +256,14 @@ function TradeService:_complete(a: Player, b: Player)
 		self:_invalidateConfirmations()
 		self.PlayerStateService.sync(a, profileA)
 		self.PlayerStateService.sync(b, profileB)
-		self.PlayerStateService.message(a, "Trade was rolled back because TinyWorld could not safely save both profiles.")
-		self.PlayerStateService.message(b, "Trade was rolled back because TinyWorld could not safely save both profiles.")
+		self.PlayerStateService.message(
+			a,
+			"Trade was rolled back because TinyWorld could not safely save both profiles."
+		)
+		self.PlayerStateService.message(
+			b,
+			"Trade was rolled back because TinyWorld could not safely save both profiles."
+		)
 		self:_updateSign()
 		return
 	end
@@ -266,8 +275,14 @@ function TradeService:_complete(a: Player, b: Player)
 	if self.SocialService then
 		self.SocialService:recordTrade(a, b)
 	end
-	self.PlayerStateService.message(a, string.format("Trade complete: your %s for %s's %s.", offerName(itemA), b.Name, offerName(itemB)))
-	self.PlayerStateService.message(b, string.format("Trade complete: your %s for %s's %s.", offerName(itemB), a.Name, offerName(itemA)))
+	self.PlayerStateService.message(
+		a,
+		string.format("Trade complete: your %s for %s's %s.", offerName(itemA), b.Name, offerName(itemB))
+	)
+	self.PlayerStateService.message(
+		b,
+		string.format("Trade complete: your %s for %s's %s.", offerName(itemB), a.Name, offerName(itemA))
+	)
 	self.players = {}
 	self.offers = {}
 	self:_invalidateConfirmations()
@@ -280,7 +295,16 @@ function TradeService:_updateSign()
 		local player = self.players[side]
 		if player then
 			local confirmed = self.confirmedVersion[player] == self.version
-			table.insert(lines, string.format("%s: %s offers %s%s", if side == 1 then "A" else "B", player.Name, offerName(self.offers[player]), if confirmed then " ✓" else ""))
+			table.insert(
+				lines,
+				string.format(
+					"%s: %s offers %s%s",
+					if side == 1 then "A" else "B",
+					player.Name,
+					offerName(self.offers[player]),
+					if confirmed then " ✓" else ""
+				)
+			)
 		else
 			table.insert(lines, string.format("%s: available", if side == 1 then "A" else "B"))
 		end

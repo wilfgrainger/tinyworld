@@ -34,12 +34,19 @@ function LivingWorldService:_collect(player: Player, itemName: string)
 	local collected, reason = LivingWorldRules.collect(profile, itemName, DailyReward.dayKey())
 	if collected then
 		self.PlayerStateService.sync(player, profile)
-		self.PlayerStateService.message(player, "Found a " .. (DISPLAY_NAMES[itemName] or itemName) .. ". Find the other village keepsakes for a Home Charm.")
+		self.PlayerStateService.message(
+			player,
+			"Found a "
+				.. (DISPLAY_NAMES[itemName] or itemName)
+				.. ". Find the other village keepsakes for a Home Charm."
+		)
 		self.ProfileStore.save(player)
 	elseif reason == "already_collected" then
-		self.PlayerStateService.message(player, "You already found today's " .. (DISPLAY_NAMES[itemName] or itemName) .. ".")
+		self.PlayerStateService.message(
+			player,
+			"You already found today's " .. (DISPLAY_NAMES[itemName] or itemName) .. "."
+		)
 	end
 end
 
 return LivingWorldService
-

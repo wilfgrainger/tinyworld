@@ -211,7 +211,10 @@ function TransportService:_mount(player: Player)
 	end
 	local mounted, reason = TransportRules.mountTinyBike(profile)
 	if not mounted then
-		self.PlayerStateService.message(player, if reason == "not_owned" then "Buy the Tiny Bike first." else "You are already riding your Tiny Bike.")
+		self.PlayerStateService.message(
+			player,
+			if reason == "not_owned" then "Buy the Tiny Bike first." else "You are already riding your Tiny Bike."
+		)
 		return
 	end
 	local root = character:FindFirstChild("HumanoidRootPart")
@@ -269,7 +272,12 @@ function TransportService:_useShop(player: Player)
 	if not profile.ownsTinyBike then
 		local bought, reason = TransportRules.buyTinyBike(profile)
 		if not bought then
-			self.PlayerStateService.message(player, if reason == "not_enough_coins" then "The Tiny Bike costs 300 coins." else "You already own the Tiny Bike.")
+			self.PlayerStateService.message(
+				player,
+				if reason == "not_enough_coins"
+					then "The Tiny Bike costs 300 coins."
+					else "You already own the Tiny Bike."
+			)
 			return
 		end
 		self:_ensureBike(player)

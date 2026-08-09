@@ -12,14 +12,70 @@ local HAIR = {
 }
 
 local OUTFITS = {
-	{ id = "Starter", displayName = "TinyWorld Starter", top = "MeadowTop", bottom = "DenimBottom", shoes = "CanvasShoes", accessory = "None" },
-	{ id = "Meadow", displayName = "Meadow Day", top = "MeadowTop", bottom = "LeafBottom", shoes = "GardenShoes", accessory = "FlowerPin" },
-	{ id = "Harbor", displayName = "Harbour Day", top = "HarborTop", bottom = "DenimBottom", shoes = "DeckShoes", accessory = "ShellPin" },
-	{ id = "Sunset", displayName = "Sunset Day", top = "SunsetTop", bottom = "BerryBottom", shoes = "CanvasShoes", accessory = "StarPin" },
-	{ id = "Courier", displayName = "Courier Ready", top = "CourierTop", bottom = "CourierBottom", shoes = "RunnerShoes", accessory = "ParcelPin" },
-	{ id = "Workshop", displayName = "Workshop Day", top = "WorkshopTop", bottom = "WorkshopBottom", shoes = "BootShoes", accessory = "CogPin" },
-	{ id = "Moonlight", displayName = "Moonlight", top = "MoonTop", bottom = "MoonBottom", shoes = "SoftShoes", accessory = "MoonPin" },
-	{ id = "Cloudpost", displayName = "Cloudpost", top = "CloudTop", bottom = "SkyBottom", shoes = "CloudShoes", accessory = "SkyBellPin" },
+	{
+		id = "Starter",
+		displayName = "TinyWorld Starter",
+		top = "MeadowTop",
+		bottom = "DenimBottom",
+		shoes = "CanvasShoes",
+		accessory = "None",
+	},
+	{
+		id = "Meadow",
+		displayName = "Meadow Day",
+		top = "MeadowTop",
+		bottom = "LeafBottom",
+		shoes = "GardenShoes",
+		accessory = "FlowerPin",
+	},
+	{
+		id = "Harbor",
+		displayName = "Harbour Day",
+		top = "HarborTop",
+		bottom = "DenimBottom",
+		shoes = "DeckShoes",
+		accessory = "ShellPin",
+	},
+	{
+		id = "Sunset",
+		displayName = "Sunset Day",
+		top = "SunsetTop",
+		bottom = "BerryBottom",
+		shoes = "CanvasShoes",
+		accessory = "StarPin",
+	},
+	{
+		id = "Courier",
+		displayName = "Courier Ready",
+		top = "CourierTop",
+		bottom = "CourierBottom",
+		shoes = "RunnerShoes",
+		accessory = "ParcelPin",
+	},
+	{
+		id = "Workshop",
+		displayName = "Workshop Day",
+		top = "WorkshopTop",
+		bottom = "WorkshopBottom",
+		shoes = "BootShoes",
+		accessory = "CogPin",
+	},
+	{
+		id = "Moonlight",
+		displayName = "Moonlight",
+		top = "MoonTop",
+		bottom = "MoonBottom",
+		shoes = "SoftShoes",
+		accessory = "MoonPin",
+	},
+	{
+		id = "Cloudpost",
+		displayName = "Cloudpost",
+		top = "CloudTop",
+		bottom = "SkyBottom",
+		shoes = "CloudShoes",
+		accessory = "SkyBellPin",
+	},
 }
 
 function AppearanceDefinitions.hairStyles()

@@ -16,7 +16,8 @@ return function()
 	TestUtil.equal(b.inventory.SugarCrystal, 0)
 	TestUtil.equal(b.inventory.Carrot, 1)
 
-	local canTrade, canTradeReason = TradeRules.canExchange(ProfileSchema.new(), "Carrot", ProfileSchema.new(), "SugarCrystal")
+	local canTrade, canTradeReason =
+		TradeRules.canExchange(ProfileSchema.new(), "Carrot", ProfileSchema.new(), "SugarCrystal")
 	TestUtil.isFalse(canTrade)
 	TestUtil.equal(canTradeReason, "first_missing_item")
 
@@ -33,4 +34,3 @@ return function()
 	TestUtil.isFalse(unsupported)
 	TestUtil.equal(unsupportedReason, "unsupported_item")
 end
-

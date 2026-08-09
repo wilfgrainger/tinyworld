@@ -40,8 +40,9 @@ function ProfileStoreRules.nextSaveState(currentState: string, event: string): s
 			["failure-final"] = "failed",
 		},
 	}
-	return if transitions[currentState] and transitions[currentState][event] then transitions[currentState][event] else currentState
+	return if transitions[currentState] and transitions[currentState][event]
+		then transitions[currentState][event]
+		else currentState
 end
 
 return ProfileStoreRules
-

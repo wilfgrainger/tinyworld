@@ -13,7 +13,15 @@ local COLORS = {
 	wood = Color3.fromRGB(128, 87, 57),
 }
 
-local function part(parent: Instance, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material?, shape: Enum.PartType?): Part
+local function part(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	material: Enum.Material?,
+	shape: Enum.PartType?
+): Part
 	local value = Instance.new("Part")
 	value.Name = name
 	value.Size = size
@@ -58,7 +66,14 @@ end
 local function kitchen(world, area)
 	local model = modelFor(world, "GiantKitchen")
 	local origin = area.arrivalCFrame.Position
-	part(model, "GiantCookerPanel", Vector3.new(26, 8, 4), CFrame.new(origin + Vector3.new(20, 4, 15)), COLORS.cream, Enum.Material.Metal)
+	part(
+		model,
+		"GiantCookerPanel",
+		Vector3.new(26, 8, 4),
+		CFrame.new(origin + Vector3.new(20, 4, 15)),
+		COLORS.cream,
+		Enum.Material.Metal
+	)
 	local prompts = {}
 	local parts = {}
 	for index, x in { -7, 0, 7 } do
@@ -74,7 +89,14 @@ local function kitchen(world, area)
 		table.insert(parts, knob)
 		table.insert(prompts, prompt(knob, "Turn", "Giant Cooker Knob"))
 	end
-	local secret = part(model, "TinyRecipeCard", Vector3.new(3.2, 0.25, 4.5), CFrame.new(origin + Vector3.new(-18, 1.1, -15)), COLORS.cream, Enum.Material.SmoothPlastic)
+	local secret = part(
+		model,
+		"TinyRecipeCard",
+		Vector3.new(3.2, 0.25, 4.5),
+		CFrame.new(origin + Vector3.new(-18, 1.1, -15)),
+		COLORS.cream,
+		Enum.Material.SmoothPlastic
+	)
 	secret:SetAttribute("TinyWorldArtRole", "portal-secret-recipe-card")
 	area.mechanicPrompts = prompts
 	area.mechanicParts = parts
@@ -89,19 +111,43 @@ local function meadow(world, area)
 	local origin = area.arrivalCFrame.Position
 	local prompts = {}
 	local parts = {}
-	for index, offset in {
-		Vector3.new(-16, 1.5, 10),
-		Vector3.new(0, 1.5, 20),
-		Vector3.new(16, 1.5, 10),
-	} do
-		local stem = part(model, "MoonStem" .. index, Vector3.new(0.5, 3, 0.5), CFrame.new(origin + offset), COLORS.leaf, Enum.Material.Grass)
+	for index, offset in
+		{
+			Vector3.new(-16, 1.5, 10),
+			Vector3.new(0, 1.5, 20),
+			Vector3.new(16, 1.5, 10),
+		}
+	do
+		local stem = part(
+			model,
+			"MoonStem" .. index,
+			Vector3.new(0.5, 3, 0.5),
+			CFrame.new(origin + offset),
+			COLORS.leaf,
+			Enum.Material.Grass
+		)
 		stem.CanCollide = false
-		local bloom = part(model, "MoonFlower" .. index, Vector3.new(3.2, 3.2, 3.2), CFrame.new(origin + offset + Vector3.new(0, 2.3, 0)), COLORS.moon, Enum.Material.Glass, Enum.PartType.Ball)
+		local bloom = part(
+			model,
+			"MoonFlower" .. index,
+			Vector3.new(3.2, 3.2, 3.2),
+			CFrame.new(origin + offset + Vector3.new(0, 2.3, 0)),
+			COLORS.moon,
+			Enum.Material.Glass,
+			Enum.PartType.Ball
+		)
 		bloom.CanCollide = false
 		table.insert(parts, bloom)
 		table.insert(prompts, prompt(bloom, "Wake", "Moon Flower"))
 	end
-	local jar = part(model, "FireflyNest", Vector3.new(3.2, 4.2, 3.2), CFrame.new(origin + Vector3.new(22, 2.1, -18)), COLORS.sky, Enum.Material.Glass)
+	local jar = part(
+		model,
+		"FireflyNest",
+		Vector3.new(3.2, 4.2, 3.2),
+		CFrame.new(origin + Vector3.new(22, 2.1, -18)),
+		COLORS.sky,
+		Enum.Material.Glass
+	)
 	jar.CanCollide = false
 	jar:SetAttribute("TinyWorldArtRole", "portal-secret-fireflies")
 	area.mechanicPrompts = prompts
@@ -117,12 +163,21 @@ local function cloudpost(world, area)
 	local origin = area.arrivalCFrame.Position
 	local prompts = {}
 	local parts = {}
-	for index, offset in {
-		Vector3.new(-18, 6, 18),
-		Vector3.new(0, 8, 28),
-		Vector3.new(18, 6, 18),
-	} do
-		part(model, "ChimePost" .. index, Vector3.new(0.6, 8, 0.6), CFrame.new(origin + offset), COLORS.brass, Enum.Material.Metal)
+	for index, offset in
+		{
+			Vector3.new(-18, 6, 18),
+			Vector3.new(0, 8, 28),
+			Vector3.new(18, 6, 18),
+		}
+	do
+		part(
+			model,
+			"ChimePost" .. index,
+			Vector3.new(0.6, 8, 0.6),
+			CFrame.new(origin + offset),
+			COLORS.brass,
+			Enum.Material.Metal
+		)
 		local bell = part(
 			model,
 			"WindBell" .. index,
@@ -136,7 +191,14 @@ local function cloudpost(world, area)
 		table.insert(parts, bell)
 		table.insert(prompts, prompt(bell, "Ring", "Sky Bell"))
 	end
-	local postcard = part(model, "LostPostcard", Vector3.new(4.5, 0.2, 3), CFrame.new(origin + Vector3.new(-28, 2.5, 26)) * CFrame.Angles(0, math.rad(18), math.rad(7)), COLORS.cream, Enum.Material.SmoothPlastic)
+	local postcard = part(
+		model,
+		"LostPostcard",
+		Vector3.new(4.5, 0.2, 3),
+		CFrame.new(origin + Vector3.new(-28, 2.5, 26)) * CFrame.Angles(0, math.rad(18), math.rad(7)),
+		COLORS.cream,
+		Enum.Material.SmoothPlastic
+	)
 	postcard.CanCollide = false
 	postcard:SetAttribute("TinyWorldArtRole", "portal-secret-postcard")
 	area.mechanicPrompts = prompts
@@ -152,11 +214,13 @@ local function clockwork(world, area)
 	local origin = area.arrivalCFrame.Position
 	local prompts = {}
 	local parts = {}
-	for index, offset in {
-		Vector3.new(-20, 5, -14),
-		Vector3.new(0, 7, -8),
-		Vector3.new(20, 5, -14),
-	} do
+	for index, offset in
+		{
+			Vector3.new(-20, 5, -14),
+			Vector3.new(0, 7, -8),
+			Vector3.new(20, 5, -14),
+		}
+	do
 		local gear = part(
 			model,
 			"OrchardGear" .. index,
@@ -170,7 +234,14 @@ local function clockwork(world, area)
 		table.insert(parts, gear)
 		table.insert(prompts, prompt(gear, "Wind", "Orchard Gear"))
 	end
-	local key = part(model, "ClockworkKey", Vector3.new(1.1, 5.5, 1.1), CFrame.new(origin + Vector3.new(32, 3, 20)) * CFrame.Angles(0, 0, math.rad(42)), COLORS.gold, Enum.Material.Metal)
+	local key = part(
+		model,
+		"ClockworkKey",
+		Vector3.new(1.1, 5.5, 1.1),
+		CFrame.new(origin + Vector3.new(32, 3, 20)) * CFrame.Angles(0, 0, math.rad(42)),
+		COLORS.gold,
+		Enum.Material.Metal
+	)
 	key.CanCollide = false
 	key:SetAttribute("TinyWorldArtRole", "portal-secret-clockwork-key")
 	area.mechanicPrompts = prompts

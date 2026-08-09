@@ -13,7 +13,10 @@ function VisualBudgetRules.forPlayers(plotCount: number, boundaryTrees: number)
 	local boundaryDecorations = safeTrees * 3
 	local seededDressing = math.min(VisualBudgetRules.MAX_SEEDED_DRESSING, 160 + (safePlots * 12))
 	return {
-		totalDecorations = (safePlots * VisualBudgetRules.MAX_PER_PLOT_DECORATIONS) + boundaryDecorations + 220 + seededDressing,
+		totalDecorations = (safePlots * VisualBudgetRules.MAX_PER_PLOT_DECORATIONS)
+			+ boundaryDecorations
+			+ 220
+			+ seededDressing,
 		perPlotDecorations = VisualBudgetRules.MAX_PER_PLOT_DECORATIONS,
 		boundaryDecorations = boundaryDecorations,
 		seededDressing = seededDressing,

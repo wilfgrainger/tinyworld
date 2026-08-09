@@ -22,7 +22,8 @@ end
 
 function RemoteGuardRules.consumeWindow(state: any, now: number, limit: number, windowSeconds: number): (boolean, any)
 	local nextState = if type(state) == "table" then { startedAt = state.startedAt, count = state.count } else nil
-	if nextState == nil
+	if
+		nextState == nil
 		or not RemoteGuardRules.isFiniteNumber(nextState.startedAt)
 		or type(nextState.count) ~= "number"
 		or now - nextState.startedAt >= windowSeconds

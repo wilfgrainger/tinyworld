@@ -52,7 +52,9 @@ return function()
 
 	local otherDay = "2026-08-10"
 	TestUtil.isTrue(RouteRules.hasTask("daily", otherDay, "daily_reward"))
-	TestUtil.isFalse(table.concat(RouteRules.taskIds("daily", day), ",") == table.concat(RouteRules.taskIds("daily", otherDay), ","))
+	TestUtil.isFalse(
+		table.concat(RouteRules.taskIds("daily", day), ",") == table.concat(RouteRules.taskIds("daily", otherDay), ",")
+	)
 	TestUtil.equal(RouteRules.count(profile, "daily", otherDay), 0)
 	changed, reason = RouteRules.record(profile, "daily", "daily_reward", otherDay)
 	TestUtil.isTrue(changed)
@@ -76,7 +78,10 @@ return function()
 	TestUtil.equal(profile.level, 2)
 	TestUtil.equal(profile.xp, 25)
 	local nextWeek = RouteRules.weekKeyForDay("2026-08-16")
-	TestUtil.isFalse(table.concat(RouteRules.taskIds("weekly", week), ",") == table.concat(RouteRules.taskIds("weekly", nextWeek), ","))
+	TestUtil.isFalse(
+		table.concat(RouteRules.taskIds("weekly", week), ",")
+			== table.concat(RouteRules.taskIds("weekly", nextWeek), ",")
+	)
 
 	local legacy = ProfileSchema.normalize({ version = 5, coins = 500 })
 	TestUtil.equal(legacy.version, 10)
@@ -102,4 +107,3 @@ return function()
 	TestUtil.equal(repaired.dailyRouteClaimedDay, day)
 	TestUtil.equal(repaired.weeklyRouteClaimedWeek, week)
 end
-

@@ -61,7 +61,10 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldMeadowSeeds", profile.inventory.MeadowSeed)
 	player:SetAttribute("TinyWorldSeashells", profile.inventory.Seashell)
 	player:SetAttribute("TinyWorldWoodTokens", profile.inventory.WoodToken)
-	player:SetAttribute("TinyWorldLifeKitCount", profile.inventory.MeadowSeed + profile.inventory.Seashell + profile.inventory.WoodToken)
+	player:SetAttribute(
+		"TinyWorldLifeKitCount",
+		profile.inventory.MeadowSeed + profile.inventory.Seashell + profile.inventory.WoodToken
+	)
 	player:SetAttribute("TinyWorldHomeCharm", profile.homeCharmApplied)
 	player:SetAttribute("TinyWorldHomeTheme", profile.homeTheme)
 	player:SetAttribute("TinyWorldHomeShowcaseCount", profile.homeShowcaseCount)
@@ -73,10 +76,16 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldDesignerXP", profile.designerXp)
 	player:SetAttribute("TinyWorldOwnsBike", profile.ownsTinyBike)
 	player:SetAttribute("TinyWorldBikeActive", profile.bikeActive)
-	player:SetAttribute("TinyWorldBikeState", if not profile.ownsTinyBike then "not owned" elseif profile.bikeActive then "mounted" else "parked")
+	player:SetAttribute(
+		"TinyWorldBikeState",
+		if not profile.ownsTinyBike then "not owned" elseif profile.bikeActive then "mounted" else "parked"
+	)
 	player:SetAttribute("TinyWorldOwnsBoat", profile.ownsTinyBoat)
 	player:SetAttribute("TinyWorldBoatActive", profile.boatActive)
-	player:SetAttribute("TinyWorldBoatState", if not profile.ownsTinyBoat then "not owned" elseif profile.boatActive then "in cove" else "parked")
+	player:SetAttribute(
+		"TinyWorldBoatState",
+		if not profile.ownsTinyBoat then "not owned" elseif profile.boatActive then "in cove" else "parked"
+	)
 	player:SetAttribute("TinyWorldPortalCompletions", profile.portalCompletions)
 	player:SetAttribute("TinyWorldVillageContribution", profile.villageContribution)
 	player:SetAttribute("TinyWorldBoundaryExplorationDay", profile.boundaryExplorationDay)
@@ -104,4 +113,3 @@ function PlayerStateService.message(player: Player, text: string)
 end
 
 return PlayerStateService
-

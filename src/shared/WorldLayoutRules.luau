@@ -38,7 +38,16 @@ export type Layout = {
 	terrainBands: { any },
 	civic: { fountain: Position2D, townHall: Position2D, market: Position2D, portal: Position2D },
 	livingWorld: { cabinLaneZ: number, nursery: Position2D, pickupAnchors: { [string]: Position2D } },
-	budgets: { plots: number, boundaryTrees: number, roadParts: number, totalDecorations: number, cabins: number, livingPickups: number, planters: number, visual: any },
+	budgets: {
+		plots: number,
+		boundaryTrees: number,
+		roadParts: number,
+		totalDecorations: number,
+		cabins: number,
+		livingPickups: number,
+		planters: number,
+		visual: any,
+	},
 }
 
 local PLOT_SLOTS = {
@@ -98,11 +107,18 @@ function WorldLayoutRules.create(maxPlayers: any): Layout
 
 	local outerExtent = WorldLayoutRules.CORE_HALF_EXTENT
 	for _, slot in slots do
-		outerExtent = math.max(outerExtent, math.abs(slot.x) + (WorldLayoutRules.PLOT_SIZE / 2), math.abs(slot.z) + (WorldLayoutRules.PLOT_SIZE / 2))
+		outerExtent = math.max(
+			outerExtent,
+			math.abs(slot.x) + (WorldLayoutRules.PLOT_SIZE / 2),
+			math.abs(slot.z) + (WorldLayoutRules.PLOT_SIZE / 2)
+		)
 	end
 	local perimeterHalfExtent = outerExtent + WorldLayoutRules.BOUNDARY_CLEARANCE
 	local landmarkOffset = perimeterHalfExtent - WorldLayoutRules.LANDMARK_INSET
-	local roadHalfLength = math.max(WorldLayoutRules.CORE_HALF_EXTENT, math.min(perimeterHalfExtent - WorldLayoutRules.BOUNDARY_CLEARANCE, 180))
+	local roadHalfLength = math.max(
+		WorldLayoutRules.CORE_HALF_EXTENT,
+		math.min(perimeterHalfExtent - WorldLayoutRules.BOUNDARY_CLEARANCE, 180)
+	)
 	local boundaryTrees = WorldLayoutRules.safeCount(math.floor((perimeterHalfExtent * 2) / 48) * 4, 16, 180)
 	local roadParts = 17
 	local cabinLaneZ = WorldLayoutRules.CORE_HALF_EXTENT + 16

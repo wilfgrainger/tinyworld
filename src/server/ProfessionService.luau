@@ -39,4 +39,3 @@ function ProfessionService:_inspect(player: Player)
 end
 
 return ProfessionService
-

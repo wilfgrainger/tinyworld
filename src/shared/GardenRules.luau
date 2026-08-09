@@ -50,4 +50,3 @@ function GardenRules.harvest(profile: any, bed: any, now: number): (boolean, str
 end
 
 return GardenRules
-

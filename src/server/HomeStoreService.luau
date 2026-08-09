@@ -69,13 +69,15 @@ function HomeStoreService:_sendState(player: Player, profile)
 		kind = "state",
 		coins = profile.coins,
 		ownedFurniture = safeOwnedSnapshot(profile),
-		placementCount = if type(profile.furniturePlacements) == "table" then (function()
-			local count = 0
-			for _ in profile.furniturePlacements do
-				count += 1
-			end
-			return count
-		end)() else 0,
+		placementCount = if type(profile.furniturePlacements) == "table"
+			then (function()
+				local count = 0
+				for _ in profile.furniturePlacements do
+					count += 1
+				end
+				return count
+			end)()
+			else 0,
 	})
 end
 
@@ -140,7 +142,10 @@ function HomeStoreService:_handle(player: Player, payload: any)
 	self.PlayerStateService.sync(player, profile)
 	player:SetAttribute("TinyWorldLastFurniturePurchase", furnitureId)
 	self.ProfileStore.save(player)
-	self.PlayerStateService.message(player, string.format("%s is now in your Home collection. Place it when you are home.", definition.displayName))
+	self.PlayerStateService.message(
+		player,
+		string.format("%s is now in your Home collection. Place it when you are home.", definition.displayName)
+	)
 	self:_reply(player, true, "purchased", furnitureId)
 	self:_sendState(player, profile)
 end

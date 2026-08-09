@@ -48,4 +48,3 @@ function SocialRules.canShareActivity(members: { [any]: boolean }, member: any):
 end
 
 return SocialRules
-

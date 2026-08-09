@@ -292,7 +292,14 @@ outfitGrid.FillDirectionMaxCells = 1
 outfitGrid.SortOrder = Enum.SortOrder.LayoutOrder
 outfitGrid.Parent = outfitRow
 
-local function makeSceneDecoration(parent: Instance, name: string, position: UDim2, size: UDim2, color: Color3, round: boolean?)
+local function makeSceneDecoration(
+	parent: Instance,
+	name: string,
+	position: UDim2,
+	size: UDim2,
+	color: Color3,
+	round: boolean?
+)
 	local decoration = Instance.new("Frame")
 	decoration.Name = name
 	decoration.Position = position
@@ -422,10 +429,20 @@ local function setMovementBlocked(value: boolean)
 			humanoid.JumpHeight = 0
 			humanoid.AutoRotate = false
 		end
-		ContextActionService:BindAction(BLOCK_ACTION, sinkMovement, false,
-			Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D,
-			Enum.KeyCode.Up, Enum.KeyCode.Down, Enum.KeyCode.Left, Enum.KeyCode.Right,
-			Enum.KeyCode.Space)
+		ContextActionService:BindAction(
+			BLOCK_ACTION,
+			sinkMovement,
+			false,
+			Enum.KeyCode.W,
+			Enum.KeyCode.A,
+			Enum.KeyCode.S,
+			Enum.KeyCode.D,
+			Enum.KeyCode.Up,
+			Enum.KeyCode.Down,
+			Enum.KeyCode.Left,
+			Enum.KeyCode.Right,
+			Enum.KeyCode.Space
+		)
 	else
 		ContextActionService:UnbindAction(BLOCK_ACTION)
 		if humanoid and movementSnapshot then
@@ -520,4 +537,7 @@ end)
 
 refreshChoices()
 updateSubmitState()
-setVisible(player:GetAttribute("TinyWorldOnboardingRequired") == true or player:GetAttribute("TinyWorldOnboardingComplete") ~= true)
+setVisible(
+	player:GetAttribute("TinyWorldOnboardingRequired") == true
+		or player:GetAttribute("TinyWorldOnboardingComplete") ~= true
+)

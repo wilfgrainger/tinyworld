@@ -158,7 +158,9 @@ local itemButtons = {}
 
 local function refreshItems()
 	for _, child in itemScroll:GetChildren() do
-		if child:IsA("GuiButton") then child:Destroy() end
+		if child:IsA("GuiButton") then
+			child:Destroy()
+		end
 	end
 	table.clear(itemButtons)
 	local index = 0
@@ -170,7 +172,12 @@ local function refreshItems()
 		button.LayoutOrder = index
 		button.BackgroundColor3 = if owned > 0 then UiTokens.Colors.PaperSoft else UiTokens.Colors.Paper
 		button.BorderSizePixel = 0
-		button.Text = string.format("%s\n%s\n%d coins", definition.displayName, if owned > 0 then "Owned x" .. tostring(owned) .. " • tap to place" else "Buy", definition.price)
+		button.Text = string.format(
+			"%s\n%s\n%d coins",
+			definition.displayName,
+			if owned > 0 then "Owned x" .. tostring(owned) .. " • tap to place" else "Buy",
+			definition.price
+		)
 		button.TextColor3 = UiTokens.Colors.Ink
 		button.TextSize = 13
 		button.TextWrapped = true
@@ -198,7 +205,11 @@ local function refreshItems()
 end
 
 for index, category in categories do
-	local button = ButtonFactory.secondary(categoryScroll, string.upper(string.sub(category, 1, 1)) .. string.sub(category, 2), index)
+	local button = ButtonFactory.secondary(
+		categoryScroll,
+		string.upper(string.sub(category, 1, 1)) .. string.sub(category, 2),
+		index
+	)
 	button.Size = UDim2.fromOffset(116, UiTokens.TouchTarget)
 	button.Activated:Connect(function()
 		currentCategory = category
@@ -230,7 +241,9 @@ local function removePreview()
 end
 
 local function ensurePreview()
-	if previewPart or not placementDefinition then return end
+	if previewPart or not placementDefinition then
+		return
+	end
 	previewPart = Instance.new("Part")
 	previewPart.Name = "TinyWorldFurniturePreview"
 	previewPart.Size = Vector3.new(placementDefinition.footprintX, 0.35, placementDefinition.footprintZ)
@@ -273,21 +286,29 @@ confirmButton.Activated:Connect(confirmPlacement)
 cancelButton.Activated:Connect(removePreview)
 
 ContextActionService:BindActionAtPriority("TinyWorldOpenHome", function(_, state)
-	if state == Enum.UserInputState.Begin and not placementDefinition then openHome() end
+	if state == Enum.UserInputState.Begin and not placementDefinition then
+		openHome()
+	end
 	return Enum.ContextActionResult.Sink
 end, false, 2000, Enum.KeyCode.ButtonY)
 
 local function bindPlacementActions()
 	ContextActionService:BindAction("TinyWorldRotateFurniture", function(_, state)
-		if state == Enum.UserInputState.Begin then rotatePlacement() end
+		if state == Enum.UserInputState.Begin then
+			rotatePlacement()
+		end
 		return Enum.ContextActionResult.Sink
 	end, false, Enum.KeyCode.R, Enum.KeyCode.ButtonX)
 	ContextActionService:BindAction("TinyWorldConfirmFurniture", function(_, state)
-		if state == Enum.UserInputState.Begin then confirmPlacement() end
+		if state == Enum.UserInputState.Begin then
+			confirmPlacement()
+		end
 		return Enum.ContextActionResult.Sink
 	end, false, Enum.KeyCode.Return, Enum.KeyCode.ButtonA)
 	ContextActionService:BindAction("TinyWorldCancelFurniture", function(_, state)
-		if state == Enum.UserInputState.Begin then removePreview() end
+		if state == Enum.UserInputState.Begin then
+			removePreview()
+		end
 		return Enum.ContextActionResult.Sink
 	end, false, Enum.KeyCode.Escape, Enum.KeyCode.ButtonB)
 end
@@ -303,9 +324,13 @@ RunService.RenderStepped:Connect(function()
 		bindPlacementActions()
 	end
 	ensurePreview()
-	if camera == nil then return end
+	if camera == nil then
+		return
+	end
 	local viewport = camera.ViewportSize
-	local pointer = if UserInputService.MouseEnabled or UserInputService.TouchEnabled then UserInputService:GetMouseLocation() else Vector2.new(viewport.X / 2, viewport.Y / 2)
+	local pointer = if UserInputService.MouseEnabled or UserInputService.TouchEnabled
+		then UserInputService:GetMouseLocation()
+		else Vector2.new(viewport.X / 2, viewport.Y / 2)
 	local ray = camera:ViewportPointToRay(pointer.X, pointer.Y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
@@ -314,12 +339,15 @@ RunService.RenderStepped:Connect(function()
 	local hit = Workspace:Raycast(ray.Origin, ray.Direction * 250, params)
 	if hit then
 		placementPoint = hit.Position
-		previewPart.CFrame = CFrame.new(hit.Position + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, math.rad(placementRotation), 0)
+		previewPart.CFrame = CFrame.new(hit.Position + Vector3.new(0, 0.2, 0))
+			* CFrame.Angles(0, math.rad(placementRotation), 0)
 	end
 end)
 
 storeRemote.OnClientEvent:Connect(function(payload)
-	if type(payload) ~= "table" then return end
+	if type(payload) ~= "table" then
+		return
+	end
 	if payload.kind == "state" and type(payload.ownedFurniture) == "table" then
 		ownedFurniture = payload.ownedFurniture
 		refreshItems()
@@ -330,7 +358,9 @@ storeRemote.OnClientEvent:Connect(function(payload)
 end)
 
 placementRemote.OnClientEvent:Connect(function(payload)
-	if type(payload) ~= "table" then return end
+	if type(payload) ~= "table" then
+		return
+	end
 	if payload.ok == true and payload.reason == "placed" then
 		removePreview()
 		storeRemote:FireServer({ action = "state" })

@@ -8,21 +8,57 @@ local AppearanceService = {}
 AppearanceService.__index = AppearanceService
 
 local PALETTES = {
-	Starter = { torso = Color3.fromRGB(104, 153, 93), arms = Color3.fromRGB(246, 231, 183), legs = Color3.fromRGB(112, 76, 48) },
-	Meadow = { torso = Color3.fromRGB(104, 153, 93), arms = Color3.fromRGB(246, 231, 183), legs = Color3.fromRGB(92, 118, 69) },
-	Harbor = { torso = Color3.fromRGB(67, 119, 168), arms = Color3.fromRGB(211, 220, 226), legs = Color3.fromRGB(38, 56, 82) },
-	Sunset = { torso = Color3.fromRGB(222, 111, 51), arms = Color3.fromRGB(255, 205, 91), legs = Color3.fromRGB(91, 54, 44) },
-	Courier = { torso = Color3.fromRGB(206, 153, 55), arms = Color3.fromRGB(245, 226, 184), legs = Color3.fromRGB(68, 76, 92) },
-	Workshop = { torso = Color3.fromRGB(74, 97, 112), arms = Color3.fromRGB(223, 203, 166), legs = Color3.fromRGB(82, 67, 56) },
-	Moonlight = { torso = Color3.fromRGB(91, 91, 151), arms = Color3.fromRGB(222, 218, 244), legs = Color3.fromRGB(55, 55, 91) },
-	Cloudpost = { torso = Color3.fromRGB(101, 164, 196), arms = Color3.fromRGB(244, 240, 214), legs = Color3.fromRGB(74, 103, 135) },
+	Starter = {
+		torso = Color3.fromRGB(104, 153, 93),
+		arms = Color3.fromRGB(246, 231, 183),
+		legs = Color3.fromRGB(112, 76, 48),
+	},
+	Meadow = {
+		torso = Color3.fromRGB(104, 153, 93),
+		arms = Color3.fromRGB(246, 231, 183),
+		legs = Color3.fromRGB(92, 118, 69),
+	},
+	Harbor = {
+		torso = Color3.fromRGB(67, 119, 168),
+		arms = Color3.fromRGB(211, 220, 226),
+		legs = Color3.fromRGB(38, 56, 82),
+	},
+	Sunset = {
+		torso = Color3.fromRGB(222, 111, 51),
+		arms = Color3.fromRGB(255, 205, 91),
+		legs = Color3.fromRGB(91, 54, 44),
+	},
+	Courier = {
+		torso = Color3.fromRGB(206, 153, 55),
+		arms = Color3.fromRGB(245, 226, 184),
+		legs = Color3.fromRGB(68, 76, 92),
+	},
+	Workshop = {
+		torso = Color3.fromRGB(74, 97, 112),
+		arms = Color3.fromRGB(223, 203, 166),
+		legs = Color3.fromRGB(82, 67, 56),
+	},
+	Moonlight = {
+		torso = Color3.fromRGB(91, 91, 151),
+		arms = Color3.fromRGB(222, 218, 244),
+		legs = Color3.fromRGB(55, 55, 91),
+	},
+	Cloudpost = {
+		torso = Color3.fromRGB(101, 164, 196),
+		arms = Color3.fromRGB(244, 240, 214),
+		legs = Color3.fromRGB(74, 103, 135),
+	},
 }
 
 local function getRemote(): RemoteEvent
 	local root = ReplicatedStorage:WaitForChild("TinyWorld")
 	local existing = root:FindFirstChild("AppearanceRemote")
-	if existing and existing:IsA("RemoteEvent") then return existing end
-	if existing then existing:Destroy() end
+	if existing and existing:IsA("RemoteEvent") then
+		return existing
+	end
+	if existing then
+		existing:Destroy()
+	end
 	local remote = Instance.new("RemoteEvent")
 	remote.Name = "AppearanceRemote"
 	remote.Parent = root
@@ -71,7 +107,9 @@ end
 
 function AppearanceService:setupPlayer(player: Player, profile)
 	local previous = self.connections[player]
-	if previous then previous:Disconnect() end
+	if previous then
+		previous:Disconnect()
+	end
 	local active = profile.savedOutfits[profile.activeOutfitId] or profile.savedOutfits.Starter
 	applyLook(player, profile.activeOutfitId, active and active.hair or "Tousled")
 	self.connections[player] = player.CharacterAdded:Connect(function()
@@ -94,13 +132,19 @@ function AppearanceService:_handle(player: Player, payload: any)
 		return
 	end
 	local profile = self.ProfileStore.get(player)
-	if profile == nil then return end
+	if profile == nil then
+		return
+	end
 	if payload.action == "state" then
 		self:_sendState(player, profile)
 		return
 	end
-	if payload.action ~= "save" or type(payload.outfitId) ~= "string" or type(payload.hairId) ~= "string"
-		or #payload.outfitId > 32 or #payload.hairId > 32
+	if
+		payload.action ~= "save"
+		or type(payload.outfitId) ~= "string"
+		or type(payload.hairId) ~= "string"
+		or #payload.outfitId > 32
+		or #payload.hairId > 32
 	then
 		RemoteGuard.warn(player, "appearance", "invalid_save")
 		return
@@ -127,7 +171,9 @@ end
 
 function AppearanceService:removePlayer(player: Player)
 	local connection = self.connections[player]
-	if connection then connection:Disconnect() end
+	if connection then
+		connection:Disconnect()
+	end
 	self.connections[player] = nil
 	RemoteGuard.clearPlayer(player)
 end

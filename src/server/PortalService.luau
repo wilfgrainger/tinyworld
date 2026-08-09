@@ -10,13 +10,17 @@ PortalService.__index = PortalService
 
 local function teleport(player: Player, target: CFrame)
 	local character = player.Character
-	if character then character:PivotTo(target) end
+	if character then
+		character:PivotTo(target)
+	end
 end
 
 local function collectedCount(session): number
 	local count = 0
 	for _, collected in session.collected do
-		if collected then count += 1 end
+		if collected then
+			count += 1
+		end
 	end
 	return count
 end
@@ -40,7 +44,9 @@ function PortalService.new(world, ProfileStore, PlayerStateService)
 		ClockworkOrchard = world.clockworkPortalPrompt,
 	}
 	for worldId, startPrompt in prompts do
-		if startPrompt and startPrompt:IsA("ProximityPrompt") then self:_connectWorld(worldId, startPrompt) end
+		if startPrompt and startPrompt:IsA("ProximityPrompt") then
+			self:_connectWorld(worldId, startPrompt)
+		end
 	end
 	return self
 end
@@ -48,12 +54,20 @@ end
 function PortalService:_connectWorld(worldId: string, startPrompt: ProximityPrompt)
 	local area = self.worlds[worldId]
 	local definition = PortalRules.getWorld(worldId)
-	if area == nil or definition == nil then return end
-	startPrompt.Triggered:Connect(function(player) self:_start(player, worldId) end)
-	for index, collectPrompt in area.collectPrompts do
-		collectPrompt.Triggered:Connect(function(player) self:_collect(player, worldId, index) end)
+	if area == nil or definition == nil then
+		return
 	end
-	area.returnPrompt.Triggered:Connect(function(player) self:_finish(player, worldId) end)
+	startPrompt.Triggered:Connect(function(player)
+		self:_start(player, worldId)
+	end)
+	for index, collectPrompt in area.collectPrompts do
+		collectPrompt.Triggered:Connect(function(player)
+			self:_collect(player, worldId, index)
+		end)
+	end
+	area.returnPrompt.Triggered:Connect(function(player)
+		self:_finish(player, worldId)
+	end)
 end
 
 function PortalService:setupPlayer(player: Player)
@@ -62,16 +76,28 @@ function PortalService:setupPlayer(player: Player)
 end
 
 function PortalService:_start(player: Player, worldId: string)
-	if self.ProfileStore.get(player) == nil then return end
+	if self.ProfileStore.get(player) == nil then
+		return
+	end
 	local definition = PortalRules.getWorld(worldId)
 	local area = self.worlds[worldId]
-	if definition == nil or area == nil then return end
+	if definition == nil or area == nil then
+		return
+	end
 	self.sessions[player] = { active = true, worldId = worldId, collected = {} }
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
 	player:SetAttribute("TinyWorldPortalWorld", worldId)
 	teleport(player, area.arrivalCFrame)
 	TinyAnalyticsService.log(player, AnalyticsEvents.PortalEntered)
-	self.PlayerStateService.message(player, string.format("Portal mission started: find all %d %ss in %s, then return through the portal.", definition.collectibleCount, definition.collectibleName, definition.displayName))
+	self.PlayerStateService.message(
+		player,
+		string.format(
+			"Portal mission started: find all %d %ss in %s, then return through the portal.",
+			definition.collectibleCount,
+			definition.collectibleName,
+			definition.displayName
+		)
+	)
 end
 
 function PortalService:_collect(player: Player, worldId: string, index: number)
@@ -82,13 +108,19 @@ function PortalService:_collect(player: Player, worldId: string, index: number)
 		return
 	end
 	if session.collected[index] then
-		self.PlayerStateService.message(player, string.format("You already collected this %s on this run.", definition.collectibleName))
+		self.PlayerStateService.message(
+			player,
+			string.format("You already collected this %s on this run.", definition.collectibleName)
+		)
 		return
 	end
 	session.collected[index] = true
 	local count = collectedCount(session)
 	player:SetAttribute("TinyWorldPortalCrystals", count)
-	self.PlayerStateService.message(player, string.format("%s found: %d/%d.", definition.collectibleName, count, definition.collectibleCount))
+	self.PlayerStateService.message(
+		player,
+		string.format("%s found: %d/%d.", definition.collectibleName, count, definition.collectibleCount)
+	)
 end
 
 function PortalService:_finish(player: Player, worldId: string)
@@ -102,11 +134,22 @@ function PortalService:_finish(player: Player, worldId: string)
 	end
 	local count = collectedCount(session)
 	if count < definition.collectibleCount then
-		self.PlayerStateService.message(player, string.format("The portal needs all %d %ss. You have %d/%d.", definition.collectibleCount, definition.collectibleName, count, definition.collectibleCount))
+		self.PlayerStateService.message(
+			player,
+			string.format(
+				"The portal needs all %d %ss. You have %d/%d.",
+				definition.collectibleCount,
+				definition.collectibleName,
+				count,
+				definition.collectibleCount
+			)
+		)
 		return
 	end
 	local profile = self.ProfileStore.get(player)
-	if profile == nil or not PortalRules.completeWorld(profile, worldId) then return end
+	if profile == nil or not PortalRules.completeWorld(profile, worldId) then
+		return
+	end
 	self.sessions[player] = nil
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
 	player:SetAttribute("TinyWorldPortalWorld", "Village")

@@ -7,7 +7,14 @@ local VillageSceneryBuilder = {}
 local compositionManifest = VillageCompositionRules.getManifest()
 VillageSceneryBuilder.COMPOSITION_MANIFEST = compositionManifest
 
-local function makePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material): Part
+local function makePart(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material
+): Part
 	local part = Instance.new("Part")
 	part.Name = name
 	part.Anchored = true
@@ -21,7 +28,16 @@ local function makePart(parent: Instance, name: string, size: Vector3, position:
 	return part
 end
 
-local function makeSurface(parent: Instance, name: string, size: Vector3, x: number, z: number, topY: number, color: Color3, material: Enum.Material): Part
+local function makeSurface(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	x: number,
+	z: number,
+	topY: number,
+	color: Color3,
+	material: Enum.Material
+): Part
 	local part = makePart(parent, name, size, Vector3.new(x, topY - (size.Y / 2), z), color, material)
 	part.CanCollide = false
 	part.CanTouch = false
@@ -29,7 +45,14 @@ local function makeSurface(parent: Instance, name: string, size: Vector3, x: num
 	return part
 end
 
-local function makeDecoration(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material): Part
+local function makeDecoration(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material
+): Part
 	local part = makePart(parent, name, size, position, color, material)
 	part.CanCollide = false
 	part.CanTouch = false
@@ -37,67 +60,196 @@ local function makeDecoration(parent: Instance, name: string, size: Vector3, pos
 	return part
 end
 
-local function makeDecorationAtTop(parent: Instance, name: string, size: Vector3, x: number, z: number, topY: number, color: Color3, material: Enum.Material): Part
+local function makeDecorationAtTop(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	x: number,
+	z: number,
+	topY: number,
+	color: Color3,
+	material: Enum.Material
+): Part
 	return makeDecoration(parent, name, size, Vector3.new(x, topY - (size.Y / 2), z), color, material)
 end
 
 local function makeLantern(parent: Instance, name: string, x: number, z: number)
-	makeDecorationAtTop(parent, name .. "Post", Vector3.new(0.6, 5, 0.6), x, z, 5, VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	local lamp = makeDecoration(parent, name .. "Lamp", Vector3.new(2, 2, 2), Vector3.new(x, 5.8, z), VisualTheme.Colors.gold, Enum.Material.Neon)
+	makeDecorationAtTop(
+		parent,
+		name .. "Post",
+		Vector3.new(0.6, 5, 0.6),
+		x,
+		z,
+		5,
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	)
+	local lamp = makeDecoration(
+		parent,
+		name .. "Lamp",
+		Vector3.new(2, 2, 2),
+		Vector3.new(x, 5.8, z),
+		VisualTheme.Colors.gold,
+		Enum.Material.Neon
+	)
 	lamp.Shape = Enum.PartType.Ball
 	lamp.Transparency = 0.05
 end
 
 local function makeFlowerPatch(parent: Instance, name: string, x: number, z: number, color: Color3)
-	for index, offset in {
-		{ x = -2, z = 0 },
-		{ x = 0, z = 2 },
-		{ x = 2, z = -1 },
-	} do
-		makeDecorationAtTop(parent, name .. "Stem" .. index, Vector3.new(0.3, 1.2, 0.3), x + offset.x, z + offset.z, 1.2, VisualTheme.Colors.leaf, Enum.Material.Grass)
-		local bloom = makeDecoration(parent, name .. "Bloom" .. index, Vector3.new(1.4, 1.4, 1.4), Vector3.new(x + offset.x, 1.7, z + offset.z), color, Enum.Material.SmoothPlastic)
+	for index, offset in
+		{
+			{ x = -2, z = 0 },
+			{ x = 0, z = 2 },
+			{ x = 2, z = -1 },
+		}
+	do
+		makeDecorationAtTop(
+			parent,
+			name .. "Stem" .. index,
+			Vector3.new(0.3, 1.2, 0.3),
+			x + offset.x,
+			z + offset.z,
+			1.2,
+			VisualTheme.Colors.leaf,
+			Enum.Material.Grass
+		)
+		local bloom = makeDecoration(
+			parent,
+			name .. "Bloom" .. index,
+			Vector3.new(1.4, 1.4, 1.4),
+			Vector3.new(x + offset.x, 1.7, z + offset.z),
+			color,
+			Enum.Material.SmoothPlastic
+		)
 		bloom.Shape = Enum.PartType.Ball
 	end
 end
 
 local function makeBench(parent: Instance, name: string, x: number, z: number, rotation: number)
-	local seat = makeDecoration(parent, name .. "Seat", Vector3.new(8, 0.8, 2), Vector3.new(x, 1.1, z), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	local seat = makeDecoration(
+		parent,
+		name .. "Seat",
+		Vector3.new(8, 0.8, 2),
+		Vector3.new(x, 1.1, z),
+		VisualTheme.Colors.timber,
+		Enum.Material.WoodPlanks
+	)
 	seat.Orientation = Vector3.new(0, rotation, 0)
-	local back = makeDecoration(parent, name .. "Back", Vector3.new(8, 2.2, 0.6), Vector3.new(x, 2.2, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	local back = makeDecoration(
+		parent,
+		name .. "Back",
+		Vector3.new(8, 2.2, 0.6),
+		Vector3.new(x, 2.2, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	)
 	back.Orientation = Vector3.new(0, rotation, 0)
 end
 
 local function makeMarketStall(parent: Instance, name: string, x: number, z: number, color: Color3)
-	makeDecoration(parent, name .. "Counter", Vector3.new(10, 2, 6), Vector3.new(x, 1.2, z), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	makeDecoration(
+		parent,
+		name .. "Counter",
+		Vector3.new(10, 2, 6),
+		Vector3.new(x, 1.2, z),
+		VisualTheme.Colors.timber,
+		Enum.Material.WoodPlanks
+	)
 	makeDecoration(parent, name .. "Awning", Vector3.new(12, 1, 8), Vector3.new(x, 6, z), color, Enum.Material.Fabric)
 	for side, offset in { { name = "Left", value = -4 }, { name = "Right", value = 4 } } do
-		makeDecoration(parent, name .. side .. "Post", Vector3.new(0.6, 5, 0.6), Vector3.new(x + offset.value, 3.5, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+		makeDecoration(
+			parent,
+			name .. side .. "Post",
+			Vector3.new(0.6, 5, 0.6),
+			Vector3.new(x + offset.value, 3.5, z),
+			VisualTheme.Colors.timberDark,
+			Enum.Material.Wood
+		)
 	end
 end
 
 local function makePlanter(parent: Instance, name: string, x: number, z: number, color: Color3)
-	makeDecorationAtTop(parent, name .. "Box", Vector3.new(5, 1, 3.4), x, z, 1.1, VisualTheme.Colors.woodLight, Enum.Material.WoodPlanks)
-	makeDecorationAtTop(parent, name .. "Soil", Vector3.new(4.1, 0.22, 2.5), x, z, 1.68, VisualTheme.Colors.timberDark, Enum.Material.Ground)
-	for index, offset in {
-		{ x = -1.3, z = 0 },
-		{ x = 0, z = 0.45 },
-		{ x = 1.3, z = -0.2 },
-	} do
-		makeDecorationAtTop(parent, name .. "Leaf" .. index, Vector3.new(0.45, 1.1, 0.45), x + offset.x, z + offset.z, 2.65, VisualTheme.Colors.leafLight, Enum.Material.LeafyGrass)
-		local bloom = makeDecoration(parent, name .. "Bloom" .. index, Vector3.new(0.9, 0.9, 0.9), Vector3.new(x + offset.x, 3.1, z + offset.z), color, Enum.Material.SmoothPlastic)
+	makeDecorationAtTop(
+		parent,
+		name .. "Box",
+		Vector3.new(5, 1, 3.4),
+		x,
+		z,
+		1.1,
+		VisualTheme.Colors.woodLight,
+		Enum.Material.WoodPlanks
+	)
+	makeDecorationAtTop(
+		parent,
+		name .. "Soil",
+		Vector3.new(4.1, 0.22, 2.5),
+		x,
+		z,
+		1.68,
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Ground
+	)
+	for index, offset in
+		{
+			{ x = -1.3, z = 0 },
+			{ x = 0, z = 0.45 },
+			{ x = 1.3, z = -0.2 },
+		}
+	do
+		makeDecorationAtTop(
+			parent,
+			name .. "Leaf" .. index,
+			Vector3.new(0.45, 1.1, 0.45),
+			x + offset.x,
+			z + offset.z,
+			2.65,
+			VisualTheme.Colors.leafLight,
+			Enum.Material.LeafyGrass
+		)
+		local bloom = makeDecoration(
+			parent,
+			name .. "Bloom" .. index,
+			Vector3.new(0.9, 0.9, 0.9),
+			Vector3.new(x + offset.x, 3.1, z + offset.z),
+			color,
+			Enum.Material.SmoothPlastic
+		)
 		bloom.Shape = Enum.PartType.Ball
 	end
 end
 
 local function makeMarketBanner(parent: Instance, name: string, x: number, z: number, color: Color3)
-	makeDecoration(parent, name .. "LeftPost", Vector3.new(0.4, 4.5, 0.4), Vector3.new(x - 3, 2.5, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	makeDecoration(parent, name .. "RightPost", Vector3.new(0.4, 4.5, 0.4), Vector3.new(x + 3, 2.5, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	local banner = makeDecoration(parent, name, Vector3.new(5.4, 2.3, 0.25), Vector3.new(x, 3.6, z), color, Enum.Material.Fabric)
+	makeDecoration(
+		parent,
+		name .. "LeftPost",
+		Vector3.new(0.4, 4.5, 0.4),
+		Vector3.new(x - 3, 2.5, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	)
+	makeDecoration(
+		parent,
+		name .. "RightPost",
+		Vector3.new(0.4, 4.5, 0.4),
+		Vector3.new(x + 3, 2.5, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	)
+	local banner =
+		makeDecoration(parent, name, Vector3.new(5.4, 2.3, 0.25), Vector3.new(x, 3.6, z), color, Enum.Material.Fabric)
 	banner.Orientation = Vector3.new(0, 0, 3)
 end
 
 local function makePavingInset(parent: Instance, name: string, size: Vector3, x: number, z: number, topY: number)
-	makeDecoration(parent, name, size, Vector3.new(x, topY + (size.Y / 2) + 0.04, z), VisualTheme.Colors.pathLight, Enum.Material.Cobblestone)
+	makeDecoration(
+		parent,
+		name,
+		size,
+		Vector3.new(x, topY + (size.Y / 2) + 0.04, z),
+		VisualTheme.Colors.pathLight,
+		Enum.Material.Cobblestone
+	)
 end
 
 local function makeStreetCluster(parent: Instance, name: string, x: number, z: number, color: Color3)
@@ -136,11 +288,13 @@ local function authoredVariant(seed: number, index: number, count: number): numb
 end
 
 local function makeCurvedPath(parent: Instance, name: string, x: number, z: number, rotation: number, width: number)
-	for index, segment in {
-		{ x = -10, z = 11, yaw = -18 },
-		{ x = 0, z = 0, yaw = 0 },
-		{ x = 10, z = -11, yaw = 18 },
-	} do
+	for index, segment in
+		{
+			{ x = -10, z = 11, yaw = -18 },
+			{ x = 0, z = 0, yaw = 0 },
+			{ x = 10, z = -11, yaw = 18 },
+		}
+	do
 		local path = makeSurface(
 			parent,
 			name .. "CurvedSegment" .. index,
@@ -156,24 +310,56 @@ local function makeCurvedPath(parent: Instance, name: string, x: number, z: numb
 end
 
 local function makeGrassBank(parent: Instance, name: string, x: number, z: number, rotation: number, length: number)
-	local bank = makeDecoration(parent, name, Vector3.new(8, 2.4, length), Vector3.new(x, 0.4, z), VisualTheme.Colors.meadowDeep, Enum.Material.Grass)
+	local bank = makeDecoration(
+		parent,
+		name,
+		Vector3.new(8, 2.4, length),
+		Vector3.new(x, 0.4, z),
+		VisualTheme.Colors.meadowDeep,
+		Enum.Material.Grass
+	)
 	bank.Orientation = Vector3.new(0, rotation, 4)
 end
 
 local function makeBridge(parent: Instance, name: string, x: number, z: number)
-	makeDecoration(parent, name .. "Deck", Vector3.new(18, 0.5, 9), Vector3.new(x, 0.55, z), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	makeDecoration(
+		parent,
+		name .. "Deck",
+		Vector3.new(18, 0.5, 9),
+		Vector3.new(x, 0.55, z),
+		VisualTheme.Colors.timber,
+		Enum.Material.WoodPlanks
+	)
 	for _, offset in { -7, 7 } do
-		makeDecoration(parent, name .. "Rail" .. tostring(offset), Vector3.new(0.45, 2.4, 8), Vector3.new(x + offset, 1.6, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+		makeDecoration(
+			parent,
+			name .. "Rail" .. tostring(offset),
+			Vector3.new(0.45, 2.4, 8),
+			Vector3.new(x + offset, 1.6, z),
+			VisualTheme.Colors.timberDark,
+			Enum.Material.Wood
+		)
 	end
 end
 
 local function makeStream(parent: Instance)
-	for index, section in {
-		{ x = -73, z = -102, yaw = -4 },
-		{ x = -75, z = -142, yaw = 3 },
-		{ x = -72, z = -182, yaw = -2 },
-	} do
-		local water = makeSurface(parent, "MeadowStream" .. index, Vector3.new(7, 0.12, 44), section.x, section.z, 0.1, VisualTheme.Colors.water, Enum.Material.Water)
+	for index, section in
+		{
+			{ x = -73, z = -102, yaw = -4 },
+			{ x = -75, z = -142, yaw = 3 },
+			{ x = -72, z = -182, yaw = -2 },
+		}
+	do
+		local water = makeSurface(
+			parent,
+			"MeadowStream" .. index,
+			Vector3.new(7, 0.12, 44),
+			section.x,
+			section.z,
+			0.1,
+			VisualTheme.Colors.water,
+			Enum.Material.Water
+		)
 		water.Orientation = Vector3.new(0, section.yaw, 0)
 		water.Transparency = 0.18
 		makeGrassBank(parent, "MeadowStreamWestBank" .. index, section.x - 5.5, section.z, section.yaw, 43)
@@ -184,68 +370,171 @@ end
 
 local function makeTreeCluster(parent: Instance, name: string, x: number, z: number, variantIndex: number)
 	local variant = TREE_VARIANTS[variantIndex]
-	for index, offset in {
-		{ x = -5, z = 2 },
-		{ x = 3, z = -3 },
-		{ x = 7, z = 5 },
-	} do
+	for index, offset in
+		{
+			{ x = -5, z = 2 },
+			{ x = 3, z = -3 },
+			{ x = 7, z = 5 },
+		}
+	do
 		local scale = variant.scale + ((index - 2) * 0.05)
-		local trunk = makeDecoration(parent, name .. "Trunk" .. index, Vector3.new(1.5 * scale, 6 * scale, 1.5 * scale), Vector3.new(x + offset.x, 3 * scale, z + offset.z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+		local trunk = makeDecoration(
+			parent,
+			name .. "Trunk" .. index,
+			Vector3.new(1.5 * scale, 6 * scale, 1.5 * scale),
+			Vector3.new(x + offset.x, 3 * scale, z + offset.z),
+			VisualTheme.Colors.timberDark,
+			Enum.Material.Wood
+		)
 		trunk.Orientation = Vector3.new(variant.lean, index * 23, variant.lean / 2)
-		local canopy = makeDecoration(parent, name .. "Canopy" .. index, Vector3.new(7.5 * scale, 7 * scale, 7.5 * scale), Vector3.new(x + offset.x, 8 * scale, z + offset.z), VisualTheme.Colors.leaf, Enum.Material.LeafyGrass)
+		local canopy = makeDecoration(
+			parent,
+			name .. "Canopy" .. index,
+			Vector3.new(7.5 * scale, 7 * scale, 7.5 * scale),
+			Vector3.new(x + offset.x, 8 * scale, z + offset.z),
+			VisualTheme.Colors.leaf,
+			Enum.Material.LeafyGrass
+		)
 		canopy.Shape = Enum.PartType.Ball
 	end
 end
 
 local function makeRockCluster(parent: Instance, name: string, x: number, z: number, variantIndex: number)
 	local variant = ROCK_VARIANTS[variantIndex]
-	for index, offset in {
-		{ x = -3, z = 0 },
-		{ x = 1, z = 2 },
-		{ x = 4, z = -2 },
-	} do
-		local rock = makeDecoration(parent, name .. index, Vector3.new(4 * variant.scale, 2.6 * variant.scale, 3.2 * variant.scale), Vector3.new(x + offset.x, 1.2 * variant.scale, z + offset.z), VisualTheme.Colors.path, Enum.Material.Rock)
+	for index, offset in
+		{
+			{ x = -3, z = 0 },
+			{ x = 1, z = 2 },
+			{ x = 4, z = -2 },
+		}
+	do
+		local rock = makeDecoration(
+			parent,
+			name .. index,
+			Vector3.new(4 * variant.scale, 2.6 * variant.scale, 3.2 * variant.scale),
+			Vector3.new(x + offset.x, 1.2 * variant.scale, z + offset.z),
+			VisualTheme.Colors.path,
+			Enum.Material.Rock
+		)
 		rock.Shape = Enum.PartType.Ball
 		rock.Orientation = Vector3.new(index * 5, variant.yaw + (index * 11), index * 3)
 	end
 end
 
-local function makeFenceRun(parent: Instance, name: string, x: number, z: number, rotation: number, variantIndex: number)
+local function makeFenceRun(
+	parent: Instance,
+	name: string,
+	x: number,
+	z: number,
+	rotation: number,
+	variantIndex: number
+)
 	local postSpacing = 5 + ((variantIndex - 1) * 0.35)
 	for index = -2, 2 do
 		local offsetX, offsetZ = rotateOffset(index * postSpacing, 0, rotation)
-		local post = makeDecoration(parent, name .. "Post" .. tostring(index), Vector3.new(0.55, 2.6 + ((index + variantIndex) % 2) * 0.5, 0.55), Vector3.new(x + offsetX, 1.4, z + offsetZ), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+		local post = makeDecoration(
+			parent,
+			name .. "Post" .. tostring(index),
+			Vector3.new(0.55, 2.6 + ((index + variantIndex) % 2) * 0.5, 0.55),
+			Vector3.new(x + offsetX, 1.4, z + offsetZ),
+			VisualTheme.Colors.timberDark,
+			Enum.Material.Wood
+		)
 		post.Orientation = Vector3.new(0, rotation + (index * 2), (index % 2) * 3)
 	end
-	local rail = makeDecoration(parent, name .. "Rail", Vector3.new(postSpacing * 4, 0.45, 0.45), Vector3.new(x, 1.8, z), VisualTheme.Colors.timber, Enum.Material.Wood)
+	local rail = makeDecoration(
+		parent,
+		name .. "Rail",
+		Vector3.new(postSpacing * 4, 0.45, 0.45),
+		Vector3.new(x, 1.8, z),
+		VisualTheme.Colors.timber,
+		Enum.Material.Wood
+	)
 	rail.Orientation = Vector3.new(0, rotation, (variantIndex - 2) * 1.5)
 end
 
 local function makeVegetableBed(parent: Instance, name: string, x: number, z: number, rotation: number)
-	local soil = makeDecoration(parent, name .. "Soil", Vector3.new(11, 0.35, 5), Vector3.new(x, 0.25, z), VisualTheme.Colors.timberDark, Enum.Material.Ground)
+	local soil = makeDecoration(
+		parent,
+		name .. "Soil",
+		Vector3.new(11, 0.35, 5),
+		Vector3.new(x, 0.25, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Ground
+	)
 	soil.Orientation = Vector3.new(0, rotation, 0)
 	for index = -2, 2 do
-		local leaf = makeDecoration(parent, name .. "Leaf" .. tostring(index), Vector3.new(0.8, 1.2, 0.8), Vector3.new(x + (index * 2), 0.95, z), VisualTheme.Colors.leafLight, Enum.Material.LeafyGrass)
+		local leaf = makeDecoration(
+			parent,
+			name .. "Leaf" .. tostring(index),
+			Vector3.new(0.8, 1.2, 0.8),
+			Vector3.new(x + (index * 2), 0.95, z),
+			VisualTheme.Colors.leafLight,
+			Enum.Material.LeafyGrass
+		)
 		leaf.Shape = Enum.PartType.Ball
 	end
 end
 
 local function makeOrchardTree(parent: Instance, name: string, x: number, z: number, variantIndex: number)
 	local variant = TREE_VARIANTS[variantIndex]
-	makeDecoration(parent, name .. "Trunk", Vector3.new(1.5, 5.5, 1.5), Vector3.new(x, 2.75, z), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	local canopy = makeDecoration(parent, name .. "Canopy", Vector3.new(7 * variant.scale, 6 * variant.scale, 7 * variant.scale), Vector3.new(x, 7, z), VisualTheme.Colors.leafLight, Enum.Material.LeafyGrass)
+	makeDecoration(
+		parent,
+		name .. "Trunk",
+		Vector3.new(1.5, 5.5, 1.5),
+		Vector3.new(x, 2.75, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	)
+	local canopy = makeDecoration(
+		parent,
+		name .. "Canopy",
+		Vector3.new(7 * variant.scale, 6 * variant.scale, 7 * variant.scale),
+		Vector3.new(x, 7, z),
+		VisualTheme.Colors.leafLight,
+		Enum.Material.LeafyGrass
+	)
 	canopy.Shape = Enum.PartType.Ball
 	for fruitIndex, offset in { { x = -2, z = 1 }, { x = 2, z = -1 } } do
-		local fruit = makeDecoration(parent, name .. "Fruit" .. fruitIndex, Vector3.new(1, 1, 1), Vector3.new(x + offset.x, 7, z + offset.z), VisualTheme.Colors.berry, Enum.Material.SmoothPlastic)
+		local fruit = makeDecoration(
+			parent,
+			name .. "Fruit" .. fruitIndex,
+			Vector3.new(1, 1, 1),
+			Vector3.new(x + offset.x, 7, z + offset.z),
+			VisualTheme.Colors.berry,
+			Enum.Material.SmoothPlastic
+		)
 		fruit.Shape = Enum.PartType.Ball
 	end
 end
 
 local function makeFishingClutter(parent: Instance, name: string, x: number, z: number, rotation: number)
-	local crate = makeDecoration(parent, name .. "Crate", Vector3.new(4, 3, 4), Vector3.new(x, 1.5, z), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	local crate = makeDecoration(
+		parent,
+		name .. "Crate",
+		Vector3.new(4, 3, 4),
+		Vector3.new(x, 1.5, z),
+		VisualTheme.Colors.timber,
+		Enum.Material.WoodPlanks
+	)
 	crate.Orientation = Vector3.new(0, rotation, 0)
-	makeDecoration(parent, name .. "Rod", Vector3.new(0.35, 7, 0.35), Vector3.new(x + 3, 3.4, z), VisualTheme.Colors.timberDark, Enum.Material.Wood).Orientation = Vector3.new(0, rotation, 12)
-	local float = makeDecoration(parent, name .. "Float", Vector3.new(1.2, 1.2, 1.2), Vector3.new(x - 3, 0.8, z + 1), VisualTheme.Colors.berry, Enum.Material.SmoothPlastic)
+	makeDecoration(
+		parent,
+		name .. "Rod",
+		Vector3.new(0.35, 7, 0.35),
+		Vector3.new(x + 3, 3.4, z),
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Wood
+	).Orientation =
+		Vector3.new(0, rotation, 12)
+	local float = makeDecoration(
+		parent,
+		name .. "Float",
+		Vector3.new(1.2, 1.2, 1.2),
+		Vector3.new(x - 3, 0.8, z + 1),
+		VisualTheme.Colors.berry,
+		Enum.Material.SmoothPlastic
+	)
 	float.Shape = Enum.PartType.Ball
 end
 
@@ -265,22 +554,62 @@ local function buildNeighbourhoodScenery(parent: Instance, layout: any)
 
 	makeCurvedPath(neighbourhoods.HarbourRow, "HarbourDescendingPath", 110, -82, -88, 8)
 	for index = 1, 3 do
-		makeDecoration(neighbourhoods.HarbourRow, "HarbourRetainingWall" .. index, Vector3.new(22, 1.2 + index, 2), Vector3.new(118 + (index * 18), index * 0.35, -76), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
+		makeDecoration(
+			neighbourhoods.HarbourRow,
+			"HarbourRetainingWall" .. index,
+			Vector3.new(22, 1.2 + index, 2),
+			Vector3.new(118 + (index * 18), index * 0.35, -76),
+			VisualTheme.Colors.pathEdge,
+			Enum.Material.Cobblestone
+		)
 	end
 	makeFishingClutter(neighbourhoods.HarbourRow, "HarbourFishingClutter", 154, -76, 7)
 
 	makeCurvedPath(neighbourhoods.WoodlandRise, "WoodlandNarrowPath", -108, 78, 92, 6)
-	makeTreeCluster(neighbourhoods.WoodlandRise, "WoodlandTreeClusterA", -82, 146, authoredVariant(layout.artSeed, 3, #TREE_VARIANTS))
-	makeTreeCluster(neighbourhoods.WoodlandRise, "WoodlandTreeClusterB", -216, 146, authoredVariant(layout.artSeed, 8, #TREE_VARIANTS))
-	makeRockCluster(neighbourhoods.WoodlandRise, "WoodlandRocks", -76, 190, authoredVariant(layout.artSeed, 6, #ROCK_VARIANTS))
+	makeTreeCluster(
+		neighbourhoods.WoodlandRise,
+		"WoodlandTreeClusterA",
+		-82,
+		146,
+		authoredVariant(layout.artSeed, 3, #TREE_VARIANTS)
+	)
+	makeTreeCluster(
+		neighbourhoods.WoodlandRise,
+		"WoodlandTreeClusterB",
+		-216,
+		146,
+		authoredVariant(layout.artSeed, 8, #TREE_VARIANTS)
+	)
+	makeRockCluster(
+		neighbourhoods.WoodlandRise,
+		"WoodlandRocks",
+		-76,
+		190,
+		authoredVariant(layout.artSeed, 6, #ROCK_VARIANTS)
+	)
 
 	makeCurvedPath(neighbourhoods.OrchardEnd, "OrchardEndPath", 108, 78, -92, 8)
 	for index, position in { { x = 78, z = 150 }, { x = 80, z = 180 }, { x = 214, z = 150 }, { x = 212, z = 180 } } do
-		makeOrchardTree(neighbourhoods.OrchardEnd, "OrchardTree" .. index, position.x, position.z, authoredVariant(layout.artSeed, index + 10, #TREE_VARIANTS))
+		makeOrchardTree(
+			neighbourhoods.OrchardEnd,
+			"OrchardTree" .. index,
+			position.x,
+			position.z,
+			authoredVariant(layout.artSeed, index + 10, #TREE_VARIANTS)
+		)
 	end
 	makeVegetableBed(neighbourhoods.OrchardEnd, "OrchardVegetableBedA", 146, 78, 3)
 	makeVegetableBed(neighbourhoods.OrchardEnd, "OrchardVegetableBedB", 164, 78, -4)
-	makeSurface(neighbourhoods.OrchardEnd, "NurseryGreen", Vector3.new(24, 0.12, 16), 190, 78, 0.14, VisualTheme.Colors.meadowDeep, Enum.Material.Grass)
+	makeSurface(
+		neighbourhoods.OrchardEnd,
+		"NurseryGreen",
+		Vector3.new(24, 0.12, 16),
+		190,
+		78,
+		0.14,
+		VisualTheme.Colors.meadowDeep,
+		Enum.Material.Grass
+	)
 
 	for index, slot in layout.plotSlots do
 		local model = neighbourhoods[slot.neighbourhood]
@@ -288,7 +617,13 @@ local function buildNeighbourhoodScenery(parent: Instance, layout: any)
 		local side = if variantIndex % 2 == 0 then -1 else 1
 		makeFenceRun(model, "PlotFence" .. index, slot.x, slot.z + (side * 29), slot.rotation, variantIndex)
 		makeLantern(model, "PlotLamp" .. index, slot.x + (side * 20), slot.z + slot.setback - 20)
-		makeFlowerPatch(model, "PlotFlowers" .. index, slot.x - (side * 19), slot.z - slot.setback + 19, if variantIndex <= 2 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight)
+		makeFlowerPatch(
+			model,
+			"PlotFlowers" .. index,
+			slot.x - (side * 19),
+			slot.z - slot.setback + 19,
+			if variantIndex <= 2 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight
+		)
 	end
 
 	return neighbourhoods
@@ -310,7 +645,9 @@ local function buildTerrain(parent: Instance, layout: any)
 		terrainBand.Size = Vector3.new(band.width, band.height, band.depth)
 		terrainBand.Position = Vector3.new(band.x, band.height / 2, band.z)
 		terrainBand.Orientation = Vector3.new(0, band.rotation, 0)
-		terrainBand.Color = if band.material == "Ground" then VisualTheme.Colors.meadowDeep else VisualTheme.Colors.meadow
+		terrainBand.Color = if band.material == "Ground"
+			then VisualTheme.Colors.meadowDeep
+			else VisualTheme.Colors.meadow
 		terrainBand.Material = if band.material == "Ground" then Enum.Material.Ground else Enum.Material.Grass
 		-- Elevation bands are visual dressing. VillageGround and plot bases
 		-- remain the stable collision foundation, so a sloped band can never
@@ -321,7 +658,14 @@ local function buildTerrain(parent: Instance, layout: any)
 		terrainBand:SetAttribute("TinyWorldArtRole", "terrain-elevation-band")
 		terrainBand:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		terrainBand:SetAttribute("TinyWorldTerrainHeight", band.height)
-		terrainBand:SetAttribute("TinyWorldTerrainNeighbourhood", if index == 1 then "MeadowLane" elseif index == 2 then "HarbourRow" elseif index == 3 then "WoodlandRise" else "OrchardEnd")
+		terrainBand:SetAttribute(
+			"TinyWorldTerrainNeighbourhood",
+			if index == 1
+				then "MeadowLane"
+				elseif index == 2 then "HarbourRow"
+				elseif index == 3 then "WoodlandRise"
+				else "OrchardEnd"
+		)
 		terrainBand.Parent = model
 		table.insert(bands, terrainBand)
 	end
@@ -354,10 +698,46 @@ function VillageSceneryBuilder.build(parent: Instance, layout: any)
 		Enum.Material.Cobblestone
 	)
 
-	roads.north = makeSurface(parent, "RoadNorth", Vector3.new(laneWidth, 0.18, roadSpan), 0, squareHalf + (roadSpan / 2), roadTop, VisualTheme.Colors.path, Enum.Material.Asphalt)
-	roads.south = makeSurface(parent, "RoadSouth", Vector3.new(laneWidth, 0.18, roadSpan), 0, -squareHalf - (roadSpan / 2), roadTop, VisualTheme.Colors.path, Enum.Material.Asphalt)
-	roads.east = makeSurface(parent, "RoadEast", Vector3.new(roadSpan, 0.18, laneWidth), squareHalf + (roadSpan / 2), 0, roadTop, VisualTheme.Colors.path, Enum.Material.Asphalt)
-	roads.west = makeSurface(parent, "RoadWest", Vector3.new(roadSpan, 0.18, laneWidth), -squareHalf - (roadSpan / 2), 0, roadTop, VisualTheme.Colors.path, Enum.Material.Asphalt)
+	roads.north = makeSurface(
+		parent,
+		"RoadNorth",
+		Vector3.new(laneWidth, 0.18, roadSpan),
+		0,
+		squareHalf + (roadSpan / 2),
+		roadTop,
+		VisualTheme.Colors.path,
+		Enum.Material.Asphalt
+	)
+	roads.south = makeSurface(
+		parent,
+		"RoadSouth",
+		Vector3.new(laneWidth, 0.18, roadSpan),
+		0,
+		-squareHalf - (roadSpan / 2),
+		roadTop,
+		VisualTheme.Colors.path,
+		Enum.Material.Asphalt
+	)
+	roads.east = makeSurface(
+		parent,
+		"RoadEast",
+		Vector3.new(roadSpan, 0.18, laneWidth),
+		squareHalf + (roadSpan / 2),
+		0,
+		roadTop,
+		VisualTheme.Colors.path,
+		Enum.Material.Asphalt
+	)
+	roads.west = makeSurface(
+		parent,
+		"RoadWest",
+		Vector3.new(roadSpan, 0.18, laneWidth),
+		-squareHalf - (roadSpan / 2),
+		0,
+		roadTop,
+		VisualTheme.Colors.path,
+		Enum.Material.Asphalt
+	)
 
 	local kerbOffset = (laneWidth / 2) + 1
 	makeKerb(parent, "KerbNorthWest", Vector3.new(1.5, 0.22, roadSpan), -kerbOffset, squareHalf + (roadSpan / 2))
@@ -369,12 +749,14 @@ function VillageSceneryBuilder.build(parent: Instance, layout: any)
 	makeKerb(parent, "KerbWestNorth", Vector3.new(roadSpan, 0.22, 1.5), -squareHalf - (roadSpan / 2), -kerbOffset)
 	makeKerb(parent, "KerbWestSouth", Vector3.new(roadSpan, 0.22, 1.5), -squareHalf - (roadSpan / 2), kerbOffset)
 
-	for index, position in {
-		{ x = -24, z = -24 },
-		{ x = 24, z = -24 },
-		{ x = -24, z = 24 },
-		{ x = 24, z = 24 },
-	} do
+	for index, position in
+		{
+			{ x = -24, z = -24 },
+			{ x = 24, z = -24 },
+			{ x = -24, z = 24 },
+			{ x = 24, z = 24 },
+		}
+	do
 		makeLantern(parent, "Lantern" .. index, position.x, position.z)
 	end
 
@@ -435,7 +817,15 @@ local BUTTERFLY_POSITIONS = {
 	Vector3.new(12, 3.2, -18),
 }
 
-local function makeAmbientDecoration(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material, effect: string): Part
+local function makeAmbientDecoration(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material,
+	effect: string
+): Part
 	local part = makeDecoration(parent, name, size, position, color, material)
 	part:SetAttribute("TinyWorldAmbientEffect", effect)
 	return part
@@ -487,9 +877,11 @@ end
 local function addWarmWindowLights(windowTargets: { Instance }, seed: number, count: number): number
 	local windows = {}
 	for _, target in windowTargets do
-		for _, window in collectParts(target, function(part)
-			return part.Material == Enum.Material.Glass and string.find(part.Name, "Window") ~= nil
-		end) do
+		for _, window in
+			collectParts(target, function(part)
+				return part.Material == Enum.Material.Glass and string.find(part.Name, "Window") ~= nil
+			end)
+		do
 			table.insert(windows, window)
 		end
 	end
@@ -529,7 +921,15 @@ local function addHomeWarmWindowLight(window: BasePart): PointLight
 end
 
 local function makeWaterHighlight(parent: Instance, position: Vector3, index: number, seed: number)
-	local highlight = makeAmbientDecoration(parent, "WaterHighlight" .. index, Vector3.new(3.6, 0.06, 1.1), position, VisualTheme.Colors.warmLight, Enum.Material.Glass, "water-highlight")
+	local highlight = makeAmbientDecoration(
+		parent,
+		"WaterHighlight" .. index,
+		Vector3.new(3.6, 0.06, 1.1),
+		position,
+		VisualTheme.Colors.warmLight,
+		Enum.Material.Glass,
+		"water-highlight"
+	)
 	highlight.Orientation = Vector3.new(0, authoredVariant(seed, index, 12) * 15, 0)
 	highlight.Transparency = 0.48
 	local hook = Instance.new("Attachment")
@@ -558,12 +958,36 @@ local function makeBirdHook(parent: Instance, position: Vector3, index: number, 
 	model.Name = "BirdAmbient" .. index
 	model:SetAttribute("TinyWorldAmbientEffect", "bird")
 	model.Parent = parent
-	local body = makeAmbientDecoration(model, "BirdBody", Vector3.new(1.6, 0.8, 0.8), position, VisualTheme.Colors.inkSoft, Enum.Material.SmoothPlastic, "bird")
+	local body = makeAmbientDecoration(
+		model,
+		"BirdBody",
+		Vector3.new(1.6, 0.8, 0.8),
+		position,
+		VisualTheme.Colors.inkSoft,
+		Enum.Material.SmoothPlastic,
+		"bird"
+	)
 	body.Shape = Enum.PartType.Ball
 	body.Orientation = Vector3.new(0, authoredVariant(seed, index, 12) * 30, 0)
-	local leftWing = makeAmbientDecoration(model, "BirdWingLeft", Vector3.new(1.8, 0.2, 0.7), position + Vector3.new(-1, 0.25, 0), VisualTheme.Colors.inkSoft, Enum.Material.SmoothPlastic, "bird")
+	local leftWing = makeAmbientDecoration(
+		model,
+		"BirdWingLeft",
+		Vector3.new(1.8, 0.2, 0.7),
+		position + Vector3.new(-1, 0.25, 0),
+		VisualTheme.Colors.inkSoft,
+		Enum.Material.SmoothPlastic,
+		"bird"
+	)
 	leftWing.Orientation = Vector3.new(0, 0, 20)
-	local rightWing = makeAmbientDecoration(model, "BirdWingRight", Vector3.new(1.8, 0.2, 0.7), position + Vector3.new(1, 0.25, 0), VisualTheme.Colors.inkSoft, Enum.Material.SmoothPlastic, "bird")
+	local rightWing = makeAmbientDecoration(
+		model,
+		"BirdWingRight",
+		Vector3.new(1.8, 0.2, 0.7),
+		position + Vector3.new(1, 0.25, 0),
+		VisualTheme.Colors.inkSoft,
+		Enum.Material.SmoothPlastic,
+		"bird"
+	)
 	rightWing.Orientation = Vector3.new(0, 0, -20)
 	local hook = Instance.new("Attachment")
 	hook.Name = "BirdMotionHook"
@@ -576,12 +1000,36 @@ local function makeButterflyHook(parent: Instance, position: Vector3, index: num
 	model.Name = "ButterflyAmbient" .. index
 	model:SetAttribute("TinyWorldAmbientEffect", "butterfly")
 	model.Parent = parent
-	local body = makeAmbientDecoration(model, "ButterflyBody", Vector3.new(0.2, 0.6, 0.2), position, VisualTheme.Colors.inkSoft, Enum.Material.SmoothPlastic, "butterfly")
+	local body = makeAmbientDecoration(
+		model,
+		"ButterflyBody",
+		Vector3.new(0.2, 0.6, 0.2),
+		position,
+		VisualTheme.Colors.inkSoft,
+		Enum.Material.SmoothPlastic,
+		"butterfly"
+	)
 	local color = if authoredVariant(seed, index, 2) == 1 then VisualTheme.Colors.flower else VisualTheme.Colors.gold
-	local leftWing = makeAmbientDecoration(model, "ButterflyWingLeft", Vector3.new(0.9, 0.12, 0.7), position + Vector3.new(-0.45, 0.15, 0), color, Enum.Material.SmoothPlastic, "butterfly")
+	local leftWing = makeAmbientDecoration(
+		model,
+		"ButterflyWingLeft",
+		Vector3.new(0.9, 0.12, 0.7),
+		position + Vector3.new(-0.45, 0.15, 0),
+		color,
+		Enum.Material.SmoothPlastic,
+		"butterfly"
+	)
 	leftWing.Shape = Enum.PartType.Ball
 	leftWing.Orientation = Vector3.new(0, 0, 18)
-	local rightWing = makeAmbientDecoration(model, "ButterflyWingRight", Vector3.new(0.9, 0.12, 0.7), position + Vector3.new(0.45, 0.15, 0), color, Enum.Material.SmoothPlastic, "butterfly")
+	local rightWing = makeAmbientDecoration(
+		model,
+		"ButterflyWingRight",
+		Vector3.new(0.9, 0.12, 0.7),
+		position + Vector3.new(0.45, 0.15, 0),
+		color,
+		Enum.Material.SmoothPlastic,
+		"butterfly"
+	)
 	rightWing.Shape = Enum.PartType.Ball
 	rightWing.Orientation = Vector3.new(0, 0, -18)
 	local hook = Instance.new("Attachment")
@@ -611,14 +1059,29 @@ function VillageSceneryBuilder.buildAmbientLife(parent: Instance, layout: any, w
 
 	warmWindowCount = addWarmWindowLights(windowTargets, layout.artSeed, warmWindowCount)
 	for index = 1, waterCount do
-		makeWaterHighlight(model, WATER_HIGHLIGHT_POSITIONS[authoredVariant(layout.artSeed, index, #WATER_HIGHLIGHT_POSITIONS)], index, layout.artSeed)
+		makeWaterHighlight(
+			model,
+			WATER_HIGHLIGHT_POSITIONS[authoredVariant(layout.artSeed, index, #WATER_HIGHLIGHT_POSITIONS)],
+			index,
+			layout.artSeed
+		)
 	end
 	foliageCount = addFoliageHooks(parent, layout.artSeed, foliageCount)
 	for index = 1, birdCount do
-		makeBirdHook(model, BIRD_POSITIONS[authoredVariant(layout.artSeed, index, #BIRD_POSITIONS)], index, layout.artSeed)
+		makeBirdHook(
+			model,
+			BIRD_POSITIONS[authoredVariant(layout.artSeed, index, #BIRD_POSITIONS)],
+			index,
+			layout.artSeed
+		)
 	end
 	for index = 1, butterflyCount do
-		makeButterflyHook(model, BUTTERFLY_POSITIONS[authoredVariant(layout.artSeed, index, #BUTTERFLY_POSITIONS)], index, layout.artSeed)
+		makeButterflyHook(
+			model,
+			BUTTERFLY_POSITIONS[authoredVariant(layout.artSeed, index, #BUTTERFLY_POSITIONS)],
+			index,
+			layout.artSeed
+		)
 	end
 
 	local effectCount = warmWindowCount + waterCount + foliageCount + birdCount + butterflyCount
@@ -678,7 +1141,12 @@ function VillageSceneryBuilder.releaseHomeAmbient(ambientLife, plotIndex: number
 	updateAmbientState(ambientLife)
 end
 
-function VillageSceneryBuilder.bindHomeAmbient(ambientLife, houseContainer: Instance, plotIndex: number, seed: number): boolean
+function VillageSceneryBuilder.bindHomeAmbient(
+	ambientLife,
+	houseContainer: Instance,
+	plotIndex: number,
+	seed: number
+): boolean
 	if ambientLife == nil or houseContainer == nil then
 		return false
 	end
@@ -689,7 +1157,11 @@ function VillageSceneryBuilder.bindHomeAmbient(ambientLife, houseContainer: Inst
 	local windows = collectParts(houseContainer, function(part)
 		return part.Material == Enum.Material.Glass and string.find(part.Name, "HouseWindow") ~= nil
 	end)
-	if #windows > 0 and ambientLife.lightCount < VisualTheme.Ambient.MAX_WARM_WINDOW_LIGHTS and ambientLife.remainingBudget[1] > 0 then
+	if
+		#windows > 0
+		and ambientLife.lightCount < VisualTheme.Ambient.MAX_WARM_WINDOW_LIGHTS
+		and ambientLife.remainingBudget[1] > 0
+	then
 		local window = windows[authoredVariant(seed, plotIndex, #windows)]
 		addHomeWarmWindowLight(window)
 		binding.light = true
@@ -698,7 +1170,12 @@ function VillageSceneryBuilder.bindHomeAmbient(ambientLife, houseContainer: Inst
 	end
 
 	local chimney = houseContainer:FindFirstChild("CabinChimney", true)
-	if chimney and chimney:IsA("BasePart") and ambientLife.emitterCount < VisualTheme.Ambient.MAX_CHIMNEY_SMOKE_EMITTERS and ambientLife.remainingBudget[1] > 0 then
+	if
+		chimney
+		and chimney:IsA("BasePart")
+		and ambientLife.emitterCount < VisualTheme.Ambient.MAX_CHIMNEY_SMOKE_EMITTERS
+		and ambientLife.remainingBudget[1] > 0
+	then
 		local hook = Instance.new("Attachment")
 		hook.Name = "HomeChimneySmokeHook"
 		hook.Position = Vector3.new(0, chimney.Size.Y / 2, 0)

@@ -107,7 +107,13 @@ function JobService:_finish(player: Player)
 	local professionLevels = Profession.addCourierXp(profile, 100)
 	local _routeChanged, routeText = self.RouteService:record(player, "courier_delivery")
 	self.PlayerStateService.sync(player, profile)
-	self.PlayerStateService.message(player, string.format("Delivery complete: +150 coins, +75 XP, +100 Courier XP%s", if professionLevels > 0 then " — Courier level up!" else "."))
+	self.PlayerStateService.message(
+		player,
+		string.format(
+			"Delivery complete: +150 coins, +75 XP, +100 Courier XP%s",
+			if professionLevels > 0 then " — Courier level up!" else "."
+		)
+	)
 	if routeText ~= "" then
 		self.PlayerStateService.message(player, routeText)
 	end

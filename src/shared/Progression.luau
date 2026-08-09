@@ -33,4 +33,3 @@ function Progression.addXp(profile: any, amount: number): number
 end
 
 return Progression
-

@@ -42,4 +42,3 @@ function TradeRules.canExchange(profileA: any, itemA: string, profileB: any, ite
 end
 
 return TradeRules
-

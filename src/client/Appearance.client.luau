@@ -176,13 +176,25 @@ closeButton.Activated:Connect(function()
 end)
 
 remote.OnClientEvent:Connect(function(payload)
-	if type(payload) ~= "table" or payload.kind ~= "state" then return end
-	if type(payload.hairId) == "string" and hairButtons[payload.hairId] then selectedHair = payload.hairId end
-	if type(payload.outfitId) == "string" and outfitButtons[payload.outfitId] then selectedOutfit = payload.outfitId end
-	for id, button in hairButtons do button.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft end
-	for id, button in outfitButtons do button.BackgroundColor3 = if id == selectedOutfit then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft end
+	if type(payload) ~= "table" or payload.kind ~= "state" then
+		return
+	end
+	if type(payload.hairId) == "string" and hairButtons[payload.hairId] then
+		selectedHair = payload.hairId
+	end
+	if type(payload.outfitId) == "string" and outfitButtons[payload.outfitId] then
+		selectedOutfit = payload.outfitId
+	end
+	for id, button in hairButtons do
+		button.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+	end
+	for id, button in outfitButtons do
+		button.BackgroundColor3 = if id == selectedOutfit then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+	end
 end)
 
-if camera then camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateResponsive) end
+if camera then
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateResponsive)
+end
 updateResponsive()
 remote:FireServer({ action = "state" })

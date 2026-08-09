@@ -140,7 +140,12 @@ function OnboardingService:_submit(player: Player, payload: any)
 		self:_reply(player, false, "Use 3-16 letters, numbers, spaces, _ or - for your name.")
 		return
 	end
-	if type(payload.avatarStyle) ~= "string" or #payload.avatarStyle > 16 or type(payload.starterOutfit) ~= "string" or #payload.starterOutfit > 16 then
+	if
+		type(payload.avatarStyle) ~= "string"
+		or #payload.avatarStyle > 16
+		or type(payload.starterOutfit) ~= "string"
+		or #payload.starterOutfit > 16
+	then
 		RemoteGuard.warn(player, "onboarding_submit", "selection_shape")
 		self:_reply(player, false, "Please choose a valid style and outfit.")
 		return

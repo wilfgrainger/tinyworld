@@ -21,4 +21,3 @@ return function()
 	TestUtil.isFalse(Inventory.remove(profile, "Carrot", 2))
 	TestUtil.equal(Inventory.get(profile, "Carrot"), 1)
 end
-

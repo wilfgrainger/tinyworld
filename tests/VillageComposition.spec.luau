@@ -32,7 +32,10 @@ return function()
 		TestUtil.equal(layout[manifest.seedField], 2052)
 		TestUtil.equal(#layout.terrainBands, 4)
 		TestUtil.equal(manifest.budgetSource, "budgets.visual.seededDressing")
-		TestUtil.equal(layout.budgets.visual.seededDressing, math.min(VisualBudgetRules.MAX_SEEDED_DRESSING, 160 + (plotCount * 12)))
+		TestUtil.equal(
+			layout.budgets.visual.seededDressing,
+			math.min(VisualBudgetRules.MAX_SEEDED_DRESSING, 160 + (plotCount * 12))
+		)
 		TestUtil.isTrue(VisualBudgetRules.isWithinBudget(layout.budgets.visual), tostring(plotCount) .. " plot budget")
 	end
 end
