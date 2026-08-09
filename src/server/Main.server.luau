@@ -5,6 +5,7 @@ local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateServic
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
 local ImpossibleWorldBuilder = require(script.Parent:WaitForChild("ImpossibleWorldBuilder"))
+local PortalMechanicBuilder = require(script.Parent:WaitForChild("PortalMechanicBuilder"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local GardenService = require(script.Parent:WaitForChild("GardenService"))
 local DailyRewardService = require(script.Parent:WaitForChild("DailyRewardService"))
@@ -30,6 +31,7 @@ local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeServic
 
 local world = WorldBuilder.build(Players.MaxPlayers)
 ImpossibleWorldBuilder.extend(world)
+PortalMechanicBuilder.extend(world)
 local ambientLifeService = AmbientLifeService.new(world)
 local routeService = RouteService.new(ProfileStore, PlayerStateService)
 local socialService = SocialService.new(world, ProfileStore, PlayerStateService)
@@ -48,7 +50,7 @@ local gardenService = GardenService.new(world, plotService, ProfileStore, Player
 local _dailyRewardService = DailyRewardService.new(world, ProfileStore, PlayerStateService, routeService)
 local jobService = JobService.new(world, ProfileStore, PlayerStateService, routeService)
 local transportService = TransportService.new(world, ProfileStore, PlayerStateService)
-local portalService = PortalService.new(world, ProfileStore, PlayerStateService)
+local portalService = PortalService.new(world, ProfileStore, PlayerStateService, plotService)
 local tradeService = TradeService.new(world, ProfileStore, PlayerStateService, socialService)
 local _villageService = VillageService.new(world, ProfileStore, PlayerStateService)
 local _explorationService = ExplorationService.new(world, ProfileStore, PlayerStateService, routeService)
@@ -56,7 +58,16 @@ local _livingWorldService = LivingWorldService.new(world, ProfileStore, PlayerSt
 local _professionService = ProfessionService.new(world, ProfileStore, PlayerStateService)
 local boatService = BoatService.new(world, ProfileStore, PlayerStateService)
 
+local function rejectOverflowPlayer(player: Player)
+	player:Kick("This TinyWorld village already has all sixteen resident homes. Please rejoin to find another village.")
+end
+
 local function onPlayerAdded(player: Player)
+	if #Players:GetPlayers() > #world.plots then
+		rejectOverflowPlayer(player)
+		return
+	end
+
 	local profile = ProfileStore.load(player)
 	if profile == nil then
 		player:Kick("TinyWorld could not safely load your saved data. Please rejoin in a moment.")
@@ -64,14 +75,19 @@ local function onPlayerAdded(player: Player)
 	end
 
 	PlayerStateService.setup(player, profile)
-	TinyAnalyticsService.setupPlayer(player, profile)
 	onboardingService:setupPlayer(player, profile)
 	appearanceService:setupPlayer(player, profile)
 	alphaOpsService:setupPlayer(player)
 	routeService:sync(player, profile)
 	socialService:setupPlayer(player)
 	homeService:syncPlayer(player, profile)
-	plotService:assign(player, profile)
+	local plotIndex = plotService:assign(player, profile)
+	if plotIndex == nil then
+		ProfileStore.release(player)
+		rejectOverflowPlayer(player)
+		return
+	end
+	TinyAnalyticsService.setupPlayer(player, profile)
 	physicalItemService:refresh(player, profile)
 	gardenService:syncPlayer(player)
 	jobService:trackPlayer(player)
