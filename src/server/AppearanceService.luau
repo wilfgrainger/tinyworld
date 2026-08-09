@@ -142,19 +142,23 @@ function AppearanceService:_sendState(player: Player, profile)
 	})
 end
 
+function AppearanceService:applyProfile(player: Player, profile)
+	local outfitId = resolvedOutfitId(profile)
+	applyLook(player, outfitId, resolvedHair(profile, outfitId))
+	self:_sendState(player, profile)
+end
+
 function AppearanceService:setupPlayer(player: Player, profile)
 	local previous = self.connections[player]
 	if previous then
 		previous:Disconnect()
 	end
-	local outfitId = resolvedOutfitId(profile)
-	applyLook(player, outfitId, resolvedHair(profile, outfitId))
+	self:applyProfile(player, profile)
 	self.connections[player] = player.CharacterAdded:Connect(function()
 		task.wait(0.2)
 		local latest = self.ProfileStore.get(player)
 		if latest then
-			local latestOutfitId = resolvedOutfitId(latest)
-			applyLook(player, latestOutfitId, resolvedHair(latest, latestOutfitId))
+			self:applyProfile(player, latest)
 		end
 	end)
 end
