@@ -4,11 +4,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local ProfileSchema = require(shared:WaitForChild("ProfileSchema"))
+local ProfileMigrations = require(shared:WaitForChild("ProfileMigrations"))
 local ProfileStoreRules = require(shared:WaitForChild("ProfileStoreRules"))
+local EnvironmentConfig = require(script.Parent:WaitForChild("EnvironmentConfig"))
 
 local ProfileStore = {}
 
-local DATASTORE_NAME = "TinyWorldPlayerProfile_v1"
+local DATASTORE_NAME = EnvironmentConfig.dataStoreName()
 local store = DataStoreService:GetDataStore(DATASTORE_NAME)
 local profiles = {}
 
@@ -20,11 +22,18 @@ local function now(): number
 	return os.time()
 end
 
-local function decode(value)
+local function decode(value): (any?, any?, string?)
+	local rawProfile = value
+	local session = nil
 	if type(value) == "table" and type(value.profile) == "table" then
-		return ProfileSchema.normalize(value.profile), value.session
+		rawProfile = value.profile
+		session = value.session
 	end
-	return ProfileSchema.normalize(value), nil
+	local migrated, migrationError = ProfileMigrations.migrate(rawProfile)
+	if migrated == nil then
+		return nil, session, migrationError or "migration_failed"
+	end
+	return ProfileSchema.normalize(migrated), session, nil
 end
 
 local function envelope(profile, token: string, expiresAt: number)
@@ -51,6 +60,8 @@ local function setDiagnostics(player: Player, record)
 	player:SetAttribute("TinyWorldSaveVersion", record.version)
 	player:SetAttribute("TinyWorldSaveRetryAttempt", record.retryAttempt)
 	player:SetAttribute("TinyWorldSessionState", record.sessionState)
+	player:SetAttribute("TinyWorldEnvironment", EnvironmentConfig.environment())
+	player:SetAttribute("TinyWorldProfileSchema", ProfileSchema.VERSION)
 end
 
 local function setState(player: Player, record, state: string)
@@ -88,9 +99,14 @@ local function scheduleHeartbeat(player: Player, delaySeconds: number?)
 		end
 
 		local lost = false
+		local migrationFailure = nil
 		local ok, result = pcall(function()
 			return store:UpdateAsync(keyFor(player), function(previous)
-				local persistedProfile, session = decode(previous)
+				local persistedProfile, session, migrationError = decode(previous)
+				if persistedProfile == nil then
+					migrationFailure = migrationError
+					return nil
+				end
 				if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
 					lost = true
 					return nil
@@ -99,17 +115,17 @@ local function scheduleHeartbeat(player: Player, delaySeconds: number?)
 			end)
 		end)
 
-		if ok and result ~= nil and not lost then
+		if ok and result ~= nil and not lost and migrationFailure == nil then
 			record.heartbeatFailures = 0
 			scheduleHeartbeat(player)
 			return
 		end
 
 		record.heartbeatFailures += 1
-		if lost or record.heartbeatFailures >= 3 then
+		if lost or migrationFailure ~= nil or record.heartbeatFailures >= 3 then
 			record.sessionState = "lost"
 			setState(player, record, "failed")
-			warn(string.format("TinyWorld: session lease lost for %s.", player.Name))
+			warn(string.format("TinyWorld: session lease could not be kept safe for %s (%s).", player.Name, tostring(migrationFailure or "lease_failure")))
 			if player.Parent ~= nil then
 				player:Kick("TinyWorld could not keep your session safe. Please rejoin in a moment.")
 			end
@@ -124,12 +140,21 @@ function ProfileStore.load(player: Player)
 	if profiles[player] ~= nil then
 		return profiles[player].profile
 	end
+	if not EnvironmentConfig.assertSafe() then
+		warn("TinyWorld: refusing to load profiles because environment/DataStore namespace separation is unsafe.")
+		return nil
+	end
 
 	local token = HttpService:GenerateGUID(false)
 	local conflict = false
+	local migrationFailure = nil
 	local ok, result = pcall(function()
 		return store:UpdateAsync(keyFor(player), function(previous)
-			local persistedProfile, session = decode(previous)
+			local persistedProfile, session, migrationError = decode(previous)
+			if persistedProfile == nil then
+				migrationFailure = migrationError
+				return nil
+			end
 			if ProfileStoreRules.isLeaseActive(session, now(), token) and session.token ~= token then
 				conflict = true
 				return nil
@@ -138,12 +163,16 @@ function ProfileStore.load(player: Player)
 		end)
 	end)
 
-	if not ok or result == nil or conflict then
-		warn(string.format("TinyWorld: failed to acquire a profile session for %s.", player.Name))
+	if not ok or result == nil or conflict or migrationFailure ~= nil then
+		warn(string.format("TinyWorld: failed to acquire a safe profile session for %s (%s).", player.Name, tostring(migrationFailure or "lease_or_datastore")))
 		return nil
 	end
 
-	local profile = decode(result)
+	local profile, _, decodeError = decode(result)
+	if profile == nil then
+		warn(string.format("TinyWorld: migrated profile decode failed for %s (%s).", player.Name, tostring(decodeError)))
+		return nil
+	end
 	local record = {
 		profile = profile,
 		token = token,
@@ -202,12 +231,17 @@ function ProfileStore.saveNow(player: Player): boolean
 	local snapshotVersion = record.version
 	local snapshot = ProfileSchema.normalize(record.profile)
 	local conflict = false
+	local migrationFailure = nil
 	record.saving = true
 	setState(player, record, "saving")
 
 	local ok, result = pcall(function()
 		return store:UpdateAsync(keyFor(player), function(previous)
-			local persistedProfile, session = decode(previous)
+			local persistedProfile, session, migrationError = decode(previous)
+			if persistedProfile == nil then
+				migrationFailure = migrationError
+				return nil
+			end
 			if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
 				conflict = true
 				return nil
@@ -216,6 +250,13 @@ function ProfileStore.saveNow(player: Player): boolean
 		end)
 	end)
 
+	if migrationFailure ~= nil then
+		record.saving = false
+		record.sessionState = "lost"
+		setState(player, record, "failed")
+		warn(string.format("TinyWorld: refusing to overwrite unsupported profile data for %s (%s).", player.Name, migrationFailure))
+		return false
+	end
 	if not ok or result == nil or conflict then
 		if conflict then
 			record.sessionState = "lost"
@@ -241,9 +282,14 @@ end
 
 local function releaseSession(player: Player, record): boolean
 	local conflict = false
+	local migrationFailure = nil
 	local ok, result = pcall(function()
 		return store:UpdateAsync(keyFor(player), function(previous)
-			local persistedProfile, session = decode(previous)
+			local persistedProfile, session, migrationError = decode(previous)
+			if persistedProfile == nil then
+				migrationFailure = migrationError
+				return nil
+			end
 			if not ProfileStoreRules.isLeaseOwned(session, now(), record.token) then
 				conflict = true
 				return nil
@@ -251,7 +297,7 @@ local function releaseSession(player: Player, record): boolean
 			return releasedEnvelope(persistedProfile)
 		end)
 	end)
-	if not ok or result == nil or conflict then
+	if not ok or result == nil or conflict or migrationFailure ~= nil then
 		warn(string.format("TinyWorld: failed to release profile session for %s.", player.Name))
 		return false
 	end
@@ -315,7 +361,7 @@ function ProfileStore.getDiagnostics(player: Player?)
 	if player then
 		local record = profiles[player]
 		if record == nil then
-			return { state = "unloaded", queueDepth = 0, sessionState = "released" }
+			return { state = "unloaded", queueDepth = 0, sessionState = "released", environment = EnvironmentConfig.environment(), dataStoreName = DATASTORE_NAME }
 		end
 		return {
 			state = record.state,
@@ -324,6 +370,8 @@ function ProfileStore.getDiagnostics(player: Player?)
 			sessionState = record.sessionState,
 			version = record.version,
 			savedVersion = record.savedVersion,
+			environment = EnvironmentConfig.environment(),
+			dataStoreName = DATASTORE_NAME,
 		}
 	end
 
@@ -335,8 +383,7 @@ function ProfileStore.getDiagnostics(player: Player?)
 			queued += 1
 		end
 	end
-	return { activeProfiles = active, queueDepth = queued }
+	return { activeProfiles = active, queueDepth = queued, environment = EnvironmentConfig.environment(), dataStoreName = DATASTORE_NAME }
 end
 
 return ProfileStore
-
