@@ -173,8 +173,16 @@ end
 local function normaliseInventoryStacks(value: any, legacyInventory: Inventory): { [string]: number }
 	local result = normaliseIntegerMap(value)
 	for _, item in ItemDefinitions.all() do
-		if item.category == "resource" and result[item.id] == nil then
-			result[item.id] = normaliseInteger(legacyInventory[item.id], 0, 0)
+		if item.category == "resource" then
+			local legacyValue = legacyInventory[item.id]
+			if legacyValue ~= nil then
+				-- The five v10 compatibility resources remain legacy-authoritative
+				-- until every old gameplay path has been retired. Never allow a stale
+				-- v11 stack value to resurrect a resource already spent by legacy code.
+				result[item.id] = normaliseInteger(legacyValue, 0, 0)
+			elseif result[item.id] == nil then
+				result[item.id] = 0
+			end
 		end
 	end
 	return result
@@ -229,8 +237,12 @@ local function normaliseOwnedFurniture(value: any, legacyHomeItems: { [string]: 
 	local source = if type(value) == "table" then value else {}
 	local result = {}
 	for _, item in FurnitureDefinitions.all() do
-		local fallback = if legacyHomeItems[item.id] ~= nil then legacyHomeItems[item.id] else 0
-		result[item.id] = normaliseInteger(source[item.id], fallback, 0, 99)
+		local legacyCount = if legacyHomeItems[item.id] ~= nil then legacyHomeItems[item.id] else 0
+		local v11Count = normaliseInteger(source[item.id], 0, 0, 99)
+		-- Legacy Home Supply purchases must remain owned after the v11 bridge.
+		-- Taking the maximum also self-heals profiles created while the two
+		-- representations could temporarily drift apart.
+		result[item.id] = math.max(v11Count, legacyCount)
 	end
 	result.Bed = math.max(1, result.Bed or 0)
 	return result
