@@ -9,14 +9,46 @@ local AppearanceService = {}
 AppearanceService.__index = AppearanceService
 
 local PALETTES = {
-	Starter = { torso = Color3.fromRGB(104, 153, 93), arms = Color3.fromRGB(246, 231, 183), legs = Color3.fromRGB(112, 76, 48) },
-	Meadow = { torso = Color3.fromRGB(104, 153, 93), arms = Color3.fromRGB(246, 231, 183), legs = Color3.fromRGB(92, 118, 69) },
-	Harbor = { torso = Color3.fromRGB(67, 119, 168), arms = Color3.fromRGB(211, 220, 226), legs = Color3.fromRGB(38, 56, 82) },
-	Sunset = { torso = Color3.fromRGB(222, 111, 51), arms = Color3.fromRGB(255, 205, 91), legs = Color3.fromRGB(91, 54, 44) },
-	Courier = { torso = Color3.fromRGB(206, 153, 55), arms = Color3.fromRGB(245, 226, 184), legs = Color3.fromRGB(68, 76, 92) },
-	Workshop = { torso = Color3.fromRGB(74, 97, 112), arms = Color3.fromRGB(223, 203, 166), legs = Color3.fromRGB(82, 67, 56) },
-	Moonlight = { torso = Color3.fromRGB(91, 91, 151), arms = Color3.fromRGB(222, 218, 244), legs = Color3.fromRGB(55, 55, 91) },
-	Cloudpost = { torso = Color3.fromRGB(101, 164, 196), arms = Color3.fromRGB(244, 240, 214), legs = Color3.fromRGB(74, 103, 135) },
+	Starter = {
+		torso = Color3.fromRGB(104, 153, 93),
+		arms = Color3.fromRGB(246, 231, 183),
+		legs = Color3.fromRGB(112, 76, 48),
+	},
+	Meadow = {
+		torso = Color3.fromRGB(104, 153, 93),
+		arms = Color3.fromRGB(246, 231, 183),
+		legs = Color3.fromRGB(92, 118, 69),
+	},
+	Harbor = {
+		torso = Color3.fromRGB(67, 119, 168),
+		arms = Color3.fromRGB(211, 220, 226),
+		legs = Color3.fromRGB(38, 56, 82),
+	},
+	Sunset = {
+		torso = Color3.fromRGB(222, 111, 51),
+		arms = Color3.fromRGB(255, 205, 91),
+		legs = Color3.fromRGB(91, 54, 44),
+	},
+	Courier = {
+		torso = Color3.fromRGB(206, 153, 55),
+		arms = Color3.fromRGB(245, 226, 184),
+		legs = Color3.fromRGB(68, 76, 92),
+	},
+	Workshop = {
+		torso = Color3.fromRGB(74, 97, 112),
+		arms = Color3.fromRGB(223, 203, 166),
+		legs = Color3.fromRGB(82, 67, 56),
+	},
+	Moonlight = {
+		torso = Color3.fromRGB(91, 91, 151),
+		arms = Color3.fromRGB(222, 218, 244),
+		legs = Color3.fromRGB(55, 55, 91),
+	},
+	Cloudpost = {
+		torso = Color3.fromRGB(101, 164, 196),
+		arms = Color3.fromRGB(244, 240, 214),
+		legs = Color3.fromRGB(74, 103, 135),
+	},
 }
 
 local LEGACY_OUTFITS = {
@@ -42,7 +74,8 @@ end
 
 local function resolvedOutfitId(profile): string
 	local active = if type(profile.activeOutfitId) == "string" then profile.activeOutfitId else "Starter"
-	if active == "Starter"
+	if
+		active == "Starter"
 		and profile.onboardingComplete == true
 		and type(profile.starterOutfit) == "string"
 		and LEGACY_OUTFITS[profile.starterOutfit] == true
@@ -58,7 +91,11 @@ local function resolvedHair(profile, outfitId: string): string
 		return saved.hair
 	end
 	local starter = if type(profile.savedOutfits) == "table" then profile.savedOutfits.Starter else nil
-	if type(starter) == "table" and type(starter.hair) == "string" and AppearanceDefinitions.getHair(starter.hair) ~= nil then
+	if
+		type(starter) == "table"
+		and type(starter.hair) == "string"
+		and AppearanceDefinitions.getHair(starter.hair) ~= nil
+	then
 		return starter.hair
 	end
 	return "Tousled"
@@ -139,7 +176,8 @@ function AppearanceService:_handle(player: Player, payload: any)
 		self:_sendState(player, profile)
 		return
 	end
-	if payload.action ~= "save"
+	if
+		payload.action ~= "save"
 		or type(payload.outfitId) ~= "string"
 		or type(payload.hairId) ~= "string"
 		or #payload.outfitId > 32

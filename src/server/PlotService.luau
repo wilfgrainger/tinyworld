@@ -91,7 +91,12 @@ function PlotService:_decorate(player: Player, plotIndex: number)
 
 	local applied, reason = LivingWorldRules.addHomeCharm(profile)
 	if not applied then
-		self.PlayerStateService.message(player, if reason == "already_applied" then "Your home already has a Home Charm." else "Find a Meadow Seed, Seashell, and Wood Token first.")
+		self.PlayerStateService.message(
+			player,
+			if reason == "already_applied"
+				then "Your home already has a Home Charm."
+				else "Find a Meadow Seed, Seashell, and Wood Token first."
+		)
 		return
 	end
 
@@ -111,7 +116,8 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 
 	local upgraded, reason = HouseUpgrade.tryUpgrade(profile)
 	if not upgraded then
-		local text = if reason == "level_too_low" then "You need a higher player level for the next home."
+		local text = if reason == "level_too_low"
+			then "You need a higher player level for the next home."
 			elseif reason == "not_enough_coins" then "You need more coins for the next home."
 			else "Your home is already at the highest tier."
 		self.PlayerStateService.message(player, text)
@@ -122,7 +128,10 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 	self:refreshIdentity(player, profile)
 	self.PlayerStateService.sync(player, profile)
 	local house = HouseCatalog.get(profile.houseTier)
-	self.PlayerStateService.message(player, string.format("Home upgraded to %s!", if house then house.name else "the next tier"))
+	self.PlayerStateService.message(
+		player,
+		string.format("Home upgraded to %s!", if house then house.name else "the next tier")
+	)
 	self.ProfileStore.save(player)
 end
 
@@ -187,12 +196,14 @@ function PlotService:assign(player: Player, profile)
 			plot.privacyPrompt.ObjectText = "Home Access: " .. profile.homePrivacy
 			self:rebuildHouse(player, profile)
 			self:refreshIdentity(player, profile)
-			self.identityConnections[player] = player:GetAttributeChangedSignal("TinyWorldDisplayName"):Connect(function()
-				local latest = self.ProfileStore.get(player)
-				if latest then
-					self:refreshIdentity(player, latest)
-				end
-			end)
+			self.identityConnections[player] = player
+				:GetAttributeChangedSignal("TinyWorldDisplayName")
+				:Connect(function()
+					local latest = self.ProfileStore.get(player)
+					if latest then
+						self:refreshIdentity(player, latest)
+					end
+				end)
 			return index
 		end
 	end
@@ -223,7 +234,12 @@ function PlotService:rebuildHouse(player: Player, profile)
 		self.HomeService:buildInterior(plot, profile)
 	end
 	PortalKeepsakeDisplayBuilder.refresh(plot.houseContainer, profile)
-	VillageSceneryBuilder.bindHomeAmbient(self.world.ambientLife, plot.houseContainer, plotIndex, self.world.layout.artSeed)
+	VillageSceneryBuilder.bindHomeAmbient(
+		self.world.ambientLife,
+		plot.houseContainer,
+		plotIndex,
+		self.world.layout.artSeed
+	)
 	applyHomePlacement(plot)
 	if self.FurniturePlacementService then
 		self.FurniturePlacementService:renderAll(player, plot, profile)
@@ -237,7 +253,8 @@ function PlotService:refreshIdentity(player: Player, profile)
 		return
 	end
 	local house = HouseCatalog.get(profile.houseTier)
-	self.world.plots[plotIndex].ownerLabel.Text = string.format("%s's Plot - %s", displayNameFor(player, profile), if house then house.name else "Home")
+	self.world.plots[plotIndex].ownerLabel.Text =
+		string.format("%s's Plot - %s", displayNameFor(player, profile), if house then house.name else "Home")
 end
 
 function PlotService:getPlotForPlayer(player: Player)

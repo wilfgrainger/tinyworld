@@ -141,19 +141,28 @@ function PortalService:_collect(player: Player, worldId: string, index: number)
 		return
 	end
 	if not PortalSessionRules.markCollectible(session, index) then
-		self.PlayerStateService.message(player, string.format("You already collected this %s on this run.", definition.collectibleName))
+		self.PlayerStateService.message(
+			player,
+			string.format("You already collected this %s on this run.", definition.collectibleName)
+		)
 		return
 	end
 	local count = PortalSessionRules.collectedCount(session)
 	player:SetAttribute("TinyWorldPortalCrystals", count)
-	self.PlayerStateService.message(player, string.format("%s found: %d/%d.", definition.collectibleName, count, definition.collectibleCount))
+	self.PlayerStateService.message(
+		player,
+		string.format("%s found: %d/%d.", definition.collectibleName, count, definition.collectibleCount)
+	)
 end
 
 function PortalService:_mechanic(player: Player, worldId: string, index: number)
 	local session = self.sessions[player]
 	local area = self.worlds[worldId]
 	if session == nil or not session.active or session.worldId ~= worldId or area == nil then
-		self.PlayerStateService.message(player, "Enter this world through its village portal before using its main mechanism.")
+		self.PlayerStateService.message(
+			player,
+			"Enter this world through its village portal before using its main mechanism."
+		)
 		return
 	end
 	if not PortalSessionRules.markMechanic(session, index) then
@@ -167,7 +176,10 @@ function PortalService:_mechanic(player: Player, worldId: string, index: number)
 		animateMechanic(worldId, part)
 	end
 	player:SetAttribute("TinyWorldPortalMechanics", count)
-	self.PlayerStateService.message(player, string.format("%s activated: %d/%d.", area.mechanicName or "World mechanism", count, target))
+	self.PlayerStateService.message(
+		player,
+		string.format("%s activated: %d/%d.", area.mechanicName or "World mechanism", count, target)
+	)
 end
 
 function PortalService:_secret(player: Player, worldId: string)
@@ -185,7 +197,10 @@ function PortalService:_secret(player: Player, worldId: string)
 	if area.secretPart and area.secretPart:IsA("BasePart") then
 		area.secretPart:SetAttribute("TinyWorldSecretDiscovered", true)
 	end
-	self.PlayerStateService.message(player, "Secret discovered: " .. tostring(area.secretName or "something curious was hidden here") .. ".")
+	self.PlayerStateService.message(
+		player,
+		"Secret discovered: " .. tostring(area.secretName or "something curious was hidden here") .. "."
+	)
 end
 
 function PortalService:_finish(player: Player, worldId: string)
@@ -231,7 +246,10 @@ function PortalService:_finish(player: Player, worldId: string)
 	self.ProfileStore.save(player)
 	teleport(player, self.world.villageReturnCFrame)
 	TinyAnalyticsService.log(player, AnalyticsEvents.PortalCompleted)
-	self.PlayerStateService.message(player, definition.completionMessage .. " A keepsake is now displayed back at home.")
+	self.PlayerStateService.message(
+		player,
+		definition.completionMessage .. " A keepsake is now displayed back at home."
+	)
 end
 
 function PortalService:removePlayer(player: Player)
