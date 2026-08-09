@@ -1,0 +1,22 @@
+{
+  "release": "0.6.0",
+  "verifiedSourceSha": "eb5ab688e0fe18755fdfdaad5d034fb60a3ead97",
+  "verifiedAtUtc": "2026-08-09T20:58:01Z",
+  "workflowRunId": "31335589953",
+  "workflowUrl": "https://github.com/wilfgrainger/tinyworld/actions/runs/31335589953",
+  "profileSchema": 11,
+  "artifact": "TinyWorld-v0.6.0.rbxlx",
+  "artifactSha256": "4e2c37cbd226716e2b623d020357c976e73bf32c71ae8cf5737df41969e280ea",
+  "gates": {
+    "luauTests": "PASS",
+    "luauAnalyze": "PASS",
+    "stylua": "PASS",
+    "serverCompile": "PASS",
+    "clientCompile": "PASS",
+    "releaseAuthority": "PASS",
+    "releaseContract": "PASS",
+    "buildContract": "PASS",
+    "rojoBuild": "PASS"
+  },
+  "runtimeEvidence": "PENDING"
+}

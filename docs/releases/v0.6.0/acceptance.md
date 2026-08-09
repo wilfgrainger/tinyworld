@@ -56,13 +56,13 @@ These rows are updated only from the current PR head workflow result.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| Pure Luau tests | PENDING | GitHub Actions `Luau tests` |
-| Shared Luau analysis | PENDING | GitHub Actions `Luau tests` |
-| StyLua check | PENDING | GitHub Actions `Luau tests` |
-| Recursive server/client compile | PENDING | GitHub Actions `Luau tests` |
-| v0.6.0 release contract | PENDING | GitHub Actions `Rojo build` |
-| Rojo candidate build | PENDING | GitHub Actions `Rojo build` |
-| Traceability manifest/artifact | PENDING | GitHub Actions artifact |
+| Pure Luau tests | PASS | `automated-evidence.json` |
+| Shared Luau analysis | PASS | `automated-evidence.json` |
+| StyLua check | PASS | `automated-evidence.json` |
+| Recursive server/client compile | PASS | `automated-evidence.json` |
+| v0.6.0 release contract | PASS | `automated-evidence.json` |
+| Rojo candidate build | PASS | `automated-evidence.json` |
+| Traceability manifest/artifact | PASS | `automated-evidence.json` |
 
 ## Studio single-client evidence
 
