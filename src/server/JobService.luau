@@ -3,7 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
 local Profession = require(shared:WaitForChild("Profession"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local JobService = {}
 JobService.__index = JobService
@@ -117,7 +119,10 @@ function JobService:_finish(player: Player)
 	if routeText ~= "" then
 		self.PlayerStateService.message(player, routeText)
 	end
-	self.ProfileStore.save(player)
+	if self.ProfileStore.save(player) then
+		TinyAnalyticsService.log(player, AnalyticsEvents.CurrencyEarned, 150)
+		TinyAnalyticsService.log(player, AnalyticsEvents.CareerCompleted)
+	end
 end
 
 function JobService:removePlayer(player: Player)
