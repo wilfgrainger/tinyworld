@@ -7,6 +7,9 @@ end
 
 local Inventory = {}
 
+-- The five vertical-slice resources remain compatibility fields during schema
+-- v11 because existing services still mutate profile.inventory directly. New
+-- code should use this module so both representations stay synchronized.
 local LEGACY = {
 	Carrot = true,
 	SugarCrystal = true,
@@ -28,16 +31,16 @@ function Inventory.get(profile: any, itemName: string): number
 	if not Inventory.isSupported(itemName) then
 		return 0
 	end
-	if type(profile.inventoryStacks) == "table" then
-		local stacked = profile.inventoryStacks[itemName]
-		if type(stacked) == "number" and stacked >= 0 then
-			return math.floor(stacked)
-		end
-	end
 	if LEGACY[itemName] and type(profile.inventory) == "table" then
 		local legacy = profile.inventory[itemName]
 		if type(legacy) == "number" and legacy >= 0 then
 			return math.floor(legacy)
+		end
+	end
+	if type(profile.inventoryStacks) == "table" then
+		local stacked = profile.inventoryStacks[itemName]
+		if type(stacked) == "number" and stacked >= 0 then
+			return math.floor(stacked)
 		end
 	end
 	return 0
