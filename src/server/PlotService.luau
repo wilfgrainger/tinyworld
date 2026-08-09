@@ -5,8 +5,11 @@ local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
 local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
 local SocialRules = require(shared:WaitForChild("SocialRules"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local HomePrefabBuilder = require(script.Parent:WaitForChild("HomePrefabBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
+local PortalKeepsakeDisplayBuilder = require(script.Parent:WaitForChild("PortalKeepsakeDisplayBuilder"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local PlotService = {}
 PlotService.__index = PlotService
@@ -88,12 +91,7 @@ function PlotService:_decorate(player: Player, plotIndex: number)
 
 	local applied, reason = LivingWorldRules.addHomeCharm(profile)
 	if not applied then
-		self.PlayerStateService.message(
-			player,
-			if reason == "already_applied"
-				then "Your home already has a Home Charm."
-				else "Find a Meadow Seed, Seashell, and Wood Token first."
-		)
+		self.PlayerStateService.message(player, if reason == "already_applied" then "Your home already has a Home Charm." else "Find a Meadow Seed, Seashell, and Wood Token first.")
 		return
 	end
 
@@ -113,8 +111,7 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 
 	local upgraded, reason = HouseUpgrade.tryUpgrade(profile)
 	if not upgraded then
-		local text = if reason == "level_too_low"
-			then "You need a higher player level for the next home."
+		local text = if reason == "level_too_low" then "You need a higher player level for the next home."
 			elseif reason == "not_enough_coins" then "You need more coins for the next home."
 			else "Your home is already at the highest tier."
 		self.PlayerStateService.message(player, text)
@@ -125,10 +122,7 @@ function PlotService:_upgrade(player: Player, plotIndex: number)
 	self:refreshIdentity(player, profile)
 	self.PlayerStateService.sync(player, profile)
 	local house = HouseCatalog.get(profile.houseTier)
-	self.PlayerStateService.message(
-		player,
-		string.format("Home upgraded to %s!", if house then house.name else "the next tier")
-	)
+	self.PlayerStateService.message(player, string.format("Home upgraded to %s!", if house then house.name else "the next tier"))
 	self.ProfileStore.save(player)
 end
 
@@ -169,8 +163,13 @@ function PlotService:_visit(player: Player, plotIndex: number)
 	local character = player.Character
 	if character then
 		character:PivotTo(self.world.plots[plotIndex].insideCFrame)
-		if self.SocialService then
-			self.SocialService:recordVisit(player, owner, plotIndex)
+		if player == owner then
+			TinyAnalyticsService.log(player, AnalyticsEvents.HomeEntered)
+		else
+			TinyAnalyticsService.log(player, AnalyticsEvents.HomeVisit)
+			if self.SocialService then
+				self.SocialService:recordVisit(player, owner, plotIndex)
+			end
 		end
 		self.PlayerStateService.message(player, "Welcome to " .. displayNameFor(owner, profile) .. "'s home.")
 	end
@@ -188,19 +187,25 @@ function PlotService:assign(player: Player, profile)
 			plot.privacyPrompt.ObjectText = "Home Access: " .. profile.homePrivacy
 			self:rebuildHouse(player, profile)
 			self:refreshIdentity(player, profile)
-			self.identityConnections[player] = player
-				:GetAttributeChangedSignal("TinyWorldDisplayName")
-				:Connect(function()
-					local latest = self.ProfileStore.get(player)
-					if latest then
-						self:refreshIdentity(player, latest)
-					end
-				end)
+			self.identityConnections[player] = player:GetAttributeChangedSignal("TinyWorldDisplayName"):Connect(function()
+				local latest = self.ProfileStore.get(player)
+				if latest then
+					self:refreshIdentity(player, latest)
+				end
+			end)
 			return index
 		end
 	end
-	self.PlayerStateService.message(player, "All home plots are occupied; village activities still work.")
+	self.PlayerStateService.message(player, "This TinyWorld village already has sixteen resident homes.")
 	return nil
+end
+
+function PlotService:refreshKeepsakes(player: Player, profile)
+	local plotIndex = self.playerPlots[player]
+	if plotIndex == nil then
+		return
+	end
+	PortalKeepsakeDisplayBuilder.refresh(self.world.plots[plotIndex].houseContainer, profile)
 end
 
 function PlotService:rebuildHouse(player: Player, profile)
@@ -217,12 +222,8 @@ function PlotService:rebuildHouse(player: Player, profile)
 	if self.HomeService then
 		self.HomeService:buildInterior(plot, profile)
 	end
-	VillageSceneryBuilder.bindHomeAmbient(
-		self.world.ambientLife,
-		plot.houseContainer,
-		plotIndex,
-		self.world.layout.artSeed
-	)
+	PortalKeepsakeDisplayBuilder.refresh(plot.houseContainer, profile)
+	VillageSceneryBuilder.bindHomeAmbient(self.world.ambientLife, plot.houseContainer, plotIndex, self.world.layout.artSeed)
 	applyHomePlacement(plot)
 	if self.FurniturePlacementService then
 		self.FurniturePlacementService:renderAll(player, plot, profile)
@@ -236,8 +237,7 @@ function PlotService:refreshIdentity(player: Player, profile)
 		return
 	end
 	local house = HouseCatalog.get(profile.houseTier)
-	self.world.plots[plotIndex].ownerLabel.Text =
-		string.format("%s's Plot - %s", displayNameFor(player, profile), if house then house.name else "Home")
+	self.world.plots[plotIndex].ownerLabel.Text = string.format("%s's Plot - %s", displayNameFor(player, profile), if house then house.name else "Home")
 end
 
 function PlotService:getPlotForPlayer(player: Player)
