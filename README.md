@@ -4,70 +4,77 @@ TinyWorld is a persistent Roblox life sandbox where players build a home, belong
 
 **Build your life. Explore impossible worlds. Discover the secrets of TinyWorld.**
 
-## Current product release: v0.5.2 Village Soul
+## Current release: v0.6.0 Target-State Consolidation
 
-v0.5.2 resets presentation and world content around a compact HUD, a deterministic sixteen-home village, recognizable physical affordances, and a playful hero starter home. It preserves the existing profile version 10 data and server authority for economy, progression, inventory, plots, privacy, trade, transport, portals, homes, and saves.
+v0.6.0 applies the target-state upgrade blueprint as one consolidated release candidate. It preserves the server-authoritative v0.5.x village while introducing the scalable profile/content/home/security/UI/release foundations required for TinyWorld's v1 direction.
 
-- Start at the [canonical documentation index](docs/README.md).
-- Check [current release progress](docs/progress.md).
-- Follow the [v0.5.2 roadmap](docs/roadmap/v0.5.2-village-soul.md).
-- Record evidence in the [v0.5.2 acceptance checklist](docs/releases/v0.5.2/acceptance.md).
-- Run the exact [v0.5.2 Studio route](docs/v0.5.2-village-soul-test.md).
-- Run the [local visual-contract guard](tests/verify-v0.5.2-visual-contract.ps1).
-- Run the [ambient acceptance guard](tests/verify-v0.5.2-ambient-acceptance.ps1).
+Highlights:
 
-## Current engineering release: v0.5.3 Production Engineering Foundation
+- profile schema v11 with explicit migrations and fail-closed future-version handling;
+- generic stack/instance inventory, owned furniture, persisted placements, saved outfits, discovered worlds and keepsakes;
+- an 80-item home catalogue across eight categories, with reusable physical interactions;
+- server-authoritative furniture purchase, placement, move/store and visitor replication;
+- four authored impossible worlds and four ordinary-life activity definitions;
+- free character-expression/wardrobe foundation;
+- RemoteGuard, hardened onboarding and durable trade-journal semantics;
+- separate DEV/LIVE DataStore namespaces;
+- responsive touch/mouse/controller UI foundations;
+- bounded analytics, performance budgets and production-asset provenance contracts;
+- StyLua plus recursive Luau compile gates;
+- traceable `TinyWorld-v0.6.0.rbxlx` build evidence.
 
-v0.5.3 preserves the profile 10 product/runtime contract while establishing a
-credential-free, Rojo 7.7.0 build and release-evidence foundation. It does not
-publish DEV or LIVE places. For new build or release work, follow the
-[production engineering authority](docs/engineering/production-engineering.md),
-[v0.5.3 roadmap](docs/roadmap/v0.5.3-production-engineering.md), and
-[v0.5.3 acceptance checklist](docs/releases/v0.5.3/acceptance.md).
+Start here:
 
-Historical release material and dated design/implementation records remain linked from the [documentation index](docs/README.md). Material under `docs/superpowers/` is historical context unless an active v0.5.2 product or v0.5.3 engineering record explicitly links it as an implementation input.
+- [Canonical documentation index](docs/README.md)
+- [v1 target state](docs/product/target-state-v1.md)
+- [v0.6.0 roadmap](docs/roadmap/v0.6.0-target-state-consolidation.md)
+- [v0.6.0 acceptance](docs/releases/v0.6.0/acceptance.md)
+- [Current progress/evidence state](docs/progress.md)
+
+v0.5.2 Village Soul and v0.5.3 Production Engineering Foundation remain historical acceptance records. They explain how the current baseline was reached, but they do not override the v0.6.0 contract.
+
+## Evidence model
+
+Repository/CI evidence, one-player Studio evidence, multi-client Studio evidence, real-device evidence, published DEV evidence and LIVE promotion are separate gates.
+
+A green CI run proves source/build properties only. It does **not** prove recognisability, FPS, memory, controller/touch quality, multiplayer behaviour or published-place correctness. Those remain PENDING until actually observed and recorded in [v0.6.0 acceptance](docs/releases/v0.6.0/acceptance.md).
 
 ## Local verification
 
-With the Luau and PowerShell tools installed:
+With the pinned toolchain installed:
 
 ```sh
 luau tests/run.luau
 luau-analyze src/shared/*.luau tests/*.luau
-luau-compile src/server/*.luau >/dev/null
-luau-compile src/client/*.luau >/dev/null
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/verify-v0.5.2-visual-contract.ps1
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/verify-v0.5.2-ambient-acceptance.ps1
-git diff --check
-```
-
-For v0.5.3 release engineering, also run:
-
-```sh
+stylua --check src tests
+find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
 ./scripts/verify-release-contract.sh
 ./tests/build-contract.sh
 ./scripts/build.sh
+git diff --check
 ```
 
-The build creates the ignored `dist/TinyWorld-v0.5.3.rbxlx` candidate and
-`dist/release.json` traceability manifest. CI builds the same artifact without
-Roblox credentials; Studio/runtime, multiplayer, published DEV, device/family,
-and LIVE promotion remain separate evidence gates.
-
-The v0.5.2 guard fails closed while required release slices are absent. Studio, multi-client, published-place, and device evidence are separate human gates and must not be inferred from local checks.
-
-The v0.5.2 premium-feel quality gate is an observable craft gate, not monetisation: authored silhouettes, quality materials, composed lighting, tactile feedback, restrained UI, no arbitrary coloured cubes or telemetry walls, and a labels-off child-recognition test must all pass. See the acceptance checklist and Studio route for pass/fail instructions.
+The build creates the ignored `dist/TinyWorld-v0.6.0.rbxlx` candidate and `dist/release.json` traceability manifest. CI builds the same credential-free candidate. DEV/LIVE publishing remains explicitly unconfigured and human-gated.
 
 ## Studio setup
 
-Run `rojo serve`, connect the Rojo Studio plugin to a private test experience, enable Studio Access to API Services for that test experience, and press Play. Profile loading intentionally fails closed when saved data cannot be read; it does not create a replacement profile after a DataStore failure.
+Run `rojo serve`, connect the Rojo Studio plugin to a private DEV test experience, enable Studio Access to API Services for that test experience, and press Play. Studio defaults to the `TinyWorld_DEV_PlayerProfile_v11` namespace. Profile loading intentionally fails closed when saved data cannot be read or safely migrated.
+
+Follow the routes in the v0.6.0 acceptance record and quality documents. Do not point Studio testing at LIVE player data.
 
 ## Source layout
 
 ```text
-src/shared/   deterministic Roblox-service-free contracts
-src/server/   authoritative services and world builders
-src/client/   presentation-only HUD and onboarding
-tests/        pure Luau tests and fail-closed source guards
-docs/         canonical product, engineering, quality, roadmap, and release records
+src/shared/   deterministic rules, definitions and validation
+src/server/   authoritative services, persistence, security and world builders
+src/client/   presentation and input intent only
+tests/        pure Luau tests and fail-closed source/build guards
+docs/         canonical product, engineering, quality, roadmap and release records
+assets/       approved asset-manifest/provenance boundary
+config/       release/environment contracts without credentials
 ```
+
+## Product guardrails
+
+TinyWorld is not an idle clicker, combat-first game, portal lobby, menu-only house decorator or pay-to-win simulator. Major world objects must be recognisable without explanatory labels, the village must remain satisfying without portals, and impossible worlds must feed ordinary life back home.
