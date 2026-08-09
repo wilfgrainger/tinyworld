@@ -84,7 +84,7 @@ return function()
 	)
 
 	local legacy = ProfileSchema.normalize({ version = 5, coins = 500 })
-	TestUtil.equal(legacy.version, 10)
+	TestUtil.equal(legacy.version, 11)
 	TestUtil.equal(legacy.homeItems.Bed, 1)
 	TestUtil.equal(legacy.homeUseCount, 0)
 	TestUtil.equal(legacy.dailyRouteDay, "")
