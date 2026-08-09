@@ -44,6 +44,33 @@ local function safeOwnedSnapshot(profile)
 	return result
 end
 
+local function safePlacementSnapshot(profile)
+	local result = {}
+	if type(profile.furniturePlacements) ~= "table" then
+		return result
+	end
+	for placementId, placement in profile.furniturePlacements do
+		if
+			type(placementId) == "string"
+			and type(placement) == "table"
+			and type(placement.furnitureId) == "string"
+			and type(placement.x) == "number"
+			and type(placement.y) == "number"
+			and type(placement.z) == "number"
+			and type(placement.rotation) == "number"
+		then
+			result[placementId] = {
+				furnitureId = placement.furnitureId,
+				x = placement.x,
+				y = placement.y,
+				z = placement.z,
+				rotation = placement.rotation,
+			}
+		end
+	end
+	return result
+end
+
 function HomeStoreService.new(ProfileStore, PlayerStateService)
 	local self = setmetatable({}, HomeStoreService)
 	self.ProfileStore = ProfileStore
@@ -69,6 +96,7 @@ function HomeStoreService:_sendState(player: Player, profile)
 		kind = "state",
 		coins = profile.coins,
 		ownedFurniture = safeOwnedSnapshot(profile),
+		furniturePlacements = safePlacementSnapshot(profile),
 		placementCount = if type(profile.furniturePlacements) == "table"
 			then (function()
 				local count = 0
