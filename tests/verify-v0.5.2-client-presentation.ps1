@@ -57,6 +57,11 @@ Require-Match $main 'if\s+RunService:IsStudio\s*\(\s*\)\s+then[\s\S]*\.Name\s*=\
 Require-Match $main 'Moonlit Meadow' "friendly portal name"
 Require-Match $main 'Find the missing moon seeds' "friendly portal task copy"
 Require-Match $main 'makeChip\(\s*"LevelChip"\s*,\s*UDim2\.new\(0,\s*136,\s*0,\s*12\)\s*,\s*UDim2\.new\(1,\s*-208,\s*0,\s*44\)\s*\)' "responsive level chip reserves journal space"
+Require-Match $main 'local\s+journalConstraint\s*=\s*Instance\.new\("UISizeConstraint"\)' "responsive journal size constraint"
+Require-Match $main 'journalConstraint\.MinSize\s*=\s*Vector2\.new\(\s*280\s*,\s*250\s*\)' "journal fits short landscape viewports"
+Require-Match $main 'local\s+content\s*=\s*Instance\.new\("ScrollingFrame"\)' "journal content can scroll on small screens"
+Require-Match $main 'content\.AutomaticCanvasSize\s*=\s*Enum\.AutomaticSize\.Y' "journal canvas grows with its content"
+Require-Match $main 'content\.ScrollingDirection\s*=\s*Enum\.ScrollingDirection\.Y' "journal scrolls vertically"
 
 Reject-Match $main '\.Size\s*=\s*UDim2\.new\(0\.92,\s*0,\s*0,\s*480\)' "old 480px dashboard"
 Reject-Match $main 'TINYWORLD\s*\|\s*v0\.5\.1\s+PHYSICAL WORLD' "raw build title"
@@ -65,6 +70,7 @@ Reject-Match $main 'Mission finds\s*%d/3' "raw mission telemetry copy"
 Reject-Match $main 'Return loop:' "raw route telemetry in normal HUD"
 Reject-Match $main 'player:SetAttribute\s*\(' "client mutation of authoritative player state"
 Reject-Match $main ':FireServer\s*\(' "normal HUD server mutation"
+Reject-Match $main 'journalConstraint\.MinSize\s*=\s*Vector2\.new\(\s*300\s*,\s*380\s*\)' "journal does not force a 380px minimum height"
 
 foreach ($card in @("BoyCard", "GirlCard", "MeadowCard", "HarborCard", "SunsetCard")) {
     Require-Match $onboarding ('\.Name\s*=\s*"' + [regex]::Escape($card) + '"') "visual onboarding card $card"

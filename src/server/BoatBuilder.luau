@@ -1,3 +1,4 @@
+local CollectionService = game:GetService("CollectionService")
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local BoatBuilder = {}
@@ -107,6 +108,7 @@ function BoatBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 	model:SetAttribute("TinyWorldBoatOwner", name)
 	model:SetAttribute("TinyWorldRecognizableSilhouette", true)
 	model:SetAttribute("TinyWorldMotionState", "docked")
+	CollectionService:AddTag(model, "TinyWorldMotionModel")
 
 	return {
 		model = model,

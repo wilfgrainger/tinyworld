@@ -34,9 +34,9 @@ function Reject-Match {
 }
 
 $transport = Read-RequiredSource "src/server/TransportService.luau"
-Require-Match $transport 'function\s+TransportService:_seatPlayer\s*\(\s*player:\s*Player\s*,\s*seat:\s*Seat\s*\)' "bike mount has a server-side seating helper"
-Require-Match $transport 'seat:Sit\(\s*humanoid\s*\)' "bike mount explicitly seats the Humanoid"
-Require-Match $transport 'bike\.model:PivotTo\([\s\S]*?\)\s*\n\s*if\s+not\s+self:_seatPlayer\(\s*player\s*,\s*bike\.mountPart\s*\)' "bike seats after vehicle positioning"
+Require-Match $transport 'function\s+TransportService:_prepareRider\s*\(\s*player:\s*Player\s*,\s*seat:\s*Seat\s*\)' "bike mount validates a rider without taking movement control"
+Require-Match $transport 'bike\.model:PivotTo\([\s\S]*?\)\s*\n\s*if\s+not\s+self:_prepareRider\(\s*player\s*,\s*bike\.mountPart\s*\)' "bike validates rider readiness after vehicle positioning"
+Reject-Match $transport 'seat:Sit\(\s*humanoid\s*\)' "bike mount does not seat the Humanoid"
 Require-Match $transport 'function\s+TransportService:_restorePlayerState\s*\(\s*player:\s*Player(?:\s*,\s*profile:\s*any\?)?\s*\)' "bike cleanup has a safe player-state restore helper"
 Require-Match $transport 'humanoid\.Sit\s*=\s*false' "bike cleanup explicitly unseats the Humanoid"
 Require-Match $transport 'self:_restorePlayerState\(\s*player(?:\s*,\s*profile)?\s*\)' "bike dismount/respawn cleanup restores player state"
@@ -57,6 +57,13 @@ Require-Match $boat 'mountPrompt\.Triggered:Connect' "boat mount prompt contract
 Require-Match $boat 'triggeringPlayer\s*==\s*player' "boat prompt ownership check remains intact"
 Require-Match $boat 'TinyWorldMotionState' "boat motion state remains replicated through the existing model hook"
 Reject-Match $boat 'Heartbeat|RenderStepped|Stepped' "boat mount does not add a per-frame server loop"
+
+$motionAnimator = Read-RequiredSource "src/client/MotionAnimator.client.luau"
+Require-Match $motionAnimator 'game:GetService\("CollectionService"\)' "motion animator uses the tagged model service"
+Require-Match $motionAnimator 'CollectionService:GetTagged\("TinyWorldMotionModel"\)' "motion animator discovers existing tagged models once"
+Require-Match $motionAnimator 'GetInstanceAddedSignal\("TinyWorldMotionModel"\)' "motion animator tracks models as they are created"
+Require-Match $motionAnimator 'GetInstanceRemovedSignal\("TinyWorldMotionModel"\)' "motion animator releases removed models"
+Reject-Match $motionAnimator 'workspace:GetDescendants\(\)' "motion animator does not rescan the whole workspace every frame"
 
 if ($script:failures.Count -gt 0) {
     Write-Host "TinyWorld v0.5.2 vehicle mounting: FAIL" -ForegroundColor Red

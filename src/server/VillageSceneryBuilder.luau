@@ -312,9 +312,12 @@ local function buildTerrain(parent: Instance, layout: any)
 		terrainBand.Orientation = Vector3.new(0, band.rotation, 0)
 		terrainBand.Color = if band.material == "Ground" then VisualTheme.Colors.meadowDeep else VisualTheme.Colors.meadow
 		terrainBand.Material = if band.material == "Ground" then Enum.Material.Ground else Enum.Material.Grass
-		terrainBand.CanCollide = true
+		-- Elevation bands are visual dressing. VillageGround and plot bases
+		-- remain the stable collision foundation, so a sloped band can never
+		-- cut across an assigned plot or intercept gameplay raycasts.
+		terrainBand.CanCollide = false
 		terrainBand.CanTouch = false
-		terrainBand.CanQuery = true
+		terrainBand.CanQuery = false
 		terrainBand:SetAttribute("TinyWorldArtRole", "terrain-elevation-band")
 		terrainBand:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		terrainBand:SetAttribute("TinyWorldTerrainHeight", band.height)

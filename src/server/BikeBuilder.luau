@@ -1,3 +1,4 @@
+local CollectionService = game:GetService("CollectionService")
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local BikeBuilder = {}
@@ -97,6 +98,7 @@ function BikeBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	model:SetAttribute("TinyWorldRecognizableSilhouette", true)
 	model:SetAttribute("TinyWorldMotionState", "parked")
+	CollectionService:AddTag(model, "TinyWorldMotionModel")
 
 	return {
 		model = model,

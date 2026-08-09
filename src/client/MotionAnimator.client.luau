@@ -1,7 +1,9 @@
 local RunService = game:GetService("RunService")
+local CollectionService = game:GetService("CollectionService")
 
 local modelOffsets = {}
 local phaseSnapshots = {}
+local motionModels = {}
 
 local function rememberModel(model: Model)
 	if modelOffsets[model] == nil then
@@ -19,36 +21,47 @@ local function rememberModel(model: Model)
 		end
 	end
 
-local function forgetDescendant(descendant: Instance)
-	if descendant:IsA("Model") then
-		modelOffsets[descendant] = nil
-		phaseSnapshots[descendant] = nil
+local function trackModel(model: Instance)
+	if not model:IsA("Model") then
+		return
 	end
+	motionModels[model] = true
+	rememberModel(model)
 end
 
-workspace.DescendantRemoving:Connect(forgetDescendant)
+local function forgetModel(model: Instance)
+	motionModels[model] = nil
+	modelOffsets[model] = nil
+	phaseSnapshots[model] = nil
+end
+
+for _, model in CollectionService:GetTagged("TinyWorldMotionModel") do
+	trackModel(model)
+end
+CollectionService:GetInstanceAddedSignal("TinyWorldMotionModel"):Connect(trackModel)
+CollectionService:GetInstanceRemovedSignal("TinyWorldMotionModel"):Connect(forgetModel)
 
 RunService.Heartbeat:Connect(function()
 	local now = os.clock()
-	for _, descendant in workspace:GetDescendants() do
-		if not descendant:IsA("Model") then
+	for model in motionModels do
+		if model.Parent == nil then
+			forgetModel(model)
 			continue
 		end
-		local state = descendant:GetAttribute("TinyWorldMotionState")
+		local state = model:GetAttribute("TinyWorldMotionState")
 		if state == nil then
 			continue
 		end
 
-		rememberModel(descendant)
-		local phase = descendant:GetAttribute("TinyWorldMotionPhase") or 0
-		local snapshot = phaseSnapshots[descendant]
+		local phase = model:GetAttribute("TinyWorldMotionPhase") or 0
+		local snapshot = phaseSnapshots[model]
 		if snapshot == nil or snapshot.phase ~= phase then
 			snapshot = { phase = phase, receivedAt = now }
-			phaseSnapshots[descendant] = snapshot
+			phaseSnapshots[model] = snapshot
 		end
 		local visualPhase = if state == "parked" or state == "docked" then 0 else snapshot.phase + ((now - snapshot.receivedAt) * 8)
-		local pivot = descendant:GetPivot()
-		for part, offset in modelOffsets[descendant] do
+		local pivot = model:GetPivot()
+		for part, offset in modelOffsets[model] do
 			if part.Parent == nil then
 				continue
 			end

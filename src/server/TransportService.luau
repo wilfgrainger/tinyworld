@@ -132,17 +132,20 @@ function TransportService:_restorePlayerState(player: Player, profile: any?)
 	end
 end
 
-function TransportService:_seatPlayer(player: Player, seat: Seat): boolean
+function TransportService:_prepareRider(player: Player, seat: Seat): boolean
 	local character = player.Character
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
 	if humanoid == nil or humanoid.Health <= 0 or seat.Parent == nil then
 		return false
 	end
+	-- The bike follows the rider's HumanoidRootPart on the server. A normal
+	-- Seat would force the Humanoid into Seated and prevent movement input, so
+	-- this Seat remains a visual/prompt anchor rather than an occupant seat.
 	humanoid.Sit = false
-	local seated = pcall(function()
-		seat:Sit(humanoid)
-	end)
-	return seated
+	if humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
+	return true
 end
 
 function TransportService:apply(player: Player, profile)
@@ -219,7 +222,7 @@ function TransportService:_mount(player: Player)
 		return
 	end
 	bike.model:PivotTo(root.CFrame * CFrame.new(0, -2.4, 0))
-	if not self:_seatPlayer(player, bike.mountPart) then
+	if not self:_prepareRider(player, bike.mountPart) then
 		TransportRules.dismountTinyBike(profile)
 		self:apply(player, profile)
 		self.PlayerStateService.sync(player, profile)

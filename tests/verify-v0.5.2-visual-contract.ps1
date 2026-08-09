@@ -95,6 +95,8 @@ $sceneryBuilder = Read-RequiredSource "src/server/VillageSceneryBuilder.luau"
 Require-Match $sceneryBuilder 'function\s+buildTerrain\s*\(' "authored terrain geometry builder"
 Require-Match $sceneryBuilder 'Instance\.new\("WedgePart"\)' "visible sloped terrain geometry"
 Require-Match $sceneryBuilder 'TinyWorldTerrainHeight' "runtime terrain height evidence"
+Require-Match $sceneryBuilder 'terrainBand\.CanCollide\s*=\s*false' "terrain bands remain visual-only over stable ground"
+Require-Match $sceneryBuilder 'terrainBand\.CanQuery\s*=\s*false' "terrain bands do not interfere with world queries"
 foreach ($marker in @("TinyWorldArtRole", "TinyWorldPhysicalAffordance", "TinyWorldInteractionAnchor")) {
     Require-Match $authoredPrefabBuilder ([regex]::Escape($marker)) "AuthoredPrefabBuilder.$marker marker"
 }

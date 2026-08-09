@@ -180,7 +180,7 @@ journalPanel.Parent = gui
 addCorner(journalPanel, 18)
 addStroke(journalPanel, colors.gold, 0.48, 1.5)
 local journalConstraint = Instance.new("UISizeConstraint")
-journalConstraint.MinSize = Vector2.new(300, 380)
+journalConstraint.MinSize = Vector2.new(280, 250)
 journalConstraint.MaxSize = Vector2.new(720, 520)
 journalConstraint.Parent = journalPanel
 
@@ -217,7 +217,7 @@ tabLayout.FillDirectionMaxCells = 5
 tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 tabLayout.Parent = tabRow
 
-local content = Instance.new("Frame")
+local content = Instance.new("ScrollingFrame")
 content.Name = "Content"
 content.Position = UDim2.fromOffset(18, 110)
 content.Size = UDim2.new(1, -36, 1, -128)
@@ -225,6 +225,11 @@ content.BackgroundColor3 = colors.inkSoft
 content.BackgroundTransparency = 0.28
 content.BorderSizePixel = 0
 content.ClipsDescendants = true
+content.CanvasSize = UDim2.fromOffset(0, 0)
+content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+content.ScrollingDirection = Enum.ScrollingDirection.Y
+content.ScrollBarThickness = 4
+content.ScrollBarImageColor3 = colors.gold
 content.Parent = journalPanel
 addCorner(content, 12)
 addPadding(content, 14, 12)
@@ -258,7 +263,7 @@ collectionTab.Name = "CollectionTab"
 
 local function makeJournalSection(): Frame
 	local section = Instance.new("Frame")
-	section.Size = UDim2.fromScale(1, 1)
+	section.Size = UDim2.new(1, -28, 0, 260)
 	section.BackgroundTransparency = 1
 	section.Visible = false
 	section.Parent = content
@@ -324,6 +329,7 @@ local function selectJournalTab(selectedButton: TextButton)
 		entry.button.BackgroundColor3 = if selected then colors.gold else colors.inkSoft
 		entry.button.TextColor3 = if selected then colors.ink else colors.paper
 	end
+	content.CanvasPosition = Vector2.zero
 end
 
 for _, entry in tabEntries do
