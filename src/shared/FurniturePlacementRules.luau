@@ -105,13 +105,25 @@ local function validTransform(request: any): boolean
 		and finite(request.rotation)
 end
 
-local function insideBounds(request: any): boolean
-	return request.x >= FurniturePlacementRules.MIN_X
-		and request.x <= FurniturePlacementRules.MAX_X
+local function insideBounds(definition: any, request: any): boolean
+	local rotation = snapRotation(request.rotation)
+	local width, depth = footprint(definition, rotation)
+	local halfWidth = width / 2
+	local halfDepth = depth / 2
+	return request.x >= FurniturePlacementRules.MIN_X + halfWidth
+		and request.x <= FurniturePlacementRules.MAX_X - halfWidth
 		and request.y >= FurniturePlacementRules.MIN_Y
 		and request.y <= FurniturePlacementRules.MAX_Y
-		and request.z >= FurniturePlacementRules.MIN_Z
-		and request.z <= FurniturePlacementRules.MAX_Z
+		and request.z >= FurniturePlacementRules.MIN_Z + halfDepth
+		and request.z <= FurniturePlacementRules.MAX_Z - halfDepth
+end
+
+function FurniturePlacementRules.isInsideBounds(furnitureId: string, request: any): boolean
+	local definition = FurnitureDefinitions.get(furnitureId)
+	if definition == nil or definition.placeable ~= true or not validTransform(request) then
+		return false
+	end
+	return insideBounds(definition, request)
 end
 
 function FurniturePlacementRules.validate(profile: any, furnitureId: string, request: any): (boolean, string, any?)
@@ -122,7 +134,7 @@ function FurniturePlacementRules.validate(profile: any, furnitureId: string, req
 	if not validTransform(request) then
 		return false, "invalid_transform", nil
 	end
-	if not insideBounds(request) then
+	if not insideBounds(definition, request) then
 		return false, "out_of_bounds", nil
 	end
 	if totalPlacements(profile) >= FurniturePlacementRules.MAX_PLACEMENTS then
@@ -162,7 +174,7 @@ function FurniturePlacementRules.validateExisting(
 	if not validTransform(request) then
 		return false, "invalid_transform", nil
 	end
-	if not insideBounds(request) then
+	if not insideBounds(definition, request) then
 		return false, "out_of_bounds", nil
 	end
 	local canonical = canonicalTransform(request)
