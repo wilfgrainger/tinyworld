@@ -95,6 +95,8 @@ check_output_is_accepted() {
 check_output_is_rejected "rojo 7.7.0-rc.1"
 check_output_is_rejected "rojo 7.7.0+modified"
 check_output_is_rejected "rojo 7.7.0 7.7.1"
+check_output_is_rejected "ROJO 7.7.0"
+check_output_is_accepted "Rojo 7.7.0"
 check_output_is_accepted "rojo 7.7.0"
 check_output_is_accepted "7.7.0"
 

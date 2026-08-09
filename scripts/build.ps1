@@ -31,9 +31,10 @@ if ($LASTEXITCODE -ne 0) {
     throw "rojo --version failed with exit code $LASTEXITCODE; verify the installed Rojo executable"
 }
 $rojoVersionOutput = ($rojoVersionLines | Out-String).Trim()
-$expectedRojoOutput = "rojo $($release.rojoVersion)"
-if ($rojoVersionOutput -cne $expectedRojoOutput -and $rojoVersionOutput -cne [string]$release.rojoVersion) {
-    throw "Rojo version must report exactly `"$expectedRojoOutput`" or `"$($release.rojoVersion)`"; got: $rojoVersionOutput"
+$expectedOfficialRojoOutput = "Rojo $($release.rojoVersion)"
+$expectedLowercaseRojoOutput = "rojo $($release.rojoVersion)"
+if ($rojoVersionOutput -cne $expectedOfficialRojoOutput -and $rojoVersionOutput -cne $expectedLowercaseRojoOutput -and $rojoVersionOutput -cne [string]$release.rojoVersion) {
+    throw "Rojo version must report exactly `"$expectedOfficialRojoOutput`", `"$expectedLowercaseRojoOutput`", or `"$($release.rojoVersion)`"; got: $rojoVersionOutput"
 }
 
 if ($CheckOnly) {

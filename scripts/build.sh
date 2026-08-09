@@ -60,8 +60,8 @@ PROJECT_FILE="$(jq -er '.projectFile' "$RELEASE_CONFIG")"
 ARTIFACT_NAME="$(jq -er '.artifactFile' "$RELEASE_CONFIG")"
 ROJO_VERSION_OUTPUT="$(rojo --version)"
 
-if [[ "$ROJO_VERSION_OUTPUT" != "rojo $EXPECTED_ROJO_VERSION" && "$ROJO_VERSION_OUTPUT" != "$EXPECTED_ROJO_VERSION" ]]; then
-  echo "ERROR: rojo version must report exactly \"rojo $EXPECTED_ROJO_VERSION\" or \"$EXPECTED_ROJO_VERSION\"; got: $ROJO_VERSION_OUTPUT" >&2
+if [[ "$ROJO_VERSION_OUTPUT" != "Rojo $EXPECTED_ROJO_VERSION" && "$ROJO_VERSION_OUTPUT" != "rojo $EXPECTED_ROJO_VERSION" && "$ROJO_VERSION_OUTPUT" != "$EXPECTED_ROJO_VERSION" ]]; then
+  echo "ERROR: rojo version must report exactly \"Rojo $EXPECTED_ROJO_VERSION\", \"rojo $EXPECTED_ROJO_VERSION\", or \"$EXPECTED_ROJO_VERSION\"; got: $ROJO_VERSION_OUTPUT" >&2
   exit 1
 fi
 

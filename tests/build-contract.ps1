@@ -63,6 +63,9 @@ if "%output%"=="" exit /b 1
     Assert-CheckRejects 'rojo 7.7.0+modified'
     Assert-CheckRejects 'RoJo 7.7.0'
 
+    $env:TINYWORLD_TEST_ROJO_VERSION = 'Rojo 7.7.0'
+    & (Join-Path $rootDir 'scripts/build.ps1') -CheckOnly
+
     $env:TINYWORLD_TEST_ROJO_VERSION = 'rojo 7.7.0'
     & (Join-Path $rootDir 'scripts/build.ps1') -CheckOnly
 
