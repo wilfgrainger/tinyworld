@@ -1,8 +1,11 @@
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Inventory = require(shared:WaitForChild("Inventory"))
 local TradeRules = require(shared:WaitForChild("TradeRules"))
+local TradeTransactionRules = require(shared:WaitForChild("TradeTransactionRules"))
+local TradeJournal = require(script.Parent:WaitForChild("TradeJournal"))
 
 local TradeService = {}
 TradeService.__index = TradeService
@@ -14,6 +17,14 @@ local function offerName(itemName: string?): string
 		return "Carrot"
 	end
 	return "nothing"
+end
+
+local function offerSnapshot(itemName: string?): any
+	local result = {}
+	if itemName then
+		result[itemName] = 1
+	end
+	return result
 end
 
 function TradeService.new(world, ProfileStore, PlayerStateService, SocialService)
@@ -114,6 +125,8 @@ function TradeService:_join(player: Player, side: number)
 end
 
 function TradeService:_nextOffer(profile, current: string?): string?
+	-- v0.6 keeps public trading deliberately limited to low-value stackables.
+	-- Unique/high-value furniture trading remains disabled until recovery evidence passes.
 	local candidates = { "Carrot", "SugarCrystal", false }
 	local start = 1
 	if current == "Carrot" then
@@ -189,9 +202,37 @@ function TradeService:_complete(a: Player, b: Player)
 		self:_updateSign()
 		return
 	end
+	if Inventory.get(profileA, itemA) < 1 or Inventory.get(profileB, itemB) < 1 then
+		self:_invalidateConfirmations()
+		self.PlayerStateService.message(a, "Trade stopped because one of the offered items is no longer owned.")
+		self.PlayerStateService.message(b, "Trade stopped because one of the offered items is no longer owned.")
+		self:_updateSign()
+		return
+	end
+
+	local transaction = TradeTransactionRules.new(
+		HttpService:GenerateGUID(false),
+		a.UserId,
+		b.UserId,
+		offerSnapshot(itemA),
+		offerSnapshot(itemB),
+		self.version
+	)
+	TradeTransactionRules.confirm(transaction, a.UserId, self.version)
+	TradeTransactionRules.confirm(transaction, b.UserId, self.version)
+	local started = TradeTransactionRules.beginCommit(transaction)
+	if not started or not TradeJournal.write(transaction) then
+		self:_invalidateConfirmations()
+		self.PlayerStateService.message(a, "Trade paused because TinyWorld could not create a safe transaction record.")
+		self.PlayerStateService.message(b, "Trade paused because TinyWorld could not create a safe transaction record.")
+		self:_updateSign()
+		return
+	end
 
 	local traded, reason = TradeRules.exchange(profileA, itemA, profileB, itemB)
 	if not traded then
+		TradeTransactionRules.cancel(transaction, reason)
+		TradeJournal.write(transaction)
 		self:_invalidateConfirmations()
 		self.PlayerStateService.message(a, "Trade stopped because inventory changed: " .. reason)
 		self.PlayerStateService.message(b, "Trade stopped because inventory changed: " .. reason)
@@ -199,10 +240,29 @@ function TradeService:_complete(a: Player, b: Player)
 		return
 	end
 
+	local savedA = self.ProfileStore.saveNow(a)
+	local savedB = self.ProfileStore.saveNow(b)
+	if not (savedA and savedB) then
+		-- Best-effort rollback keeps the in-memory pair coherent and the committing
+		-- journal record makes the incomplete transaction visible for recovery/audit.
+		TradeRules.exchange(profileA, itemB, profileB, itemA)
+		self.ProfileStore.saveNow(a)
+		self.ProfileStore.saveNow(b)
+		TradeTransactionRules.cancel(transaction, "profile_save_failed")
+		TradeJournal.write(transaction)
+		self:_invalidateConfirmations()
+		self.PlayerStateService.sync(a, profileA)
+		self.PlayerStateService.sync(b, profileB)
+		self.PlayerStateService.message(a, "Trade was rolled back because TinyWorld could not safely save both profiles.")
+		self.PlayerStateService.message(b, "Trade was rolled back because TinyWorld could not safely save both profiles.")
+		self:_updateSign()
+		return
+	end
+
+	TradeTransactionRules.commit(transaction)
+	TradeJournal.write(transaction)
 	self.PlayerStateService.sync(a, profileA)
 	self.PlayerStateService.sync(b, profileB)
-	self.ProfileStore.save(a)
-	self.ProfileStore.save(b)
 	if self.SocialService then
 		self.SocialService:recordTrade(a, b)
 	end
@@ -240,4 +300,3 @@ function TradeService:removePlayer(player: Player)
 end
 
 return TradeService
-
