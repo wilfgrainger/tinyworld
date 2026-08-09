@@ -40,6 +40,9 @@ function PortalRules.completeWorld(profile: any, worldId: string): boolean
 	if world == nil then
 		return false
 	end
+	if not Inventory.canAdd(profile, world.inventoryItem, 1) then
+		return false
+	end
 	profile.coins += world.coins
 	Progression.addXp(profile, world.xp)
 	Inventory.add(profile, world.inventoryItem, 1)
