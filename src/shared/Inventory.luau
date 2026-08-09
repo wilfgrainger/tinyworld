@@ -59,16 +59,19 @@ local function set(profile: any, itemName: string, amount: number)
 	end
 end
 
-function Inventory.add(profile: any, itemName: string, amount: number): boolean
+function Inventory.canAdd(profile: any, itemName: string, amount: number): boolean
 	if not Inventory.isSupported(itemName) or not validAmount(amount) then
 		return false
 	end
 	local definition = ItemDefinitions.get(itemName)
-	local nextAmount = Inventory.get(profile, itemName) + amount
-	if definition and nextAmount > definition.maxStack then
+	return definition ~= nil and Inventory.get(profile, itemName) + amount <= definition.maxStack
+end
+
+function Inventory.add(profile: any, itemName: string, amount: number): boolean
+	if not Inventory.canAdd(profile, itemName, amount) then
 		return false
 	end
-	set(profile, itemName, nextAmount)
+	set(profile, itemName, Inventory.get(profile, itemName) + amount)
 	return true
 end
 
