@@ -1,18 +1,25 @@
 # TinyWorld documentation
 
-This index is the canonical entrypoint for TinyWorld product, engineering, quality, roadmap, and release documentation. New engineering or release work begins with the [v1 target state](product/target-state-v1.md), [production engineering](engineering/production-engineering.md), the [v0.5.3 roadmap](roadmap/v0.5.3-production-engineering.md), and its [acceptance record](releases/v0.5.3/acceptance.md). v0.5.2 remains the product/presentation acceptance record inherited by v0.5.3: use its [roadmap](roadmap/v0.5.2-village-soul.md), [acceptance record](releases/v0.5.2/acceptance.md), and exact [Studio route](v0.5.2-village-soul-test.md).
+This index is the canonical entrypoint for TinyWorld product, engineering, quality, roadmap and release documentation.
 
 ## Documentation authority
 
-1. Current release acceptance defines what has actually shipped and what evidence exists. v0.5.3 production engineering and acceptance define the active build/release baseline; v0.5.2 acceptance remains the inherited product/presentation baseline.
-2. [TinyWorld v1 Target State](product/target-state-v1.md) defines the product north star and v1.0 non-negotiables for future work.
-3. Product, engineering, and quality documents define durable direction and working rules.
-4. The active roadmap/spec defines sequencing and implementation scope; it does not prove that a feature shipped.
-5. `docs/superpowers/` is historical context unless an active release document explicitly links a file there as active input. Historical specs and plans remain useful decision records, but they do not override current canonical documents.
+Read/resolve conflicts in this order:
+
+1. **Current release acceptance:** [v0.6.0 acceptance](releases/v0.6.0/acceptance.md) defines what the repository/build actually proves and which Studio/device/publishing gates remain pending.
+2. **Target-state product contract:** [TinyWorld v1 Target State](product/target-state-v1.md) defines the product north star, launch content floor and v1 non-negotiables.
+3. **Durable product/engineering/quality contracts:** the documents indexed below define ongoing rules and boundaries.
+4. **Active release roadmap/spec/plan:** [v0.6.0 roadmap](roadmap/v0.6.0-target-state-consolidation.md) plus its linked Superpowers design/plan define current implementation scope and sequencing.
+5. **Historical records:** v0.5.2/v0.5.3 releases and older `docs/superpowers/` material remain useful evidence/decision history but do not override current authority.
+
+A roadmap/spec never proves a feature shipped. An unchecked runtime/device gate never becomes PASS because CI is green.
 
 ## Product
 
 - [TinyWorld v1 Target State](product/target-state-v1.md)
+- [Core loop](product/core-loop.md)
+- [Content catalogue contract](product/content-catalog.md)
+- [Safety and social contract](product/safety-social.md)
 - [Vision](product/vision.md)
 - [Experience pillars](product/experience-pillars.md)
 - [Art direction](product/art-direction.md)
@@ -20,25 +27,39 @@ This index is the canonical entrypoint for TinyWorld product, engineering, quali
 - [Homes](product/homes.md)
 - [UI and UX](product/ui-ux.md)
 
-## Delivery
+## Engineering
 
-- [Roadmap](roadmap/roadmap.md)
-- [v0.5.3 Production Engineering Foundation](roadmap/v0.5.3-production-engineering.md)
-- [v0.5.2 Village Soul](roadmap/v0.5.2-village-soul.md)
 - [Architecture](engineering/architecture.md)
+- [Data model](engineering/data-model.md)
+- [Runtime contracts](engineering/runtime-contracts.md)
+- [Remote security](engineering/remote-security.md)
+- [Asset pipeline](engineering/asset-pipeline.md)
 - [Production engineering](engineering/production-engineering.md)
 - [World content pipeline](engineering/world-content-pipeline.md)
 
-## Quality and releases
+## Quality
 
 - [Definition of done](quality/definition-of-done.md)
 - [Visual quality bar](quality/visual-quality-bar.md)
+- [Performance budgets](quality/performance-budgets.md)
+- [Mobile/accessibility contract](quality/accessibility-mobile.md)
 - [Playtesting](quality/playtesting.md)
-- [v0.5.3 engineering acceptance](releases/v0.5.3/acceptance.md)
+- [Release evidence template](quality/release-evidence-template.md)
+
+## Active delivery
+
+- [Roadmap](roadmap/roadmap.md)
+- [v0.6.0 Target-State Consolidation](roadmap/v0.6.0-target-state-consolidation.md)
+- [v0.6.0 acceptance](releases/v0.6.0/acceptance.md)
+- [v0.6.0 approved design](superpowers/specs/2026-08-09-tinyworld-v0.6.0-target-state-consolidation-design.md)
+- [v0.6.0 implementation plan](superpowers/plans/2026-08-09-tinyworld-v0.6.0-target-state-consolidation.md)
+
+## Historical releases
+
+- [v0.5.3 Production Engineering Foundation](roadmap/v0.5.3-production-engineering.md)
+- [v0.5.3 acceptance](releases/v0.5.3/acceptance.md)
+- [v0.5.2 Village Soul](roadmap/v0.5.2-village-soul.md)
 - [v0.5.2 acceptance](releases/v0.5.2/acceptance.md)
 - [v0.5.2 Studio route](v0.5.2-village-soul-test.md)
-- [v0.5.2 ambient acceptance guard](../tests/verify-v0.5.2-ambient-acceptance.ps1)
 
-## Historical context
-
-The approved [v0.5.3 design](superpowers/specs/2026-08-09-tinyworld-v0.5.3-production-engineering-design.md) and [implementation plan](superpowers/plans/2026-08-09-tinyworld-v0.5.3-production-engineering.md) are active engineering inputs. The approved [v0.5.2 design](superpowers/specs/2026-08-09-tinyworld-v0.5.2-village-soul-design.md) and [implementation plan](superpowers/plans/2026-08-09-tinyworld-v0.5.2-village-soul-implementation.md) remain active v0.5.2 product inputs. Other material under `docs/superpowers/` remains historical context.
+Older dated Superpowers specs/plans are historical unless a current release record explicitly adopts them.
