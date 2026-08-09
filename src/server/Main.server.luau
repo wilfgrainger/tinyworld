@@ -1,4 +1,8 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
+local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 
 local ProfileStore = require(script.Parent:WaitForChild("ProfileStore"))
 local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateService"))
@@ -63,7 +67,9 @@ local function rejectOverflowPlayer(player: Player)
 end
 
 local function onPlayerAdded(player: Player)
-	if #Players:GetPlayers() > #world.plots then
+	local currentPlayers = #Players:GetPlayers()
+	local admittedBeforeJoin = math.max(0, currentPlayers - 1)
+	if not WorldLayoutRules.canAdmitPlayer(admittedBeforeJoin) or currentPlayers > #world.plots then
 		rejectOverflowPlayer(player)
 		return
 	end
