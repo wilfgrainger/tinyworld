@@ -1,3 +1,10 @@
+local Inventory
+if script ~= nil then
+	Inventory = require(script.Parent:WaitForChild("Inventory"))
+else
+	Inventory = require("./Inventory")
+end
+
 local HomeExpressionRules = {}
 
 export type Theme = { id: string, name: string }
@@ -149,12 +156,8 @@ function HomeExpressionRules.acquire(profile, itemId: string): (boolean, string)
 	if (profile.coins or 0) < item.costCoins then
 		return false, "not_enough_coins"
 	end
-	if item.resource ~= nil then
-		local inventory = if type(profile.inventory) == "table" then profile.inventory else {}
-		if (inventory[item.resource] or 0) < 1 then
-			return false, "missing_resource"
-		end
-		inventory[item.resource] -= 1
+	if item.resource ~= nil and not Inventory.remove(profile, item.resource, 1) then
+		return false, "missing_resource"
 	end
 	profile.coins -= item.costCoins
 	decorItems(profile)[itemId] = 1
