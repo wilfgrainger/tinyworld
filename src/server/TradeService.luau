@@ -5,7 +5,9 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local Inventory = require(shared:WaitForChild("Inventory"))
 local TradeRules = require(shared:WaitForChild("TradeRules"))
 local TradeTransactionRules = require(shared:WaitForChild("TradeTransactionRules"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local TradeJournal = require(script.Parent:WaitForChild("TradeJournal"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local TradeService = {}
 TradeService.__index = TradeService
@@ -27,6 +29,60 @@ local function offerSnapshot(itemName: string?): any
 	return result
 end
 
+local function inventorySnapshot(profile: any, firstItem: string, secondItem: string): any
+	local result = {
+		[firstItem] = Inventory.get(profile, firstItem),
+	}
+	result[secondItem] = Inventory.get(profile, secondItem)
+	return result
+end
+
+local function expectedAfter(before: any, outgoing: string, incoming: string): any
+	local result = {}
+	for itemId, amount in before do
+		result[itemId] = amount
+	end
+	if outgoing ~= incoming then
+		result[outgoing] = math.max(0, (result[outgoing] or 0) - 1)
+		result[incoming] = (result[incoming] or 0) + 1
+	end
+	return result
+end
+
+local function matchesSnapshot(profile: any, snapshot: any): boolean
+	if type(snapshot) ~= "table" then
+		return false
+	end
+	for itemId, amount in snapshot do
+		if type(itemId) ~= "string" or type(amount) ~= "number" or Inventory.get(profile, itemId) ~= amount then
+			return false
+		end
+	end
+	return true
+end
+
+local function restoreSnapshot(profile: any, before: any, after: any): (boolean, string)
+	if matchesSnapshot(profile, before) then
+		return true, "already_before"
+	end
+	if not matchesSnapshot(profile, after) then
+		return false, "ambiguous_inventory"
+	end
+	for itemId, target in before do
+		local current = Inventory.get(profile, itemId)
+		if current > target then
+			if not Inventory.remove(profile, itemId, current - target) then
+				return false, "remove_failed"
+			end
+		elseif current < target then
+			if not Inventory.add(profile, itemId, target - current) then
+				return false, "add_failed"
+			end
+		end
+	end
+	return true, "restored"
+end
+
 function TradeService.new(world, ProfileStore, PlayerStateService, SocialService)
 	local self = setmetatable({}, TradeService)
 	self.world = world
@@ -38,6 +94,7 @@ function TradeService.new(world, ProfileStore, PlayerStateService, SocialService
 	self.confirmedVersion = {}
 	self.lastActivity = {}
 	self.version = 1
+	self.commitInProgress = false
 	self.TRADE_TIMEOUT_SECONDS = 120
 
 	for side, refs in world.trade.sides do
@@ -60,6 +117,9 @@ function TradeService:_touch(player: Player)
 end
 
 function TradeService:_pruneExpired()
+	if self.commitInProgress then
+		return
+	end
 	local now = os.clock()
 	local changed = false
 	for player, last in self.lastActivity do
@@ -94,8 +154,21 @@ function TradeService:_invalidateConfirmations()
 	self.confirmedVersion = {}
 end
 
+function TradeService:_resetActiveTrade()
+	self.players = {}
+	self.offers = {}
+	self.lastActivity = {}
+	self.commitInProgress = false
+	self:_invalidateConfirmations()
+	self:_updateSign()
+end
+
 function TradeService:_join(player: Player, side: number)
 	self:_pruneExpired()
+	if self.commitInProgress then
+		self.PlayerStateService.message(player, "This trade is being safely committed. Please wait for it to finish.")
+		return
+	end
 	if self.ProfileStore.get(player) == nil then
 		return
 	end
@@ -152,6 +225,10 @@ end
 
 function TradeService:_chooseOffer(player: Player, side: number)
 	self:_pruneExpired()
+	if self.commitInProgress then
+		self.PlayerStateService.message(player, "This trade is being safely committed. Offers are locked.")
+		return
+	end
 	if self.players[side] ~= player then
 		self.PlayerStateService.message(player, "Join this side of the Trading Post first.")
 		return
@@ -170,6 +247,10 @@ end
 
 function TradeService:_confirm(player: Player, side: number)
 	self:_pruneExpired()
+	if self.commitInProgress then
+		self.PlayerStateService.message(player, "This trade is already being safely committed.")
+		return
+	end
 	if self.players[side] ~= player then
 		self.PlayerStateService.message(player, "Join this trade side first.")
 		return
@@ -190,7 +271,71 @@ function TradeService:_confirm(player: Player, side: number)
 	end
 end
 
+function TradeService:_recoverActiveTrade(
+	transaction: any,
+	a: Player,
+	b: Player,
+	profileA: any,
+	profileB: any,
+	itemA: string,
+	itemB: string,
+	reason: string
+): boolean
+	if transaction.state == "committing" then
+		TradeTransactionRules.beginRecovery(transaction, reason)
+	else
+		transaction.recoveryReason = reason
+	end
+	TradeJournal.write(transaction)
+
+	local reversed, reverseReason = TradeRules.exchange(profileA, itemB, profileB, itemA)
+	if not reversed then
+		transaction.recoveryReason = reason .. ":" .. reverseReason
+		TradeJournal.write(transaction)
+		self.PlayerStateService.sync(a, profileA)
+		self.PlayerStateService.sync(b, profileB)
+		self:_resetActiveTrade()
+		if a.Parent then
+			a:Kick("TinyWorld paused an incomplete trade to protect your inventory. Please rejoin.")
+		end
+		if b.Parent then
+			b:Kick("TinyWorld paused an incomplete trade to protect your inventory. Please rejoin.")
+		end
+		return false
+	end
+
+	transaction.rollbackSavedA = self.ProfileStore.saveNow(a)
+	TradeJournal.write(transaction)
+	transaction.rollbackSavedB = self.ProfileStore.saveNow(b)
+	TradeJournal.write(transaction)
+	self.PlayerStateService.sync(a, profileA)
+	self.PlayerStateService.sync(b, profileB)
+
+	local recovered = transaction.rollbackSavedA and transaction.rollbackSavedB
+	if recovered then
+		local finished = TradeTransactionRules.finishRecovery(transaction)
+		if finished and TradeJournal.write(transaction) then
+			self.PlayerStateService.message(a, "Trade was safely rolled back. Nothing was lost.")
+			self.PlayerStateService.message(b, "Trade was safely rolled back. Nothing was lost.")
+			self:_resetActiveTrade()
+			return true
+		end
+	end
+
+	self:_resetActiveTrade()
+	if a.Parent then
+		a:Kick("TinyWorld is finishing recovery of an incomplete trade. Please rejoin in a moment.")
+	end
+	if b.Parent then
+		b:Kick("TinyWorld is finishing recovery of an incomplete trade. Please rejoin in a moment.")
+	end
+	return false
+end
+
 function TradeService:_complete(a: Player, b: Player)
+	if self.commitInProgress then
+		return
+	end
 	local profileA = self.ProfileStore.get(a)
 	local profileB = self.ProfileStore.get(b)
 	if profileA == nil or profileB == nil then
@@ -205,10 +350,11 @@ function TradeService:_complete(a: Player, b: Player)
 		self:_updateSign()
 		return
 	end
-	if Inventory.get(profileA, itemA) < 1 or Inventory.get(profileB, itemB) < 1 then
+	local canTrade, canTradeReason = TradeRules.canExchange(profileA, itemA, profileB, itemB)
+	if not canTrade then
 		self:_invalidateConfirmations()
-		self.PlayerStateService.message(a, "Trade stopped because one of the offered items is no longer owned.")
-		self.PlayerStateService.message(b, "Trade stopped because one of the offered items is no longer owned.")
+		self.PlayerStateService.message(a, "Trade stopped because inventory changed: " .. canTradeReason)
+		self.PlayerStateService.message(b, "Trade stopped because inventory changed: " .. canTradeReason)
 		self:_updateSign()
 		return
 	end
@@ -221,14 +367,30 @@ function TradeService:_complete(a: Player, b: Player)
 		offerSnapshot(itemB),
 		self.version
 	)
+	transaction.beforeA = inventorySnapshot(profileA, itemA, itemB)
+	transaction.beforeB = inventorySnapshot(profileB, itemA, itemB)
+	transaction.afterA = expectedAfter(transaction.beforeA, itemA, itemB)
+	transaction.afterB = expectedAfter(transaction.beforeB, itemB, itemA)
 	TradeTransactionRules.confirm(transaction, a.UserId, self.version)
 	TradeTransactionRules.confirm(transaction, b.UserId, self.version)
 	local started = TradeTransactionRules.beginCommit(transaction)
-	if not started or not TradeJournal.write(transaction) then
+	if not started then
 		self:_invalidateConfirmations()
-		self.PlayerStateService.message(a, "Trade paused because TinyWorld could not create a safe transaction record.")
-		self.PlayerStateService.message(b, "Trade paused because TinyWorld could not create a safe transaction record.")
 		self:_updateSign()
+		return
+	end
+
+	-- Single-flight lock is set before the first DataStore-yielding journal write.
+	self.commitInProgress = true
+	if not TradeJournal.write(transaction) then
+		TradeTransactionRules.beginRecovery(transaction, "journal_index_failed_before_exchange")
+		transaction.rollbackSavedA = true
+		transaction.rollbackSavedB = true
+		TradeTransactionRules.finishRecovery(transaction)
+		TradeJournal.write(transaction)
+		self:_resetActiveTrade()
+		self.PlayerStateService.message(a, "Trade stopped because TinyWorld could not create a recoverable transaction record.")
+		self.PlayerStateService.message(b, "Trade stopped because TinyWorld could not create a recoverable transaction record.")
 		return
 	end
 
@@ -236,42 +398,44 @@ function TradeService:_complete(a: Player, b: Player)
 	if not traded then
 		TradeTransactionRules.cancel(transaction, reason)
 		TradeJournal.write(transaction)
-		self:_invalidateConfirmations()
+		self:_resetActiveTrade()
 		self.PlayerStateService.message(a, "Trade stopped because inventory changed: " .. reason)
 		self.PlayerStateService.message(b, "Trade stopped because inventory changed: " .. reason)
-		self:_updateSign()
 		return
 	end
 
 	local savedA = self.ProfileStore.saveNow(a)
-	local savedB = self.ProfileStore.saveNow(b)
-	if not (savedA and savedB) then
-		-- Best-effort rollback keeps the in-memory pair coherent and the committing
-		-- journal record makes the incomplete transaction visible for recovery/audit.
-		TradeRules.exchange(profileA, itemB, profileB, itemA)
-		self.ProfileStore.saveNow(a)
-		self.ProfileStore.saveNow(b)
-		TradeTransactionRules.cancel(transaction, "profile_save_failed")
-		TradeJournal.write(transaction)
-		self:_invalidateConfirmations()
-		self.PlayerStateService.sync(a, profileA)
-		self.PlayerStateService.sync(b, profileB)
-		self.PlayerStateService.message(
-			a,
-			"Trade was rolled back because TinyWorld could not safely save both profiles."
-		)
-		self.PlayerStateService.message(
-			b,
-			"Trade was rolled back because TinyWorld could not safely save both profiles."
-		)
-		self:_updateSign()
+	transaction.persistedA = savedA
+	if savedA and not TradeJournal.write(transaction) then
+		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "journal_failed_after_first_save")
+		return
+	end
+	if not savedA then
+		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "first_profile_save_failed")
 		return
 	end
 
+	local savedB = self.ProfileStore.saveNow(b)
+	transaction.persistedB = savedB
+	if not savedB then
+		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "second_profile_save_failed")
+		return
+	end
+
+	-- The journal's terminal row is written before local success is announced.
+	-- Terminal TradeJournal.write returns false only when that authoritative row
+	-- itself could not be persisted; stale pending indexes self-clean later.
+	local committedSnapshot = table.clone(transaction)
+	committedSnapshot.state = "committed"
+	if not TradeJournal.write(committedSnapshot) then
+		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "commit_journal_failed")
+		return
+	end
 	TradeTransactionRules.commit(transaction)
-	TradeJournal.write(transaction)
 	self.PlayerStateService.sync(a, profileA)
 	self.PlayerStateService.sync(b, profileB)
+	TinyAnalyticsService.log(a, AnalyticsEvents.TradeCompleted)
+	TinyAnalyticsService.log(b, AnalyticsEvents.TradeCompleted)
 	if self.SocialService then
 		self.SocialService:recordTrade(a, b)
 	end
@@ -283,14 +447,68 @@ function TradeService:_complete(a: Player, b: Player)
 		b,
 		string.format("Trade complete: your %s for %s's %s.", offerName(itemB), a.Name, offerName(itemA))
 	)
-	self.players = {}
-	self.offers = {}
-	self:_invalidateConfirmations()
-	self:_updateSign()
+	self:_resetActiveTrade()
+end
+
+function TradeService:setupPlayer(player: Player): boolean
+	local transaction = TradeJournal.pendingForUser(player.UserId)
+	if transaction == nil then
+		return true
+	end
+	local profile = self.ProfileStore.get(player)
+	if profile == nil then
+		return false
+	end
+
+	if transaction.state == "committing" then
+		local started = TradeTransactionRules.beginRecovery(transaction, "server_resume")
+		if not started or not TradeJournal.write(transaction) then
+			return false
+		end
+	elseif transaction.state ~= "recovering" then
+		return false
+	end
+
+	local isA = transaction.playerAUserId == player.UserId
+	local isB = transaction.playerBUserId == player.UserId
+	if not isA and not isB then
+		return false
+	end
+	local before = if isA then transaction.beforeA else transaction.beforeB
+	local after = if isA then transaction.afterA else transaction.afterB
+	local restored, restoreReason = restoreSnapshot(profile, before, after)
+	if not restored then
+		transaction.recoveryReason = "ambiguous_resume:" .. restoreReason
+		TradeJournal.write(transaction)
+		return false
+	end
+
+	local durable = restoreReason == "already_before" or self.ProfileStore.saveNow(player)
+	if isA then
+		transaction.rollbackSavedA = durable
+	else
+		transaction.rollbackSavedB = durable
+	end
+	if not TradeJournal.write(transaction) then
+		return false
+	end
+	if transaction.rollbackSavedA and transaction.rollbackSavedB then
+		local finished = TradeTransactionRules.finishRecovery(transaction)
+		if not finished or not TradeJournal.write(transaction) then
+			return false
+		end
+	end
+	if durable then
+		self.PlayerStateService.message(player, "TinyWorld recovered an interrupted trade before you rejoined.")
+	end
+	return durable
 end
 
 function TradeService:_updateSign()
 	local lines = { "TRADING POST" }
+	if self.commitInProgress then
+		table.insert(lines, "Safely committing trade…")
+	end
 	for side = 1, 2 do
 		local player = self.players[side]
 		if player then
@@ -313,6 +531,10 @@ function TradeService:_updateSign()
 end
 
 function TradeService:removePlayer(player: Player)
+	if self.commitInProgress then
+		self.lastActivity[player] = nil
+		return
+	end
 	local side = self:_sideForPlayer(player)
 	if side then
 		self.players[side] = nil
