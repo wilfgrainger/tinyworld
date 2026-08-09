@@ -107,7 +107,8 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
   src scripts .github config assets 2>/dev/null; then
   fail "credential-shaped literal found in executable repository surfaces"
 fi
-if grep -RIEq --exclude-dir='.git' '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
+if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
+  '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
   fail "publishing automation is not approved in v0.6.0"
 fi
 pass "repository remains free of production publishing credentials/actions"
