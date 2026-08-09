@@ -4,7 +4,9 @@ local Players = game:GetService("Players")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local GardenRules = require(shared:WaitForChild("GardenRules"))
 local Profession = require(shared:WaitForChild("Profession"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local GardenService = {}
 GardenService.__index = GardenService
@@ -222,8 +224,9 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 	end
 	self:_syncBed(player, bedIndex)
 	self.PlayerStateService.sync(player, profile)
-	if ok then
-		self.ProfileStore.save(player)
+	local saveQueued = if ok then self.ProfileStore.save(player) else false
+	if saveQueued and reason == "harvested" then
+		TinyAnalyticsService.log(player, AnalyticsEvents.CareerCompleted)
 	end
 	if ok and reason == "planted" then
 		self.PlayerStateService.message(player, "Carrot planted. Water it next.")
@@ -236,6 +239,8 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 			player,
 			"Carrot harvested: +1 Carrot and +10 XP. Farmer XP +50." .. levelSuffix .. suffix
 		)
+	elseif reason == "inventory_full" then
+		self.PlayerStateService.message(player, "Your Carrot stack is full. Make room before harvesting this crop.")
 	else
 		local remaining = math.max(0, bed.readyAt - now)
 		self.PlayerStateService.message(
