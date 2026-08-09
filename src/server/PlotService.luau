@@ -44,6 +44,7 @@ function PlotService.new(world, ProfileStore, PlayerStateService, SocialService,
 	self.PlayerStateService = PlayerStateService
 	self.SocialService = SocialService
 	self.HomeService = HomeService
+	self.FurniturePlacementService = nil
 	self.playerPlots = {}
 	self.plotOwners = {}
 	self.identityConnections = {}
@@ -64,6 +65,10 @@ function PlotService.new(world, ProfileStore, PlayerStateService, SocialService,
 	end
 
 	return self
+end
+
+function PlotService:setFurniturePlacementService(service)
+	self.FurniturePlacementService = service
 end
 
 function PlotService:_ownerProfile(plotIndex: number)
@@ -203,6 +208,9 @@ function PlotService:rebuildHouse(player: Player, profile)
 	end
 	VillageSceneryBuilder.bindHomeAmbient(self.world.ambientLife, plot.houseContainer, plotIndex, self.world.layout.artSeed)
 	applyHomePlacement(plot)
+	if self.FurniturePlacementService then
+		self.FurniturePlacementService:renderAll(player, plot, profile)
+	end
 	plot.ownerLabel.Text = string.format("%s's Plot • %s", player.Name, if house then house.name else "Home")
 end
 
