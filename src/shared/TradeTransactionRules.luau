@@ -32,6 +32,11 @@ function TradeTransactionRules.new(
 		confirmedA = false,
 		confirmedB = false,
 		cancelReason = nil,
+		recoveryReason = nil,
+		persistedA = false,
+		persistedB = false,
+		rollbackSavedA = false,
+		rollbackSavedB = false,
 	}
 end
 
@@ -67,6 +72,33 @@ function TradeTransactionRules.beginCommit(transaction: any): (boolean, string)
 	return true, "committing"
 end
 
+function TradeTransactionRules.beginRecovery(transaction: any, reason: string): (boolean, string)
+	if type(transaction) ~= "table" then
+		return false, "invalid_transaction"
+	end
+	if transaction.state ~= "committing" then
+		return false, "invalid_state"
+	end
+	transaction.state = "recovering"
+	transaction.recoveryReason = if type(reason) == "string" and reason ~= "" then reason else "recovery_required"
+	return true, "recovering"
+end
+
+function TradeTransactionRules.finishRecovery(transaction: any): (boolean, string)
+	if type(transaction) ~= "table" then
+		return false, "invalid_transaction"
+	end
+	if transaction.state ~= "recovering" then
+		return false, "invalid_state"
+	end
+	if transaction.rollbackSavedA ~= true or transaction.rollbackSavedB ~= true then
+		return false, "rollback_not_durable"
+	end
+	transaction.state = "cancelled"
+	transaction.cancelReason = transaction.recoveryReason or "recovered"
+	return true, "cancelled"
+end
+
 function TradeTransactionRules.commit(transaction: any): (boolean, string)
 	if type(transaction) ~= "table" then
 		return false, "invalid_transaction"
@@ -87,6 +119,9 @@ function TradeTransactionRules.cancel(transaction: any, reason: string): (boolea
 	end
 	if transaction.state == "committed" then
 		return false, "already_committed"
+	end
+	if transaction.state == "recovering" then
+		return false, "recovery_required"
 	end
 	if transaction.state == "cancelled" then
 		return false, "already_cancelled"
