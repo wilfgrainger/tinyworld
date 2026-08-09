@@ -2,7 +2,11 @@
 
 ## Scale and membership
 
-One village displays at most sixteen resident homes, regardless of Roblox server capacity. Players beyond that visual cap are visitors until a future multi-village design is approved. Server capacity must never silently enlarge the residential composition.
+One TinyWorld v0.6 gameplay server displays and supports at most **sixteen resident homes**, and the Roblox place configuration must use a maximum player count of **16 or fewer**. Every admitted gameplay player receives one resident plot/home.
+
+The server also fails closed if configuration drift ever allows a player beyond the generated residential capacity: that player is asked to rejoin another village rather than entering a broken no-home onboarding path. “Visitor” means an admitted resident visiting another player’s home, not an overflow seventeenth resident.
+
+A future multi-village or overflow-home architecture may raise this limit only through an explicit product/engineering design. Server capacity must never silently enlarge the sixteen-home residential composition.
 
 ## Composition
 
@@ -118,6 +122,8 @@ World builders return named semantic anchors/models. Services validate and execu
 
 Studio/device playtesting records:
 
+- all admitted players receive a resident home at the configured capacity;
+- a deliberate capacity-misconfiguration test fails closed rather than producing a no-home player;
 - unprompted destination recognition;
 - traversal obstruction/time issues;
 - ordinary-life activity comprehension;
