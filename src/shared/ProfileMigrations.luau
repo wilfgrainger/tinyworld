@@ -84,8 +84,11 @@ local MIGRATIONS = {
 }
 
 function ProfileMigrations.migrate(raw: any): (any?, string?)
-	if type(raw) ~= "table" then
+	if raw == nil then
 		return { version = ProfileMigrations.CURRENT_VERSION }, nil
+	end
+	if type(raw) ~= "table" then
+		return nil, "invalid_profile_type"
 	end
 
 	local working = deepCopy(raw)
