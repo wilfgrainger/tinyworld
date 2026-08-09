@@ -13,6 +13,7 @@ local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsServic
 
 local FurniturePlacementService = {}
 FurniturePlacementService.__index = FurniturePlacementService
+FurniturePlacementService.HOME_MUTATION_DISTANCE = 30
 
 local function getRemote(): RemoteEvent
 	local root = ReplicatedStorage:WaitForChild("TinyWorld")
@@ -312,6 +313,18 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 	local plot, profile = self:_ownerContext(player)
 	if plot == nil or profile == nil then
 		self:_reply(player, false, "home_unavailable")
+		return
+	end
+	if
+		(payload.action == "place" or payload.action == "move" or payload.action == "store")
+		and not RemoteGuard.playerWithinDistance(
+			player,
+			plot.houseContainer:GetPivot().Position,
+			FurniturePlacementService.HOME_MUTATION_DISTANCE
+		)
+	then
+		RemoteGuard.warn(player, "furniture_placement", "away_from_home")
+		self:_reply(player, false, "not_at_home")
 		return
 	end
 
