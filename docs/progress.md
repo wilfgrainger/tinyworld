@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-09 - v0.1.0 invited alpha operations
+
+- Added an invited-alpha operations contract: `INVITED_ALPHA`, candidate version `v0.1.0`, a recommended eight-player cohort boundary, and pure health states for setup, saving, recovery-required, and ready.
+- Added server-only `AlphaOpsService` observation. It mirrors safe release/health attributes to players and aggregate-only operational counts to `TinyWorldGenerated`, polls the existing ProfileStore diagnostics on a bounded cadence, and announces a recovery transition without exposing names, IDs, profile contents, or secrets.
+- Preserved the existing onboarding, return-loop, social, home, persistence, and fair-economy contracts. The HUD now identifies the invited-alpha candidate; no Robux products, ads, paid access, or progression advantage were added.
+- The [v0.1.0 invited-alpha test](v0.1.0-invited-alpha-test.md) records the route and evidence boundary. The current synced Studio session visibly showed the candidate label and read aggregate `ready / 1 active / queue 0` diagnostics; the stopped Output had no red source/runtime exception. Static/compile proof and one Studio client still do not prove DataStore recovery, two-client behavior, published-place parity, or family/device comprehension.
+
 ## 2026-08-09 - v0.0.9 social village and functional home
 
 - Implemented the first social/home vertical slice after v0.0.8: a four-player Village Walk party, server-enforced plot privacy, shared-activity hooks for visits/trades, and a bounded trade negotiation lease with offer preflight and timeout invalidation.

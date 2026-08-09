@@ -17,6 +17,7 @@ local LivingWorldService = require(script.Parent:WaitForChild("LivingWorldServic
 local RouteService = require(script.Parent:WaitForChild("RouteService"))
 local SocialService = require(script.Parent:WaitForChild("SocialService"))
 local HomeService = require(script.Parent:WaitForChild("HomeService"))
+local AlphaOpsService = require(script.Parent:WaitForChild("AlphaOpsService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
 local routeService = RouteService.new(ProfileStore, PlayerStateService)
@@ -25,6 +26,7 @@ local homeService = HomeService.new(world, ProfileStore, PlayerStateService)
 local plotService = PlotService.new(world, ProfileStore, PlayerStateService, socialService, homeService)
 homeService:setPlotService(plotService)
 local onboardingService = OnboardingService.new(ProfileStore, PlayerStateService)
+local alphaOpsService = AlphaOpsService.new(world, ProfileStore, PlayerStateService)
 local gardenService = GardenService.new(world, plotService, ProfileStore, PlayerStateService, routeService)
 local _dailyRewardService = DailyRewardService.new(world, ProfileStore, PlayerStateService, routeService)
 local jobService = JobService.new(world, ProfileStore, PlayerStateService, routeService)
@@ -44,6 +46,7 @@ local function onPlayerAdded(player: Player)
 
 	PlayerStateService.setup(player, profile)
 	onboardingService:setupPlayer(player, profile)
+	alphaOpsService:setupPlayer(player)
 	routeService:sync(player, profile)
 	socialService:setupPlayer(player)
 	homeService:syncPlayer(player, profile)
@@ -68,6 +71,7 @@ local function onPlayerRemoving(player: Player)
 	jobService:removePlayer(player)
 	transportService:removePlayer(player)
 	onboardingService:removePlayer(player)
+	alphaOpsService:removePlayer(player)
 	plotService:release(player)
 	ProfileStore.release(player)
 end
@@ -80,5 +84,6 @@ for _, player in Players:GetPlayers() do
 end
 
 game:BindToClose(function()
+	alphaOpsService:stop()
 	ProfileStore.shutdown(25)
 end)

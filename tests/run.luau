@@ -19,6 +19,7 @@ local specs = {
 	require("./RouteRules.spec"),
 	require("./SocialRules.spec"),
 	require("./HomeRules.spec"),
+	require("./AlphaOpsRules.spec"),
 }
 
 for _, runSpec in specs do
