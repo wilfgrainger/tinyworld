@@ -1,4 +1,20 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "policy": {
+    "allowInventedIds": false,
+    "nativeFallbacksRemainValid": true,
+    "requiredProductionFields": [
+      "id",
+      "robloxAssetId",
+      "owner",
+      "source",
+      "licenseOrProvenance",
+      "prefabRole",
+      "version",
+      "status",
+      "devApproved",
+      "liveApproved"
+    ]
+  },
   "assets": []
 }
