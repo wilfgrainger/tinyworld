@@ -30,6 +30,8 @@ local placementRotation = 0
 local placementPoint = nil
 local placementValid = false
 local previewPart = nil
+local authoritativeBlockUntil = 0
+local feedbackToken = 0
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "TinyWorldHomeLife"
@@ -143,6 +145,50 @@ confirmButton.Size = UDim2.new(0.3, 0, 0, UiTokens.TouchTarget)
 local cancelButton = ButtonFactory.secondary(placementBar, "Cancel")
 cancelButton.Size = UDim2.new(0.3, 0, 0, UiTokens.TouchTarget)
 
+local placementFeedback = Instance.new("TextLabel")
+placementFeedback.Name = "PlacementFeedback"
+placementFeedback.AnchorPoint = Vector2.new(0.5, 1)
+placementFeedback.Position = UDim2.new(0.5, 0, 1, -108)
+placementFeedback.Size = UDim2.new(0.86, 0, 0, 48)
+placementFeedback.BackgroundColor3 = UiTokens.Colors.Danger
+placementFeedback.BackgroundTransparency = 0.04
+placementFeedback.BorderSizePixel = 0
+placementFeedback.TextColor3 = UiTokens.Colors.Paper
+placementFeedback.TextSize = 14
+placementFeedback.TextWrapped = true
+placementFeedback.Font = UiTokens.Fonts.Strong
+placementFeedback.Visible = false
+placementFeedback.ZIndex = UiTokens.ModalDisplayOrder + 2
+placementFeedback.Parent = gui
+local feedbackCorner = Instance.new("UICorner")
+feedbackCorner.CornerRadius = UDim.new(0, UiTokens.CornerRadius)
+feedbackCorner.Parent = placementFeedback
+
+local REJECTION_COPY = {
+	structural_collision = "That spot is blocked by a wall or a fixed home object.",
+	not_at_home = "Go back to your own home before changing furniture.",
+	outside_bounds = "Keep the whole item inside your home.",
+	overlap = "That would overlap furniture you already placed.",
+	not_owned = "You do not own an available copy of that item.",
+	placement_limit = "Your home has reached its furniture placement limit.",
+	rate_limit = "Too many placement changes at once. Try again in a moment.",
+	home_unavailable = "Your home is not ready for furniture changes yet.",
+	invalid_request = "TinyWorld could not understand that placement. Try another spot.",
+}
+
+local function showFeedback(reason: string)
+	feedbackToken += 1
+	local token = feedbackToken
+	placementFeedback.Text = REJECTION_COPY[reason] or "That placement was rejected by TinyWorld. Try another spot."
+	placementFeedback.Visible = true
+	player:SetAttribute("TinyWorldHomeUiMessage", reason)
+	task.delay(2.5, function()
+		if token == feedbackToken then
+			placementFeedback.Visible = false
+		end
+	end)
+end
+
 local function viewportSize(): Vector2
 	return if camera then camera.ViewportSize else Vector2.new(1280, 720)
 end
@@ -195,6 +241,8 @@ local function refreshItems()
 				placementDefinition = definition
 				placementRotation = 0
 				placementValid = false
+				authoritativeBlockUntil = 0
+				placementFeedback.Visible = false
 				modalController:close(backdrop)
 				backdrop.Visible = false
 				placementBar.Visible = true
@@ -231,6 +279,9 @@ local function openHome()
 end
 
 local function updateConfirmState(valid: boolean)
+	if os.clock() < authoritativeBlockUntil then
+		valid = false
+	end
 	placementValid = valid
 	confirmButton.Active = valid
 	confirmButton.Selectable = valid
@@ -250,6 +301,8 @@ local function removePreview()
 	placementDefinition = nil
 	placementPoint = nil
 	placementValid = false
+	authoritativeBlockUntil = 0
+	placementFeedback.Visible = false
 	placementBar.Visible = false
 	homeButton.Visible = true
 	ContextActionService:UnbindAction("TinyWorldRotateFurniture")
@@ -283,6 +336,8 @@ end
 
 local function confirmPlacement()
 	if placementDefinition and placementPoint and placementValid then
+		authoritativeBlockUntil = os.clock() + 0.8
+		updateConfirmState(false)
 		placementRemote:FireServer({
 			action = "place",
 			furnitureId = placementDefinition.id,
@@ -408,8 +463,7 @@ storeRemote.OnClientEvent:Connect(function(payload)
 		furniturePlacements = if type(payload.furniturePlacements) == "table" then payload.furniturePlacements else {}
 		refreshItems()
 	elseif payload.kind == "result" and payload.ok == false then
-		local reason = tostring(payload.reason or "purchase_failed")
-		player:SetAttribute("TinyWorldHomeUiMessage", reason)
+		showFeedback(tostring(payload.reason or "purchase_failed"))
 	end
 end)
 
@@ -421,8 +475,9 @@ placementRemote.OnClientEvent:Connect(function(payload)
 		removePreview()
 		storeRemote:FireServer({ action = "state" })
 	elseif payload.ok == false then
+		authoritativeBlockUntil = os.clock() + 1.5
 		updateConfirmState(false)
-		player:SetAttribute("TinyWorldHomeUiMessage", tostring(payload.reason or "placement_failed"))
+		showFeedback(tostring(payload.reason or "placement_failed"))
 	end
 end)
 
