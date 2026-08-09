@@ -1,0 +1,41 @@
+name: Rojo build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Rokit
+        run: |
+          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
+          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
+          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          rokit install
+      - name: Verify release contract
+        run: ./scripts/verify-release-contract.sh
+      - name: Build release candidate
+        run: ./scripts/build.sh
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tinyworld-v0.5.3-${{ github.sha }}
+          path: |
+            dist/TinyWorld-v0.5.3.rbxlx
+            dist/release.json
+          if-no-files-found: error
+          retention-days: 14

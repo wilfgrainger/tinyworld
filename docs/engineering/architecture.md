@@ -4,6 +4,8 @@
 
 TinyWorld remains server-authoritative. Server services own profile loading, coins, XP, inventory, plot ownership, privacy, trades, home progression, vehicles, portals, daily state, and saves. Client code observes replicated state and presents requests; it does not validate or mint authoritative outcomes.
 
+The v0.5.3 build/release boundary is documented in [production engineering](production-engineering.md). Git is authoritative for source and the `default.project.json` Rojo assembly boundary; Roblox remains authoritative for published places, DataStores, permissions, and platform state. Studio supports visual authoring and playtesting but is not an undocumented release master.
+
 ## Layers
 
 | Layer | Responsibility | Must not own |

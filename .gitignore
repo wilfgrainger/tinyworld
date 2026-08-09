@@ -1,0 +1,6 @@
+dist/
+.rokit/
+.worktrees/
+.superpowers/
+*.rbxl
+*.rbxlx
