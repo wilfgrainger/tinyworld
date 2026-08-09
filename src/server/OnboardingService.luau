@@ -3,7 +3,9 @@ local TextService = game:GetService("TextService")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local OnboardingRules = require(shared:WaitForChild("OnboardingRules"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local OnboardingService = {}
 OnboardingService.__index = OnboardingService
@@ -66,7 +68,6 @@ function OnboardingService.new(ProfileStore, PlayerStateService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
 	self.remote = getRemote()
-	self.characterConnections = {}
 	self.remoteConnection = self.remote.OnServerEvent:Connect(function(player, payload)
 		self:_submit(player, payload)
 	end)
@@ -83,25 +84,16 @@ function OnboardingService:_setState(player: Player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", complete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not complete)
 	if complete then
+		-- Immediate first-session feedback only. AppearanceService owns every
+		-- CharacterAdded write after this point so active saved looks cannot be
+		-- overwritten by the legacy starter palette on respawn.
 		applyPalette(player, profile.starterOutfit)
 	end
 	return complete
 end
 
 function OnboardingService:setupPlayer(player: Player, profile)
-	local oldConnection = self.characterConnections[player]
-	if oldConnection then
-		oldConnection:Disconnect()
-	end
-
 	self:_setState(player, profile)
-	self.characterConnections[player] = player.CharacterAdded:Connect(function()
-		task.wait(0.25)
-		local latest = self.ProfileStore.get(player)
-		if latest and OnboardingRules.isComplete(latest) then
-			applyPalette(player, latest.starterOutfit)
-		end
-	end)
 end
 
 function OnboardingService:_filterName(player: Player, name: string): (string?, string?)
@@ -195,16 +187,12 @@ function OnboardingService:_submit(player: Player, payload: any)
 	end
 
 	self:_setState(player, profile)
+	TinyAnalyticsService.log(player, AnalyticsEvents.OnboardingCompleted)
 	self.PlayerStateService.message(player, "Welcome to TinyWorld, " .. profile.displayName .. "!")
 	self:_reply(player, true, "Your TinyWorld setup is saved.")
 end
 
 function OnboardingService:removePlayer(player: Player)
-	local connection = self.characterConnections[player]
-	if connection then
-		connection:Disconnect()
-		self.characterConnections[player] = nil
-	end
 	RemoteGuard.clearPlayer(player)
 end
 
