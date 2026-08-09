@@ -7,6 +7,16 @@ return function()
 		return
 	end
 
+	local newPlayer, newPlayerReason = ProfileMigrations.migrate(nil)
+	TestUtil.equal(newPlayerReason, nil)
+	TestUtil.equal(newPlayer.version, 11)
+
+	for _, malformed in { "corrupt", 42, true } do
+		local rejected, rejectedReason = ProfileMigrations.migrate(malformed)
+		TestUtil.equal(rejected, nil)
+		TestUtil.equal(rejectedReason, "invalid_profile_type")
+	end
+
 	local legacy = {
 		version = 10,
 		inventory = { Carrot = 4, SugarCrystal = 2, MeadowSeed = 3, Seashell = 1, WoodToken = 5 },
