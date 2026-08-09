@@ -5,6 +5,7 @@ local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
 local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
 local SocialRules = require(shared:WaitForChild("SocialRules"))
+local HomeExpressionRules = require(shared:WaitForChild("HomeExpressionRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local PlotService = {}
@@ -246,6 +247,12 @@ function PlotService:rebuildHouse(player: Player, profile)
 	local wallColor = wallColors[tier] or VisualTheme.Colors.cream
 	local roofColor = if tier >= 3 then VisualTheme.Colors.roof else VisualTheme.Colors.timberDark
 	local frontZ = depth / 2
+	local styleColours = {
+		Meadow = VisualTheme.Colors.flower,
+		Harbor = VisualTheme.Colors.sky,
+		Sunset = VisualTheme.Colors.berry,
+	}
+	local styleColour = styleColours[profile.homeTheme] or styleColours.Meadow
 
 	makeHousePart(plot.houseContainer, "Floor", Vector3.new(width, 1, depth), anchor, VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeHousePart(plot.houseContainer, "BackWall", Vector3.new(width, height, 1), anchor + Vector3.new(0, height / 2, -depth / 2), wallColor)
@@ -256,6 +263,7 @@ function PlotService:rebuildHouse(player: Player, profile)
 	makeHousePart(plot.houseContainer, "FrontRight", Vector3.new(frontSegment, height, 1), anchor + Vector3.new((width - frontSegment) / 2, height / 2, depth / 2), wallColor)
 	makeHousePart(plot.houseContainer, "Roof", Vector3.new(width + 2, 2, depth + 2), anchor + Vector3.new(0, height + 1, 0), roofColor, Enum.Material.Slate)
 	makeHouseDecoration(plot.houseContainer, "RoofTrim", Vector3.new(width + 4, 0.5, 1), anchor + Vector3.new(0, height + 2.2, frontZ), VisualTheme.Colors.gold, Enum.Material.Wood)
+	makeHouseDecoration(plot.houseContainer, "HomeStyleAccent", Vector3.new(width - 8, 0.45, 0.5), anchor + Vector3.new(0, height - 1.2, frontZ + 0.75), styleColour, Enum.Material.Fabric)
 	makeHouseDecoration(plot.houseContainer, "RoofRidge", Vector3.new(1.2, 0.6, depth + 2), anchor + Vector3.new(0, height + 2.55, 0), VisualTheme.Colors.roofLight, Enum.Material.Slate)
 	makeHouseDecoration(plot.houseContainer, "GableAccent", Vector3.new(width * 0.62, 0.45, 0.45), anchor + Vector3.new(0, height + 2.7, frontZ - 1), VisualTheme.Colors.creamDeep, Enum.Material.Wood)
 	makeHouseDecoration(plot.houseContainer, "HouseFacade", Vector3.new(width - 6, 0.7, 0.6), anchor + Vector3.new(0, height - 0.8, frontZ + 0.65), roofColor, Enum.Material.WoodPlanks)

@@ -244,6 +244,15 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	local privacyKiosk = makePart(model, "PrivacyKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(12, 2, 24), VisualTheme.Colors.sky)
 	local privacyPrompt = makePrompt(privacyKiosk, "Change Privacy", "Home Access")
 	makeInteractionMarker(model, "PrivacyMarker", origin + Vector3.new(12, 0, 24), VisualTheme.Colors.sky)
+	local itemChest = makePart(model, "ItemChest", Vector3.new(6, 3, 4), origin + Vector3.new(20, 1.5, 20), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	local itemChestLid = makeDecoration(model, "ItemChestLid", Vector3.new(6.3, 0.45, 4.3), origin + Vector3.new(20, 3.2, 20), VisualTheme.Colors.woodLight, Enum.Material.Wood)
+	itemChestLid.Orientation = Vector3.new(-8, 0, 0)
+	local itemChestLabel = makeLabel(itemChest, "ITEM CHEST\nYour collected things", 190, 55)
+	local itemChestPrompt = makePrompt(itemChest, "View Items", "Item Chest")
+	makeInteractionMarker(model, "ItemChestMarker", origin + Vector3.new(20, 0, 20), VisualTheme.Colors.warmLight)
+	local itemDisplay = Instance.new("Model")
+	itemDisplay.Name = "InventoryDisplay"
+	itemDisplay.Parent = model
 
 	local visitKiosk = makePart(model, "VisitKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, 24), VisualTheme.Colors.portal)
 	local visitPrompt = makePrompt(visitKiosk, "Enter Home", "Front Gate")
@@ -274,6 +283,10 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 		ownerLabel = ownerLabel,
 		upgradePrompt = upgradePrompt,
 		privacyPrompt = privacyPrompt,
+		itemChest = itemChest,
+		itemChestLabel = itemChestLabel,
+		itemChestPrompt = itemChestPrompt,
+		itemDisplay = itemDisplay,
 		visitPrompt = visitPrompt,
 		homeCharmPrompt = homeCharmPrompt,
 		gardenBeds = gardenBeds,
@@ -488,6 +501,14 @@ function WorldBuilder.build(maxPlayers: number?)
 	local homeSupplyLabel = makeLabel(homeSupply, "HOME SUPPLY\nFurniture and essentials", 340)
 	local homeSupplyPrompt = makePrompt(homeSupply, "Buy Next Essential", "Home Supply")
 	makeInteractionMarker(root, "HomeSupplyMarker", Vector3.new(30, 0, -56), VisualTheme.Colors.gold)
+	local homeStyle = makePart(root, "HomeStyleBoard", Vector3.new(7, 4, 5), Vector3.new(18, 2, -56), VisualTheme.Colors.sky, Enum.Material.WoodPlanks)
+	local homeStyleLabel = makeLabel(homeStyle, "HOME STYLE\nMeadow • Harbor • Sunset", 340)
+	local homeStylePrompt = makePrompt(homeStyle, "Change Home Style", "Home Style")
+	makeInteractionMarker(root, "HomeStyleMarker", Vector3.new(18, 0, -56), VisualTheme.Colors.sky)
+	local homeDecor = makePart(root, "HomeGallery", Vector3.new(8, 4, 6), Vector3.new(42, 2, -56), VisualTheme.Colors.portal, Enum.Material.WoodPlanks)
+	local homeDecorLabel = makeLabel(homeDecor, "HOME GALLERY\nSix authored pieces", 340)
+	local homeDecorPrompt = makePrompt(homeDecor, "Collect Next Decor", "Home Gallery")
+	makeInteractionMarker(root, "HomeGalleryMarker", Vector3.new(42, 0, -56), VisualTheme.Colors.portal)
 
 	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", VisualTheme.Colors.sky)
 	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), VisualTheme.Colors.skyDeep)
@@ -540,6 +561,10 @@ function WorldBuilder.build(maxPlayers: number?)
 		deliveryEndPrompt = deliveryEndPrompt,
 		homeSupplyPrompt = homeSupplyPrompt,
 		homeSupplyLabel = homeSupplyLabel,
+		homeStylePrompt = homeStylePrompt,
+		homeStyleLabel = homeStyleLabel,
+		homeDecorPrompt = homeDecorPrompt,
+		homeDecorLabel = homeDecorLabel,
 		transportPrompt = transportPrompt,
 		trade = trade,
 		social = social,

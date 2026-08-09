@@ -4,7 +4,13 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local GoalRules = require(shared:WaitForChild("GoalRules"))
 
-local PlayerStateService = {}
+local PlayerStateService = {
+	syncListeners = {},
+}
+
+function PlayerStateService.addSyncListener(listener)
+	table.insert(PlayerStateService.syncListeners, listener)
+end
 
 function PlayerStateService.setup(player: Player, profile)
 	local leaderstats = player:FindFirstChild("leaderstats")
@@ -57,6 +63,8 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldWoodTokens", profile.inventory.WoodToken)
 	player:SetAttribute("TinyWorldLifeKitCount", profile.inventory.MeadowSeed + profile.inventory.Seashell + profile.inventory.WoodToken)
 	player:SetAttribute("TinyWorldHomeCharm", profile.homeCharmApplied)
+	player:SetAttribute("TinyWorldHomeTheme", profile.homeTheme)
+	player:SetAttribute("TinyWorldHomeShowcaseCount", profile.homeShowcaseCount)
 	player:SetAttribute("TinyWorldCourierLevel", profile.courierLevel)
 	player:SetAttribute("TinyWorldCourierXP", profile.courierXp)
 	player:SetAttribute("TinyWorldOwnsBike", profile.ownsTinyBike)
@@ -75,6 +83,12 @@ function PlayerStateService.sync(player: Player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", profile.onboardingComplete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not profile.onboardingComplete)
 	player:SetAttribute("TinyWorldSuggestedGoal", GoalRules.suggestedGoal(profile))
+	for _, listener in PlayerStateService.syncListeners do
+		local ok, err = pcall(listener, player, profile)
+		if not ok then
+			warn("TinyWorld sync listener failed: " .. tostring(err))
+		end
+	end
 end
 
 function PlayerStateService.message(player: Player, text: string)

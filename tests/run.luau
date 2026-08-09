@@ -19,6 +19,7 @@ local specs = {
 	require("./RouteRules.spec"),
 	require("./SocialRules.spec"),
 	require("./HomeRules.spec"),
+	require("./HomeExpressionRules.spec"),
 	require("./AlphaOpsRules.spec"),
 }
 

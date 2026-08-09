@@ -30,8 +30,8 @@ if ($main -notmatch 'portalService:setupPlayer') {
     Write-Output "Main must initialise the generic portal state for every player."
     exit 1
 }
-if ($client -notmatch 'v0\.2\.0 PORTALS' -or $client -notmatch 'Mission finds' -or $client -notmatch 'TinyWorldPortalWorld') {
-    Write-Output "HUD must identify the portal release and generic mission state."
+if ($client -notmatch 'Mission finds' -or $client -notmatch 'TinyWorldPortalWorld') {
+	Write-Output "HUD must preserve the generic portal mission state across releases."
     exit 1
 }
 

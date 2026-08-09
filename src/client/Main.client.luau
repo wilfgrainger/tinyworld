@@ -30,7 +30,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.new(0.92, 0, 0, 440)
+panel.Size = UDim2.new(0.92, 0, 0, 480)
 panel.Position = UDim2.fromOffset(12, 12)
 panel.BackgroundColor3 = colors.ink
 panel.BackgroundTransparency = 0.08
@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / PORTAL WORLDS • STORYBOOK"
+eyebrow.Text = "TODAY / HOME EXPRESSION • STORYBOOK"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.2.0 PORTALS"
+title.Text = "TINYWORLD | v0.3.0 HOMES"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -100,6 +100,7 @@ local displayName = makeLabel("DisplayName", 22, 15, false)
 local stats = makeLabel("Stats", 25, 16, true)
 stats.TextColor3 = colors.gold
 local home = makeLabel("Home", 25, 15, false)
+local expression = makeLabel("Expression", 25, 15, false)
 local inventory = makeLabel("Inventory", 25, 15, false)
 local lifeKit = makeLabel("LifeKit", 25, 15, false)
 local profession = makeLabel("Profession", 25, 15, false)
@@ -197,6 +198,7 @@ local function update()
 	displayName.Text = string.format("Name: %s   |   Style: %s   |   Outfit: %s", attr("TinyWorldDisplayName", "New TinyWorlder"), attr("TinyWorldAvatarStyle", "-"), attr("TinyWorldStarterOutfit", "-"))
 	stats.Text = string.format("Coins: %d  |  Level %d  |  XP %d/%d", coins, level, xp, threshold)
 	home.Text = string.format("Home: %s T%d  |  %s  |  Items %d/4", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"), attr("TinyWorldHomeOwnedCount", 1))
+	expression.Text = string.format("Style: %s  |  Decor %d/6  |  Showcase %d", attr("TinyWorldHomeTheme", "Meadow"), attr("TinyWorldHomeDecorCount", 0), attr("TinyWorldHomeShowcaseCount", 0))
 	inventory.Text = string.format("Bag: %d Carrot(s)  |  %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
 	local charm = if attr("TinyWorldHomeCharm", false) then "  |  Home charm" else ""
 	lifeKit.Text = string.format("Life kit: %d seed  |  %d shell  |  %d wood", attr("TinyWorldMeadowSeeds", 0), attr("TinyWorldSeashells", 0), attr("TinyWorldWoodTokens", 0)) .. charm
@@ -210,7 +212,7 @@ local function update()
 	local partyText = if attr("TinyWorldPartyMember", false) then string.format("Village Walk %d/4", attr("TinyWorldPartySize", 0)) else "Village Walk: join Meetup"
 	local visit = attr("TinyWorldVisitingHome", "")
 	local visitText = if visit == "" then "" else "  |  Visiting " .. visit
-	social.Text = string.format("Social: %s  |  Shared %d%s", partyText, attr("TinyWorldSharedActivityCount", 0), visitText)
+	social.Text = string.format("Social: %s  |  Shared %d  |  Showcase %d%s", partyText, attr("TinyWorldSharedActivityCount", 0), attr("TinyWorldHomeShowcaseCount", 0), visitText)
 	local carry = if attr("TinyWorldCarryingParcel", false) then "  |  PARCEL ACTIVE" else ""
 	goal.Text = "TODAY: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
 	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
@@ -230,6 +232,9 @@ local observed = {
 	"TinyWorldWoodTokens",
 	"TinyWorldLifeKitCount",
 	"TinyWorldHomeCharm",
+	"TinyWorldHomeTheme",
+	"TinyWorldHomeDecorCount",
+	"TinyWorldHomeShowcaseCount",
 	"TinyWorldCourierLevel",
 	"TinyWorldCourierXP",
 	"TinyWorldOwnsBike",

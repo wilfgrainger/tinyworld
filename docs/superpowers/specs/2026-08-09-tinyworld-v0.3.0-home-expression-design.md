@@ -30,6 +30,11 @@ test and safe enough for a child-led alpha.
   receive Meadow style with an empty décor collection.
 - Extend the HUD and source guards so the expression state is legible and
   protected from accidental regression.
+- Enforce the physical-affordance rule across the existing item loop: collected
+  inventory is represented on the player's visible Item Chest, growing carrots
+  are represented in the garden bed, and reward/collection messages name the
+  concrete object. A profile count alone is not an acceptable player-facing
+  representation of an item.
 
 ## Architecture and authority
 
@@ -56,6 +61,13 @@ dividers make the Rest/Make/Showcase zones read at a glance; each decoration is
 a named, coloured Roblox object with a distinct silhouette. Style banners use
 the existing semantic palette and stay within the established material allow
 list. No runtime scenery generation or unbounded part placement is introduced.
+
+The Item Chest is a bounded, authored display rather than a second inventory
+UI. It shows each non-empty resource as a named object and count, refreshes
+from the server profile sync, and has an owner-only inspection prompt. Garden
+beds similarly rebuild their crop silhouette from the server garden stage.
+This keeps the rule true after rejoin and after any service grants or consumes
+an item without adding client-owned state.
 
 ## Verification and evidence boundary
 

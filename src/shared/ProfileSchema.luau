@@ -1,7 +1,14 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 7
+ProfileSchema.VERSION = 8
 ProfileSchema.MAX_HOUSE_TIER = 5
+
+local HomeExpressionRules
+if script ~= nil then
+	HomeExpressionRules = require(script.Parent:WaitForChild("HomeExpressionRules"))
+else
+	HomeExpressionRules = require("./HomeExpressionRules")
+end
 
 export type GardenBed = { stage: string, readyAt: number }
 export type Inventory = { Carrot: number, SugarCrystal: number, MeadowSeed: number, Seashell: number, WoodToken: number }
@@ -34,6 +41,9 @@ livingCollectionMask: number,
 homeCharmApplied: boolean,
 homeItems: { [string]: number },
 homeUseCount: number,
+homeTheme: string,
+homeDecor: { [string]: number },
+homeShowcaseCount: number,
 dailyRouteDay: string,
 dailyRouteMask: number,
 dailyRouteClaimedDay: string,
@@ -109,9 +119,30 @@ local function normaliseHomeItems(value: any): { [string]: number }
 	}
 end
 
+local function normaliseHomeTheme(value: any): string
+	if type(value) ~= "string" then
+		return "Meadow"
+	end
+	for _, theme in HomeExpressionRules.allThemes() do
+		if theme.id == value then
+			return value
+		end
+	end
+	return "Meadow"
+end
+
+local function normaliseHomeDecor(value: any): { [string]: number }
+	local source = if type(value) == "table" then value else {}
+	local decor = {}
+	for _, item in HomeExpressionRules.allDecorations() do
+		decor[item.id] = normaliseInteger(source[item.id], 0, 0, 1)
+	end
+	return decor
+end
+
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 7,
+		version = 8,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -139,6 +170,9 @@ function ProfileSchema.new(): PlayerProfile
 		homeCharmApplied = false,
 		homeItems = { Bed = 1, KitchenCounter = 0, Wardrobe = 0, CreativeDesk = 0 },
 		homeUseCount = 0,
+		homeTheme = "Meadow",
+		homeDecor = { LanternNook = 0, StoryBookStack = 0, MeadowSeedShelf = 0, SeashellDisplay = 0, WoodlandBench = 0, PortalPainting = 0 },
+		homeShowcaseCount = 0,
 		dailyRouteDay = "",
 		dailyRouteMask = 0,
 		dailyRouteClaimedDay = "",
@@ -159,7 +193,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 7,
+		version = 8,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -187,6 +221,9 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		homeCharmApplied = value.homeCharmApplied == true,
 		homeItems = normaliseHomeItems(value.homeItems),
 		homeUseCount = normaliseInteger(value.homeUseCount, 0, 0),
+		homeTheme = normaliseHomeTheme(value.homeTheme),
+		homeDecor = normaliseHomeDecor(value.homeDecor),
+		homeShowcaseCount = normaliseInteger(value.homeShowcaseCount, 0, 0),
 		dailyRouteDay = if type(value.dailyRouteDay) == "string" then value.dailyRouteDay else "",
 		dailyRouteMask = normaliseInteger(value.dailyRouteMask, 0, 0, 15),
 		dailyRouteClaimedDay = if type(value.dailyRouteClaimedDay) == "string" then value.dailyRouteClaimedDay else "",

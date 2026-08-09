@@ -73,6 +73,8 @@ The v0.1.0 invited-alpha slice adds aggregate-only recovery, save-pressure, onbo
 
 The v0.2.0 portal-worlds slice makes the original portal promise repeatable: Giant Kitchen remains intact and Moonlit Meadow adds a second concrete world through the same bounded collect/return pipeline. Follow the [v0.2.0 portal-worlds test](docs/v0.2.0-portal-worlds-test.md).
 
+The v0.3.0 home-expression slice makes the functional home feel authored: choose a free Meadow/Harbor/Sunset style, collect six fair concrete decorations, read the bounded Rest/Make/Showcase zones, inspect collected resources on the physical Item Chest, and place the home on showcase. Follow the [v0.3.0 home-expression test](docs/v0.3.0-home-expression-test.md). The collection is cosmetic/social only; no paid gate or progression advantage is added.
+
 ## What you need tomorrow
 
 1. A Roblox account.

@@ -1,5 +1,13 @@
 # Development progress
 
+## 2026-08-09 - v0.3.0 home expression
+
+- Added schema-v8 home expression state with backward-compatible defaults: free Meadow/Harbor/Sunset style, six bounded decoration ownership flags, and a persistent showcase count. The v0.0.9 four-item functional home remains intact.
+- Added server-authoritative Home Style and Home Gallery prompts. Decoration acquisition uses fair coins, existing earned life-kit materials, or the completed-portal milestone; every piece is one-copy, cosmetic, and no Robux product or random paid reward is involved.
+- Added authored Rest, Make, and Showcase room zones; visible named décor objects; exterior style accents; and an owner-only showcase plaque. The HUD exposes style, `Items %d/4`, décor progress, and showcase count.
+- Added the physical-affordance rule: every non-empty inventory resource is rendered as a named object on the owner's Item Chest, the chest has an owner-only inspection prompt, and garden beds render their server-authoritative carrot stage through sprouts to a labelled ready carrot. A profile count alone is no longer accepted as item proof.
+- The [v0.3.0 home-expression test](v0.3.0-home-expression-test.md) records the route and evidence boundary. Source/assembly verification is green; Studio evidence covers style cycling, Lantern Nook acquisition, owner showcase, persistence across rejoin, a visible Item Chest with named physical contents, and the garden's physical watered/harvest path. The ready-state auto-refresh is source-gated by the bounded server tick; two-client visitor behavior, published-place parity, scale, and family/device claims remain separate.
+
 ## 2026-08-09 - v0.2.0 portal worlds
 
 - Added a reusable `PortalRules.WORLDS` catalog and generic server-authoritative start/collect/return pipeline. Giant Kitchen remains compatible; Moonlit Meadow now has its own portal, arrival space, pond, trees, flowers, three visible Moonlit Seed objects, and return portal.
