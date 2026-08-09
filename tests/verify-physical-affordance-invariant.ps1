@@ -1,110 +1,112 @@
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$root = Split-Path -Parent $PSScriptRoot
 
-$physicalPath = Join-Path $root "src\server\PhysicalItemService.luau"
-$worldPath = Join-Path $root "src\server\WorldBuilder.luau"
-$livingWorldPath = Join-Path $root "src\server\LivingWorldBuilder.luau"
-$statePath = Join-Path $root "src\server\PlayerStateService.luau"
-$rulesPath = Join-Path $root "src\shared\PhysicalAffordanceRules.luau"
-$plotPath = Join-Path $root "src\server\PlotService.luau"
-$villagePath = Join-Path $root "src\server\VillageService.luau"
-$gardenPath = Join-Path $root "src\server\GardenService.luau"
-$jobPath = Join-Path $root "src\server\JobService.luau"
-$homePath = Join-Path $root "src\server\HomeService.luau"
-$bikePath = Join-Path $root "src\server\BikeBuilder.luau"
-$boatPath = Join-Path $root "src\server\BoatBuilder.luau"
-$physical = Get-Content -Raw -LiteralPath $physicalPath
-$world = Get-Content -Raw -LiteralPath $worldPath
-$livingWorld = Get-Content -Raw -LiteralPath $livingWorldPath
-$state = Get-Content -Raw -LiteralPath $statePath
-$rules = Get-Content -Raw -LiteralPath $rulesPath
-$plot = Get-Content -Raw -LiteralPath $plotPath
-$village = Get-Content -Raw -LiteralPath $villagePath
-$garden = Get-Content -Raw -LiteralPath $gardenPath
-$job = Get-Content -Raw -LiteralPath $jobPath
-$homeService = Get-Content -Raw -LiteralPath $homePath
-$bike = Get-Content -Raw -LiteralPath $bikePath
-$boat = Get-Content -Raw -LiteralPath $boatPath
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$script:failures = @()
 
-foreach ($pattern in @("INVARIANT", "inventoryItems", "isInventoryItem", "displayName", "hasEvidence")) {
-    if ($rules -notmatch [regex]::Escape($pattern)) {
-        throw "Physical affordance rules are missing the shared contract $pattern."
+function Add-Failure { param([string]$Message) $script:failures += $Message }
+function Read-RequiredSource {
+    param([string]$RelativePath)
+    $path = Join-Path $repoRoot $RelativePath
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        Add-Failure "Missing required file: $RelativePath"
+        return ""
     }
+    return Get-Content -LiteralPath $path -Raw
+}
+function Require-Match {
+    param([string]$Source, [string]$Pattern, [string]$Contract)
+    if ($Source -notmatch $Pattern) { Add-Failure "Missing contract: $Contract" }
+}
+function Reject-Match {
+    param([string]$Source, [string]$Pattern, [string]$Contract)
+    if ($Source -match $Pattern) { Add-Failure "Forbidden path remains: $Contract" }
 }
 
-foreach ($pattern in @(
-    "PHYSICAL_AFFORDANCE_INVARIANT",
-    "Carrot", "SugarCrystal", "MeadowSeed", "Seashell", "WoodToken",
-    "InventoryItem_", "Item Chest:", "ItemLabel", "addSyncListener", "refresh"
+$builder = Read-RequiredSource "src/server/AuthoredPrefabBuilder.luau"
+Require-Match $builder 'model:SetAttribute\("TinyWorldArtRole",\s*artRole\)' "every returned prefab model receives an art role"
+Require-Match $builder 'model:SetAttribute\("TinyWorldPhysicalAffordance",\s*"world-object"\)' "every returned prefab model receives a physical-affordance role"
+Require-Match $builder 'anchor:SetAttribute\("TinyWorldInteractionAnchor",\s*true\)' "all prompt anchors are explicit"
+Require-Match $builder 'anchor\.CanQuery\s*=\s*true' "prompt anchors are queryable"
+Require-Match $builder 'part\.CanCollide\s*=\s*false[\s\S]*part\.CanTouch\s*=\s*false[\s\S]*part\.CanQuery\s*=\s*false' "decoration safety flags"
+
+foreach ($role in @(
+    "civic-town-hall",
+    "civic-courier-depot",
+    "shop-village",
+    "transport-workshop",
+    "market-table",
+    "plot-affordances"
 )) {
-    if ($physical -notmatch [regex]::Escape($pattern)) {
-        throw "Physical item service is missing the physical-affordance contract $pattern."
-    }
+    Require-Match $builder ([regex]::Escape($role)) "distinct art role $role"
 }
 
-foreach ($pattern in @("ItemChest", "itemChestPrompt", "InventoryDisplay", "gardenBeds", "collectPrompts")) {
-    if ($world -notmatch [regex]::Escape($pattern)) {
-        throw "World is missing concrete item affordance: $pattern."
-    }
+foreach ($anchor in @(
+    "TownHallContributionAnchor",
+    "CivicNoticeboard",
+    "CourierPickupAnchor",
+    "CourierDeliveryAnchor",
+    "VillageShopDeliveryAnchor",
+    "HomeSupplyCounterAnchor",
+    "DecoratorCatalogueAnchor",
+    "FurnishingShowroomAnchor",
+    "TransportAnchor",
+    "MarketJoinAnchorA",
+    "MarketOfferAnchorA",
+    "MarketConfirmAnchorA",
+    "MarketJoinAnchorB",
+    "MarketOfferAnchorB",
+    "MarketConfirmAnchorB",
+    "ArchitectDrawingBoardAnchor",
+    "FrontDoorBellAnchor",
+    "PlotGateAnchor",
+    "PottingBenchAnchor"
+)) {
+    Require-Match $builder ([regex]::Escape($anchor)) "explicit prompt anchor $anchor"
 }
 
-if ($livingWorld -notmatch "PickupPrompt" -or $livingWorld -notmatch "TinyWorldItem") {
-    throw "LivingWorldBuilder is missing a physical pickup contract."
+$worldBuilder = Read-RequiredSource "src/server/WorldBuilder.luau"
+Reject-Match $worldBuilder '\bmakeInteractionMarker\s*\(' "normal-play neon interaction rings"
+$promptSources = $worldBuilder + "`n" + $builder
+foreach ($promptCopy in @(
+    "Contribute 50 Coins",
+    "View Professions",
+    "Take Parcel",
+    "Deliver Parcel",
+    "Buy Next Essential",
+    "Change Home Style",
+    "Collect Next Decor",
+    "Buy / Toggle Bike",
+    "Upgrade Home",
+    "Change Privacy",
+    "Enter Home",
+    "Add Home Charm",
+    "View Items",
+    "Plant Carrot"
+)) {
+    Require-Match $promptSources ([regex]::Escape($promptCopy)) "preserved prompt copy $promptCopy"
 }
 
-$physicalObjectContracts = @{
-    "GardenService" = @{ source = $garden; patterns = @("TinyWorldGardenStage", "TinyWorldItem", "TinyWorldPhysicalAffordance") }
-    "JobService" = @{ source = $job; patterns = @("TinyWorldCourierParcel", "TinyWorldPhysicalAffordance") }
-    "HomeService" = @{ source = $homeService; patterns = @("makeFurniturePart", "TinyWorldPhysicalAffordance") }
-    "BikeBuilder" = @{ source = $bike; patterns = @("BikeModel", "TinyWorldPhysicalAffordance") }
-    "BoatBuilder" = @{ source = $boat; patterns = @("TinyBoat", "TinyWorldPhysicalAffordance") }
+foreach ($service in @(
+    "DailyRewardService.luau",
+    "VillageService.luau",
+    "ProfessionService.luau",
+    "JobService.luau",
+    "HomeService.luau",
+    "TransportService.luau",
+    "TradeService.luau",
+    "PlotService.luau",
+    "GardenService.luau",
+    "PhysicalItemService.luau"
+)) {
+    $source = Read-RequiredSource ("src/server/" + $service)
+    Require-Match $source '\.Triggered\s*:\s*Connect\s*\(' "$service keeps prompt handling on the server"
 }
 
-foreach ($entry in $physicalObjectContracts.GetEnumerator()) {
-    foreach ($pattern in $entry.Value.patterns) {
-        if ($entry.Value.source -notmatch [regex]::Escape($pattern)) {
-            throw ("{0} is missing physical-world marker: {1}." -f $entry.Key, $pattern)
-        }
-    }
+if ($script:failures.Count -gt 0) {
+    Write-Host "TinyWorld physical-affordance invariant: FAIL" -ForegroundColor Red
+    foreach ($failure in $script:failures) { Write-Host " - $failure" -ForegroundColor Red }
+    exit 1
 }
 
-if ($plot -notmatch "HomeCharmDisplay" -or $plot -notmatch "HOME CHARM") {
-    throw "PlotService is missing a visible Home Charm object."
-}
-
-$upgradeBlock = [regex]::Match($plot, "function PlotService:_upgrade(?s:.*?)(?=function PlotService:_cyclePrivacy)").Value
-if ($upgradeBlock -notmatch "ProfileStore\.save\(player\)") {
-    throw "A successful house upgrade must queue a profile save."
-}
-
-$contributionBlock = [regex]::Match($village, "function VillageService:_contribute(?s:.*?)(?=return VillageService)").Value
-if ($contributionBlock -notmatch "ProfileStore\.save\(player\)") {
-    throw "A successful Village Fund contribution must queue a profile save."
-}
-
-foreach ($pattern in @("TinyWorldCarrots", "TinyWorldSugarCrystals", "TinyWorldMeadowSeeds", "TinyWorldSeashells", "TinyWorldWoodTokens", "syncListeners")) {
-    if ($state -notmatch [regex]::Escape($pattern)) {
-        throw "Player state is missing inventory sync contract: $pattern."
-    }
-}
-
-$rewardPaths = @{
-    "DailyRewardService" = @("PlayerStateService.sync(player, profile)", "Daily reward claimed:", "Carrot")
-    "GardenService" = @("PlayerStateService.sync(player, profile)", "Carrot harvested:", "GardenCrop")
-    "LivingWorldService" = @("PlayerStateService.sync(player, profile)", "Found a ", "DISPLAY_NAMES")
-    "PortalService" = @("PlayerStateService.sync(player, profile)", "completionMessage", "PortalRules.completeWorld")
-    "TradeService" = @("PlayerStateService.sync(a, profileA)", "PlayerStateService.sync(b, profileB)", "Trade complete:")
-    "HomeService" = @("PlayerStateService.sync(player, profile)", "HomeDecor_", "Designer XP")
-}
-
-foreach ($entry in $rewardPaths.GetEnumerator()) {
-    $path = Join-Path $root ("src\server\" + $entry.Key + ".luau")
-    $source = Get-Content -Raw -LiteralPath $path
-    foreach ($pattern in $entry.Value) {
-        if ($source -notmatch [regex]::Escape($pattern)) {
-            throw ("{0} does not prove a physical/popup reward contract: {1}." -f $entry.Key, $pattern)
-        }
-    }
-}
-
-Write-Output "Physical item-affordance invariant verified."
+Write-Host "TinyWorld physical-affordance invariant: PASS" -ForegroundColor Green

@@ -31,3 +31,4 @@ return function()
 	local harvestedAgain = GardenRules.harvest(profile, bed, 105)
 	TestUtil.isFalse(harvestedAgain)
 end
+

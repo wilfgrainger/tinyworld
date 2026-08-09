@@ -81,6 +81,7 @@ function BoatService:_ensureBoat(player: Player)
 		end),
 	}
 	self.boats[player] = boat
+	self:_captureFlagBaseline(player)
 	return boat
 end
 
@@ -93,6 +94,64 @@ function BoatService:_setPromptState(player: Player, active: boolean)
 	boat.returnPrompt.Enabled = active
 end
 
+function BoatService:_restorePlayerState(player: Player)
+	local character = player.Character
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid == nil then
+		return
+	end
+	humanoid.Sit = false
+	if humanoid.Health > 0 and humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
+end
+
+function BoatService:_seatPlayer(player: Player, seat: Seat): boolean
+	local character = player.Character
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid == nil or humanoid.Health <= 0 or seat.Parent == nil then
+		return false
+	end
+	humanoid.Sit = false
+	local seated = pcall(function()
+		seat:Sit(humanoid)
+	end)
+	return seated
+end
+
+function BoatService:_captureFlagBaseline(player: Player)
+	local boat = self.boats[player]
+	if boat == nil then
+		return
+	end
+	local flag = boat.model:FindFirstChild("BoatFlag", true)
+	if flag and flag:IsA("BasePart") then
+		if boat.flagBaseLocalCFrame ~= nil then
+			return
+		end
+		boat.flagBaseLocalCFrame = boat.model:GetPivot():ToObjectSpace(flag.CFrame)
+	end
+end
+
+function BoatService:_setMotionState(player: Player, state: string)
+	local boat = self.boats[player]
+	if boat == nil then
+		return
+	end
+	boat.model:SetAttribute("TinyWorldMotionState", state)
+	boat.model:SetAttribute("TinyWorldMotionPhase", if state == "sailing" then os.clock() else 0)
+	local wake = boat.model:FindFirstChild("BoatWaterWake", true)
+	if wake and wake:IsA("BasePart") then
+		wake.Transparency = if state == "sailing" then 0.35 else 1
+	end
+	local flag = boat.model:FindFirstChild("BoatFlag", true)
+	if flag and flag:IsA("BasePart") then
+		self:_captureFlagBaseline(player)
+		local flutter = if state == "sailing" then CFrame.Angles(0, 0, math.rad(-8)) else CFrame.identity
+		flag.CFrame = boat.model:GetPivot() * boat.flagBaseLocalCFrame * flutter
+	end
+end
+
 function BoatService:apply(player: Player, profile)
 	local firstApply = self.sessionPrepared[player] ~= true
 	if firstApply then
@@ -101,6 +160,7 @@ function BoatService:apply(player: Player, profile)
 	end
 
 	if not profile.ownsTinyBoat then
+		self:_restorePlayerState(player)
 		self:_destroyBoat(player)
 		if firstApply then
 			self.PlayerStateService.sync(player, profile)
@@ -111,8 +171,11 @@ function BoatService:apply(player: Player, profile)
 	local boat = self:_ensureBoat(player)
 	if profile.boatActive then
 		boat.model:PivotTo(self.world.boundary.coveBoatCFrame)
+		self:_setMotionState(player, "sailing")
 	else
 		boat.model:PivotTo(self:_dockOrigin(player))
+		self:_setMotionState(player, "docked")
+		self:_restorePlayerState(player)
 	end
 	self:_setPromptState(player, profile.boatActive)
 	if firstApply then
@@ -148,7 +211,20 @@ function BoatService:_mount(player: Player)
 		return
 	end
 	boat.model:PivotTo(self.world.boundary.coveBoatCFrame)
+	self:_setMotionState(player, "sailing")
 	teleport(player, self.world.boundary.coveArrivalCFrame)
+	if not self:_seatPlayer(player, boat.mountPart) then
+		TraversalRules.returnTinyBoat(profile)
+		self:_restorePlayerState(player)
+		boat.model:PivotTo(self:_dockOrigin(player))
+		self:_setMotionState(player, "docked")
+		teleport(player, self.world.boundary.villageReturnCFrame)
+		self:_setPromptState(player, false)
+		self.PlayerStateService.sync(player, profile)
+		self.PlayerStateService.message(player, "The Tiny Boat is not ready yet.")
+		self.ProfileStore.save(player)
+		return
+	end
 	self:_setPromptState(player, true)
 	self.PlayerStateService.sync(player, profile)
 	self.PlayerStateService.message(player, "Boarded Tiny Boat. Welcome to Tidepool Cove.")
@@ -165,7 +241,9 @@ function BoatService:_return(player: Player)
 	if not returned then
 		return
 	end
+	self:_restorePlayerState(player)
 	boat.model:PivotTo(self:_dockOrigin(player))
+	self:_setMotionState(player, "docked")
 	teleport(player, self.world.boundary.villageReturnCFrame)
 	self:_setPromptState(player, false)
 	self.PlayerStateService.sync(player, profile)
@@ -199,6 +277,7 @@ function BoatService:removePlayer(player: Player)
 	if profile then
 		profile.boatActive = false
 	end
+	self:_restorePlayerState(player)
 	self:_destroyBoat(player)
 	local connection = self.characterConnections[player]
 	if connection then

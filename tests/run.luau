@@ -15,6 +15,8 @@ local specs = {
 	require("./PortalRules.spec"),
 	require("./TradeRules.spec"),
 	require("./WorldLayoutRules.spec"),
+	require("./VillageComposition.spec"),
+	require("./TerrainRules.spec"),
 	require("./ExplorationRules.spec"),
 	require("./VisualBudgetRules.spec"),
 	require("./ProfileStoreRules.spec"),
@@ -23,6 +25,7 @@ local specs = {
 	require("./HomeRules.spec"),
 	require("./HomeExpressionRules.spec"),
 	require("./AlphaOpsRules.spec"),
+	require("./VisualQualityRules.spec"),
 }
 
 for _, runSpec in specs do

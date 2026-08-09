@@ -30,6 +30,16 @@ local function makeShapeDecoration(parent: Instance, name: string, size: Vector3
 	return part
 end
 
+local function makePhysicalPart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material, artRole: string): Part
+	local part = makePart(parent, name, size, position, color, material)
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	part:SetAttribute("TinyWorldArtRole", artRole)
+	part:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	return part
+end
+
 local function makeLabel(parent: BasePart, text: string, width: number?): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Label"
@@ -57,6 +67,10 @@ local function makeLabel(parent: BasePart, text: string, width: number?): TextLa
 end
 
 local function makePrompt(parent: Instance, name: string, actionText: string, objectText: string): ProximityPrompt
+	if parent:IsA("BasePart") then
+		parent:SetAttribute("TinyWorldInteractionAnchor", true)
+		parent.CanQuery = true
+	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = name
 	prompt.ActionText = actionText
@@ -143,22 +157,53 @@ local function makeNursery(parent: Instance, position: Vector3): BasePart
 	return nursery:FindFirstChild("NurseryCounter") :: BasePart
 end
 
-local function makePickup(parent: Instance, itemName: string, position: Vector3, color: Color3, labelText: string): ProximityPrompt
+local function makePhysicalPickup(parent: Instance, itemName: string, position: Vector3, color: Color3, labelText: string): ProximityPrompt
 	local pickup = makePart(parent, itemName .. "Pickup", Vector3.new(5, 1, 5), position + Vector3.new(0, 0.5, 0), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	local item = makeShapeDecoration(parent, itemName .. "Object", Vector3.new(2.4, 2.4, 2.4), position + Vector3.new(0, 2.1, 0), color, Enum.Material.Neon, Enum.PartType.Ball)
+	pickup:SetAttribute("TinyWorldArtRole", "village-pickup-stand")
+	pickup:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	local pickupTrim = makePhysicalPart(parent, itemName .. "PickupTrim", Vector3.new(4.4, 0.3, 4.4), position + Vector3.new(0, 1.05, 0), VisualTheme.Colors.gold, Enum.Material.Metal, "village-pickup-trim")
+	pickupTrim.Shape = Enum.PartType.Cylinder
+
+	local item = makePhysicalPart(parent, itemName .. "Object", Vector3.new(2.4, 2.4, 2.4), position + Vector3.new(0, 2.1, 0), color, Enum.Material.SmoothPlastic, "pickup-" .. string.lower(itemName))
 	item:SetAttribute("TinyWorldItem", itemName)
 	item:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	if itemName == "MeadowSeed" then
+		item.Shape = Enum.PartType.Ball
+		item.Size = Vector3.new(1.8, 2.8, 1.8)
+		local leafLeft = makePhysicalPart(parent, "MeadowSeedLeafLeft", Vector3.new(0.7, 1.8, 0.25), position + Vector3.new(-0.75, 3.1, 0), VisualTheme.Colors.leaf, Enum.Material.LeafyGrass, "pickup-meadow-seed-leaf")
+		leafLeft.Shape = Enum.PartType.Wedge
+		leafLeft.Orientation = Vector3.new(0, 0, -22)
+		local leafRight = makePhysicalPart(parent, "MeadowSeedLeafRight", Vector3.new(0.7, 1.5, 0.25), position + Vector3.new(0.65, 3, 0.1), VisualTheme.Colors.meadowDeep, Enum.Material.LeafyGrass, "pickup-meadow-seed-leaf")
+		leafRight.Shape = Enum.PartType.Wedge
+		leafRight.Orientation = Vector3.new(0, 0, 28)
+	elseif itemName == "Seashell" then
+		item.Shape = Enum.PartType.Ball
+		item.Size = Vector3.new(3, 1.2, 2.6)
+		item.Material = Enum.Material.Sand
+		for index, offset in {
+			Vector3.new(-0.8, 0.15, 0.1),
+			Vector3.new(0, 0.2, 0.1),
+			Vector3.new(0.8, 0.15, 0.1),
+		} do
+			local ridge = makePhysicalPart(parent, "SeashellRidge" .. index, Vector3.new(0.22, 1, 2.2), position + Vector3.new(offset.X, 2.25 + offset.Y, offset.Z), VisualTheme.Colors.flower, Enum.Material.SmoothPlastic, "pickup-seashell-ridge")
+			ridge.Shape = Enum.PartType.Wedge
+			ridge.Orientation = Vector3.new(0, 0, 90)
+		end
+	elseif itemName == "WoodToken" then
+		item.Shape = Enum.PartType.Cylinder
+		item.Size = Vector3.new(2.8, 0.8, 2.8)
+		item.Material = Enum.Material.WoodPlanks
+		item.Orientation = Vector3.new(90, 0, 0)
+		local grain = makePhysicalPart(parent, "WoodTokenGrain", Vector3.new(1.8, 0.12, 0.3), position + Vector3.new(0, 2.55, -0.05), VisualTheme.Colors.timberDark, Enum.Material.Wood, "pickup-wood-token-grain")
+		grain.Orientation = Vector3.new(0, 22, 0)
+		local tokenEdge = makePhysicalPart(parent, "WoodTokenEdge", Vector3.new(3.1, 0.22, 3.1), position + Vector3.new(0, 2.1, 0), VisualTheme.Colors.gold, Enum.Material.Metal, "pickup-wood-token-edge")
+		tokenEdge.Shape = Enum.PartType.Cylinder
+		tokenEdge.Orientation = Vector3.new(90, 0, 0)
+		tokenEdge.Transparency = 0.35
+	end
+
 	makeLabel(pickup, labelText, 180)
 	return makePrompt(pickup, "PickupPrompt", "Collect " .. itemName, "Village Find")
-end
-
-local function makeBikeShowcase(parent: Instance, position: Vector3)
-	makePart(parent, "BikeShowcaseRack", Vector3.new(14, 2, 2), position + Vector3.new(0, 1, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	for index, x in {-5, 0, 5} do
-		makeDecoration(parent, "BikeShowcaseHook" .. index, Vector3.new(0.6, 3, 0.6), position + Vector3.new(x, 2.5, 0), VisualTheme.Colors.metal, Enum.Material.Metal)
-	end
-	local sign = makeDecoration(parent, "BikeShowcaseSign", Vector3.new(14, 3, 0.8), position + Vector3.new(0, 5, 0), VisualTheme.Colors.skyDeep, Enum.Material.Wood)
-	makeLabel(sign, "BIKE STAND\nRide to the boundary", 160)
 end
 
 function LivingWorldBuilder.build(parent: Instance, layout)
@@ -167,13 +212,12 @@ function LivingWorldBuilder.build(parent: Instance, layout)
 	model.Parent = parent
 
 	local nurseryAnchor = makeNursery(model, Vector3.new(layout.livingWorld.nursery.x, 0, layout.livingWorld.nursery.z))
-	makeBikeShowcase(model, Vector3.new(30, 0, 10))
 
 	local pickupPrompts = {}
 	local pickupAnchors = layout.livingWorld.pickupAnchors
-	pickupPrompts.MeadowSeed = makePickup(model, "MeadowSeed", Vector3.new(pickupAnchors.MeadowSeed.x, 0, pickupAnchors.MeadowSeed.z + 8), VisualTheme.Colors.flower, "MEADOW SEED\nGrow something lovely")
-	pickupPrompts.Seashell = makePickup(model, "Seashell", Vector3.new(pickupAnchors.Seashell.x - 8, 0, pickupAnchors.Seashell.z + 8), VisualTheme.Colors.paper, "SEASHELL\nA gift from the sea")
-	pickupPrompts.WoodToken = makePickup(model, "WoodToken", Vector3.new(pickupAnchors.WoodToken.x + 8, 0, pickupAnchors.WoodToken.z + 8), VisualTheme.Colors.gold, "WOOD TOKEN\nFound in the woods")
+	pickupPrompts.MeadowSeed = makePhysicalPickup(model, "MeadowSeed", Vector3.new(pickupAnchors.MeadowSeed.x, 0, pickupAnchors.MeadowSeed.z + 8), VisualTheme.Colors.flower, "MEADOW SEED\nGrow something lovely")
+	pickupPrompts.Seashell = makePhysicalPickup(model, "Seashell", Vector3.new(pickupAnchors.Seashell.x - 8, 0, pickupAnchors.Seashell.z + 8), VisualTheme.Colors.paper, "SEASHELL\nA gift from the sea")
+	pickupPrompts.WoodToken = makePhysicalPickup(model, "WoodToken", Vector3.new(pickupAnchors.WoodToken.x + 8, 0, pickupAnchors.WoodToken.z + 8), VisualTheme.Colors.gold, "WOOD TOKEN\nFound in the woods")
 
 	local cabins = {}
 	for index, x in {-24, 0, 24} do

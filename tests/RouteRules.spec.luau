@@ -102,3 +102,4 @@ return function()
 	TestUtil.equal(repaired.dailyRouteClaimedDay, day)
 	TestUtil.equal(repaired.weeklyRouteClaimedWeek, week)
 end
+

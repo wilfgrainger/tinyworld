@@ -44,3 +44,4 @@ return function()
 	TestUtil.isTrue(HomeRules.isComplete(profile))
 	TestUtil.equal(HomeRules.nextItem(profile), nil)
 end
+

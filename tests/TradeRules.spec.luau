@@ -33,3 +33,4 @@ return function()
 	TestUtil.isFalse(unsupported)
 	TestUtil.equal(unsupportedReason, "unsupported_item")
 end
+

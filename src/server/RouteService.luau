@@ -66,3 +66,4 @@ function RouteService:record(player: Player, taskId: string): (boolean, string)
 end
 
 return RouteService
+

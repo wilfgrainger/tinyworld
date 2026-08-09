@@ -44,3 +44,4 @@ function ProfileStoreRules.nextSaveState(currentState: string, event: string): s
 end
 
 return ProfileStoreRules
+

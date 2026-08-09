@@ -184,3 +184,4 @@ function RouteRules.record(profile: any, scope: string, taskId: string, periodKe
 end
 
 return RouteRules
+

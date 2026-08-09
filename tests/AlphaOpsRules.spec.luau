@@ -27,3 +27,4 @@ return function()
 	TestUtil.equal(aggregate.health, "recovery-required")
 	TestUtil.equal(Rules.aggregateState(0, 0, 0, 8).health, "ready")
 end
+

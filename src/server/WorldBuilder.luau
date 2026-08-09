@@ -7,6 +7,7 @@ local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BoundaryBuilder = require(script.Parent:WaitForChild("BoundaryBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
 local LivingWorldBuilder = require(script.Parent:WaitForChild("LivingWorldBuilder"))
+local AuthoredPrefabBuilder = require(script.Parent:WaitForChild("AuthoredPrefabBuilder"))
 
 local WorldBuilder = {}
 
@@ -38,13 +39,6 @@ local function makeShapeDecoration(parent: Instance, name: string, size: Vector3
 	return part
 end
 
-local function makeWindow(parent: Instance, name: string, position: Vector3, width: number, height: number)
-	local frame = makeDecoration(parent, name .. "Frame", Vector3.new(width + 1, height + 1, 0.5), position, VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	local glass = makeDecoration(parent, name, Vector3.new(width, height, 0.55), position + Vector3.new(0, 0, 0.08), VisualTheme.Colors.sky, Enum.Material.Glass)
-	glass.Reflectance = 0.1
-	return frame
-end
-
 local function makeTree(parent: Instance, name: string, position: Vector3, scale: number)
 	makeDecoration(parent, name .. "Trunk", Vector3.new(2 * scale, 6 * scale, 2 * scale), position + Vector3.new(0, 3 * scale, 0), VisualTheme.Colors.timberDark, Enum.Material.Wood)
 	makeShapeDecoration(parent, name .. "Canopy", Vector3.new(9 * scale, 9 * scale, 9 * scale), position + Vector3.new(0, 8 * scale, 0), VisualTheme.Colors.leaf, Enum.Material.LeafyGrass, Enum.PartType.Ball)
@@ -68,40 +62,6 @@ local function makeLantern(parent: Instance, name: string, position: Vector3)
 	lamp.Transparency = 0.05
 end
 
-local function makeInteractionMarker(parent: Instance, name: string, position: Vector3, color: Color3)
-	local marker = makeShapeDecoration(parent, name, Vector3.new(8, 0.25, 8), position + Vector3.new(0, 0.75, 0), color, Enum.Material.Neon, Enum.PartType.Cylinder)
-	marker.Transparency = 0.25
-	local highlight = Instance.new("Highlight")
-	highlight.Name = name .. "Highlight"
-	highlight.Adornee = marker
-	highlight.FillColor = color
-	highlight.FillTransparency = 0.85
-	highlight.OutlineColor = color
-	highlight.OutlineTransparency = 0.3
-	highlight.Parent = marker
-	return marker
-end
-
-local function makePortalFrame(parent: Instance, name: string, position: Vector3)
-	makeDecoration(parent, name .. "Platform", Vector3.new(26, 0.6, 20), position + Vector3.new(0, 0.3, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	local glowRing = makeShapeDecoration(parent, name .. "GlowRing", Vector3.new(28, 0.18, 22), position + Vector3.new(0, 0.75, 0), VisualTheme.Colors.portalGlow, Enum.Material.Neon, Enum.PartType.Cylinder)
-	glowRing.Transparency = 0.5
-	makeDecoration(parent, name .. "LeftPillar", Vector3.new(3, 16, 3), position + Vector3.new(-8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeDecoration(parent, name .. "RightPillar", Vector3.new(3, 16, 3), position + Vector3.new(8, 8, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeDecoration(parent, name .. "TopBeam", Vector3.new(19, 3, 3), position + Vector3.new(0, 16, 0), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeDecoration(parent, name .. "TopTrim", Vector3.new(23, 1.5, 4), position + Vector3.new(0, 18, 0), VisualTheme.Colors.roof, Enum.Material.Slate)
-	for index, x in {-5, 0, 5} do
-		makeShapeDecoration(parent, name .. "Crystal" .. index, Vector3.new(2.4, 2.4, 2.4), position + Vector3.new(x, 19.8, 0), VisualTheme.Colors.crystal, Enum.Material.Neon, Enum.PartType.Ball)
-	end
-end
-
-local function makeCrystalPedestal(parent: Instance, name: string, position: Vector3)
-	local basePosition = position - Vector3.new(0, 2, 0)
-	makeShapeDecoration(parent, name .. "Base", Vector3.new(8, 1, 8), basePosition, VisualTheme.Colors.pathEdge, Enum.Material.Marble, Enum.PartType.Cylinder)
-	local ring = makeShapeDecoration(parent, name .. "Ring", Vector3.new(10, 0.18, 10), basePosition + Vector3.new(0, 0.6, 0), VisualTheme.Colors.crystal, Enum.Material.Neon, Enum.PartType.Cylinder)
-	ring.Transparency = 0.35
-end
-
 local function makeStoneBorder(parent: Instance, name: string, origin: Vector3, width: number, depth: number)
 	local stoneColor = VisualTheme.Colors.pathEdge
 	makeDecoration(parent, name .. "North", Vector3.new(width, 0.5, 1.5), origin + Vector3.new(0, 0.25, -depth / 2), stoneColor, Enum.Material.Cobblestone)
@@ -118,9 +78,6 @@ local function makePlotDressing(parent: Instance, origin: Vector3)
 	for _, side in { { name = "West", x = -28 }, { name = "East", x = 28 } } do
 		makeDecoration(parent, "PlotHedge" .. side.name, Vector3.new(1, 1.4, 50), origin + Vector3.new(side.x, 0.7, 0), hedgeColor, Enum.Material.LeafyGrass)
 	end
-	makeDecoration(parent, "PlotGateLeft", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(-3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	makeDecoration(parent, "PlotGateRight", Vector3.new(0.8, 3.2, 0.8), origin + Vector3.new(3, 1.6, 29), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	makeDecoration(parent, "PlotGate", Vector3.new(7, 0.8, 0.8), origin + Vector3.new(0, 3.2, 29), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeDecoration(parent, "GardenApproach", Vector3.new(6, 0.12, 18), origin + Vector3.new(0, 0.58, 22), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
 	for index, x in {-18, -9, 9, 18} do
 		makeDecoration(parent, "PlotFencePost" .. index, Vector3.new(0.7, 2.2, 0.7), origin + Vector3.new(x, 1.1, 20), VisualTheme.Colors.timberDark, Enum.Material.Wood)
@@ -148,6 +105,10 @@ local function makePond(parent: Instance, origin: Vector3)
 end
 
 local function makePrompt(parent: Instance, actionText: string, objectText: string): ProximityPrompt
+	if parent:IsA("BasePart") then
+		parent:SetAttribute("TinyWorldInteractionAnchor", true)
+		parent.CanQuery = true
+	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = actionText
 	prompt.ObjectText = objectText
@@ -193,38 +154,16 @@ local function makeLabel(parent: BasePart, text: string, width: number?, maxDist
 	return label
 end
 
-local function makeCourierShowcase(parent: Instance)
-	makeDecoration(parent, "CourierParcelCounter", Vector3.new(14, 2, 3), Vector3.new(-8, 1.5, -34), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	for index, x in {-11, -7, -3} do
-		local parcel = makeDecoration(parent, "DepotParcel" .. index, Vector3.new(3, 3, 3), Vector3.new(x, 4, -34), VisualTheme.Colors.timber, Enum.Material.Cardboard)
-		parcel.Orientation = Vector3.new(0, index * 6, 0)
-	end
-
-	makeDecoration(parent, "DeliveryDropCounter", Vector3.new(12, 1.5, 4), Vector3.new(30, 1.25, -37), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+local function makePlotPlacementCFrame(origin: Vector3, rotation: number, setback: number): CFrame
+	return CFrame.new(origin) * CFrame.Angles(0, math.rad(rotation), 0) * CFrame.new(0, 0, -setback)
 end
 
-local function amenity(parent: Instance, name: string, position: Vector3, text: string, color: Color3)
-	local building = makePart(parent, name, Vector3.new(24, 12, 20), position + Vector3.new(0, 6, 0), color)
-	makeDecoration(parent, name .. "Footing", Vector3.new(27, 0.7, 23), position + Vector3.new(0, 0.35, 0), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeShapeDecoration(parent, name .. "Roof", Vector3.new(28, 4, 24), position + Vector3.new(0, 14, 0), VisualTheme.Colors.roof, Enum.Material.Slate, Enum.PartType.Wedge)
-	makeDecoration(parent, name .. "Door", Vector3.new(5, 7, 0.6), position + Vector3.new(0, 3.5, 10.3), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	makeDecoration(parent, name .. "Awning", Vector3.new(9, 1, 3), position + Vector3.new(0, 8, 11), VisualTheme.Colors.warmLight, Enum.Material.Fabric)
-	makeWindow(parent, name .. "WindowLeft", position + Vector3.new(-7, 6, 10.25), 4, 3)
-	makeWindow(parent, name .. "WindowRight", position + Vector3.new(7, 6, 10.25), 4, 3)
-	makeDecoration(parent, name .. "ShutterLeft", Vector3.new(1, 3.4, 0.45), position + Vector3.new(-10, 6, 10.65), VisualTheme.Colors.woodLight, Enum.Material.Wood)
-	makeDecoration(parent, name .. "ShutterRight", Vector3.new(1, 3.4, 0.45), position + Vector3.new(10, 6, 10.65), VisualTheme.Colors.woodLight, Enum.Material.Wood)
-	makeDecoration(parent, name .. "Trim", Vector3.new(26, 0.6, 21), position + Vector3.new(0, 12.2, 0), VisualTheme.Colors.cream, Enum.Material.WoodPlanks)
-	makeDecoration(parent, name .. "SignBracket", Vector3.new(15, 2.8, 0.45), position + Vector3.new(0, 10.5, 10.9), VisualTheme.Colors.ink, Enum.Material.WoodPlanks)
-	for index, x in {-8, 8} do
-		makeDecoration(parent, name .. "PlanterBox" .. index, Vector3.new(5, 0.8, 2.2), position + Vector3.new(x, 1.2, 11.6), VisualTheme.Colors.woodLight, Enum.Material.WoodPlanks)
-		local bloom = makeDecoration(parent, name .. "PlanterBloom" .. index, Vector3.new(2.2, 1.5, 1.5), position + Vector3.new(x, 2.2, 11.6), if index < 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.SmoothPlastic)
-		bloom.Shape = Enum.PartType.Ball
-	end
-	makeLabel(building, text)
-	return building
+local function applyPlotPlacement(model: Model, origin: Vector3, placement: CFrame)
+	local delta = placement * CFrame.new(-origin)
+	model:PivotTo(delta * model:GetPivot())
 end
 
-local function buildPlot(parent: Instance, index: number, origin: Vector3)
+local function buildPlot(parent: Instance, index: number, origin: Vector3, placement: CFrame)
 	local model = Instance.new("Model")
 	model.Name = string.format("Plot%d", index)
 	model.Parent = parent
@@ -234,32 +173,31 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 	makePlotDressing(model, origin)
 	makeTree(model, "PlotTree", origin + Vector3.new(-24, 0, -21), 0.7)
 	makeFlowerCluster(model, "PlotFlowers", origin + Vector3.new(20, 0, -20), VisualTheme.Colors.flower)
-	local sign = makeDecoration(model, "OwnerSign", Vector3.new(12, 5, 1), origin + Vector3.new(0, 3, 27), VisualTheme.Colors.timber, Enum.Material.Wood)
+
+	local interactionRoot = Instance.new("Model")
+	interactionRoot.Name = "PlotInteractionAffordances"
+	interactionRoot.Parent = model
+	makeDecoration(interactionRoot, "EstateSignPost", Vector3.new(1, 6, 1), origin + Vector3.new(18, 3, 27), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	makeDecoration(interactionRoot, "EstateSignArm", Vector3.new(8, 0.8, 0.8), origin + Vector3.new(14.5, 5.5, 27), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	local sign = makeDecoration(interactionRoot, "EstateSign", Vector3.new(10, 5, 0.8), origin + Vector3.new(12, 3.5, 27), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	local ownerLabel = makeLabel(sign, "Available Plot", 180, 55)
 
-	local upgradeKiosk = makePart(model, "UpgradeKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(-12, 2, 24), VisualTheme.Colors.gold)
-	local upgradePrompt = makePrompt(upgradeKiosk, "Upgrade Home", "Home Builder")
-	makeInteractionMarker(model, "UpgradeMarker", origin + Vector3.new(-12, 0, 24), VisualTheme.Colors.gold)
-
-	local privacyKiosk = makePart(model, "PrivacyKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(12, 2, 24), VisualTheme.Colors.sky)
-	local privacyPrompt = makePrompt(privacyKiosk, "Change Privacy", "Home Access")
-	makeInteractionMarker(model, "PrivacyMarker", origin + Vector3.new(12, 0, 24), VisualTheme.Colors.sky)
-	local itemChest = makePart(model, "ItemChest", Vector3.new(6, 3, 4), origin + Vector3.new(20, 1.5, 20), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	local itemChestLid = makeDecoration(model, "ItemChestLid", Vector3.new(6.3, 0.45, 4.3), origin + Vector3.new(20, 3.2, 20), VisualTheme.Colors.woodLight, Enum.Material.Wood)
+	local upgradePrompt, privacyPrompt, visitPrompt, homeCharmPrompt = AuthoredPrefabBuilder.buildPlotAffordances(interactionRoot, origin)
+	local itemChest = makePart(interactionRoot, "ItemChest", Vector3.new(6, 3, 4), origin + Vector3.new(20, 1.5, 20), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+	itemChest:SetAttribute("TinyWorldArtRole", "plot-item-chest")
+	itemChest:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	local itemChestLid = makeDecoration(interactionRoot, "ItemChestLid", Vector3.new(6.3, 0.45, 4.3), origin + Vector3.new(20, 3.2, 20), VisualTheme.Colors.woodLight, Enum.Material.Wood)
 	itemChestLid.Orientation = Vector3.new(-8, 0, 0)
+	makeDecoration(interactionRoot, "ItemChestHandle", Vector3.new(2, 0.5, 0.6), origin + Vector3.new(20, 3.1, 22.2), VisualTheme.Colors.gold, Enum.Material.Metal)
+	makeDecoration(interactionRoot, "ItemChestBandLeft", Vector3.new(0.5, 3.6, 4.3), origin + Vector3.new(18, 1.8, 20), VisualTheme.Colors.inkSoft, Enum.Material.Metal)
+	makeDecoration(interactionRoot, "ItemChestBandRight", Vector3.new(0.5, 3.6, 4.3), origin + Vector3.new(22, 1.8, 20), VisualTheme.Colors.inkSoft, Enum.Material.Metal)
 	local itemChestLabel = makeLabel(itemChest, "ITEM CHEST\nYour collected things", 190, 55)
 	local itemChestPrompt = makePrompt(itemChest, "View Items", "Item Chest")
-	makeInteractionMarker(model, "ItemChestMarker", origin + Vector3.new(20, 0, 20), VisualTheme.Colors.warmLight)
 	local itemDisplay = Instance.new("Model")
 	itemDisplay.Name = "InventoryDisplay"
-	itemDisplay.Parent = model
-
-	local visitKiosk = makePart(model, "VisitKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, 24), VisualTheme.Colors.portal)
-	local visitPrompt = makePrompt(visitKiosk, "Enter Home", "Front Gate")
-	makeInteractionMarker(model, "VisitMarker", origin + Vector3.new(0, 0, 24), VisualTheme.Colors.portal)
-	local homeCharmKiosk = makePart(model, "HomeCharmKiosk", Vector3.new(5, 4, 5), origin + Vector3.new(0, 2, -24), VisualTheme.Colors.flower)
-	local homeCharmPrompt = makePrompt(homeCharmKiosk, "Add Home Charm", "Home Garden")
-	makeInteractionMarker(model, "HomeCharmMarker", origin + Vector3.new(0, 0, -24), VisualTheme.Colors.flower)
+	itemDisplay:SetAttribute("TinyWorldArtRole", "plot-inventory-display")
+	itemDisplay:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	itemDisplay.Parent = interactionRoot
 
 	local houseContainer = Instance.new("Model")
 	houseContainer.Name = "House"
@@ -267,18 +205,28 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 
 	local gardenBeds = {}
 	local gardenPrompts = {}
-	for bedIndex = 1, 3 do
+	for bedIndex, bedName in { "GardenBed1", "GardenBed2", "GardenBed3" } do
 		local x = (bedIndex - 2) * 10
-		local bed = makePart(model, string.format("GardenBed%d", bedIndex), Vector3.new(8, 1, 10), origin + Vector3.new(x, 1, 16), VisualTheme.Colors.timberDark, Enum.Material.Ground)
+		local bed = makePart(interactionRoot, bedName, Vector3.new(8, 1, 10), origin + Vector3.new(x, 1, 16), VisualTheme.Colors.timberDark, Enum.Material.Ground)
+		bed:SetAttribute("TinyWorldArtRole", "raised-garden-bed")
+		bed:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+		makeDecoration(interactionRoot, bedName .. "NorthEdge", Vector3.new(9, 1.4, 0.7), origin + Vector3.new(x, 1.2, 11), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+		makeDecoration(interactionRoot, bedName .. "SouthEdge", Vector3.new(9, 1.4, 0.7), origin + Vector3.new(x, 1.2, 21), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+		makeDecoration(interactionRoot, bedName .. "WestEdge", Vector3.new(0.7, 1.4, 10), origin + Vector3.new(x - 4.2, 1.2, 16), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
+		makeDecoration(interactionRoot, bedName .. "EastEdge", Vector3.new(0.7, 1.4, 10), origin + Vector3.new(x + 4.2, 1.2, 16), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 		gardenBeds[bedIndex] = bed
 		gardenPrompts[bedIndex] = makePrompt(bed, "Plant Carrot", string.format("Garden Bed %d", bedIndex))
 	end
+	applyPlotPlacement(interactionRoot, origin, placement)
+	local homeAnchorCFrame = placement * CFrame.new(0, 1, -8)
 
 	return {
 		index = index,
 		model = model,
 		origin = origin,
-		houseAnchor = origin + Vector3.new(0, 1, -8),
+		placementCFrame = placement,
+		houseAnchorCFrame = homeAnchorCFrame,
+		houseAnchor = homeAnchorCFrame.Position,
 		houseContainer = houseContainer,
 		ownerLabel = ownerLabel,
 		upgradePrompt = upgradePrompt,
@@ -291,34 +239,9 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3)
 		homeCharmPrompt = homeCharmPrompt,
 		gardenBeds = gardenBeds,
 		gardenPrompts = gardenPrompts,
-		insideCFrame = CFrame.new(origin + Vector3.new(0, 4, -8)),
-		outsideCFrame = CFrame.new(origin + Vector3.new(0, 4, 20)),
+		insideCFrame = placement * CFrame.new(0, 4, -8),
+		outsideCFrame = placement * CFrame.new(0, 4, 20),
 	}
-end
-
-local function buildTradePost(parent: Instance, origin: Vector3)
-	makePart(parent, "TradePostBase", Vector3.new(36, 1, 24), origin, VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
-	local sign = makeDecoration(parent, "TradePostSign", Vector3.new(16, 5, 1), origin + Vector3.new(0, 4, -10), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	local statusLabel = makeLabel(sign, "TRADING POST\nTwo players: join → choose item → confirm", 340)
-
-	local sides = {}
-	for side = 1, 2 do
-		local x = if side == 1 then -9 else 9
-		local name = if side == 1 then "A" else "B"
-		local join = makePart(parent, "TradeJoin" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, -2), VisualTheme.Colors.skyDeep)
-		local offer = makePart(parent, "TradeOffer" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 5), VisualTheme.Colors.gold)
-		local confirm = makePart(parent, "TradeConfirm" .. name, Vector3.new(6, 1, 6), origin + Vector3.new(x, 1, 12), VisualTheme.Colors.leaf)
-		makeInteractionMarker(parent, "TradeJoinMarker" .. name, origin + Vector3.new(x, 1, -2), VisualTheme.Colors.skyDeep)
-		makeInteractionMarker(parent, "TradeOfferMarker" .. name, origin + Vector3.new(x, 1, 5), VisualTheme.Colors.gold)
-		makeInteractionMarker(parent, "TradeConfirmMarker" .. name, origin + Vector3.new(x, 1, 12), VisualTheme.Colors.leaf)
-		sides[side] = {
-			joinPrompt = makePrompt(join, "Join Trade " .. name, "Trading Post"),
-			offerPrompt = makePrompt(offer, "Choose Offer", "Trading Post"),
-			confirmPrompt = makePrompt(confirm, "Confirm Trade", "Trading Post"),
-		}
-	end
-
-	return { sides = sides, statusLabel = statusLabel }
 end
 
 local function buildSocialBoard(parent: Instance, origin: Vector3)
@@ -327,8 +250,6 @@ local function buildSocialBoard(parent: Instance, origin: Vector3)
 	local statusLabel = makeLabel(sign, "VILLAGE MEETUP\nJoin a Village Walk\nVisit homes and trade safely together", 320, 32)
 	local join = makePart(parent, "VillageWalkJoin", Vector3.new(7, 1, 7), origin + Vector3.new(-7, 1, 1), VisualTheme.Colors.leaf, Enum.Material.WoodPlanks)
 	local leave = makePart(parent, "VillageWalkLeave", Vector3.new(7, 1, 7), origin + Vector3.new(7, 1, 1), VisualTheme.Colors.berry, Enum.Material.WoodPlanks)
-	makeInteractionMarker(parent, "VillageWalkJoinMarker", origin + Vector3.new(-7, 1, 1), VisualTheme.Colors.leaf)
-	makeInteractionMarker(parent, "VillageWalkLeaveMarker", origin + Vector3.new(7, 1, 1), VisualTheme.Colors.berry)
 	return {
 		joinPrompt = makePrompt(join, "Join Village Walk", "Village Meetup"),
 		leavePrompt = makePrompt(leave, "Leave Village Walk", "Village Meetup"),
@@ -342,7 +263,7 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	kitchen.Parent = parent
 
 	makePart(kitchen, "KitchenFloor", Vector3.new(180, 1, 180), origin, VisualTheme.Colors.paper, Enum.Material.Concrete)
-	makePortalFrame(kitchen, "KitchenArrivalFrame", origin + Vector3.new(0, 0, -72))
+	AuthoredPrefabBuilder.buildPortalFrame(kitchen, "KitchenArrivalFrame", origin + Vector3.new(0, 0, -72))
 	local tableTop = makePart(kitchen, "GiantTableTop", Vector3.new(100, 4, 70), origin + Vector3.new(0, 30, 10), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
 	makeLabel(tableTop, "THE GIANT KITCHEN\nCollect all 3 Sugar Crystals", 380)
 	for _, offset in {
@@ -365,23 +286,25 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 	end
 
 	local crystalPositions = {
-		origin + Vector3.new(-30, 3, -35),
-		origin + Vector3.new(35, 3, 45),
-		origin + Vector3.new(15, 37, 10),
+		origin + Vector3.new(-30, 0, -35),
+		origin + Vector3.new(35, 0, 45),
+		origin + Vector3.new(15, 34, 10),
 	}
 	local crystalPrompts = {}
 	for index, position in crystalPositions do
-		makeCrystalPedestal(kitchen, "CrystalPedestal" .. index, position)
-		local crystal = makePart(kitchen, "SugarCrystal" .. index, Vector3.new(4, 8, 4), position, VisualTheme.Colors.crystal, Enum.Material.Neon)
-		crystal:SetAttribute("TinyWorldCollectible", "SugarCrystal")
-		crystal:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
-		crystalPrompts[index] = makePrompt(crystal, "Collect Crystal", string.format("Sugar Crystal %d/3", index))
+		local _crystal, prompt = AuthoredPrefabBuilder.buildSugarCrystal(kitchen, "SugarCrystal" .. index, position, string.format("Sugar Crystal %d/3", index))
+		crystalPrompts[index] = prompt
 	end
 
-	makePortalFrame(kitchen, "KitchenExitFrame", origin + Vector3.new(0, 0, 75))
-	local exit = makePart(kitchen, "KitchenExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeLabel(exit, "RETURN PORTAL")
-	local returnPrompt = makePrompt(exit, "Return to Village", "Portal")
+	local _exitPortal, returnPrompt = AuthoredPrefabBuilder.buildWorldPortal(
+		kitchen,
+		"KitchenExitPortal",
+		origin + Vector3.new(0, 0, 75),
+		VisualTheme.Colors.portal,
+		"RETURN PORTAL",
+		"Return to Village",
+		"Portal"
+	)
 
 	return {
 		arrivalCFrame = CFrame.new(origin + Vector3.new(0, 5, -72)),
@@ -397,7 +320,7 @@ local function buildMoonlitMeadow(parent: Instance, origin: Vector3)
 	meadow.Parent = parent
 
 	makePart(meadow, "MoonlitMeadowFloor", Vector3.new(180, 1, 180), origin, VisualTheme.Colors.meadow, Enum.Material.Ground)
-	makePortalFrame(meadow, "MeadowArrivalFrame", origin + Vector3.new(0, 0, -72))
+	AuthoredPrefabBuilder.buildPortalFrame(meadow, "MeadowArrivalFrame", origin + Vector3.new(0, 0, -72))
 	local sign = makeDecoration(meadow, "MeadowSign", Vector3.new(30, 7, 1), origin + Vector3.new(0, 7, -60), VisualTheme.Colors.ink, Enum.Material.Wood)
 	makeLabel(sign, "MOONLIT MEADOW\nFind 3 Moonlit Seeds", 340)
 
@@ -420,24 +343,25 @@ local function buildMoonlitMeadow(parent: Instance, origin: Vector3)
 	end
 
 	local seedPositions = {
-		origin + Vector3.new(-34, 3, -18),
-		origin + Vector3.new(48, 3, 20),
-		origin + Vector3.new(8, 5, 42),
+		origin + Vector3.new(-34, 0, -18),
+		origin + Vector3.new(48, 0, 20),
+		origin + Vector3.new(8, 0, 42),
 	}
 	local collectPrompts = {}
 	for index, position in seedPositions do
-		makeCrystalPedestal(meadow, "MoonlitSeedPedestal" .. index, position)
-		local seed = makeShapeDecoration(meadow, "MoonlitSeed" .. index, Vector3.new(3.5, 6, 3.5), position + Vector3.new(0, 3, 0), VisualTheme.Colors.flower, Enum.Material.Neon, Enum.PartType.Ball)
-		seed:SetAttribute("TinyWorldCollectible", "MeadowSeed")
-		seed:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
-		makeLabel(seed, string.format("MOONLIT SEED %d/3", index), 180)
-		collectPrompts[index] = makePrompt(seed, "Collect Seed", string.format("Moonlit Seed %d/3", index))
+		local _seed, prompt = AuthoredPrefabBuilder.buildMoonlitSeed(meadow, "MoonlitSeed" .. index, position, string.format("Moonlit Seed %d/3", index))
+		collectPrompts[index] = prompt
 	end
 
-	makePortalFrame(meadow, "MeadowExitFrame", origin + Vector3.new(0, 0, 75))
-	local exit = makePart(meadow, "MeadowExitPortal", Vector3.new(12, 12, 2), origin + Vector3.new(0, 6, 75), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeLabel(exit, "RETURN PORTAL")
-	local returnPrompt = makePrompt(exit, "Return to Village", "Portal")
+	local _exitPortal, returnPrompt = AuthoredPrefabBuilder.buildWorldPortal(
+		meadow,
+		"MeadowExitPortal",
+		origin + Vector3.new(0, 0, 75),
+		VisualTheme.Colors.portal,
+		"RETURN PORTAL",
+		"Return to Village",
+		"Portal"
+	)
 
 	return {
 		arrivalCFrame = CFrame.new(origin + Vector3.new(0, 5, -72)),
@@ -478,76 +402,67 @@ function WorldBuilder.build(maxPlayers: number?)
 	spawn.Color = VisualTheme.Colors.gold
 	spawn.Parent = root
 
-	local fountain = makePart(root, "DailyFountain", Vector3.new(8, 5, 8), Vector3.new(0, 2.5, 16), VisualTheme.Colors.water, Enum.Material.Marble)
-	makeLabel(fountain, "DAILY FOUNTAIN\n200 coins • 50 XP • 1 Carrot", 320)
-	local dailyPrompt = makePrompt(fountain, "Claim Daily Reward", "Village Fountain")
-	makeShapeDecoration(root, "FountainBase", Vector3.new(16, 1, 16), Vector3.new(0, 1, 16), VisualTheme.Colors.pathEdge, Enum.Material.Marble, Enum.PartType.Cylinder)
-	makeInteractionMarker(root, "FountainMarker", Vector3.new(0, 0, 16), VisualTheme.Colors.water)
+	local _dailyFountain, dailyPrompt = AuthoredPrefabBuilder.buildDailyFountain(root, Vector3.new(0, 0, 16))
 
-	amenity(root, "TownHall", Vector3.new(-44, 0, 0), "TOWN HALL\nVillage Fund", VisualTheme.Colors.cream)
-	local contribution = makePart(root, "ContributionKiosk", Vector3.new(6, 5, 6), Vector3.new(-29, 2.5, 0), VisualTheme.Colors.gold)
-	local contributionPrompt = makePrompt(contribution, "Contribute 50 Coins", "Village Fund")
-	makeInteractionMarker(root, "ContributionMarker", Vector3.new(-29, 0, 0), VisualTheme.Colors.gold)
-	local fundSign = makeDecoration(root, "FundSign", Vector3.new(8, 4, 1), Vector3.new(-29, 6, 0), VisualTheme.Colors.timberDark)
-	local fundLabel = makeLabel(fundSign, "Village Fund: 0 coins", 250)
-	local professionBoard = makePart(root, "ProfessionBoard", Vector3.new(14, 5, 1), Vector3.new(-44, 2.5, -28), VisualTheme.Colors.timberDark, Enum.Material.WoodPlanks)
-	makeLabel(professionBoard, "PROFESSION BOARD\nCourier • Farmer • Designer", 330)
-	local professionPrompt = makePrompt(professionBoard, "View Professions", "Profession Board")
-	makeInteractionMarker(root, "ProfessionBoardMarker", Vector3.new(-44, 0, -28), VisualTheme.Colors.gold)
+	local _townHall, contributionAnchor, noticeboard = AuthoredPrefabBuilder.buildTownHall(root, Vector3.new(-44, 0, 0))
+	local contributionPrompt = makePrompt(contributionAnchor, "Contribute 50 Coins", "Village Fund")
+	local fundLabel = makeLabel(contributionAnchor, "Village Fund: 0 coins", 250)
+	makeLabel(noticeboard, "PROFESSION BOARD\nCourier • Farmer • Designer", 330)
+	local professionPrompt = makePrompt(noticeboard, "View Professions", "Profession Board")
 
-	amenity(root, "DeliveryDepot", Vector3.new(0, 0, -44), "COURIER DEPOT\nPick up deliveries", VisualTheme.Colors.warmLight)
-	local deliveryStart = makePart(root, "DeliveryStart", Vector3.new(6, 4, 6), Vector3.new(0, 2, -30), VisualTheme.Colors.timber)
-	local deliveryStartPrompt = makePrompt(deliveryStart, "Take Parcel", "Courier Job")
-	makeInteractionMarker(root, "DeliveryStartMarker", Vector3.new(0, 0, -30), VisualTheme.Colors.warmLight)
+	local _courierDepot, courierPickupAnchor, _courierDeliveryAnchor = AuthoredPrefabBuilder.buildCourierDepot(root, Vector3.new(0, 0, -44))
+	local deliveryStartPrompt = makePrompt(courierPickupAnchor, "Take Parcel", "Courier Job")
 
-	amenity(root, "VillageShop", Vector3.new(44, 0, -44), "VILLAGE SHOP\nDelivery destination", VisualTheme.Colors.berry)
-	local deliveryEnd = makePart(root, "DeliveryEnd", Vector3.new(6, 4, 6), Vector3.new(30, 2, -44), VisualTheme.Colors.timber)
-	local deliveryEndPrompt = makePrompt(deliveryEnd, "Deliver Parcel", "Courier Job")
-	makeInteractionMarker(root, "DeliveryEndMarker", Vector3.new(30, 0, -44), VisualTheme.Colors.berry)
-	makeCourierShowcase(root)
-	local homeSupply = makePart(root, "HomeSupplyCounter", Vector3.new(8, 4, 6), Vector3.new(30, 2, -56), VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
-	local homeSupplyLabel = makeLabel(homeSupply, "HOME SUPPLY\nFurniture and essentials", 340)
-	local homeSupplyPrompt = makePrompt(homeSupply, "Buy Next Essential", "Home Supply")
-	makeInteractionMarker(root, "HomeSupplyMarker", Vector3.new(30, 0, -56), VisualTheme.Colors.gold)
-	local homeStyle = makePart(root, "HomeStyleBoard", Vector3.new(7, 4, 5), Vector3.new(18, 2, -56), VisualTheme.Colors.sky, Enum.Material.WoodPlanks)
-	local homeStyleLabel = makeLabel(homeStyle, "HOME STYLE\nMeadow • Harbor • Sunset", 340)
-	local homeStylePrompt = makePrompt(homeStyle, "Change Home Style", "Home Style")
-	makeInteractionMarker(root, "HomeStyleMarker", Vector3.new(18, 0, -56), VisualTheme.Colors.sky)
-	local homeDecor = makePart(root, "HomeGallery", Vector3.new(8, 4, 6), Vector3.new(42, 2, -56), VisualTheme.Colors.portal, Enum.Material.WoodPlanks)
-	local homeDecorLabel = makeLabel(homeDecor, "HOME GALLERY\nSix authored pieces", 340)
-	local homeDecorPrompt = makePrompt(homeDecor, "Collect Next Decor", "Home Gallery")
-	makeInteractionMarker(root, "HomeGalleryMarker", Vector3.new(42, 0, -56), VisualTheme.Colors.portal)
+	local _villageShop, shopDeliveryAnchor, supplyAnchor, styleAnchor, galleryAnchor = AuthoredPrefabBuilder.buildVillageShop(root, Vector3.new(44, 0, -44))
+	local deliveryEndPrompt = makePrompt(shopDeliveryAnchor, "Deliver Parcel", "Courier Job")
+	local homeSupplyLabel = makeLabel(supplyAnchor, "HOME SUPPLY\nFurniture and essentials", 340)
+	local homeSupplyPrompt = makePrompt(supplyAnchor, "Buy Next Essential", "Home Supply")
+	local homeStyleLabel = makeLabel(styleAnchor, "HOME STYLE\nMeadow • Harbor • Sunset", 340)
+	local homeStylePrompt = makePrompt(styleAnchor, "Change Home Style", "Home Style")
+	local homeDecorLabel = makeLabel(galleryAnchor, "HOME GALLERY\nSix authored pieces", 340)
+	local homeDecorPrompt = makePrompt(galleryAnchor, "Collect Next Decor", "Home Gallery")
 
-	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", VisualTheme.Colors.sky)
-	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), VisualTheme.Colors.skyDeep)
-	local transportPrompt = makePrompt(transport, "Buy / Toggle Bike", "Transport Shop")
-	makeInteractionMarker(root, "TransportMarker", Vector3.new(30, 0, 0), VisualTheme.Colors.sky)
+	local _transportWorkshop, transportAnchor = AuthoredPrefabBuilder.buildTransportWorkshop(root, Vector3.new(44, 0, 0))
+	local transportPrompt = makePrompt(transportAnchor, "Buy / Toggle Bike", "Transport Shop")
 
-	local trade = buildTradePost(root, Vector3.new(0, 0.5, 44))
+	local _market, tradeSides, tradeStatusLabel = AuthoredPrefabBuilder.buildMarket(root, Vector3.new(0, 0.5, 44))
+	local trade = { sides = tradeSides, statusLabel = tradeStatusLabel }
 	local social = buildSocialBoard(root, Vector3.new(44, 0.5, 28))
 
-	local portal = makePart(root, "VillagePortal", Vector3.new(12, 12, 2), Vector3.new(-44, 6, 44), VisualTheme.Colors.portal, Enum.Material.Neon)
-	makeLabel(portal, "PORTAL\nThe Giant Kitchen", 300)
-	local villagePortalPrompt = makePrompt(portal, "Enter Giant Kitchen", "World Portal")
-	makePortalFrame(root, "VillagePortalFrame", Vector3.new(-44, 0, 44))
-	makeInteractionMarker(root, "VillagePortalMarker", Vector3.new(-44, 0, 44), VisualTheme.Colors.portal)
+	local _villagePortal, villagePortalPrompt = AuthoredPrefabBuilder.buildWorldPortal(
+		root,
+		"VillagePortal",
+		Vector3.new(-44, 0, 44),
+		VisualTheme.Colors.portal,
+		"PORTAL\nThe Giant Kitchen",
+		"Enter Giant Kitchen",
+		"World Portal"
+	)
 
-	local moonlitPortal = makePart(root, "MoonlitMeadowPortal", Vector3.new(12, 12, 2), Vector3.new(-8, 6, 44), VisualTheme.Colors.flower, Enum.Material.Neon)
-	makeLabel(moonlitPortal, "PORTAL\nMoonlit Meadow", 300)
-	local moonlitPortalPrompt = makePrompt(moonlitPortal, "Enter Moonlit Meadow", "World Portal")
-	makePortalFrame(root, "MoonlitMeadowPortalFrame", Vector3.new(-8, 0, 44))
-	makeInteractionMarker(root, "MoonlitMeadowPortalMarker", Vector3.new(-8, 0, 44), VisualTheme.Colors.flower)
-
-	local premiumSign = makeDecoration(root, "PremiumPreview", Vector3.new(16, 6, 1), Vector3.new(44, 4, 44), VisualTheme.Colors.ink)
-	makeLabel(premiumSign, "PREMIUM PREVIEW\nStyle & convenience only\nNo pay-to-win", 340)
+	local _moonlitPortal, moonlitPortalPrompt = AuthoredPrefabBuilder.buildWorldPortal(
+		root,
+		"MoonlitMeadowPortal",
+		Vector3.new(-8, 0, 44),
+		VisualTheme.Colors.flower,
+		"PORTAL\nMoonlit Meadow",
+		"Enter Moonlit Meadow",
+		"World Portal"
+	)
 
 	local plots = {}
 	for index, slot in layout.plotSlots do
-		plots[index] = buildPlot(root, index, Vector3.new(slot.x, 0, slot.z))
+		local origin = Vector3.new(slot.x, 0, slot.z)
+		local placement = makePlotPlacementCFrame(origin, slot.rotation, slot.setback)
+		plots[index] = buildPlot(root, index, origin, placement)
 	end
+	local ambientLife = VillageSceneryBuilder.buildAmbientLife(root, layout, {
+		_townHall,
+		_villageShop,
+	})
 	root:SetAttribute("TinyWorldPlotCapacity", #layout.plotSlots)
 	root:SetAttribute("TinyWorldVisualBudget", layout.budgets.visual.totalDecorations)
 	root:SetAttribute("TinyWorldBuiltPlotCount", #plots)
+	root:SetAttribute("TinyWorldAmbientEffectCount", ambientLife.effectCount)
 	root:SetAttribute("TinyWorldScaleBudgetStatus", if VisualBudgetRules.isWithinBudget(layout.budgets.visual) then "within-budget" else "over-budget")
 
 	local boundary = BoundaryBuilder.build(root, layout)
@@ -559,6 +474,7 @@ function WorldBuilder.build(maxPlayers: number?)
 		root = root,
 		layout = layout,
 		scenery = scenery,
+		ambientLife = ambientLife,
 		livingWorld = livingWorld,
 		boundary = boundary,
 		spawn = spawn,

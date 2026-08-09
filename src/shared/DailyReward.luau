@@ -27,3 +27,4 @@ function DailyReward.claim(profile: any, dayKey: string): (boolean, string)
 end
 
 return DailyReward
+

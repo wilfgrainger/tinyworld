@@ -43,3 +43,4 @@ return function()
 	TestUtil.isFalse(SocialRules.canShareActivity(solo, "only"))
 	TestUtil.isFalse(SocialRules.canShareActivity({}, "nobody"))
 end
+

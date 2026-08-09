@@ -252,3 +252,4 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 end
 
 return ProfileSchema
+

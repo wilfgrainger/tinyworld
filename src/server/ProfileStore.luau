@@ -339,3 +339,4 @@ function ProfileStore.getDiagnostics(player: Player?)
 end
 
 return ProfileStore
+

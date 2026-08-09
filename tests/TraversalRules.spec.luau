@@ -37,3 +37,4 @@ return function()
 	TestUtil.isFalse(returnedAgain)
 	TestUtil.equal(returnedAgainReason, "already_parked")
 end
+
