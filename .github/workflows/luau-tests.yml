@@ -8,42 +8,9 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  format-remediation-once:
-    if: github.event_name == 'pull_request' && github.head_ref == 'docs/target-state-v1'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: docs/target-state-v1
-          fetch-depth: 0
-
-      - name: Install pinned Rokit tools
-        run: |
-          set -euo pipefail
-          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
-          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
-          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
-          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
-          export PATH="$HOME/.rokit/bin:$PATH"
-          rokit install --no-trust-check
-
-      - name: Format and push once
-        run: |
-          set -euo pipefail
-          stylua src tests
-          if git diff --quiet -- src tests; then
-            echo "StyLua already stable."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src tests
-          git commit -m "style: normalize Codex remediation Luau"
-          git push origin HEAD:docs/target-state-v1
-
   test:
     runs-on: ubuntu-latest
     steps:
