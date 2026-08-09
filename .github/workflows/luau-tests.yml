@@ -31,14 +31,26 @@ jobs:
           chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze" "$RUNNER_TEMP/luau/luau-compile"
           echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
 
+      - name: Install pinned Rokit tools
+        run: |
+          set -euo pipefail
+          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
+          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
+          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.rokit/bin:$PATH"
+          rokit install --no-trust-check
+
       - name: Run unit tests
         run: luau tests/run.luau
 
       - name: Analyze shared Luau
         run: luau-analyze src/shared/*.luau tests/*.luau
 
+      - name: Check formatting
+        run: stylua --check src tests
+
       - name: Compile runtime Luau for syntax
         run: |
-          luau-compile src/server/*.luau >/dev/null
-          luau-compile src/client/*.luau >/dev/null
-
+          find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+          find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
