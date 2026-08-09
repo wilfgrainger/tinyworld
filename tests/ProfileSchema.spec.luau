@@ -148,6 +148,14 @@ return function()
 	TestUtil.equal(exploration.boundaryExplorationMask, 7)
 	TestUtil.equal(exploration.boundaryCompletions, 4)
 
+	local bridgedHome = ProfileSchema.normalize({
+		version = 11,
+		homeItems = { Bed = 1, KitchenCounter = 1, Wardrobe = 1, CreativeDesk = 0 },
+		ownedFurniture = { Bed = 1, KitchenCounter = 0, Wardrobe = 0, CreativeDesk = 0 },
+	})
+	TestUtil.equal(bridgedHome.ownedFurniture.KitchenCounter, 1)
+	TestUtil.equal(bridgedHome.ownedFurniture.Wardrobe, 1)
+
 	local repaired = ProfileSchema.normalize({
 		coins = -50,
 		level = 0,
