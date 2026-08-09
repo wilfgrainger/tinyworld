@@ -1,0 +1,8 @@
+{
+  "name": "TinyWorld LIVE",
+  "releaseChannel": "production",
+  "configured": false,
+  "universeId": null,
+  "placeId": null,
+  "publishing": "deferred"
+}

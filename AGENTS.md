@@ -9,11 +9,12 @@ TinyWorld is a persistent Roblox life sandbox: **Build your life. Explore imposs
 For current work, treat the canonical documentation index and active release records as authoritative:
 
 1. `docs/README.md` for documentation authority and current links.
-2. `docs/releases/v0.5.2/acceptance.md` for the active release contract and evidence state.
-3. `docs/roadmap/v0.5.2-village-soul.md` for active-release sequencing and implementation inputs.
-4. `README.md` for the current Studio smoke-test route.
+2. `docs/engineering/production-engineering.md` and `docs/releases/v0.5.3/acceptance.md` for current build/release authority and evidence state.
+3. `docs/roadmap/v0.5.3-production-engineering.md` for the sequenced engineering/deployment phases.
+4. `docs/releases/v0.5.2/acceptance.md` and `docs/roadmap/v0.5.2-village-soul.md` for product/presentation acceptance and active v0.5.2 inputs.
+5. `README.md` for the current Studio smoke-test route.
 
-Earlier v0.01 and foundation specs/plans remain historical context for the progression scaffold. They are useful decision records, but do not override the canonical index or active release acceptance/roadmap. Where historical guidance conflicts with the active v0.5.2 documents, **the active release documents win**.
+For build or release work, read the v0.5.3 engineering and acceptance records before editing. v0.5.2 remains authoritative for product behavior and visual-quality acceptance. Earlier v0.01 and foundation specs/plans remain historical context for the progression scaffold. They are useful decision records, but do not override the canonical index or active release records. Where historical guidance conflicts with active v0.5.2 product or v0.5.3 engineering documents, **the active release documents win**.
 
 Before adding the next feature slice, run the Superpowers brainstorming/design process and write a new dated spec/plan rather than silently expanding scope.
 
@@ -49,6 +50,11 @@ luau-compile src/client/*.luau >/dev/null
 ```
 
 For gameplay/runtime changes, the README Studio smoke test is also required before merging the active vertical-slice PR.
+
+For v0.5.3 build/release changes, also run `./scripts/verify-release-contract.sh`,
+`./tests/build-contract.sh`, and `git diff --check`. Do not add Roblox
+credentials, real IDs, or publishing steps. DEV/LIVE deployment remains an
+explicit future human-gated phase; Codex must not publish LIVE.
 
 ## Commit discipline
 
