@@ -47,3 +47,4 @@ function OnboardingRules.isComplete(profile: any): boolean
 end
 
 return OnboardingRules
+

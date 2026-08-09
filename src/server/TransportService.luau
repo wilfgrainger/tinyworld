@@ -8,53 +8,7 @@ local BikeBuilder = require(script.Parent:WaitForChild("BikeBuilder"))
 
 local TransportService = {}
 TransportService.__index = TransportService
-
-local function removeBikeBadge(player: Player)
-	local character = player.Character
-	if character then
-		local head = character:FindFirstChild("Head")
-		if head then
-			local badge = head:FindFirstChild("TinyWorldBikeBadge")
-			if badge then
-				badge:Destroy()
-			end
-		end
-	end
-end
-
-local function addBikeBadge(player: Player)
-	removeBikeBadge(player)
-	local character = player.Character
-	if character == nil then
-		return
-	end
-	local head = character:FindFirstChild("Head")
-	if head == nil then
-		return
-	end
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "TinyWorldBikeBadge"
-	gui.Size = UDim2.fromOffset(130, 32)
-	gui.StudsOffset = Vector3.new(0, 2.5, 0)
-	gui.AlwaysOnTop = true
-	gui.Parent = head
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = VisualTheme.Colors.skyDeep
-	label.BackgroundTransparency = 0.1
-	label.TextColor3 = VisualTheme.Colors.white
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBold
-	label.Text = "TINY BIKE - MOUNTED"
-	label.Parent = gui
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = label
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.paper
-	stroke.Transparency = 0.7
-	stroke.Parent = label
-end
+local MOTION_REPLICATION_INTERVAL_SECONDS = 0.15
 
 function TransportService.new(world, ProfileStore, PlayerStateService)
 	local self = setmetatable({}, TransportService)
@@ -64,6 +18,7 @@ function TransportService.new(world, ProfileStore, PlayerStateService)
 	self.characterConnections = {}
 	self.followConnections = {}
 	self.bikes = {}
+	self.motionSessions = {}
 	self.sessionPrepared = {}
 	self.bikeFolder = Instance.new("Folder")
 	self.bikeFolder.Name = "TinyWorldBikes"
@@ -114,7 +69,15 @@ end
 
 function TransportService:_startFollowing(player: Player)
 	self:_stopFollowing(player)
-	self.followConnections[player] = RunService.Heartbeat:Connect(function()
+	local motion = self.motionSessions[player]
+	if motion == nil then
+		motion = {
+			phase = 0,
+			replicationElapsed = MOTION_REPLICATION_INTERVAL_SECONDS,
+		}
+		self.motionSessions[player] = motion
+	end
+	self.followConnections[player] = RunService.Heartbeat:Connect(function(deltaTime)
 		local profile = self.ProfileStore.get(player)
 		local bike = self.bikes[player]
 		local character = player.Character
@@ -123,7 +86,26 @@ function TransportService:_startFollowing(player: Player)
 			return
 		end
 		bike.model:PivotTo(root.CFrame * CFrame.new(0, -2.4, 0))
+		motion.phase += deltaTime * 8
+		motion.replicationElapsed += deltaTime
+		if motion.replicationElapsed >= MOTION_REPLICATION_INTERVAL_SECONDS then
+			motion.replicationElapsed = 0
+			bike.model:SetAttribute("TinyWorldMotionPhase", motion.phase)
+			bike.model:SetAttribute("TinyWorldMotionState", "riding")
+		end
 	end)
+end
+
+function TransportService:_beginMotionSession(player: Player)
+	self.motionSessions[player] = {
+		phase = 0,
+		replicationElapsed = MOTION_REPLICATION_INTERVAL_SECONDS,
+	}
+	local bike = self.bikes[player]
+	if bike then
+		bike.model:SetAttribute("TinyWorldMotionPhase", 0)
+		bike.model:SetAttribute("TinyWorldMotionState", "riding")
+	end
 end
 
 function TransportService:_setPromptState(player: Player, mounted: boolean)
@@ -133,6 +115,34 @@ function TransportService:_setPromptState(player: Player, mounted: boolean)
 	end
 	bike.mountPrompt.Enabled = not mounted
 	bike.dismountPrompt.Enabled = mounted
+end
+
+function TransportService:_restorePlayerState(player: Player, profile: any?)
+	local character = player.Character
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid == nil then
+		return
+	end
+	humanoid.Sit = false
+	if humanoid.Health > 0 and humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
+	if profile then
+		humanoid.WalkSpeed = TransportRules.movementSpeed(profile)
+	end
+end
+
+function TransportService:_seatPlayer(player: Player, seat: Seat): boolean
+	local character = player.Character
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if humanoid == nil or humanoid.Health <= 0 or seat.Parent == nil then
+		return false
+	end
+	humanoid.Sit = false
+	local seated = pcall(function()
+		seat:Sit(humanoid)
+	end)
+	return seated
 end
 
 function TransportService:apply(player: Player, profile)
@@ -153,13 +163,19 @@ function TransportService:apply(player: Player, profile)
 		end
 	end
 	if profile.ownsTinyBike and profile.bikeActive then
-		addBikeBadge(player)
+		player:SetAttribute("TinyWorldRideState", "Riding Tiny Bike")
 		self:_setPromptState(player, true)
 		self:_startFollowing(player)
 	else
-		removeBikeBadge(player)
+		player:SetAttribute("TinyWorldRideState", "Bike parked")
 		self:_setPromptState(player, false)
 		self:_stopFollowing(player)
+		self.motionSessions[player] = nil
+		self:_restorePlayerState(player, profile)
+		local bike = self.bikes[player]
+		if bike then
+			bike.model:SetAttribute("TinyWorldMotionState", "parked")
+		end
 	end
 	if firstApply then
 		self.PlayerStateService.sync(player, profile)
@@ -196,9 +212,21 @@ function TransportService:_mount(player: Player)
 		return
 	end
 	local root = character:FindFirstChild("HumanoidRootPart")
-	if root then
-		bike.model:PivotTo(root.CFrame * CFrame.new(0, -2.4, 0))
+	if root == nil then
+		TransportRules.dismountTinyBike(profile)
+		self:apply(player, profile)
+		self.PlayerStateService.sync(player, profile)
+		return
 	end
+	bike.model:PivotTo(root.CFrame * CFrame.new(0, -2.4, 0))
+	if not self:_seatPlayer(player, bike.mountPart) then
+		TransportRules.dismountTinyBike(profile)
+		self:apply(player, profile)
+		self.PlayerStateService.sync(player, profile)
+		self.PlayerStateService.message(player, "The Tiny Bike is not ready yet.")
+		return
+	end
+	self:_beginMotionSession(player)
 	self:_setPromptState(player, true)
 	self:_startFollowing(player)
 	self:apply(player, profile)
@@ -215,6 +243,8 @@ function TransportService:_dismount(player: Player)
 	end
 	TransportRules.dismountTinyBike(profile)
 	self:_stopFollowing(player)
+	self.motionSessions[player] = nil
+	self:_restorePlayerState(player, profile)
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	if root then
@@ -259,7 +289,8 @@ function TransportService:removePlayer(player: Player)
 	if profile then
 		profile.bikeActive = false
 	end
-	removeBikeBadge(player)
+	self:_restorePlayerState(player, profile)
+	player:SetAttribute("TinyWorldRideState", "Bike parked")
 	self:_stopFollowing(player)
 	local connection = self.characterConnections[player]
 	if connection then
@@ -272,6 +303,7 @@ function TransportService:removePlayer(player: Player)
 		self.bikes[player] = nil
 	end
 	self.sessionPrepared[player] = nil
+	self.motionSessions[player] = nil
 end
 
 return TransportService

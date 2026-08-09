@@ -6,13 +6,14 @@ TinyWorld is a persistent Roblox life sandbox: **Build your life. Explore imposs
 
 ## Active product contract
 
-For current work, treat these as authoritative:
+For current work, treat the canonical documentation index and active release records as authoritative:
 
-1. `docs/superpowers/specs/2026-08-07-tinyworld-v0.01-vertical-slice-design.md`
-2. `docs/superpowers/plans/2026-08-07-tinyworld-v0.01-vertical-slice.md`
-3. `README.md` for the current Studio smoke-test route.
+1. `docs/README.md` for documentation authority and current links.
+2. `docs/releases/v0.5.2/acceptance.md` for the active release contract and evidence state.
+3. `docs/roadmap/v0.5.2-village-soul.md` for active-release sequencing and implementation inputs.
+4. `README.md` for the current Studio smoke-test route.
 
-The earlier `tinyworld-foundation` spec/plan are historical context for the first progression scaffold. Where they conflict with the v0.01 vertical-slice documents, **the v0.01 documents win**.
+Earlier v0.01 and foundation specs/plans remain historical context for the progression scaffold. They are useful decision records, but do not override the canonical index or active release acceptance/roadmap. Where historical guidance conflicts with the active v0.5.2 documents, **the active release documents win**.
 
 Before adding the next feature slice, run the Superpowers brainstorming/design process and write a new dated spec/plan rather than silently expanding scope.
 

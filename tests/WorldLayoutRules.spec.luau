@@ -1,62 +1,53 @@
 local TestUtil = require("./TestUtil")
 local WorldLayoutRules = require("../src/shared/WorldLayoutRules")
 
+local EXPECTED_NEIGHBOURHOODS = {
+	"MeadowLane",
+	"HarbourRow",
+	"WoodlandRise",
+	"OrchardEnd",
+}
+
+local function assertSlotEqual(actual, expected, message: string)
+	TestUtil.equal(actual.x, expected.x, message .. " x")
+	TestUtil.equal(actual.z, expected.z, message .. " z")
+	TestUtil.equal(actual.neighbourhood, expected.neighbourhood, message .. " neighbourhood")
+	TestUtil.equal(actual.rotation, expected.rotation, message .. " rotation")
+	TestUtil.equal(actual.setback, expected.setback, message .. " setback")
+end
+
 return function()
-	local firstFour = {
-		{ x = -75, z = -75 },
-		{ x = 75, z = -75 },
-		{ x = -75, z = 75 },
-		{ x = 75, z = 75 },
-	}
-
-	for index, expected in firstFour do
-		local layout = WorldLayoutRules.create(4)
-		TestUtil.equal(layout.plotSlots[index].x, expected.x)
-		TestUtil.equal(layout.plotSlots[index].z, expected.z)
+	TestUtil.equal(WorldLayoutRules.MAX_PLOTS, 16)
+	TestUtil.equal(#WorldLayoutRules.NEIGHBOURHOODS, 4)
+	for index, expected in EXPECTED_NEIGHBOURHOODS do
+		TestUtil.equal(WorldLayoutRules.NEIGHBOURHOODS[index], expected)
 	end
 
-	for _, maxPlayers in { 0, 1, 4, 8, 16, 32, 50, 60 } do
-		local layout = WorldLayoutRules.create(maxPlayers)
-		local expectedPlots = math.max(4, math.floor(maxPlayers))
-		TestUtil.equal(#layout.plotSlots, expectedPlots)
-		TestUtil.isTrue(layout.perimeterHalfExtent > layout.coreHalfExtent)
-		TestUtil.equal(layout.budgets.plots, expectedPlots)
-		TestUtil.equal(layout.budgets.cabins, 3)
-		TestUtil.equal(layout.budgets.livingPickups, 3)
-		TestUtil.isTrue(layout.budgets.planters >= 6)
-		TestUtil.isTrue(layout.livingWorld.cabinLaneZ > layout.coreHalfExtent)
-		TestUtil.isTrue(layout.livingWorld.pickupAnchors.MeadowSeed.x < 0)
-		TestUtil.isTrue(layout.livingWorld.pickupAnchors.Seashell.x > 0)
-		TestUtil.isTrue(layout.livingWorld.pickupAnchors.WoodToken.x < 0)
-		TestUtil.isTrue(layout.roads.mainHalfLength >= layout.coreHalfExtent)
-		TestUtil.isTrue(layout.roads.laneWidth >= 10)
-		TestUtil.equal(layout.civic.fountain.x, 0)
-		TestUtil.equal(layout.civic.fountain.z, 0)
-		TestUtil.isTrue(layout.budgets.boundaryTrees <= 240)
-		TestUtil.isTrue(layout.budgets.roadParts <= 24)
-		TestUtil.isTrue(layout.budgets.totalDecorations <= 2200)
-		TestUtil.isTrue(layout.budgets.visual.totalDecorations <= 4200)
-		TestUtil.isTrue(layout.budgets.visual.boundaryDecorations <= 900)
-		TestUtil.isTrue(layout.budgets.visual.billboards <= 180)
+	local minimumLayout = WorldLayoutRules.create(nil)
+	local fullLayout = WorldLayoutRules.create(60)
+	local repeatedLayout = WorldLayoutRules.create(60)
+	TestUtil.equal(#minimumLayout.plotSlots, 4)
+	TestUtil.equal(#fullLayout.plotSlots, 16)
+	TestUtil.equal(fullLayout.artSeed, 2052)
+	TestUtil.equal(#fullLayout.neighbourhoods, 4)
 
-		for index, slot in layout.plotSlots do
-			local halfExtent = math.max(math.abs(slot.x), math.abs(slot.z)) + (layout.plotSize / 2)
-			TestUtil.isTrue(halfExtent < layout.perimeterHalfExtent)
-			for otherIndex = index + 1, #layout.plotSlots do
-				TestUtil.isFalse(WorldLayoutRules.boundsOverlap(slot, layout.plotSlots[otherIndex], layout.plotSize, 4))
-			end
-		end
-
-		for _, landmark in layout.landmarks do
-			local landmarkExtent = math.max(math.abs(landmark.x), math.abs(landmark.z)) + 5
-			TestUtil.isTrue(landmarkExtent < layout.perimeterHalfExtent)
+	local represented = {}
+	for index, slot in fullLayout.plotSlots do
+		represented[slot.neighbourhood] = true
+		TestUtil.equal(type(slot.rotation), "number", string.format("slot %d rotation", index))
+		TestUtil.equal(type(slot.setback), "number", string.format("slot %d setback", index))
+		assertSlotEqual(slot, repeatedLayout.plotSlots[index], string.format("deterministic slot %d", index))
+		for previousIndex = 1, index - 1 do
+			TestUtil.isFalse(
+				WorldLayoutRules.boundsOverlap(fullLayout.plotSlots[previousIndex], slot, fullLayout.plotSize, 4),
+				string.format("slots %d and %d overlap", previousIndex, index)
+			)
 		end
 	end
 
-	local fallback = WorldLayoutRules.create(nil)
-	TestUtil.equal(#fallback.plotSlots, 4)
-	TestUtil.equal(WorldLayoutRules.safeCount(nil, 4, 10), 4)
-	TestUtil.equal(WorldLayoutRules.safeCount(math.huge, 4, 10), 10)
-	TestUtil.equal(WorldLayoutRules.safeCount(3.9, 4, 10), 4)
-	TestUtil.equal(WorldLayoutRules.safeCount(99, 4, 10), 10)
+	for index, expected in EXPECTED_NEIGHBOURHOODS do
+		TestUtil.equal(fullLayout.neighbourhoods[index], expected)
+		TestUtil.isTrue(represented[expected], expected .. " is not represented")
+		TestUtil.equal(minimumLayout.plotSlots[index].neighbourhood, expected)
+	end
 end

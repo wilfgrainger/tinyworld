@@ -33,3 +33,4 @@ function VillageService:_contribute(player: Player)
 end
 
 return VillageService
+

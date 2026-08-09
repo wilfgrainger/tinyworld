@@ -2,16 +2,16 @@ local TestUtil = require("./TestUtil")
 local VisualBudgetRules = require("../src/shared/VisualBudgetRules")
 
 return function()
-	local four = VisualBudgetRules.forPlayers(4, 16)
-	TestUtil.equal(four.perPlotDecorations, 24)
-	TestUtil.isTrue(VisualBudgetRules.isWithinBudget(four))
+	local minimumBudget = VisualBudgetRules.forPlayers(4, 16)
+	local fullBudget = VisualBudgetRules.forPlayers(16, 40)
+	local cappedBudget = VisualBudgetRules.forPlayers(60, 400)
 
-	local sixty = VisualBudgetRules.forPlayers(60, 180)
-	TestUtil.equal(sixty.perPlotDecorations, 24)
-	TestUtil.isTrue(sixty.totalDecorations <= 4200)
-	TestUtil.isTrue(sixty.boundaryDecorations <= 900)
-	TestUtil.isTrue(VisualBudgetRules.isWithinBudget(sixty))
-
-	local over = { totalDecorations = 4201, perPlotDecorations = 24, boundaryDecorations = 100, billboards = 10, interactionMarkers = 10 }
-	TestUtil.isFalse(VisualBudgetRules.isWithinBudget(over))
+	TestUtil.isTrue(VisualBudgetRules.isWithinBudget(minimumBudget))
+	TestUtil.isTrue(VisualBudgetRules.isWithinBudget(fullBudget))
+	TestUtil.isTrue(VisualBudgetRules.isWithinBudget(cappedBudget))
+	TestUtil.isTrue(fullBudget.seededDressing > 0)
+	TestUtil.isTrue(fullBudget.seededDressing <= VisualBudgetRules.MAX_SEEDED_DRESSING)
+	TestUtil.isTrue(fullBudget.interactionMarkers <= VisualBudgetRules.MAX_INTERACTION_MARKERS)
+	TestUtil.isFalse(fullBudget.seededDressing == fullBudget.interactionMarkers)
+	TestUtil.equal(cappedBudget.totalDecorations, fullBudget.totalDecorations)
 end

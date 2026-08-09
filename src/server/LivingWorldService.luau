@@ -42,3 +42,4 @@ function LivingWorldService:_collect(player: Player, itemName: string)
 end
 
 return LivingWorldService
+

@@ -34,3 +34,4 @@ function HouseUpgrade.tryUpgrade(profile: any): (boolean, string)
 end
 
 return HouseUpgrade
+

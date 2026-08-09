@@ -23,3 +23,4 @@ function HouseCatalog.get(tier: number): HouseTier?
 end
 
 return HouseCatalog
+

@@ -36,6 +36,8 @@ local function makeCropPart(parent: Instance, name: string, size: Vector3, posit
 	if shape then
 		part.Shape = shape
 	end
+	part:SetAttribute("TinyWorldArtRole", "garden-carrot-detail")
+	part:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	part.Parent = parent
 	return part
 end
@@ -52,8 +54,10 @@ local function renderBed(plot, bedIndex: number, stage: string)
 
 	local model = Instance.new("Model")
 	model.Name = name
+	model:SetAttribute("TinyWorldArtRole", "garden-carrot-crop")
 	model:SetAttribute("TinyWorldGardenStage", stage)
 	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	model:SetAttribute("TinyWorldRecognizableSilhouette", true)
 	model.Parent = plot.model
 	local bed = plot.gardenBeds[bedIndex]
 	local base = bed.Position + Vector3.new(0, 0.8, 0)
@@ -76,6 +80,7 @@ local function renderBed(plot, bedIndex: number, stage: string)
 	if stage == "ready" then
 		local carrot = makeCropPart(model, "ReadyCarrot", Vector3.new(1.4, 2, 1.4), base + Vector3.new(0, 1.2, 0), VisualTheme.Colors.warmLight, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
 		carrot:SetAttribute("TinyWorldItem", "Carrot")
+		carrot:SetAttribute("TinyWorldArtRole", "garden-ready-carrot")
 		carrot:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 		makeCropPart(model, "ReadyCarrotTop", Vector3.new(1.2, 0.45, 1.2), carrot.Position + Vector3.new(0, 1.15, 0), VisualTheme.Colors.leaf, Enum.Material.Grass, Enum.PartType.Ball)
 		local gui = Instance.new("BillboardGui")

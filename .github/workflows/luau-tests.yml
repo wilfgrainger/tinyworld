@@ -41,3 +41,4 @@ jobs:
         run: |
           luau-compile src/server/*.luau >/dev/null
           luau-compile src/client/*.luau >/dev/null
+

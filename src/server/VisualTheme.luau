@@ -6,6 +6,16 @@ local palette = require(shared:WaitForChild("VisualPalette"))
 
 local VisualTheme = {
 	Colors = {},
+	Ambient = {
+		MAX_CHIMNEY_SMOKE_EMITTERS = 3,
+		MAX_WARM_WINDOW_LIGHTS = 4,
+		MAX_WATER_HIGHLIGHTS = 4,
+		MAX_FOLIAGE_HOOKS = 6,
+		MAX_BIRD_HOOKS = 3,
+		MAX_BUTTERFLY_HOOKS = 4,
+		MAX_TOTAL_EFFECTS = 24,
+		SMOKE_RATE = 1,
+	},
 }
 
 for name, hex in palette do

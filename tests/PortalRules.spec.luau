@@ -24,3 +24,4 @@ return function()
 	TestUtil.equal(secondProfile.inventory.MeadowSeed, 1)
 	TestUtil.isFalse(PortalRules.completeWorld(secondProfile, "UnknownWorld"))
 end
+

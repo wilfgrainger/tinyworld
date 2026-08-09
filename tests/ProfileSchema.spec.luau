@@ -178,3 +178,4 @@ return function()
 	TestUtil.equal(repaired.boundaryExplorationMask, 0)
 	TestUtil.equal(repaired.boundaryCompletions, 0)
 end
+

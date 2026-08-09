@@ -80,3 +80,4 @@ return function()
 	boundary.villageContribution = 50
 	TestUtil.equal(GoalRules.suggestedGoal(boundary), "Visit the woods, cliffs, and sea around the village.")
 end
+

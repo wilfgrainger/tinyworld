@@ -34,3 +34,4 @@ function TraversalRules.returnTinyBoat(profile: any): (boolean, string)
 end
 
 return TraversalRules
+

@@ -5,8 +5,8 @@ local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
 local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
 local SocialRules = require(shared:WaitForChild("SocialRules"))
-local HomeExpressionRules = require(shared:WaitForChild("HomeExpressionRules"))
-local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local HomePrefabBuilder = require(script.Parent:WaitForChild("HomePrefabBuilder"))
+local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
 
 local PlotService = {}
 PlotService.__index = PlotService
@@ -18,53 +18,6 @@ local function displayNameFor(player: Player, profile): string
 	return player.Name
 end
 
-local function makeHousePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material?): Part
-	local part = Instance.new("Part")
-	part.Name = name
-	part.Anchored = true
-	part.Size = size
-	part.Position = position
-	part.Color = color
-	part.Material = material or Enum.Material.SmoothPlastic
-	part.TopSurface = Enum.SurfaceType.Smooth
-	part.BottomSurface = Enum.SurfaceType.Smooth
-	part.Parent = parent
-	return part
-end
-
-local function makeHouseDecoration(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material?): Part
-	local part = makeHousePart(parent, name, size, position, color, material)
-	part.CanCollide = false
-	part.CanTouch = false
-	part.CanQuery = false
-	return part
-end
-
-local function makeHouseLabel(parent: BasePart, text: string)
-	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(220, 55)
-	gui.StudsOffset = Vector3.new(0, 3, 0)
-	gui.AlwaysOnTop = true
-	gui.Parent = parent
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 0.04
-	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
-	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextScaled = true
-	label.TextWrapped = true
-	label.Font = Enum.Font.GothamBold
-	label.Text = text
-	label.Parent = gui
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = label
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.warmLight
-	stroke.Transparency = 0.52
-	stroke.Parent = label
-end
-
 local function nextPrivacy(current: string): string
 	if current == "Open" then
 		return "Friends"
@@ -72,6 +25,16 @@ local function nextPrivacy(current: string): string
 		return "Private"
 	end
 	return "Open"
+end
+
+local function applyHomePlacement(plot)
+	local homeAnchorCFrame = plot.homeAnchorCFrame
+	if homeAnchorCFrame == nil or plot.houseAnchor == nil then
+		return
+	end
+
+	local delta = homeAnchorCFrame * CFrame.new(-plot.houseAnchor)
+	plot.houseContainer:PivotTo(delta * plot.houseContainer:GetPivot())
 end
 
 function PlotService.new(world, ProfileStore, PlayerStateService, SocialService, HomeService)
@@ -230,92 +193,16 @@ function PlotService:rebuildHouse(player: Player, profile)
 		return
 	end
 	local plot = self.world.plots[plotIndex]
+	VillageSceneryBuilder.releaseHomeAmbient(self.world.ambientLife, plotIndex)
 	plot.houseContainer:ClearAllChildren()
-
-	local tier = profile.houseTier
-	local house = HouseCatalog.get(tier)
-	local width = 18 + ((tier - 1) * 5)
-	local depth = 16 + ((tier - 1) * 4)
-	local height = 9 + ((tier - 1) * 2)
-	local anchor = plot.houseAnchor
-	local wallColors = {
-		VisualTheme.Colors.cream,
-		VisualTheme.Colors.warmLight,
-		VisualTheme.Colors.paper,
-		VisualTheme.Colors.berry,
-		VisualTheme.Colors.cream,
-	}
-	local wallColor = wallColors[tier] or VisualTheme.Colors.cream
-	local roofColor = if tier >= 3 then VisualTheme.Colors.roof else VisualTheme.Colors.timberDark
-	local frontZ = depth / 2
-	local styleColours = {
-		Meadow = VisualTheme.Colors.flower,
-		Harbor = VisualTheme.Colors.sky,
-		Sunset = VisualTheme.Colors.berry,
-	}
-	local styleColour = styleColours[profile.homeTheme] or styleColours.Meadow
-
-	makeHousePart(plot.houseContainer, "Floor", Vector3.new(width, 1, depth), anchor, VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	makeHousePart(plot.houseContainer, "BackWall", Vector3.new(width, height, 1), anchor + Vector3.new(0, height / 2, -depth / 2), wallColor)
-	makeHousePart(plot.houseContainer, "LeftWall", Vector3.new(1, height, depth), anchor + Vector3.new(-width / 2, height / 2, 0), wallColor)
-	makeHousePart(plot.houseContainer, "RightWall", Vector3.new(1, height, depth), anchor + Vector3.new(width / 2, height / 2, 0), wallColor)
-	local frontSegment = math.max(4, (width - 7) / 2)
-	makeHousePart(plot.houseContainer, "FrontLeft", Vector3.new(frontSegment, height, 1), anchor + Vector3.new(-(width - frontSegment) / 2, height / 2, depth / 2), wallColor)
-	makeHousePart(plot.houseContainer, "FrontRight", Vector3.new(frontSegment, height, 1), anchor + Vector3.new((width - frontSegment) / 2, height / 2, depth / 2), wallColor)
-	makeHousePart(plot.houseContainer, "Roof", Vector3.new(width + 2, 2, depth + 2), anchor + Vector3.new(0, height + 1, 0), roofColor, Enum.Material.Slate)
-	makeHouseDecoration(plot.houseContainer, "RoofTrim", Vector3.new(width + 4, 0.5, 1), anchor + Vector3.new(0, height + 2.2, frontZ), VisualTheme.Colors.gold, Enum.Material.Wood)
-	makeHouseDecoration(plot.houseContainer, "HomeStyleAccent", Vector3.new(width - 8, 0.45, 0.5), anchor + Vector3.new(0, height - 1.2, frontZ + 0.75), styleColour, Enum.Material.Fabric)
-	makeHouseDecoration(plot.houseContainer, "RoofRidge", Vector3.new(1.2, 0.6, depth + 2), anchor + Vector3.new(0, height + 2.55, 0), VisualTheme.Colors.roofLight, Enum.Material.Slate)
-	makeHouseDecoration(plot.houseContainer, "GableAccent", Vector3.new(width * 0.62, 0.45, 0.45), anchor + Vector3.new(0, height + 2.7, frontZ - 1), VisualTheme.Colors.creamDeep, Enum.Material.Wood)
-	makeHouseDecoration(plot.houseContainer, "HouseFacade", Vector3.new(width - 6, 0.7, 0.6), anchor + Vector3.new(0, height - 0.8, frontZ + 0.65), roofColor, Enum.Material.WoodPlanks)
-	makeHousePart(plot.houseContainer, "Porch", Vector3.new(10, 0.6, 4), anchor + Vector3.new(0, 0.8, frontZ + 2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-	makeHousePart(plot.houseContainer, "PorchStep", Vector3.new(8, 0.5, 2), anchor + Vector3.new(0, 0.35, frontZ + 4.5), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone)
-	makeHouseDecoration(plot.houseContainer, "FrontDoor", Vector3.new(4, 6, 0.5), anchor + Vector3.new(0, 3.2, frontZ + 0.6), VisualTheme.Colors.timberDark, Enum.Material.Wood)
-	makeHouseDecoration(plot.houseContainer, "DoorKnob", Vector3.new(0.45, 0.45, 0.45), anchor + Vector3.new(1.1, 3.2, frontZ + 0.95), VisualTheme.Colors.gold, Enum.Material.Metal)
-	for index, x in {-width * 0.3, width * 0.3} do
-		local window = makeHouseDecoration(plot.houseContainer, "HouseWindow" .. index, Vector3.new(4, 3, 0.45), anchor + Vector3.new(x, 5.8, frontZ + 0.58), VisualTheme.Colors.sky, Enum.Material.Glass)
-		window.Reflectance = 0.1
-		makeHouseDecoration(plot.houseContainer, "WindowBox" .. index, Vector3.new(5, 0.8, 1.2), anchor + Vector3.new(x, 3.8, frontZ + 1.2), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-		makeHouseDecoration(plot.houseContainer, "HouseFlowerBox" .. index, Vector3.new(4.5, 0.5, 1), anchor + Vector3.new(x, 4.5, frontZ + 1.45), if tier % 2 == 0 then VisualTheme.Colors.flower else VisualTheme.Colors.warmLight, Enum.Material.Fabric)
-		makeHouseDecoration(plot.houseContainer, "HouseWindowGlow" .. index, Vector3.new(2.2, 1.2, 0.2), anchor + Vector3.new(x, 5.8, frontZ + 0.9), VisualTheme.Colors.warmLight, Enum.Material.Neon)
-		makeHouseDecoration(plot.houseContainer, "HouseShutterLeft" .. index, Vector3.new(0.8, 3.4, 0.35), anchor + Vector3.new(x - 2.6, 5.8, frontZ + 0.9), VisualTheme.Colors.woodLight, Enum.Material.Wood)
-		makeHouseDecoration(plot.houseContainer, "HouseShutterRight" .. index, Vector3.new(0.8, 3.4, 0.35), anchor + Vector3.new(x + 2.6, 5.8, frontZ + 0.9), VisualTheme.Colors.woodLight, Enum.Material.Wood)
-	end
-	local lamp = makeHouseDecoration(plot.houseContainer, "PorchLamp", Vector3.new(0.7, 1.6, 0.7), anchor + Vector3.new(-6, 5.5, frontZ + 0.7), VisualTheme.Colors.gold, Enum.Material.Neon)
-	lamp.Shape = Enum.PartType.Ball
-
-	if tier >= 3 then
-		makeHousePart(plot.houseContainer, "UpperFeature", Vector3.new(width * 0.55, 5 + tier, depth * 0.5), anchor + Vector3.new(0, height + 4, -2), wallColor)
-		makeHousePart(plot.houseContainer, "UpperRoof", Vector3.new((width * 0.55) + 2, 2, (depth * 0.5) + 2), anchor + Vector3.new(0, height + 8 + (tier / 2), -2), roofColor, Enum.Material.Slate)
-		makeHouseDecoration(plot.houseContainer, "UpperWindow", Vector3.new(5, 3, 0.5), anchor + Vector3.new(0, height + 5, depth * 0.25), VisualTheme.Colors.sky, Enum.Material.Glass)
-	end
-	if tier >= 2 then
-		makeHousePart(plot.houseContainer, "CabinChimney", Vector3.new(3, 5, 3), anchor + Vector3.new(width / 3, height + 3, -depth / 4), VisualTheme.Colors.path, Enum.Material.Brick)
-		makeHouseDecoration(plot.houseContainer, "CabinChimneyCap", Vector3.new(3.5, 0.5, 3.5), anchor + Vector3.new(width / 3, height + 5.7, -depth / 4), VisualTheme.Colors.inkSoft, Enum.Material.Slate)
-		makeHouseDecoration(plot.houseContainer, "SideGardenBed", Vector3.new(7, 0.7, 4), anchor + Vector3.new((width / 2) + 2, 0.7, 2), VisualTheme.Colors.timberDark, Enum.Material.Ground)
-		makeHouseDecoration(plot.houseContainer, "SideGardenBloom", Vector3.new(3, 1.8, 2), anchor + Vector3.new((width / 2) + 2, 1.8, 2), VisualTheme.Colors.flower, Enum.Material.SmoothPlastic)
-	end
-	if tier == 5 then
-		makeHousePart(plot.houseContainer, "VillaTower", Vector3.new(7, 14, 7), anchor + Vector3.new((width / 2) - 5, height + 6, 0), wallColor)
-		makeHouseDecoration(plot.houseContainer, "VillaTowerWindow", Vector3.new(3, 5, 0.5), anchor + Vector3.new((width / 2) - 5, height + 7, 3.6), VisualTheme.Colors.sky, Enum.Material.Glass)
-	end
-	if profile.homeCharmApplied then
-		makeHouseDecoration(plot.houseContainer, "HomePlanter", Vector3.new(7, 1, 2.4), anchor + Vector3.new(0, 1.5, frontZ + 3.5), VisualTheme.Colors.timber, Enum.Material.WoodPlanks)
-		makeHouseDecoration(plot.houseContainer, "HomeFlowerCluster", Vector3.new(5, 2, 2), anchor + Vector3.new(0, 2.8, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Fabric)
-		local charm = makeHouseDecoration(plot.houseContainer, "HomeCharmDisplay", Vector3.new(1.8, 1.8, 1.8), anchor + Vector3.new(0, 4.2, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Neon)
-		charm.Shape = Enum.PartType.Ball
-		charm:SetAttribute("TinyWorldItem", "HomeCharm")
-		charm:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
-		makeHouseLabel(charm, "HOME CHARM")
-		local homeLantern = makeHouseDecoration(plot.houseContainer, "HomeLantern", Vector3.new(1.2, 1.8, 1.2), anchor + Vector3.new(7, 4.6, frontZ + 1.2), VisualTheme.Colors.gold, Enum.Material.Neon)
-		homeLantern.Shape = Enum.PartType.Ball
-	end
+	plot.houseContainer:PivotTo(CFrame.new(plot.houseAnchor))
+	local house = HouseCatalog.get(profile.houseTier)
+	HomePrefabBuilder.buildShell(plot.houseContainer, plot.houseAnchor, profile, house)
 	if self.HomeService then
 		self.HomeService:buildInterior(plot, profile)
 	end
-
-	local namePost = makeHousePart(plot.houseContainer, "HouseName", Vector3.new(8, 3, 1), anchor + Vector3.new(0, 3, (depth / 2) + 2), roofColor)
-	makeHouseLabel(namePost, if house then house.name else "TinyWorld Home")
+	VillageSceneryBuilder.bindHomeAmbient(self.world.ambientLife, plot.houseContainer, plotIndex, self.world.layout.artSeed)
+	applyHomePlacement(plot)
 	plot.ownerLabel.Text = string.format("%s's Plot • %s", player.Name, if house then house.name else "Home")
 end
 
@@ -346,6 +233,7 @@ function PlotService:release(player: Player)
 		return
 	end
 	local plot = self.world.plots[index]
+	VillageSceneryBuilder.releaseHomeAmbient(self.world.ambientLife, index)
 	plot.houseContainer:ClearAllChildren()
 	plot.ownerLabel.Text = "Available Plot"
 	plot.privacyPrompt.ObjectText = "Home Access"

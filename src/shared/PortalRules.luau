@@ -55,3 +55,4 @@ function PortalRules.completeGiantKitchen(profile: any)
 end
 
 return PortalRules
+

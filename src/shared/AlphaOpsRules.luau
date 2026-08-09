@@ -50,3 +50,4 @@ function AlphaOpsRules.aggregateState(activeCount: number, savingCount: number, 
 end
 
 return AlphaOpsRules
+
