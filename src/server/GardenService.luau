@@ -17,12 +17,13 @@ local function actionForBed(bed): string
 	return "Harvest Carrot"
 end
 
-function GardenService.new(world, plotService, ProfileStore, PlayerStateService)
+function GardenService.new(world, plotService, ProfileStore, PlayerStateService, RouteService)
 	local self = setmetatable({}, GardenService)
 	self.world = world
 	self.plotService = plotService
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.RouteService = RouteService
 
 	for plotIndex, plot in world.plots do
 		for bedIndex, prompt in plot.gardenPrompts do
@@ -75,14 +76,23 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 		ok, reason = false, "growing"
 	end
 
+	local routeText = ""
+	if ok and reason == "harvested" then
+		local _routeChanged
+		_routeChanged, routeText = self.RouteService:record(player, "garden_harvest")
+	end
 	self:_syncBed(player, bedIndex)
 	self.PlayerStateService.sync(player, profile)
+	if ok then
+		self.ProfileStore.save(player)
+	end
 	if ok and reason == "planted" then
 		self.PlayerStateService.message(player, "Carrot planted. Water it next.")
 	elseif ok and reason == "watered" then
 		self.PlayerStateService.message(player, "Carrot watered. It grows in about 5 seconds in this prototype.")
 	elseif ok and reason == "harvested" then
-		self.PlayerStateService.message(player, "Carrot harvested: +1 Carrot and +10 XP.")
+		local suffix = if routeText == "" then "" else " " .. routeText
+		self.PlayerStateService.message(player, "Carrot harvested: +1 Carrot and +10 XP." .. suffix)
 	else
 		local remaining = math.max(0, bed.readyAt - now)
 		self.PlayerStateService.message(player, string.format("Your Carrot is still growing: about %d seconds.", remaining))

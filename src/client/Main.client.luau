@@ -30,7 +30,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.new(0.92, 0, 0, 380)
+panel.Size = UDim2.new(0.92, 0, 0, 410)
 panel.Position = UDim2.fromOffset(12, 12)
 panel.BackgroundColor3 = colors.ink
 panel.BackgroundTransparency = 0.08
@@ -39,7 +39,7 @@ panel.Parent = gui
 
 local panelConstraint = Instance.new("UISizeConstraint")
 panelConstraint.MinSize = Vector2.new(280, 300)
-panelConstraint.MaxSize = Vector2.new(360, 420)
+panelConstraint.MaxSize = Vector2.new(360, 450)
 panelConstraint.Parent = panel
 
 local corner = Instance.new("UICorner")
@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / STORYBOOK ALPHA"
+eyebrow.Text = "TODAY / RETURN LOOP"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.0.5 STORYBOOK VILLAGE"
+title.Text = "TINYWORLD | v0.0.8 RETURN LOOP | STORYBOOK VILLAGE"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -106,6 +106,8 @@ local profession = makeLabel("Profession", 25, 15, false)
 local transport = makeLabel("Transport", 25, 15, false)
 local portal = makeLabel("Portal", 25, 15, false)
 local exploration = makeLabel("Exploration", 25, 15, false)
+local route = makeLabel("Route", 25, 15, true)
+route.TextColor3 = colors.warmLight
 local goal = makeLabel("Goal", 48, 14, true)
 goal.BackgroundColor3 = colors.inkSoft
 goal.BackgroundTransparency = 0.12
@@ -198,6 +200,7 @@ local function update()
 	transport.Text = "Transport: " .. bikeText
 	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
+	route.Text = string.format("Return loop: today %d/%d  |  week %d/%d", attr("TinyWorldDailyRouteCount", 0), attr("TinyWorldDailyRouteTotal", 3), attr("TinyWorldWeeklyRouteCount", 0), attr("TinyWorldWeeklyRouteTotal", 3))
 	local carry = if attr("TinyWorldCarryingParcel", false) then "  |  PARCEL ACTIVE" else ""
 	goal.Text = "TODAY: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
 	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
@@ -228,6 +231,12 @@ local observed = {
 	"TinyWorldPortalCrystals",
 	"TinyWorldSuggestedGoal",
 	"TinyWorldCarryingParcel",
+	"TinyWorldDailyRouteCount",
+	"TinyWorldDailyRouteTotal",
+	"TinyWorldDailyRouteComplete",
+	"TinyWorldWeeklyRouteCount",
+	"TinyWorldWeeklyRouteTotal",
+	"TinyWorldWeeklyRouteComplete",
 	"TinyWorldMessageNonce",
 	"TinyWorldDisplayName",
 	"TinyWorldAvatarStyle",

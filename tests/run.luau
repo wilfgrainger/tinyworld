@@ -16,6 +16,7 @@ local specs = {
 	require("./ExplorationRules.spec"),
 	require("./VisualBudgetRules.spec"),
 	require("./ProfileStoreRules.spec"),
+	require("./RouteRules.spec"),
 }
 
 for _, runSpec in specs do

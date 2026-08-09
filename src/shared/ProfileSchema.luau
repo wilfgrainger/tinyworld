@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 5
+ProfileSchema.VERSION = 6
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 export type GardenBed = { stage: string, readyAt: number }
@@ -32,6 +32,12 @@ onboardingComplete: boolean,
 livingCollectionDay: string,
 livingCollectionMask: number,
 homeCharmApplied: boolean,
+dailyRouteDay: string,
+dailyRouteMask: number,
+dailyRouteClaimedDay: string,
+weeklyRouteWeek: string,
+weeklyRouteMask: number,
+weeklyRouteClaimedWeek: string,
 }
 
 local VALID_GARDEN_STAGES = { empty = true, planted = true, watered = true, ready = true }
@@ -93,7 +99,7 @@ end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 5,
+		version = 6,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -119,6 +125,12 @@ function ProfileSchema.new(): PlayerProfile
 		livingCollectionDay = "",
 		livingCollectionMask = 0,
 		homeCharmApplied = false,
+		dailyRouteDay = "",
+		dailyRouteMask = 0,
+		dailyRouteClaimedDay = "",
+		weeklyRouteWeek = "",
+		weeklyRouteMask = 0,
+		weeklyRouteClaimedWeek = "",
 	}
 end
 
@@ -133,7 +145,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 5,
+		version = 6,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -159,6 +171,12 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		livingCollectionDay = if type(value.livingCollectionDay) == "string" then value.livingCollectionDay else "",
 		livingCollectionMask = normaliseInteger(value.livingCollectionMask, 0, 0, 7),
 		homeCharmApplied = value.homeCharmApplied == true,
+		dailyRouteDay = if type(value.dailyRouteDay) == "string" then value.dailyRouteDay else "",
+		dailyRouteMask = normaliseInteger(value.dailyRouteMask, 0, 0, 15),
+		dailyRouteClaimedDay = if type(value.dailyRouteClaimedDay) == "string" then value.dailyRouteClaimedDay else "",
+		weeklyRouteWeek = if type(value.weeklyRouteWeek) == "string" then value.weeklyRouteWeek else "",
+		weeklyRouteMask = normaliseInteger(value.weeklyRouteMask, 0, 0, 15),
+		weeklyRouteClaimedWeek = if type(value.weeklyRouteClaimedWeek) == "string" then value.weeklyRouteClaimedWeek else "",
 	}
 end
 

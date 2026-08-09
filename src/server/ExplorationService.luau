@@ -7,10 +7,11 @@ local ExplorationRules = require(shared:WaitForChild("ExplorationRules"))
 local ExplorationService = {}
 ExplorationService.__index = ExplorationService
 
-function ExplorationService.new(world, ProfileStore, PlayerStateService)
+function ExplorationService.new(world, ProfileStore, PlayerStateService, RouteService)
 	local self = setmetatable({}, ExplorationService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.RouteService = RouteService
 
 	for landmark, prompt in world.boundary.landmarkPrompts do
 		prompt.Triggered:Connect(function(player)
@@ -49,8 +50,10 @@ function ExplorationService:_claim(player: Player)
 
 	local claimed, reason = ExplorationRules.claim(profile, DailyReward.dayKey())
 	if claimed then
+		local _routeChanged, routeText = self.RouteService:record(player, "boundary_route")
 		self.PlayerStateService.sync(player, profile)
-		self.PlayerStateService.message(player, "Boundary route complete: +250 coins, +100 XP. Come back tomorrow for a new route.")
+		local suffix = if routeText == "" then "" else " " .. routeText
+		self.PlayerStateService.message(player, "Boundary route complete: +250 coins, +100 XP. Come back tomorrow for a new route." .. suffix)
 		self.ProfileStore.save(player)
 	elseif reason == "incomplete" then
 		self.PlayerStateService.message(player, string.format("Visit all three boundary landmarks first: %d/3 found.", ExplorationRules.count(profile)))

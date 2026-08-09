@@ -63,8 +63,9 @@ The next three releases deliberately deepen the existing slice before adding mor
 - **v0.0.5 — Storybook beautification:** a cosmetic-only pass over the arrival route, civic buildings, plots, homes, boundary, portal, lighting, and HUD. Existing rewards, progression, ownership, privacy, trade, transport, and profile data remain unchanged. Follow the [v0.0.5 cosmetic test](docs/v0.0.5-cosmetic-test.md).
 - **v0.0.6 — Persistence and scale foundation:** coalesced profile saves, conditional session leases, retry/backoff, bounded shutdown flushing, non-sensitive diagnostics, and capacity-aware visual budgets. Follow the [v0.0.6 persistence and scale test](docs/v0.0.6-persistence-scale-test.md).
 - **v0.0.7 — Playtest readiness:** visual consistency, evidence separation, and the structured [girls-at-scale playtest](docs/v0.0.7-girls-scale-playtest.md).
+- **v0.0.8 — Return loop:** UTC daily/weekly route contracts, deterministic task rotation, bounded completion rewards, duplicate protection, and a visible return-loop HUD. Follow the [v0.0.8 return-loop test](docs/v0.0.8-return-loop.md).
 
-The [v0.0.5–v0.0.7 release-train design](docs/superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) and [implementation plan](docs/superpowers/plans/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-implementation.md) justify the backlog through v1.0.0. The ordering keeps visual desirability ahead of larger testing, persistence safety ahead of scale claims, and retention/social proof ahead of any real cosmetic monetisation.
+The [v0.0.5–v0.0.7 release-train design](docs/superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) and [implementation plan](docs/superpowers/plans/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-implementation.md) justify the backlog through v1.0.0. v0.0.8 is the first retention experiment: it measures whether a fair, bounded return loop strengthens the existing life rather than distracting from it. The ordering keeps visual desirability ahead of larger testing, persistence safety ahead of scale claims, and retention/social proof ahead of any real cosmetic monetisation.
 
 ## What you need tomorrow
 
@@ -229,7 +230,7 @@ docs/         Superpowers design specs and implementation plans
 
 ## Important prototype limits
 
-v0.0.3 represents the whole game but does not pretend to be production scale. It has one village, four initial prototype plots plus deterministic capacity-aware expansion up to the Roblox server's configured player capacity, one crop, one profession, one transport upgrade, one portal world, one portal mission, one trade format, one civic contribution, and one daily boundary route. The boundary grows with the outer plot ring and is built once per server; this is layout scalability evidence, not a claim of unrestricted map or DataStore scale.
+v0.0.3 represents the whole game but does not pretend to be production scale. It has one village, four initial prototype plots plus deterministic capacity-aware expansion up to the Roblox server's configured player capacity, one crop, one profession, one transport upgrade, one portal world, one portal mission, one trade format, one civic contribution, and one daily boundary route. v0.0.8 adds a bounded daily/weekly return contract on top of those same actions. The boundary grows with the outer plot ring and is built once per server; this is layout scalability evidence, not a claim of unrestricted map or DataStore scale.
 
 The future roadmap can scale those proven contracts into multiple villages/worlds, permanent village membership, player businesses, fashion, pets, decoration placement, cars/planes, mayor elections, ceremonial titles, seasonal systems, global challenges, live Robux cosmetics/convenience, and the long-running TinyWorld mystery.
 

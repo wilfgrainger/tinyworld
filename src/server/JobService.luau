@@ -44,10 +44,11 @@ local function attachParcel(player: Player)
 	weld.Parent = parcel
 end
 
-function JobService.new(world, ProfileStore, PlayerStateService)
+function JobService.new(world, ProfileStore, PlayerStateService, RouteService)
 	local self = setmetatable({}, JobService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.RouteService = RouteService
 	self.active = {}
 	self.characterConnections = {}
 
@@ -101,8 +102,13 @@ function JobService:_finish(player: Player)
 	profile.coins += 150
 	Progression.addXp(profile, 75)
 	local professionLevels = Profession.addCourierXp(profile, 100)
+	local _routeChanged, routeText = self.RouteService:record(player, "courier_delivery")
 	self.PlayerStateService.sync(player, profile)
 	self.PlayerStateService.message(player, string.format("Delivery complete: +150 coins, +75 XP, +100 Courier XP%s", if professionLevels > 0 then " — Courier level up!" else "."))
+	if routeText ~= "" then
+		self.PlayerStateService.message(player, routeText)
+	end
+	self.ProfileStore.save(player)
 end
 
 function JobService:removePlayer(player: Player)

@@ -1,5 +1,13 @@
 # Development progress
 
+## 2026-08-09 - v0.0.8 return loop
+
+- Implemented the first retention-focused release after the v0.0.5-v0.0.7 foundation. Daily and weekly routes use deterministic UTC period keys and rotating task sets built from the existing fountain, Courier, garden, and boundary actions.
+- Added schema-v6 route fields with backward-compatible normalisation, duplicate-task protection, once-per-period completion claims, bounded route rewards, and server diagnostics/HUD progress for today and the current week.
+- Wired route recording into successful fountain claims, Courier deliveries, Carrot harvests, and Boundary Explorer claims. Successful garden and Courier mutations now explicitly enter the coalescing save queue as well.
+- Added the [v0.0.8 return-loop route](v0.0.8-return-loop.md) and kept the existing [roadmap through v1.0.0](superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) as the north-star backlog: social proof, invited alpha operations, portal/content expansion, home expression, professions, traversal, fair cosmetics, live content, safety, and launch hardening remain ordered gates.
+- The local gate is green at 18 Luau specs, shared/server/client analysis, Roblox material guard, ProfileStore hardening guard, Rojo place build, and `git diff --check`. The authenticated Rojo-synced Studio runtime gate then passed on 2026-08-09: the HUD progressed through daily 0/3, 1/3, 2/3, 3/3 and weekly 0/3, 1/3, 2/3, 3/3 across fountain, Courier, garden, and boundary actions; duplicate fountain credit was refused with no coin/count increase. The current place still needs the final publish step for v0.0.8, and this is single-client integration evidence rather than multi-client or family retention evidence.
+
 ## 2026-08-08 - v0.0.5–v0.0.7 release-train implementation
 
 - The main-branch vision review found no core-product drift from the original proposal: TinyWorld still contains the home, daily-life, progression, transport, portal, social, and woods/cliffs/sea pillars. The gap is first-impression presentation quality, not the functional direction.
