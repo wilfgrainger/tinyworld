@@ -107,59 +107,61 @@ local function buildMoonFlower(parent: Instance, base: CFrame)
 	end
 end
 
-local function buildBreezeBottle(parent: Instance, base: CFrame)
-	local bottle = part(
+local function buildCloudPostcard(parent: Instance, base: CFrame)
+	local card = part(
 		parent,
-		"BreezeBottle",
-		Vector3.new(1.45, 2.3, 1.45),
-		base * CFrame.new(0, 1.35, 0),
-		COLORS.sky,
-		Enum.Material.Glass
+		"CloudPostcard",
+		Vector3.new(2.6, 1.75, 0.18),
+		base * CFrame.new(0, 1.6, 0),
+		COLORS.paper,
+		Enum.Material.SmoothPlastic
 	)
-	bottle.Transparency = 0.25
+	card:SetAttribute("TinyWorldKeepsakeId", "CloudPostcard")
 	part(
 		parent,
-		"BreezeBottleCork",
-		Vector3.new(0.72, 0.55, 0.72),
-		base * CFrame.new(0, 2.75, 0),
-		COLORS.wood,
-		Enum.Material.Wood
+		"CloudPostcardSkyStripe",
+		Vector3.new(2.25, 0.48, 0.08),
+		card.CFrame * CFrame.new(0, 0.35, -0.13),
+		COLORS.sky,
+		Enum.Material.SmoothPlastic
 	)
-	local light = Instance.new("PointLight")
-	light.Name = "BottledBreezeGlow"
-	light.Color = COLORS.sky
-	light.Brightness = 0.7
-	light.Range = 5
-	light.Parent = bottle
+	part(
+		parent,
+		"CloudPostcardStamp",
+		Vector3.new(0.48, 0.48, 0.08),
+		card.CFrame * CFrame.new(0.82, 0.48, -0.13),
+		COLORS.gold,
+		Enum.Material.SmoothPlastic
+	)
 end
 
-local function buildClockworkKey(parent: Instance, base: CFrame)
-	part(
+local function buildClockworkLeaf(parent: Instance, base: CFrame)
+	local stem = part(
 		parent,
-		"ClockworkKeyShaft",
-		Vector3.new(0.35, 2.8, 0.35),
-		base * CFrame.new(0, 1.65, 0) * CFrame.Angles(0, 0, math.rad(38)),
+		"ClockworkLeafStem",
+		Vector3.new(0.25, 2.1, 0.25),
+		base * CFrame.new(0, 1.3, 0) * CFrame.Angles(0, 0, math.rad(-20)),
 		COLORS.gold,
 		Enum.Material.Metal
 	)
-	local ring = part(
-		parent,
-		"ClockworkKeyRing",
-		Vector3.new(0.45, 1.35, 1.35),
-		base * CFrame.new(-0.72, 2.35, 0) * CFrame.Angles(0, 0, math.rad(90)),
-		COLORS.gold,
-		Enum.Material.Metal,
-		Enum.PartType.Cylinder
-	)
-	ring:SetAttribute("TinyWorldKeepsakeDetail", "key-ring")
-	part(
-		parent,
-		"ClockworkKeyTooth",
-		Vector3.new(0.8, 0.35, 0.35),
-		base * CFrame.new(0.78, 0.73, 0) * CFrame.Angles(0, 0, math.rad(38)),
-		COLORS.gold,
-		Enum.Material.Metal
-	)
+	stem:SetAttribute("TinyWorldKeepsakeId", "ClockworkLeaf")
+	for index, offset in
+		{
+			Vector3.new(-0.55, 1.65, 0),
+			Vector3.new(0.55, 1.95, 0),
+			Vector3.new(-0.48, 2.35, 0),
+			Vector3.new(0.42, 2.65, 0),
+		}
+	do
+		part(
+			parent,
+			"ClockworkLeafBlade" .. index,
+			Vector3.new(0.85, 0.45, 0.16),
+			base * CFrame.new(offset) * CFrame.Angles(0, 0, math.rad(if offset.X < 0 then -28 else 28)),
+			COLORS.green,
+			Enum.Material.Metal
+		)
+	end
 end
 
 local function buildKeepsake(parent: Instance, worldId: string, base: CFrame)
@@ -168,9 +170,9 @@ local function buildKeepsake(parent: Instance, worldId: string, base: CFrame)
 	elseif worldId == "MoonlitMeadow" then
 		buildMoonFlower(parent, base)
 	elseif worldId == "CloudpostObservatory" then
-		buildBreezeBottle(parent, base)
+		buildCloudPostcard(parent, base)
 	elseif worldId == "ClockworkOrchard" then
-		buildClockworkKey(parent, base)
+		buildClockworkLeaf(parent, base)
 	else
 		part(
 			parent,
