@@ -81,16 +81,8 @@ function TradeJournal.write(transaction: any): (boolean, any?)
 		return false, nil
 	end
 
-	local indexedA = updatePendingIndex(
-		transaction.playerAUserId,
-		transaction.id,
-		authoritative.state
-	)
-	local indexedB = updatePendingIndex(
-		transaction.playerBUserId,
-		transaction.id,
-		authoritative.state
-	)
+	local indexedA = updatePendingIndex(transaction.playerAUserId, transaction.id, authoritative.state)
+	local indexedB = updatePendingIndex(transaction.playerBUserId, transaction.id, authoritative.state)
 	if terminal(authoritative.state) then
 		-- The terminal row is authoritative. A stale participant index is safe
 		-- because pendingForUser reads the transaction row and self-cleans it.

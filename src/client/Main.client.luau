@@ -294,84 +294,42 @@ local todayHeading = makeSectionLabel(todaySection, "Heading", UDim2.fromOffset(
 todayHeading.Text = "Today’s adventure"
 todayHeading.TextColor3 = colors.gold
 local todayQuest = makeSectionLabel(todaySection, "Quest", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 0, 64), 16, true)
-local todayProgress = makeSectionLabel(
-	todaySection,
-	"Progress",
-	UDim2.fromOffset(0, 116),
-	UDim2.new(1, 0, 0, 82),
-	14,
-	false
-)
+local todayProgress =
+	makeSectionLabel(todaySection, "Progress", UDim2.fromOffset(0, 116), UDim2.new(1, 0, 0, 82), 14, false)
 
 local bagSection = makeJournalSection()
 bagSection.Name = "BagSection"
 local bagHeading = makeSectionLabel(bagSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 bagHeading.Text = "What’s in my bag"
 bagHeading.TextColor3 = colors.gold
-local bagContents = makeSectionLabel(
-	bagSection,
-	"Inventory",
-	UDim2.fromOffset(0, 44),
-	UDim2.new(1, 0, 1, -48),
-	15,
-	false
-)
+local bagContents =
+	makeSectionLabel(bagSection, "Inventory", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local homeSection = makeJournalSection()
 homeSection.Name = "HomeSection"
 local homeHeading = makeSectionLabel(homeSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 homeHeading.Text = "My home"
 homeHeading.TextColor3 = colors.gold
-local homeDetails = makeSectionLabel(
-	homeSection,
-	"Details",
-	UDim2.fromOffset(0, 44),
-	UDim2.new(1, 0, 1, -48),
-	15,
-	false
-)
+local homeDetails =
+	makeSectionLabel(homeSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local careersSection = makeJournalSection()
 careersSection.Name = "CareersSection"
-local careersHeading = makeSectionLabel(
-	careersSection,
-	"Heading",
-	UDim2.fromOffset(0, 0),
-	UDim2.new(1, 0, 0, 34),
-	20,
-	true
-)
+local careersHeading =
+	makeSectionLabel(careersSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 careersHeading.Text = "Things I’m learning"
 careersHeading.TextColor3 = colors.gold
-local careersDetails = makeSectionLabel(
-	careersSection,
-	"Details",
-	UDim2.fromOffset(0, 44),
-	UDim2.new(1, 0, 1, -48),
-	15,
-	false
-)
+local careersDetails =
+	makeSectionLabel(careersSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local collectionSection = makeJournalSection()
 collectionSection.Name = "CollectionSection"
-local collectionHeading = makeSectionLabel(
-	collectionSection,
-	"Heading",
-	UDim2.fromOffset(0, 0),
-	UDim2.new(1, 0, 0, 34),
-	20,
-	true
-)
+local collectionHeading =
+	makeSectionLabel(collectionSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 collectionHeading.Text = "Places and keepsakes"
 collectionHeading.TextColor3 = colors.gold
-local collectionDetails = makeSectionLabel(
-	collectionSection,
-	"Details",
-	UDim2.fromOffset(0, 44),
-	UDim2.new(1, 0, 1, -48),
-	15,
-	false
-)
+local collectionDetails =
+	makeSectionLabel(collectionSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local tabEntries = {
 	{ button = todayTab, section = todaySection },
