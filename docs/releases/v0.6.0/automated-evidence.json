@@ -1,12 +1,17 @@
 {
   "release": "0.6.0",
-  "verifiedSourceSha": "eb5ab688e0fe18755fdfdaad5d034fb60a3ead97",
-  "verifiedAtUtc": "2026-08-09T20:58:01Z",
-  "workflowRunId": "31335589953",
-  "workflowUrl": "https://github.com/wilfgrainger/tinyworld/actions/runs/31335589953",
+  "verifiedSourceSha": "cfe72c8cdc615c3235f2abe771ae6ac4bcdb9fef",
+  "verifiedPullRequestMergeSha": "e50f650043dfefcea62b3fb6677df0cb68ec610a",
+  "verifiedAtUtc": "2026-08-09T21:39:27Z",
+  "workflowRuns": {
+    "luau": 31337392456,
+    "releaseAuthority": 31337392451,
+    "rojoBuild": 31337392458
+  },
   "profileSchema": 11,
   "artifact": "TinyWorld-v0.6.0.rbxlx",
-  "artifactSha256": "4e2c37cbd226716e2b623d020357c976e73bf32c71ae8cf5737df41969e280ea",
+  "artifactSha256": "b60e31fb78b029972189a0f3d45828e9579dd49fd6fb36d70658fdcf6c6d33c5",
+  "workflowArtifactDigest": "sha256:f8e44421ff470e6b7321fbdf93c159674a0f3d3e46e43be876e4b75de8c17ed3",
   "gates": {
     "luauTests": "PASS",
     "luauAnalyze": "PASS",
@@ -15,8 +20,9 @@
     "clientCompile": "PASS",
     "releaseAuthority": "PASS",
     "releaseContract": "PASS",
-    "buildContract": "PASS",
-    "rojoBuild": "PASS"
+    "rojoBuild": "PASS",
+    "traceabilityArtifact": "PASS"
   },
-  "runtimeEvidence": "PENDING"
+  "runtimeEvidence": "PENDING",
+  "evidenceNote": "The source SHA is the implementation head verified by the cited workflows. This evidence file is committed afterward as metadata; the resulting evidence-only PR head must also pass repository CI before merge. Studio, multiplayer, device and published-place evidence remain pending."
 }
