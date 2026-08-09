@@ -77,6 +77,18 @@ The v0.3.0 home-expression slice makes the functional home feel authored: choose
 
 The v0.4.0 profession slice makes the existing life activities legible as fair paths: Courier remains intact, physical garden harvests build Farmer progression, and physical home decoration/showcase actions build Designer progression. A visible Profession Board explains all three careers, schema-v9 migration preserves old profiles, and no new item reward is introduced. Follow the [v0.4.0 profession test](docs/v0.4.0-professions-test.md). Any future item reward remains subject to the physical Item Chest plus on-screen popup invariant.
 
+## v0.5.0 traversal expansion
+
+The v0.5.0 slice makes the existing sea boundary a real destination story:
+
+- the Sea Dock has a physical Tiny Boat purchase/boarding route for 600 earned coins;
+- the Tiny Boat is a visible server-created model with authoritative ownership, boarding, return, respawn, and cleanup state;
+- boarding reaches a physical Tidepool Cove island with a dock, beacon, story marker, and physical return prompt;
+- schema-v10 migration preserves every existing profile field and defaults boat ownership/session state safely;
+- the physical-affordance invariant remains enforced: an item count alone is never accepted as proof when the item is received.
+
+The [v0.5.0 traversal test](docs/v0.5.0-traversal-test.md) is the authoritative route. It contains no new item reward, premium gate, combat, or pay-to-win power. v0.6.0 remains the fair cosmetic economy gate, and later releases remain dependency-gated by safety, content, scale, and operations evidence.
+
 ## What you need tomorrow
 
 1. A Roblox account.

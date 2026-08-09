@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-09 - v0.5.0 traversal expansion source slice
+
+- Added schema-v10 `ownsTinyBoat`/session `boatActive` defaults and pure server-side purchase/board/return rules for a 600-coin earned Tiny Boat. Existing v0.4 profile fields normalize forward without reset.
+- Added a physical Tiny Boat model, Sea Dock purchase kiosk, capacity-aware boundary-derived Tidepool Cove island, cove dock, beacon, story marker, and physical return endpoints. The HUD now reports Bike and Boat state from server attributes.
+- Added the physical-affordance invariant guard across the Item Chest, garden, living-world, portal, trade, and home reward/presentation paths. Item counts remain server state; the player-facing proof must be a world object/pickup or named popup.
+- The fresh source gate passes at 23 Luau specs, shared analysis, server/client compilation, traversal and physical-affordance guards, existing item/material guards, Rojo assembly, and `git diff --check`. Studio boarding/return and published-place parity are runtime dependencies for this slice and are not claimed by source proof alone.
+
 ## 2026-08-09 - v0.4.0 profession expansion
 
 - Preserved Courier and added fair Farmer and Designer career progression. Farmer XP comes from the existing physical Carrot harvest; Designer XP comes from physical home decoration and owner-only showcase actions. No new inventory item, paid gate, random reward, or power advantage was added.
