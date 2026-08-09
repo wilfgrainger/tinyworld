@@ -3,7 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local FurnitureDefinitions = require(shared:WaitForChild("FurnitureDefinitions"))
 local ShopDefinitions = require(shared:WaitForChild("ShopDefinitions"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local HomeStoreService = {}
 HomeStoreService.__index = HomeStoreService
@@ -170,6 +172,7 @@ function HomeStoreService:_handle(player: Player, payload: any)
 	self.PlayerStateService.sync(player, profile)
 	player:SetAttribute("TinyWorldLastFurniturePurchase", furnitureId)
 	self.ProfileStore.save(player)
+	TinyAnalyticsService.log(player, AnalyticsEvents.HomePurchase)
 	self.PlayerStateService.message(
 		player,
 		string.format("%s is now in your Home collection. Place it when you are home.", definition.displayName)
