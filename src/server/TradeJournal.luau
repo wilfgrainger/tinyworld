@@ -27,6 +27,8 @@ local function snapshotFor(transaction: any)
 		fromB = transaction.fromB,
 		beforeA = transaction.beforeA,
 		beforeB = transaction.beforeB,
+		afterA = transaction.afterA,
+		afterB = transaction.afterB,
 		offerVersion = transaction.offerVersion,
 		state = transaction.state,
 		confirmedA = transaction.confirmedA == true,
@@ -77,8 +79,16 @@ function TradeJournal.write(transaction: any): boolean
 	if not ok then
 		return false
 	end
+
 	local indexedA = updatePendingIndex(transaction.playerAUserId, transaction.id, transaction.state)
 	local indexedB = updatePendingIndex(transaction.playerBUserId, transaction.id, transaction.state)
+	if terminal(transaction.state) then
+		-- Once the transaction row is terminal it is authoritative. A stale
+		-- participant index is harmless because pendingForUser self-cleans it.
+		return true
+	end
+	-- Non-terminal transactions are safe to execute only when both participants
+	-- can discover them after a server interruption.
 	return indexedA and indexedB
 end
 
