@@ -3,15 +3,21 @@ local GuiService = game:GetService("GuiService")
 local ModalController = {}
 ModalController.__index = ModalController
 
+-- ModuleScripts are cached per client, so every TinyWorld interface receives
+-- the same controller. This keeps Home, Wardrobe and future modal surfaces on
+-- one ownership path without adding a framework or a cross-script event bus.
+local sharedController = setmetatable({ current = nil, previousSelection = nil }, ModalController)
+
 function ModalController.new()
-	return setmetatable({ current = nil, previousSelection = nil }, ModalController)
+	return sharedController
 end
 
 function ModalController:open(frame: GuiObject, firstSelection: GuiObject?)
-	if self.current and self.current ~= frame then
+	if self.current == nil then
+		self.previousSelection = GuiService.SelectedObject
+	elseif self.current ~= frame then
 		self.current.Visible = false
 	end
-	self.previousSelection = GuiService.SelectedObject
 	self.current = frame
 	frame.Visible = true
 	if firstSelection and firstSelection.Selectable then
