@@ -3,6 +3,7 @@ local TextService = game:GetService("TextService")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local OnboardingRules = require(shared:WaitForChild("OnboardingRules"))
+local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
 
 local OnboardingService = {}
 OnboardingService.__index = OnboardingService
@@ -66,7 +67,7 @@ function OnboardingService.new(ProfileStore, PlayerStateService)
 	self.PlayerStateService = PlayerStateService
 	self.remote = getRemote()
 	self.characterConnections = {}
-	self.remote.OnServerEvent:Connect(function(player, payload)
+	self.remoteConnection = self.remote.OnServerEvent:Connect(function(player, payload)
 		self:_submit(player, payload)
 	end)
 	return self
@@ -124,8 +125,24 @@ function OnboardingService:_submit(player: Player, payload: any)
 	if profile == nil or OnboardingRules.isComplete(profile) then
 		return
 	end
+	if not RemoteGuard.checkRate(player, "onboarding_submit", 5, 10) then
+		RemoteGuard.warn(player, "onboarding_submit", "rate_limit")
+		self:_reply(player, false, "Please wait a moment before trying again.")
+		return
+	end
 	if type(payload) ~= "table" then
+		RemoteGuard.warn(player, "onboarding_submit", "invalid_payload")
 		self:_reply(player, false, "Please choose a name, style, and outfit.")
+		return
+	end
+	if not RemoteGuard.stringWithin(payload.displayName, 3, 16) then
+		RemoteGuard.warn(player, "onboarding_submit", "display_name_length")
+		self:_reply(player, false, "Use 3-16 letters, numbers, spaces, _ or - for your name.")
+		return
+	end
+	if type(payload.avatarStyle) ~= "string" or #payload.avatarStyle > 16 or type(payload.starterOutfit) ~= "string" or #payload.starterOutfit > 16 then
+		RemoteGuard.warn(player, "onboarding_submit", "selection_shape")
+		self:_reply(player, false, "Please choose a valid style and outfit.")
 		return
 	end
 
@@ -135,10 +152,12 @@ function OnboardingService:_submit(player: Player, payload: any)
 		return
 	end
 	if not OnboardingRules.isValidAvatarStyle(payload.avatarStyle) then
+		RemoteGuard.warn(player, "onboarding_submit", "avatar_style")
 		self:_reply(player, false, "Choose Boy or Girl to continue.")
 		return
 	end
 	if not OnboardingRules.isValidStarterOutfit(payload.starterOutfit) then
+		RemoteGuard.warn(player, "onboarding_submit", "starter_outfit")
 		self:_reply(player, false, "Choose one of the three free outfits to continue.")
 		return
 	end
@@ -181,7 +200,7 @@ function OnboardingService:removePlayer(player: Player)
 		connection:Disconnect()
 		self.characterConnections[player] = nil
 	end
+	RemoteGuard.clearPlayer(player)
 end
 
 return OnboardingService
-
