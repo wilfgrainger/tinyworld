@@ -10,24 +10,6 @@ local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsServic
 local OnboardingService = {}
 OnboardingService.__index = OnboardingService
 
-local PALETTES = {
-	Meadow = {
-		torso = Color3.fromRGB(104, 153, 93),
-		arms = Color3.fromRGB(246, 231, 183),
-		legs = Color3.fromRGB(112, 76, 48),
-	},
-	Harbor = {
-		torso = Color3.fromRGB(67, 119, 168),
-		arms = Color3.fromRGB(211, 220, 226),
-		legs = Color3.fromRGB(38, 56, 82),
-	},
-	Sunset = {
-		torso = Color3.fromRGB(222, 111, 51),
-		arms = Color3.fromRGB(255, 205, 91),
-		legs = Color3.fromRGB(91, 54, 44),
-	},
-}
-
 local function getRemote(): RemoteEvent
 	local folder = ReplicatedStorage:WaitForChild("TinyWorld")
 	local existing = folder:FindFirstChild("OnboardingRemote")
@@ -43,30 +25,11 @@ local function getRemote(): RemoteEvent
 	return remote
 end
 
-local function applyPalette(player: Player, outfit: string)
-	local palette = PALETTES[outfit]
-	local character = player.Character
-	if palette == nil or character == nil then
-		return
-	end
-
-	local bodyColors = character:FindFirstChildOfClass("BodyColors")
-	if bodyColors == nil then
-		bodyColors = Instance.new("BodyColors")
-		bodyColors.Parent = character
-	end
-
-	bodyColors.TorsoColor = BrickColor.new(palette.torso)
-	bodyColors.LeftArmColor = BrickColor.new(palette.arms)
-	bodyColors.RightArmColor = BrickColor.new(palette.arms)
-	bodyColors.LeftLegColor = BrickColor.new(palette.legs)
-	bodyColors.RightLegColor = BrickColor.new(palette.legs)
-end
-
-function OnboardingService.new(ProfileStore, PlayerStateService)
+function OnboardingService.new(ProfileStore, PlayerStateService, AppearanceService)
 	local self = setmetatable({}, OnboardingService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.AppearanceService = AppearanceService
 	self.remote = getRemote()
 	self.remoteConnection = self.remote.OnServerEvent:Connect(function(player, payload)
 		self:_submit(player, payload)
@@ -83,11 +46,10 @@ function OnboardingService:_setState(player: Player, profile)
 	self.PlayerStateService.sync(player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", complete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not complete)
-	if complete then
-		-- Immediate first-session feedback only. AppearanceService owns every
-		-- CharacterAdded write after this point so active saved looks cannot be
-		-- overwritten by the legacy starter palette on respawn.
-		applyPalette(player, profile.starterOutfit)
+	if complete and self.AppearanceService then
+		-- AppearanceService is the single writer for the complete TinyWorld look:
+		-- body palette, hair fallback, shoes fallback and active-outfit attribute.
+		self.AppearanceService:applyProfile(player, profile)
 	end
 	return complete
 end
