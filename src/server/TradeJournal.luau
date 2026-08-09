@@ -1,5 +1,9 @@
 local DataStoreService = game:GetService("DataStoreService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local EnvironmentConfig = require(script.Parent:WaitForChild("EnvironmentConfig"))
+
+local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
+local TradeTransactionRules = require(shared:WaitForChild("TradeTransactionRules"))
 
 local TradeJournal = {}
 
@@ -58,66 +62,84 @@ local function updatePendingIndex(userId: number, transactionId: string, state: 
 	return ok
 end
 
-function TradeJournal.write(transaction: any): boolean
+function TradeJournal.write(transaction: any): (boolean, any?)
 	if
 		type(transaction) ~= "table"
 		or type(transaction.id) ~= "string"
 		or type(transaction.playerAUserId) ~= "number"
 		or type(transaction.playerBUserId) ~= "number"
 	then
-		return false
+		return false, nil
 	end
 	local snapshot = snapshotFor(transaction)
-	local ok = pcall(function()
-		store:UpdateAsync(keyFor(transaction.id), function(previous)
-			if type(previous) == "table" and previous.state == "committed" and snapshot.state ~= "committed" then
-				return previous
-			end
-			return snapshot
+	local ok, authoritative = pcall(function()
+		return store:UpdateAsync(keyFor(transaction.id), function(previous)
+			return TradeTransactionRules.mergeRecoveryCheckpoint(previous, snapshot)
 		end)
 	end)
-	if not ok then
-		return false
+	if not ok or type(authoritative) ~= "table" then
+		return false, nil
 	end
 
-	local indexedA = updatePendingIndex(transaction.playerAUserId, transaction.id, transaction.state)
-	local indexedB = updatePendingIndex(transaction.playerBUserId, transaction.id, transaction.state)
-	if terminal(transaction.state) then
-		-- Once the transaction row is terminal it is authoritative. A stale
-		-- participant index is harmless because pendingForUser self-cleans it.
-		return true
+	local indexedA = updatePendingIndex(
+		transaction.playerAUserId,
+		transaction.id,
+		authoritative.state
+	)
+	local indexedB = updatePendingIndex(
+		transaction.playerBUserId,
+		transaction.id,
+		authoritative.state
+	)
+	if terminal(authoritative.state) then
+		-- The terminal row is authoritative. A stale participant index is safe
+		-- because pendingForUser reads the transaction row and self-cleans it.
+		return true, authoritative
 	end
-	-- Non-terminal transactions are safe to execute only when both participants
-	-- can discover them after a server interruption.
-	return indexedA and indexedB
+	-- Non-terminal transactions are safe only if both participants can discover
+	-- the same durable journal row after a server interruption.
+	return indexedA and indexedB, authoritative
 end
 
-function TradeJournal.read(transactionId: string): any?
+function TradeJournal.read(transactionId: string): (boolean, any?)
 	local ok, result = pcall(function()
 		return store:GetAsync(keyFor(transactionId))
 	end)
-	if not ok or type(result) ~= "table" then
-		return nil
+	if not ok then
+		return false, nil
 	end
-	return result
+	if result == nil then
+		return true, nil
+	end
+	if type(result) ~= "table" then
+		return false, nil
+	end
+	return true, result
 end
 
-function TradeJournal.pendingForUser(userId: number): any?
+function TradeJournal.pendingForUser(userId: number): (boolean, any?)
 	local ok, transactionId = pcall(function()
 		return store:GetAsync(pendingKey(userId))
 	end)
-	if not ok or type(transactionId) ~= "string" then
-		return nil
+	if not ok then
+		return false, nil
 	end
-	local transaction = TradeJournal.read(transactionId)
-	if transaction == nil then
-		return nil
+	if transactionId == nil then
+		return true, nil
+	end
+	if type(transactionId) ~= "string" then
+		return false, nil
+	end
+
+	local readOk, transaction = TradeJournal.read(transactionId)
+	if not readOk or transaction == nil then
+		return false, nil
 	end
 	if terminal(transaction.state) then
 		updatePendingIndex(userId, transactionId, transaction.state)
-		return nil
+		return true, nil
 	end
-	return transaction
+	return true, transaction
 end
 
 function TradeJournal.storeName(): string
