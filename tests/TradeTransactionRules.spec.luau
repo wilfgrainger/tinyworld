@@ -57,6 +57,34 @@ return function()
 	TestUtil.equal(recovering.state, "cancelled")
 	TestUtil.equal(recovering.cancelReason, "profile_save_failed")
 
+	local checkpointA = {
+		id = "tx-race",
+		state = "recovering",
+		persistedA = true,
+		persistedB = false,
+		rollbackSavedA = true,
+		rollbackSavedB = false,
+		recoveryReason = "server_resume",
+	}
+	local checkpointB = {
+		id = "tx-race",
+		state = "recovering",
+		persistedA = false,
+		persistedB = true,
+		rollbackSavedA = false,
+		rollbackSavedB = true,
+		recoveryReason = "server_resume",
+	}
+	local merged = TradeTransactionRules.mergeRecoveryCheckpoint(checkpointA, checkpointB)
+	TestUtil.equal(merged.state, "recovering")
+	TestUtil.isTrue(merged.persistedA)
+	TestUtil.isTrue(merged.persistedB)
+	TestUtil.isTrue(merged.rollbackSavedA)
+	TestUtil.isTrue(merged.rollbackSavedB)
+
+	local terminal = TradeTransactionRules.mergeRecoveryCheckpoint({ id = "tx-race", state = "committed" }, checkpointB)
+	TestUtil.equal(terminal.state, "committed")
+
 	local stale = TradeTransactionRules.new("tx-2", 1, 2, {}, {}, 3)
 	local staleConfirm, staleReason = TradeTransactionRules.confirm(stale, 1, 2)
 	TestUtil.isFalse(staleConfirm)
