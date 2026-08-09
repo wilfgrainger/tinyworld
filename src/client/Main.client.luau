@@ -6,6 +6,7 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
+local PortalJournalRules = require(shared:WaitForChild("PortalJournalRules"))
 local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local VisualQualityRules = require(shared:WaitForChild("VisualQualityRules"))
 
@@ -427,6 +428,12 @@ local function friendlyQuest(): (string, string)
 	if portalWorld == "GiantKitchen" then
 		return "Giant Kitchen", string.format("Gather the sugar crystals  •  %d of 3", portalFinds)
 	end
+	if portalWorld == "CloudpostObservatory" then
+		return "Cloudpost Observatory", string.format("Gather the bottled breezes  •  %d of 3", portalFinds)
+	end
+	if portalWorld == "ClockworkOrchard" then
+		return "Clockwork Orchard", string.format("Gather the clockwork leaves  •  %d of 3", portalFinds)
+	end
 	if attr("TinyWorldCarryingParcel", false) then
 		return "Courier round", "Carry the parcel to the village shop"
 	end
@@ -454,14 +461,12 @@ local function boundaryVisitCount(mask: number): number
 end
 
 local function portalJournalCopy(): string
-	local completions = attr("TinyWorldPortalCompletions", 0)
-	if completions < 1 then
-		return "The Giant Kitchen is waiting beyond the first portal."
-	end
-	if completions < 2 then
-		return "Giant Kitchen  ●\nMoonlit Meadow  ○"
-	end
-	return "Giant Kitchen  ●\nMoonlit Meadow  ●"
+	return PortalJournalRules.copy({
+		GiantKitchen = attr("TinyWorldDiscoveredGiantKitchen", false),
+		MoonlitMeadow = attr("TinyWorldDiscoveredMoonlitMeadow", false),
+		CloudpostObservatory = attr("TinyWorldDiscoveredCloudpostObservatory", false),
+		ClockworkOrchard = attr("TinyWorldDiscoveredClockworkOrchard", false),
+	})
 end
 
 local updateDebug = function() end
@@ -550,6 +555,10 @@ local observed = {
 	"TinyWorldDesignerLevel",
 	"TinyWorldDesignerXP",
 	"TinyWorldPortalCompletions",
+	"TinyWorldDiscoveredGiantKitchen",
+	"TinyWorldDiscoveredMoonlitMeadow",
+	"TinyWorldDiscoveredCloudpostObservatory",
+	"TinyWorldDiscoveredClockworkOrchard",
 	"TinyWorldBoundaryMask",
 	"TinyWorldPortalCrystals",
 	"TinyWorldPortalWorld",
