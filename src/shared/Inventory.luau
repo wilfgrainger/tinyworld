@@ -1,6 +1,13 @@
+local ItemDefinitions
+if script ~= nil then
+	ItemDefinitions = require(script.Parent:WaitForChild("ItemDefinitions"))
+else
+	ItemDefinitions = require("./ItemDefinitions")
+end
+
 local Inventory = {}
 
-local SUPPORTED = {
+local LEGACY = {
 	Carrot = true,
 	SugarCrystal = true,
 	MeadowSeed = true,
@@ -13,29 +20,52 @@ local function validAmount(amount: any): boolean
 end
 
 function Inventory.isSupported(itemName: string): boolean
-	return SUPPORTED[itemName] == true
+	local definition = ItemDefinitions.get(itemName)
+	return definition ~= nil and definition.stackable == true
 end
 
 function Inventory.get(profile: any, itemName: string): number
 	if not Inventory.isSupported(itemName) then
 		return 0
 	end
-	local inventory = profile.inventory
-	if type(inventory) ~= "table" then
-		return 0
+	if type(profile.inventoryStacks) == "table" then
+		local stacked = profile.inventoryStacks[itemName]
+		if type(stacked) == "number" and stacked >= 0 then
+			return math.floor(stacked)
+		end
 	end
-	local value = inventory[itemName]
-	if type(value) ~= "number" or value < 0 then
-		return 0
+	if LEGACY[itemName] and type(profile.inventory) == "table" then
+		local legacy = profile.inventory[itemName]
+		if type(legacy) == "number" and legacy >= 0 then
+			return math.floor(legacy)
+		end
 	end
-	return math.floor(value)
+	return 0
+end
+
+local function set(profile: any, itemName: string, amount: number)
+	if type(profile.inventoryStacks) ~= "table" then
+		profile.inventoryStacks = {}
+	end
+	profile.inventoryStacks[itemName] = amount
+	if LEGACY[itemName] then
+		if type(profile.inventory) ~= "table" then
+			profile.inventory = {}
+		end
+		profile.inventory[itemName] = amount
+	end
 end
 
 function Inventory.add(profile: any, itemName: string, amount: number): boolean
 	if not Inventory.isSupported(itemName) or not validAmount(amount) then
 		return false
 	end
-	profile.inventory[itemName] = Inventory.get(profile, itemName) + amount
+	local definition = ItemDefinitions.get(itemName)
+	local nextAmount = Inventory.get(profile, itemName) + amount
+	if definition and nextAmount > definition.maxStack then
+		return false
+	end
+	set(profile, itemName, nextAmount)
 	return true
 end
 
@@ -47,9 +77,8 @@ function Inventory.remove(profile: any, itemName: string, amount: number): boole
 	if current < amount then
 		return false
 	end
-	profile.inventory[itemName] = current - amount
+	set(profile, itemName, current - amount)
 	return true
 end
 
 return Inventory
-
