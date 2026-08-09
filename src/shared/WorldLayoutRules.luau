@@ -4,6 +4,7 @@ local TerrainRules = require("./TerrainRules")
 
 WorldLayoutRules.MIN_PLOTS = 4
 WorldLayoutRules.MAX_PLOTS = 16
+WorldLayoutRules.MAX_SERVER_PLAYERS = WorldLayoutRules.MAX_PLOTS
 WorldLayoutRules.PLOT_SIZE = 60
 WorldLayoutRules.PLOT_SPACING = 72
 WorldLayoutRules.CORE_HALF_EXTENT = 60
@@ -80,6 +81,13 @@ function WorldLayoutRules.safeCount(value: any, minimum: number, maximum: number
 		return minimum
 	end
 	return math.max(minimum, math.min(maximum, math.floor(value)))
+end
+
+function WorldLayoutRules.canAdmitPlayer(currentAdmitted: any): boolean
+	return type(currentAdmitted) == "number"
+		and currentAdmitted == math.floor(currentAdmitted)
+		and currentAdmitted >= 0
+		and currentAdmitted < WorldLayoutRules.MAX_SERVER_PLAYERS
 end
 
 local function safeMaxPlayers(maxPlayers: any): number
