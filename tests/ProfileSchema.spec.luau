@@ -3,7 +3,7 @@ local ProfileSchema = require("../src/shared/ProfileSchema")
 
 return function()
 	local fresh = ProfileSchema.new()
-	TestUtil.equal(fresh.version, 8)
+	TestUtil.equal(fresh.version, 9)
 	TestUtil.equal(fresh.coins, 100)
 	TestUtil.equal(fresh.level, 1)
 	TestUtil.equal(fresh.xp, 0)
@@ -15,6 +15,10 @@ return function()
 	TestUtil.equal(fresh.inventory.WoodToken, 0)
 	TestUtil.equal(fresh.courierLevel, 1)
 	TestUtil.equal(fresh.courierXp, 0)
+	TestUtil.equal(fresh.farmerLevel, 1)
+	TestUtil.equal(fresh.farmerXp, 0)
+	TestUtil.equal(fresh.designerLevel, 1)
+	TestUtil.equal(fresh.designerXp, 0)
 	TestUtil.isFalse(fresh.ownsTinyBike)
 	TestUtil.isFalse(fresh.bikeActive)
 	TestUtil.equal(fresh.livingCollectionDay, "")
@@ -53,7 +57,7 @@ return function()
 		xp = 42,
 		houseTier = 3,
 	})
-	TestUtil.equal(migrated.version, 8)
+	TestUtil.equal(migrated.version, 9)
 	TestUtil.equal(migrated.coins, 777)
 	TestUtil.equal(migrated.level, 4)
 	TestUtil.equal(migrated.xp, 42)
@@ -66,6 +70,10 @@ return function()
 	TestUtil.equal(migrated.livingCollectionMask, 0)
 	TestUtil.isFalse(migrated.homeCharmApplied)
 	TestUtil.equal(migrated.courierLevel, 1)
+	TestUtil.equal(migrated.farmerLevel, 1)
+	TestUtil.equal(migrated.farmerXp, 0)
+	TestUtil.equal(migrated.designerLevel, 1)
+	TestUtil.equal(migrated.designerXp, 0)
 	TestUtil.equal(migrated.displayName, "")
 	TestUtil.equal(migrated.avatarStyle, "")
 	TestUtil.equal(migrated.starterOutfit, "")
@@ -83,7 +91,7 @@ return function()
 		starterOutfit = "Sunset",
 		onboardingComplete = true,
 	})
-	TestUtil.equal(completed.version, 8)
+	TestUtil.equal(completed.version, 9)
 	TestUtil.equal(completed.coins, 901)
 	TestUtil.equal(completed.inventory.Carrot, 7)
 	TestUtil.equal(completed.inventory.SugarCrystal, 3)
@@ -103,7 +111,7 @@ return function()
 		livingCollectionMask = 7,
 		homeCharmApplied = true,
 	})
-	TestUtil.equal(living.version, 8)
+	TestUtil.equal(living.version, 9)
 	TestUtil.equal(living.inventory.MeadowSeed, 3)
 	TestUtil.equal(living.inventory.Seashell, 2)
 	TestUtil.equal(living.inventory.WoodToken, 1)
@@ -118,7 +126,7 @@ return function()
 		boundaryExplorationMask = 7,
 		boundaryCompletions = 4,
 	})
-	TestUtil.equal(exploration.version, 8)
+	TestUtil.equal(exploration.version, 9)
 	TestUtil.equal(exploration.boundaryExplorationDay, "2026-08-08")
 	TestUtil.equal(exploration.boundaryExplorationClaimedDay, "2026-08-07")
 	TestUtil.equal(exploration.boundaryExplorationMask, 7)
@@ -132,6 +140,10 @@ return function()
 		inventory = { Carrot = -4, SugarCrystal = 2.9 },
 		courierLevel = 0,
 		courierXp = -1,
+		farmerLevel = 0,
+		farmerXp = -1,
+		designerLevel = 0,
+		designerXp = -1,
 		gardenBeds = {
 			{ stage = "broken", readyAt = -1 },
 		},
@@ -146,6 +158,10 @@ return function()
 	TestUtil.equal(repaired.inventory.SugarCrystal, 2)
 	TestUtil.equal(repaired.courierLevel, 1)
 	TestUtil.equal(repaired.courierXp, 0)
+	TestUtil.equal(repaired.farmerLevel, 1)
+	TestUtil.equal(repaired.farmerXp, 0)
+	TestUtil.equal(repaired.designerLevel, 1)
+	TestUtil.equal(repaired.designerXp, 0)
 	TestUtil.equal(repaired.gardenBeds[1].stage, "empty")
 	TestUtil.equal(repaired.gardenBeds[1].readyAt, 0)
 	TestUtil.equal(repaired.homePrivacy, "Open")

@@ -18,7 +18,7 @@ foreach ($pattern in @("nextItem", "HomeRules.buy", "HomeRules.use")) {
         exit 1
     }
 }
-foreach ($pattern in @("homeItems", "homeUseCount", "version = 8")) {
+foreach ($pattern in @("homeItems", "homeUseCount", "version = 9")) {
     if ($schema -notmatch [regex]::Escape($pattern)) {
         Write-Output ("Home profile migration missing required contract: " + $pattern)
         exit 1

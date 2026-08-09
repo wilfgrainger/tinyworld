@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 8
+ProfileSchema.VERSION = 9
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 local HomeExpressionRules
@@ -21,6 +21,10 @@ houseTier: number,
 inventory: Inventory,
 courierLevel: number,
 courierXp: number,
+farmerLevel: number,
+farmerXp: number,
+designerLevel: number,
+designerXp: number,
 ownsTinyBike: boolean,
 bikeActive: boolean,
 gardenBeds: { GardenBed },
@@ -142,7 +146,7 @@ end
 
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 8,
+		version = 9,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -150,6 +154,10 @@ function ProfileSchema.new(): PlayerProfile
 		inventory = { Carrot = 0, SugarCrystal = 0, MeadowSeed = 0, Seashell = 0, WoodToken = 0 },
 		courierLevel = 1,
 		courierXp = 0,
+		farmerLevel = 1,
+		farmerXp = 0,
+		designerLevel = 1,
+		designerXp = 0,
 		ownsTinyBike = false,
 		bikeActive = false,
 		gardenBeds = { newGardenBed(), newGardenBed(), newGardenBed() },
@@ -193,7 +201,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 8,
+		version = 9,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -201,6 +209,10 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		inventory = normaliseInventory(value.inventory),
 		courierLevel = normaliseInteger(value.courierLevel, 1, 1),
 		courierXp = normaliseInteger(value.courierXp, 0, 0),
+		farmerLevel = normaliseInteger(value.farmerLevel, 1, 1),
+		farmerXp = normaliseInteger(value.farmerXp, 0, 0),
+		designerLevel = normaliseInteger(value.designerLevel, 1, 1),
+		designerXp = normaliseInteger(value.designerXp, 0, 0),
 		ownsTinyBike = if type(value.ownsTinyBike) == "boolean" then value.ownsTinyBike else false,
 		bikeActive = if type(value.bikeActive) == "boolean" then value.bikeActive else false,
 		gardenBeds = normaliseGardenBeds(value.gardenBeds),

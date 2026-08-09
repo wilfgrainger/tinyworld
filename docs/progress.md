@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-09 - v0.4.0 profession expansion
+
+- Preserved Courier and added fair Farmer and Designer career progression. Farmer XP comes from the existing physical Carrot harvest; Designer XP comes from physical home decoration and owner-only showcase actions. No new inventory item, paid gate, random reward, or power advantage was added.
+- Added a physical Profession Board and a server-authoritative popup that names all three careers and their current XP thresholds. The v0.3 physical-affordance invariant remains enforced for every item path.
+- Migrated the profile schema to version 9 with safe Farmer/Designer defaults, replicated the career fields to the HUD, and added deterministic profession specs plus a source guard.
+- The source gate is green at 22 Luau specs, Luau analysis, server/client compilation, all repository guards, Rojo assembly, and `git diff --check`. Studio evidence covers the v0.4 HUD, physical Profession Board, profession popup, `CARROT READY` object, Farmer harvest, and a clean stopped Output. Designer runtime still requires a clean normal-movement Studio pass; temporary teleportation did not prove it.
+
 ## 2026-08-09 - v0.3.0 home expression
 
 - Added schema-v8 home expression state with backward-compatible defaults: free Meadow/Harbor/Sunset style, six bounded decoration ownership flags, and a persistent showcase count. The v0.0.9 four-item functional home remains intact.

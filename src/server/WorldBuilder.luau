@@ -486,6 +486,10 @@ function WorldBuilder.build(maxPlayers: number?)
 	makeInteractionMarker(root, "ContributionMarker", Vector3.new(-29, 0, 0), VisualTheme.Colors.gold)
 	local fundSign = makeDecoration(root, "FundSign", Vector3.new(8, 4, 1), Vector3.new(-29, 6, 0), VisualTheme.Colors.timberDark)
 	local fundLabel = makeLabel(fundSign, "Village Fund: 0 coins", 250)
+	local professionBoard = makePart(root, "ProfessionBoard", Vector3.new(14, 5, 1), Vector3.new(-44, 2.5, -28), VisualTheme.Colors.timberDark, Enum.Material.WoodPlanks)
+	makeLabel(professionBoard, "PROFESSION BOARD\nCourier • Farmer • Designer", 330)
+	local professionPrompt = makePrompt(professionBoard, "View Professions", "Profession Board")
+	makeInteractionMarker(root, "ProfessionBoardMarker", Vector3.new(-44, 0, -28), VisualTheme.Colors.gold)
 
 	amenity(root, "DeliveryDepot", Vector3.new(0, 0, -44), "COURIER DEPOT\nPick up deliveries", VisualTheme.Colors.warmLight)
 	local deliveryStart = makePart(root, "DeliveryStart", Vector3.new(6, 4, 6), Vector3.new(0, 2, -30), VisualTheme.Colors.timber)
@@ -557,6 +561,7 @@ function WorldBuilder.build(maxPlayers: number?)
 		dailyPrompt = dailyPrompt,
 		contributionPrompt = contributionPrompt,
 		fundLabel = fundLabel,
+		professionPrompt = professionPrompt,
 		deliveryStartPrompt = deliveryStartPrompt,
 		deliveryEndPrompt = deliveryEndPrompt,
 		homeSupplyPrompt = homeSupplyPrompt,

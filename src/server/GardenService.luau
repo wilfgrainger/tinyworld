@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local GardenRules = require(shared:WaitForChild("GardenRules"))
+local Profession = require(shared:WaitForChild("Profession"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local GardenService = {}
@@ -166,7 +167,9 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 	end
 
 	local routeText = ""
+	local farmerLevels = 0
 	if ok and reason == "harvested" then
+		farmerLevels = Profession.addXp(profile, "Farmer", 50)
 		local _routeChanged
 		_routeChanged, routeText = self.RouteService:record(player, "garden_harvest")
 	end
@@ -181,7 +184,8 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 		self.PlayerStateService.message(player, "Carrot watered. It grows in about 5 seconds in this prototype.")
 	elseif ok and reason == "harvested" then
 		local suffix = if routeText == "" then "" else " " .. routeText
-		self.PlayerStateService.message(player, "Carrot harvested: +1 Carrot and +10 XP." .. suffix)
+		local levelSuffix = if farmerLevels > 0 then " Farmer level up!" else ""
+		self.PlayerStateService.message(player, "Carrot harvested: +1 Carrot and +10 XP. Farmer XP +50." .. levelSuffix .. suffix)
 	else
 		local remaining = math.max(0, bed.readyAt - now)
 		self.PlayerStateService.message(player, string.format("Your Carrot is still growing: about %d seconds.", remaining))

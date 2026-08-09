@@ -75,6 +75,8 @@ The v0.2.0 portal-worlds slice makes the original portal promise repeatable: Gia
 
 The v0.3.0 home-expression slice makes the functional home feel authored: choose a free Meadow/Harbor/Sunset style, collect six fair concrete decorations, read the bounded Rest/Make/Showcase zones, inspect collected resources on the physical Item Chest, and place the home on showcase. Follow the [v0.3.0 home-expression test](docs/v0.3.0-home-expression-test.md). The collection is cosmetic/social only; no paid gate or progression advantage is added.
 
+The v0.4.0 profession slice makes the existing life activities legible as fair paths: Courier remains intact, physical garden harvests build Farmer progression, and physical home decoration/showcase actions build Designer progression. A visible Profession Board explains all three careers, schema-v9 migration preserves old profiles, and no new item reward is introduced. Follow the [v0.4.0 profession test](docs/v0.4.0-professions-test.md). Any future item reward remains subject to the physical Item Chest plus on-screen popup invariant.
+
 ## What you need tomorrow
 
 1. A Roblox account.

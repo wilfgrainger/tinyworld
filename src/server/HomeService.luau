@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local HomeCatalog = require(shared:WaitForChild("HomeCatalog"))
 local HomeRules = require(shared:WaitForChild("HomeRules"))
 local HomeExpressionRules = require(shared:WaitForChild("HomeExpressionRules"))
+local Profession = require(shared:WaitForChild("Profession"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local HomeService = {}
@@ -131,13 +132,14 @@ function HomeService:_acquireNextDecoration(player: Player)
 		self.PlayerStateService.message(player, text)
 		return
 	end
+	local designerLevels = Profession.addXp(profile, "Designer", 50)
 	local plot = self.plotService and self.plotService:getPlotForPlayer(player)
 	if plot then
 		self.plotService:rebuildHouse(player, profile)
 	end
 	self.PlayerStateService.sync(player, profile)
 	self:syncPlayer(player, profile)
-	self.PlayerStateService.message(player, string.format("%s added to your home. Your rooms are becoming yours.", item.name))
+	self.PlayerStateService.message(player, string.format("%s added to your home. Designer XP +50%s. Your rooms are becoming yours.", item.name, if designerLevels > 0 then " — Designer level up!" else ""))
 	self.ProfileStore.save(player)
 end
 
@@ -172,9 +174,10 @@ function HomeService:_showcase(player: Player, plotIndex: number)
 		return
 	end
 	local count = HomeExpressionRules.showcase(profile)
+	local designerLevels = Profession.addXp(profile, "Designer", 25)
 	self.PlayerStateService.sync(player, profile)
 	self:syncPlayer(player, profile)
-	self.PlayerStateService.message(player, string.format("Home showcased: %s style, %d display visit(s).", profile.homeTheme, count))
+	self.PlayerStateService.message(player, string.format("Home showcased: %s style, %d display visit(s). Designer XP +25%s.", profile.homeTheme, count, if designerLevels > 0 then " — Designer level up!" else ""))
 	self.ProfileStore.save(player)
 end
 

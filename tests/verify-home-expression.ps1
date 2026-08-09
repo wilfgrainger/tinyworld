@@ -12,7 +12,7 @@ foreach ($pattern in @("LanternNook", "StoryBookStack", "MeadowSeedShelf", "Seas
         exit 1
     }
 }
-foreach ($pattern in @("VERSION = 8", "homeTheme", "homeDecor", "homeShowcaseCount")) {
+foreach ($pattern in @("VERSION = 9", "homeTheme", "homeDecor", "homeShowcaseCount")) {
     if ($schema -notmatch [regex]::Escape($pattern)) {
         Write-Output ("Home expression schema missing: " + $pattern)
         exit 1
@@ -36,11 +36,15 @@ foreach ($pattern in @("HomeStyleBoard", "HomeGallery", "Change Home Style", "Co
         exit 1
     }
 }
-foreach ($pattern in @("v0.3.0 HOMES", "Decor %d/6", "TinyWorldHomeTheme", "TinyWorldHomeDecorCount", "TinyWorldHomeShowcaseCount")) {
+foreach ($pattern in @("Decor %d/6", "TinyWorldHomeTheme", "TinyWorldHomeDecorCount", "TinyWorldHomeShowcaseCount")) {
     if ($client -notmatch [regex]::Escape($pattern)) {
         Write-Output ("Home expression HUD missing: " + $pattern)
         exit 1
     }
+}
+if ($client -notmatch "v0\.4\.0 PROFESSIONS") {
+    Write-Output "Current HUD is missing the v0.4.0 profession candidate label."
+    exit 1
 }
 
 Write-Output "Home expression guard passed."

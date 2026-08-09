@@ -19,6 +19,7 @@ local SocialService = require(script.Parent:WaitForChild("SocialService"))
 local HomeService = require(script.Parent:WaitForChild("HomeService"))
 local AlphaOpsService = require(script.Parent:WaitForChild("AlphaOpsService"))
 local PhysicalItemService = require(script.Parent:WaitForChild("PhysicalItemService"))
+local ProfessionService = require(script.Parent:WaitForChild("ProfessionService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
 local routeService = RouteService.new(ProfileStore, PlayerStateService)
@@ -38,6 +39,7 @@ local tradeService = TradeService.new(world, ProfileStore, PlayerStateService, s
 local _villageService = VillageService.new(world, ProfileStore, PlayerStateService)
 local _explorationService = ExplorationService.new(world, ProfileStore, PlayerStateService, routeService)
 local _livingWorldService = LivingWorldService.new(world, ProfileStore, PlayerStateService)
+local _professionService = ProfessionService.new(world, ProfileStore, PlayerStateService)
 
 local function onPlayerAdded(player: Player)
 	local profile = ProfileStore.load(player)

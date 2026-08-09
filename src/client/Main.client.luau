@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / HOME EXPRESSION • STORYBOOK"
+eyebrow.Text = "TODAY / PROFESSIONS • STORYBOOK"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.3.0 HOMES"
+title.Text = "TINYWORLD | v0.4.0 PROFESSIONS"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -104,6 +104,8 @@ local expression = makeLabel("Expression", 25, 15, false)
 local inventory = makeLabel("Inventory", 25, 15, false)
 local lifeKit = makeLabel("LifeKit", 25, 15, false)
 local profession = makeLabel("Profession", 25, 15, false)
+local careers = makeLabel("Careers", 25, 15, true)
+careers.TextColor3 = colors.warmLight
 local transport = makeLabel("Transport", 25, 15, false)
 local portal = makeLabel("Portal", 25, 15, false)
 local exploration = makeLabel("Exploration", 25, 15, false)
@@ -203,6 +205,7 @@ local function update()
 	local charm = if attr("TinyWorldHomeCharm", false) then "  |  Home charm" else ""
 	lifeKit.Text = string.format("Life kit: %d seed  |  %d shell  |  %d wood", attr("TinyWorldMeadowSeeds", 0), attr("TinyWorldSeashells", 0), attr("TinyWorldWoodTokens", 0)) .. charm
 	profession.Text = string.format("Profession: Courier Lv.%d  |  XP %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldCourierXP", 0))
+	careers.Text = string.format("Careers: Courier %d  |  Farmer %d  |  Designer %d", attr("TinyWorldCourierLevel", 1), attr("TinyWorldFarmerLevel", 1), attr("TinyWorldDesignerLevel", 1))
 	local bikeState = attr("TinyWorldBikeState", if attr("TinyWorldBikeActive", false) then "mounted" else "parked")
 	local bikeText = if bikeState == "mounted" then "Tiny Bike MOUNTED" elseif bikeState == "parked" and attr("TinyWorldOwnsBike", false) then "Tiny Bike PARKED" else "Tiny Bike not owned"
 	transport.Text = "Transport: " .. bikeText
@@ -237,6 +240,10 @@ local observed = {
 	"TinyWorldHomeShowcaseCount",
 	"TinyWorldCourierLevel",
 	"TinyWorldCourierXP",
+	"TinyWorldFarmerLevel",
+	"TinyWorldFarmerXP",
+	"TinyWorldDesignerLevel",
+	"TinyWorldDesignerXP",
 	"TinyWorldOwnsBike",
 	"TinyWorldBikeActive",
 	"TinyWorldBikeState",
