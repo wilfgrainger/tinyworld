@@ -30,7 +30,7 @@ gui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Size = UDim2.new(0.92, 0, 0, 410)
+panel.Size = UDim2.new(0.92, 0, 0, 440)
 panel.Position = UDim2.fromOffset(12, 12)
 panel.BackgroundColor3 = colors.ink
 panel.BackgroundTransparency = 0.08
@@ -39,7 +39,7 @@ panel.Parent = gui
 
 local panelConstraint = Instance.new("UISizeConstraint")
 panelConstraint.MinSize = Vector2.new(280, 300)
-panelConstraint.MaxSize = Vector2.new(360, 450)
+panelConstraint.MaxSize = Vector2.new(360, 480)
 panelConstraint.Parent = panel
 
 local corner = Instance.new("UICorner")
@@ -88,11 +88,11 @@ local function makeLabel(name: string, height: number, size: number, bold: boole
 end
 
 local eyebrow = makeLabel("Eyebrow", 16, 11, true)
-eyebrow.Text = "TODAY / RETURN LOOP"
+eyebrow.Text = "TODAY / SOCIAL VILLAGE"
 eyebrow.TextColor3 = colors.gold
 local title = makeLabel("Title", 30, 22, true)
 title.TextColor3 = colors.warmLight
-title.Text = "TINYWORLD | v0.0.8 RETURN LOOP | STORYBOOK VILLAGE"
+title.Text = "TINYWORLD | v0.0.9 SOCIAL VILLAGE | STORYBOOK"
 local sectionLabel = makeLabel("SectionLabel", 16, 10, true)
 sectionLabel.Text = "YOUR TINY LIFE"
 sectionLabel.TextColor3 = colors.metal
@@ -108,6 +108,8 @@ local portal = makeLabel("Portal", 25, 15, false)
 local exploration = makeLabel("Exploration", 25, 15, false)
 local route = makeLabel("Route", 25, 15, true)
 route.TextColor3 = colors.warmLight
+local social = makeLabel("Social", 25, 15, true)
+social.TextColor3 = colors.warmLight
 local goal = makeLabel("Goal", 48, 14, true)
 goal.BackgroundColor3 = colors.inkSoft
 goal.BackgroundTransparency = 0.12
@@ -140,9 +142,9 @@ local message = Instance.new("TextLabel")
 message.Name = "StatusMessage"
 message.AnchorPoint = Vector2.new(0.5, 1)
 message.Position = UDim2.new(0.5, 0, 1, -24)
-message.Size = UDim2.new(0.7, 0, 0, 58)
-message.BackgroundColor3 = colors.ink
-message.BackgroundTransparency = 0.08
+message.Size = UDim2.new(0.64, 0, 0, 56)
+message.BackgroundColor3 = colors.inkSoft
+message.BackgroundTransparency = 0.03
 message.BorderSizePixel = 0
 message.TextColor3 = colors.white
 message.TextWrapped = true
@@ -150,21 +152,25 @@ message.TextSize = 18
 message.Font = Enum.Font.GothamBold
 message.Text = "Welcome to TinyWorld."
 message.Parent = gui
+local messagePadding = Instance.new("UIPadding")
+messagePadding.PaddingLeft = UDim.new(0, 18)
+messagePadding.PaddingRight = UDim.new(0, 12)
+messagePadding.Parent = message
+local messageAccent = Instance.new("Frame")
+messageAccent.Name = "Accent"
+messageAccent.Size = UDim2.new(0, 4, 0, 28)
+messageAccent.Position = UDim2.fromOffset(10, 14)
+messageAccent.BackgroundColor3 = colors.gold
+messageAccent.BorderSizePixel = 0
+messageAccent.Parent = message
 local messageCorner = Instance.new("UICorner")
 messageCorner.CornerRadius = UDim.new(0, 12)
 messageCorner.Parent = message
 local messageStroke = Instance.new("UIStroke")
-messageStroke.Color = colors.metal
-messageStroke.Transparency = 0.78
+messageStroke.Color = colors.gold
+messageStroke.Transparency = 0.5
+messageStroke.Thickness = 1.5
 messageStroke.Parent = message
-local messageGradient = Instance.new("UIGradient")
-messageGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, colors.inkSoft),
-	ColorSequenceKeypoint.new(1, colors.ink),
-})
-messageGradient.Rotation = 0
-messageGradient.Parent = message
-
 local function attr(name: string, fallback)
 	local value = player:GetAttribute(name)
 	if value == nil then
@@ -190,7 +196,7 @@ local function update()
 	local threshold = Progression.xpForNextLevel(level)
 	displayName.Text = string.format("Name: %s   |   Style: %s   |   Outfit: %s", attr("TinyWorldDisplayName", "New TinyWorlder"), attr("TinyWorldAvatarStyle", "-"), attr("TinyWorldStarterOutfit", "-"))
 	stats.Text = string.format("Coins: %d  |  Level %d  |  XP %d/%d", coins, level, xp, threshold)
-	home.Text = string.format("Home: %s (Tier %d)  |  Privacy: %s", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"))
+	home.Text = string.format("Home: %s T%d  |  %s  |  Items %d/4", attr("TinyWorldHouseName", "Starter Nook"), attr("TinyWorldHouseTier", 1), attr("TinyWorldHomePrivacy", "Open"), attr("TinyWorldHomeOwnedCount", 1))
 	inventory.Text = string.format("Bag: %d Carrot(s)  |  %d Sugar Crystal(s)", attr("TinyWorldCarrots", 0), attr("TinyWorldSugarCrystals", 0))
 	local charm = if attr("TinyWorldHomeCharm", false) then "  |  Home charm" else ""
 	lifeKit.Text = string.format("Life kit: %d seed  |  %d shell  |  %d wood", attr("TinyWorldMeadowSeeds", 0), attr("TinyWorldSeashells", 0), attr("TinyWorldWoodTokens", 0)) .. charm
@@ -201,6 +207,10 @@ local function update()
 	portal.Text = string.format("Portal: %d completion(s)  |  Run crystals %d/3", attr("TinyWorldPortalCompletions", 0), attr("TinyWorldPortalCrystals", 0))
 	exploration.Text = string.format("Explore: %d/3 boundary landmarks  |  Routes %d", boundaryVisitCount(attr("TinyWorldBoundaryMask", 0)), attr("TinyWorldBoundaryCompletions", 0))
 	route.Text = string.format("Return loop: today %d/%d  |  week %d/%d", attr("TinyWorldDailyRouteCount", 0), attr("TinyWorldDailyRouteTotal", 3), attr("TinyWorldWeeklyRouteCount", 0), attr("TinyWorldWeeklyRouteTotal", 3))
+	local partyText = if attr("TinyWorldPartyMember", false) then string.format("Village Walk %d/4", attr("TinyWorldPartySize", 0)) else "Village Walk: join Meetup"
+	local visit = attr("TinyWorldVisitingHome", "")
+	local visitText = if visit == "" then "" else "  |  Visiting " .. visit
+	social.Text = string.format("Social: %s  |  Shared %d%s", partyText, attr("TinyWorldSharedActivityCount", 0), visitText)
 	local carry = if attr("TinyWorldCarryingParcel", false) then "  |  PARCEL ACTIVE" else ""
 	goal.Text = "TODAY: " .. attr("TinyWorldSuggestedGoal", "Explore the village.") .. carry
 	message.Text = attr("TinyWorldLastMessage", "Welcome to TinyWorld.")
@@ -237,6 +247,14 @@ local observed = {
 	"TinyWorldWeeklyRouteCount",
 	"TinyWorldWeeklyRouteTotal",
 	"TinyWorldWeeklyRouteComplete",
+	"TinyWorldPartyMember",
+	"TinyWorldPartySize",
+	"TinyWorldPartyLeader",
+	"TinyWorldSharedActivityCount",
+	"TinyWorldVisitingHome",
+	"TinyWorldHomeOwnedCount",
+	"TinyWorldHomeUseCount",
+	"TinyWorldHomeLastAction",
 	"TinyWorldMessageNonce",
 	"TinyWorldDisplayName",
 	"TinyWorldAvatarStyle",

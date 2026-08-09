@@ -67,6 +67,8 @@ The next three releases deliberately deepen the existing slice before adding mor
 
 The [v0.0.5–v0.0.7 release-train design](docs/superpowers/specs/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-release-train-design.md) and [implementation plan](docs/superpowers/plans/2026-08-08-tinyworld-v0.0.5-to-v0.0.7-implementation.md) justify the backlog through v1.0.0. v0.0.8 is the first retention experiment: it measures whether a fair, bounded return loop strengthens the existing life rather than distracting from it. The ordering keeps visual desirability ahead of larger testing, persistence safety ahead of scale claims, and retention/social proof ahead of any real cosmetic monetisation.
 
+The v0.0.9 social and functional-home slice adds a bounded Village Walk, privacy-aware visits, safer trade, and concrete buy/use home essentials. Follow the [v0.0.9 social and functional-home test](docs/v0.0.9-social-home-test.md); deeper rooms, decor collections, and home showcase remain the v0.3.0 gate.
+
 ## What you need tomorrow
 
 1. A Roblox account.

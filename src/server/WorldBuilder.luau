@@ -161,15 +161,15 @@ end
 local function makeLabel(parent: BasePart, text: string, width: number?, maxDistance: number?): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(math.min(width or 200, 200), 52)
+	gui.Size = UDim2.fromOffset(math.min(width or 220, 260), 58)
 	gui.StudsOffset = Vector3.new(0, 3.4, 0)
 	gui.MaxDistance = maxDistance or 80
 	gui.AlwaysOnTop = true
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.08
-	label.BackgroundColor3 = VisualTheme.Colors.ink
+	label.BackgroundTransparency = 0.03
+	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
 	label.Size = UDim2.fromScale(1, 1)
 	label.TextColor3 = VisualTheme.Colors.paper
 	label.TextStrokeTransparency = 0.85
@@ -186,8 +186,8 @@ local function makeLabel(parent: BasePart, text: string, width: number?, maxDist
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = label
 	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.paper
-	stroke.Transparency = 0.78
+	stroke.Color = VisualTheme.Colors.warmLight
+	stroke.Transparency = 0.52
 	stroke.Thickness = 1
 	stroke.Parent = label
 	return label
@@ -308,6 +308,21 @@ local function buildTradePost(parent: Instance, origin: Vector3)
 	return { sides = sides, statusLabel = statusLabel }
 end
 
+local function buildSocialBoard(parent: Instance, origin: Vector3)
+	makePart(parent, "VillageMeetupBase", Vector3.new(30, 1, 18), origin, VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
+	local sign = makeDecoration(parent, "VillageMeetupSign", Vector3.new(22, 6, 1), origin + Vector3.new(0, 5, -7), VisualTheme.Colors.timberDark, Enum.Material.Wood)
+	local statusLabel = makeLabel(sign, "VILLAGE MEETUP\nJoin a Village Walk\nVisit homes and trade safely together", 320, 32)
+	local join = makePart(parent, "VillageWalkJoin", Vector3.new(7, 1, 7), origin + Vector3.new(-7, 1, 1), VisualTheme.Colors.leaf, Enum.Material.WoodPlanks)
+	local leave = makePart(parent, "VillageWalkLeave", Vector3.new(7, 1, 7), origin + Vector3.new(7, 1, 1), VisualTheme.Colors.berry, Enum.Material.WoodPlanks)
+	makeInteractionMarker(parent, "VillageWalkJoinMarker", origin + Vector3.new(-7, 1, 1), VisualTheme.Colors.leaf)
+	makeInteractionMarker(parent, "VillageWalkLeaveMarker", origin + Vector3.new(7, 1, 1), VisualTheme.Colors.berry)
+	return {
+		joinPrompt = makePrompt(join, "Join Village Walk", "Village Meetup"),
+		leavePrompt = makePrompt(leave, "Leave Village Walk", "Village Meetup"),
+		statusLabel = statusLabel,
+	}
+end
+
 local function buildKitchen(parent: Instance, origin: Vector3)
 	local kitchen = Instance.new("Model")
 	kitchen.Name = "GiantKitchen"
@@ -415,6 +430,10 @@ function WorldBuilder.build(maxPlayers: number?)
 	local deliveryEndPrompt = makePrompt(deliveryEnd, "Deliver Parcel", "Courier Job")
 	makeInteractionMarker(root, "DeliveryEndMarker", Vector3.new(30, 0, -44), VisualTheme.Colors.berry)
 	makeCourierShowcase(root)
+	local homeSupply = makePart(root, "HomeSupplyCounter", Vector3.new(8, 4, 6), Vector3.new(30, 2, -56), VisualTheme.Colors.warmLight, Enum.Material.WoodPlanks)
+	local homeSupplyLabel = makeLabel(homeSupply, "HOME SUPPLY\nFurniture and essentials", 340)
+	local homeSupplyPrompt = makePrompt(homeSupply, "Buy Next Essential", "Home Supply")
+	makeInteractionMarker(root, "HomeSupplyMarker", Vector3.new(30, 0, -56), VisualTheme.Colors.gold)
 
 	amenity(root, "TransportShop", Vector3.new(44, 0, 0), "TRANSPORT\nTiny Bike: 300 coins", VisualTheme.Colors.sky)
 	local transport = makePart(root, "TransportKiosk", Vector3.new(6, 4, 6), Vector3.new(30, 2, 0), VisualTheme.Colors.skyDeep)
@@ -422,6 +441,7 @@ function WorldBuilder.build(maxPlayers: number?)
 	makeInteractionMarker(root, "TransportMarker", Vector3.new(30, 0, 0), VisualTheme.Colors.sky)
 
 	local trade = buildTradePost(root, Vector3.new(0, 0.5, 44))
+	local social = buildSocialBoard(root, Vector3.new(44, 0.5, 28))
 
 	local portal = makePart(root, "VillagePortal", Vector3.new(12, 12, 2), Vector3.new(-44, 6, 44), VisualTheme.Colors.portal, Enum.Material.Neon)
 	makeLabel(portal, "PORTAL\nThe Giant Kitchen", 300)
@@ -457,8 +477,11 @@ function WorldBuilder.build(maxPlayers: number?)
 		fundLabel = fundLabel,
 		deliveryStartPrompt = deliveryStartPrompt,
 		deliveryEndPrompt = deliveryEndPrompt,
+		homeSupplyPrompt = homeSupplyPrompt,
+		homeSupplyLabel = homeSupplyLabel,
 		transportPrompt = transportPrompt,
 		trade = trade,
+		social = social,
 		villagePortalPrompt = villagePortalPrompt,
 		plots = plots,
 		kitchen = kitchen,

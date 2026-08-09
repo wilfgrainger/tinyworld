@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local HouseCatalog = require(shared:WaitForChild("HouseCatalog"))
 local HouseUpgrade = require(shared:WaitForChild("HouseUpgrade"))
 local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
+local SocialRules = require(shared:WaitForChild("SocialRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local PlotService = {}
@@ -46,8 +47,8 @@ local function makeHouseLabel(parent: BasePart, text: string)
 	gui.Parent = parent
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 0.15
-	label.BackgroundColor3 = VisualTheme.Colors.ink
+	label.BackgroundTransparency = 0.04
+	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
 	label.TextColor3 = VisualTheme.Colors.paper
 	label.TextScaled = true
 	label.TextWrapped = true
@@ -58,8 +59,8 @@ local function makeHouseLabel(parent: BasePart, text: string)
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = label
 	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.paper
-	stroke.Transparency = 0.78
+	stroke.Color = VisualTheme.Colors.warmLight
+	stroke.Transparency = 0.52
 	stroke.Parent = label
 end
 
@@ -72,11 +73,13 @@ local function nextPrivacy(current: string): string
 	return "Open"
 end
 
-function PlotService.new(world, ProfileStore, PlayerStateService)
+function PlotService.new(world, ProfileStore, PlayerStateService, SocialService, HomeService)
 	local self = setmetatable({}, PlotService)
 	self.world = world
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.SocialService = SocialService
+	self.HomeService = HomeService
 	self.playerPlots = {}
 	self.plotOwners = {}
 	self.identityConnections = {}
@@ -160,6 +163,7 @@ function PlotService:_cyclePrivacy(player: Player, plotIndex: number)
 	self.world.plots[plotIndex].privacyPrompt.ObjectText = "Home Access: " .. profile.homePrivacy
 	self.PlayerStateService.sync(player, profile)
 	self.PlayerStateService.message(player, "Home privacy is now " .. profile.homePrivacy .. ".")
+	self.ProfileStore.save(player)
 end
 
 function PlotService:_visit(player: Player, plotIndex: number)
@@ -169,13 +173,14 @@ function PlotService:_visit(player: Player, plotIndex: number)
 		return
 	end
 
-	local allowed = player == owner or profile.homePrivacy == "Open"
-	if not allowed and profile.homePrivacy == "Friends" then
-		local ok, isFriend = pcall(function()
+	local isFriend = false
+	if player ~= owner and profile.homePrivacy == "Friends" then
+		local ok, friendResult = pcall(function()
 			return player:IsFriendsWithAsync(owner.UserId)
 		end)
-		allowed = ok and isFriend
+		isFriend = ok and friendResult
 	end
+	local allowed = SocialRules.privacyAllows(profile.homePrivacy, player == owner, isFriend)
 
 	if not allowed then
 		self.PlayerStateService.message(player, displayNameFor(owner, profile) .. "'s home is private.")
@@ -185,6 +190,9 @@ function PlotService:_visit(player: Player, plotIndex: number)
 	local character = player.Character
 	if character then
 		character:PivotTo(self.world.plots[plotIndex].insideCFrame)
+		if self.SocialService then
+			self.SocialService:recordVisit(player, owner, plotIndex)
+		end
 		self.PlayerStateService.message(player, "Welcome to " .. displayNameFor(owner, profile) .. "'s home.")
 	end
 end
@@ -287,6 +295,9 @@ function PlotService:rebuildHouse(player: Player, profile)
 		makeHouseDecoration(plot.houseContainer, "HomeFlowerCluster", Vector3.new(5, 2, 2), anchor + Vector3.new(0, 2.8, frontZ + 3.7), VisualTheme.Colors.flower, Enum.Material.Fabric)
 		local homeLantern = makeHouseDecoration(plot.houseContainer, "HomeLantern", Vector3.new(1.2, 1.8, 1.2), anchor + Vector3.new(7, 4.6, frontZ + 1.2), VisualTheme.Colors.gold, Enum.Material.Neon)
 		homeLantern.Shape = Enum.PartType.Ball
+	end
+	if self.HomeService then
+		self.HomeService:buildInterior(plot, profile)
 	end
 
 	local namePost = makeHousePart(plot.houseContainer, "HouseName", Vector3.new(8, 3, 1), anchor + Vector3.new(0, 3, (depth / 2) + 2), roofColor)

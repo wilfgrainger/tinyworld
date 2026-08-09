@@ -16,15 +16,18 @@ local function offerName(itemName: string?): string
 	return "nothing"
 end
 
-function TradeService.new(world, ProfileStore, PlayerStateService)
+function TradeService.new(world, ProfileStore, PlayerStateService, SocialService)
 	local self = setmetatable({}, TradeService)
 	self.world = world
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.SocialService = SocialService
 	self.players = {}
 	self.offers = {}
 	self.confirmedVersion = {}
+	self.lastActivity = {}
 	self.version = 1
+	self.TRADE_TIMEOUT_SECONDS = 120
 
 	for side, refs in world.trade.sides do
 		refs.joinPrompt.Triggered:Connect(function(player)
@@ -39,6 +42,31 @@ function TradeService.new(world, ProfileStore, PlayerStateService)
 	end
 	self:_updateSign()
 	return self
+end
+
+function TradeService:_touch(player: Player)
+	self.lastActivity[player] = os.clock()
+end
+
+function TradeService:_pruneExpired()
+	local now = os.clock()
+	local changed = false
+	for player, last in self.lastActivity do
+		if now - last >= self.TRADE_TIMEOUT_SECONDS then
+			local side = self:_sideForPlayer(player)
+			if side then
+				self.players[side] = nil
+				self.offers[player] = nil
+				self.confirmedVersion[player] = nil
+				changed = true
+			end
+			self.lastActivity[player] = nil
+		end
+	end
+	if changed then
+		self:_invalidateConfirmations()
+		self:_updateSign()
+	end
 end
 
 function TradeService:_sideForPlayer(player: Player): number?
@@ -56,6 +84,7 @@ function TradeService:_invalidateConfirmations()
 end
 
 function TradeService:_join(player: Player, side: number)
+	self:_pruneExpired()
 	if self.ProfileStore.get(player) == nil then
 		return
 	end
@@ -63,6 +92,7 @@ function TradeService:_join(player: Player, side: number)
 	if currentSide == side then
 		self.players[side] = nil
 		self.offers[player] = nil
+		self.lastActivity[player] = nil
 		self:_invalidateConfirmations()
 		self.PlayerStateService.message(player, "You left the Trading Post.")
 		self:_updateSign()
@@ -77,6 +107,7 @@ function TradeService:_join(player: Player, side: number)
 	end
 	self.players[side] = player
 	self.offers[player] = nil
+	self:_touch(player)
 	self:_invalidateConfirmations()
 	self.PlayerStateService.message(player, string.format("Joined Trading Post side %s. Choose an item to offer.", if side == 1 then "A" else "B"))
 	self:_updateSign()
@@ -104,6 +135,7 @@ function TradeService:_nextOffer(profile, current: string?): string?
 end
 
 function TradeService:_chooseOffer(player: Player, side: number)
+	self:_pruneExpired()
 	if self.players[side] ~= player then
 		self.PlayerStateService.message(player, "Join this side of the Trading Post first.")
 		return
@@ -114,12 +146,14 @@ function TradeService:_chooseOffer(player: Player, side: number)
 	end
 	local nextItem = self:_nextOffer(profile, self.offers[player])
 	self.offers[player] = nextItem
+	self:_touch(player)
 	self:_invalidateConfirmations()
 	self.PlayerStateService.message(player, "Trade offer set to " .. offerName(nextItem) .. ".")
 	self:_updateSign()
 end
 
 function TradeService:_confirm(player: Player, side: number)
+	self:_pruneExpired()
 	if self.players[side] ~= player then
 		self.PlayerStateService.message(player, "Join this trade side first.")
 		return
@@ -129,6 +163,7 @@ function TradeService:_confirm(player: Player, side: number)
 		return
 	end
 	self.confirmedVersion[player] = self.version
+	self:_touch(player)
 	self.PlayerStateService.message(player, "Trade confirmed. Waiting for the other player.")
 	self:_updateSign()
 
@@ -168,6 +203,9 @@ function TradeService:_complete(a: Player, b: Player)
 	self.PlayerStateService.sync(b, profileB)
 	self.ProfileStore.save(a)
 	self.ProfileStore.save(b)
+	if self.SocialService then
+		self.SocialService:recordTrade(a, b)
+	end
 	self.PlayerStateService.message(a, string.format("Trade complete: your %s for %s's %s.", offerName(itemA), b.Name, offerName(itemB)))
 	self.PlayerStateService.message(b, string.format("Trade complete: your %s for %s's %s.", offerName(itemB), a.Name, offerName(itemA)))
 	self.players = {}
@@ -195,6 +233,7 @@ function TradeService:removePlayer(player: Player)
 	if side then
 		self.players[side] = nil
 		self.offers[player] = nil
+		self.lastActivity[player] = nil
 		self:_invalidateConfirmations()
 		self:_updateSign()
 	end

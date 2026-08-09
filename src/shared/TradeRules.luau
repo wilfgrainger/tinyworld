@@ -13,6 +13,19 @@ local function supported(itemName: string): boolean
 end
 
 function TradeRules.exchange(profileA: any, itemA: string, profileB: any, itemB: string): (boolean, string)
+	local canTrade, reason = TradeRules.canExchange(profileA, itemA, profileB, itemB)
+	if not canTrade then
+		return false, reason
+	end
+
+	Inventory.remove(profileA, itemA, 1)
+	Inventory.remove(profileB, itemB, 1)
+	Inventory.add(profileA, itemB, 1)
+	Inventory.add(profileB, itemA, 1)
+	return true, "traded"
+end
+
+function TradeRules.canExchange(profileA: any, itemA: string, profileB: any, itemB: string): (boolean, string)
 	if profileA == profileB then
 		return false, "same_player"
 	end
@@ -25,12 +38,7 @@ function TradeRules.exchange(profileA: any, itemA: string, profileB: any, itemB:
 	if Inventory.get(profileB, itemB) < 1 then
 		return false, "second_missing_item"
 	end
-
-	Inventory.remove(profileA, itemA, 1)
-	Inventory.remove(profileB, itemB, 1)
-	Inventory.add(profileA, itemB, 1)
-	Inventory.add(profileB, itemA, 1)
-	return true, "traded"
+	return true, "ready"
 end
 
 return TradeRules

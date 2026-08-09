@@ -1,6 +1,6 @@
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 6
+ProfileSchema.VERSION = 7
 ProfileSchema.MAX_HOUSE_TIER = 5
 
 export type GardenBed = { stage: string, readyAt: number }
@@ -32,6 +32,8 @@ onboardingComplete: boolean,
 livingCollectionDay: string,
 livingCollectionMask: number,
 homeCharmApplied: boolean,
+homeItems: { [string]: number },
+homeUseCount: number,
 dailyRouteDay: string,
 dailyRouteMask: number,
 dailyRouteClaimedDay: string,
@@ -97,9 +99,19 @@ local function normaliseInventory(value: any): Inventory
 	}
 end
 
+local function normaliseHomeItems(value: any): { [string]: number }
+	local items = if type(value) == "table" then value else {}
+	return {
+		Bed = normaliseInteger(items.Bed, 1, 0, 1),
+		KitchenCounter = normaliseInteger(items.KitchenCounter, 0, 0, 1),
+		Wardrobe = normaliseInteger(items.Wardrobe, 0, 0, 1),
+		CreativeDesk = normaliseInteger(items.CreativeDesk, 0, 0, 1),
+	}
+end
+
 function ProfileSchema.new(): PlayerProfile
 	return {
-		version = 6,
+		version = 7,
 		coins = 100,
 		level = 1,
 		xp = 0,
@@ -125,6 +137,8 @@ function ProfileSchema.new(): PlayerProfile
 		livingCollectionDay = "",
 		livingCollectionMask = 0,
 		homeCharmApplied = false,
+		homeItems = { Bed = 1, KitchenCounter = 0, Wardrobe = 0, CreativeDesk = 0 },
+		homeUseCount = 0,
 		dailyRouteDay = "",
 		dailyRouteMask = 0,
 		dailyRouteClaimedDay = "",
@@ -145,7 +159,7 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		and avatarStyle ~= ""
 		and starterOutfit ~= ""
 	return {
-		version = 6,
+		version = 7,
 		coins = normaliseInteger(value.coins, 100, 0),
 		level = normaliseInteger(value.level, 1, 1),
 		xp = normaliseInteger(value.xp, 0, 0),
@@ -171,6 +185,8 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		livingCollectionDay = if type(value.livingCollectionDay) == "string" then value.livingCollectionDay else "",
 		livingCollectionMask = normaliseInteger(value.livingCollectionMask, 0, 0, 7),
 		homeCharmApplied = value.homeCharmApplied == true,
+		homeItems = normaliseHomeItems(value.homeItems),
+		homeUseCount = normaliseInteger(value.homeUseCount, 0, 0),
 		dailyRouteDay = if type(value.dailyRouteDay) == "string" then value.dailyRouteDay else "",
 		dailyRouteMask = normaliseInteger(value.dailyRouteMask, 0, 0, 15),
 		dailyRouteClaimedDay = if type(value.dailyRouteClaimedDay) == "string" then value.dailyRouteClaimedDay else "",

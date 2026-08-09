@@ -173,6 +173,9 @@ Required invariants:
 
 ### Immediately after the gate
 
+- v0.0.9 is the first bounded social + functional-home vertical slice: a Village Walk party, privacy-aware visits, safer trade, and concrete buy/use home essentials. This is the implementation of the social and home promises below, not a claim that the complete home roadmap is finished.
+- The deeper home-expression gate remains v0.3.0: more rooms, decor collections, gardens, and a home showcase built on this functional baseline.
+
 - Qualitative retention experiments and rotating weekly routes.
 - Safer party/visit flow and clearer social affordances.
 - More expressive homes and a bounded décor inventory.
@@ -195,6 +198,13 @@ Required invariants:
 - Systems added only because they sound broad rather than because they strengthen the north star.
 
 ## Roadmap through v1.0.0
+
+The roadmap remains the north-star sequence. The v0.0.9 row is now being
+implemented as a deliberately small social/home vertical slice: it proves the
+player can belong to a group and buy/use concrete essentials inside a home.
+The v0.3.0 home row remains intentionally larger and deeper, covering rooms,
+collections, gardens, and showcase persistence after the baseline has earned
+repeat use.
 
 | Release | Scope | Exit evidence |
 | --- | --- | --- |

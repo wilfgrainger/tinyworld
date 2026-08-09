@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-08-09 - v0.0.9 social village and functional home
+
+- Implemented the first social/home vertical slice after v0.0.8: a four-player Village Walk party, server-enforced plot privacy, shared-activity hooks for visits/trades, and a bounded trade negotiation lease with offer preflight and timeout invalidation.
+- Added schema-v7 home ownership and use fields with backward-compatible normalisation. Every player receives a concrete Cosy Bed; the Home Supply counter sells a Kitchen Counter, Wardrobe, and Creative Desk in a fixed fair order, and each owned item is built as a visible in-house object with an owner-only use prompt.
+- Added deterministic home/social specs, social and home source guards, and the [v0.0.9 social and functional-home route](v0.0.9-social-home-test.md). The deeper rooms, decor collections, and home showcase remain explicitly scheduled for v0.3.0 rather than being implied by this first slice.
+- The source gate is green at 20 Luau specs, shared analysis, server/client compilation, Roblox material guard, ProfileStore hardening guard, social guard, functional-home guard, Rojo place build, and `git diff --check`. A Rojo-synced Studio session then exercised the Home Supply purchase path, all four visible home prompts, home use persistence, and Village Walk join/leave. The stopped Output had no red source/runtime exception; DataStore queue and competing-session warnings remain documented test-environment dependencies. Two-client multiplayer and publish claims remain unproven.
+
 ## 2026-08-09 - v0.0.8 return loop
 
 - Implemented the first retention-focused release after the v0.0.5-v0.0.7 foundation. Daily and weekly routes use deterministic UTC period keys and rotating task sets built from the existing fountain, Courier, garden, and boundary actions.
