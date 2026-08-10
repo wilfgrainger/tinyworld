@@ -41,7 +41,7 @@ local routeService = RouteService.new(ProfileStore, PlayerStateService)
 local socialService = SocialService.new(world, ProfileStore, PlayerStateService)
 local homeService = HomeService.new(world, ProfileStore, PlayerStateService)
 local homeStoreService = HomeStoreService.new(ProfileStore, PlayerStateService)
-local furniturePlacementService = FurniturePlacementService.new(ProfileStore, PlayerStateService)
+local furniturePlacementService = FurniturePlacementService.new(ProfileStore, PlayerStateService, routeService)
 local appearanceService = AppearanceService.new(ProfileStore, PlayerStateService)
 local plotService = PlotService.new(world, ProfileStore, PlayerStateService, socialService, homeService)
 homeService:setPlotService(plotService)
@@ -108,10 +108,11 @@ local function onPlayerAdded(player: Player)
 	boatService:apply(player, profile)
 	portalService:setupPlayer(player)
 	player:SetAttribute("TinyWorldCarryingParcel", false)
+	player:SetAttribute("TinyWorldCourierDestination", "")
 	if profile.onboardingComplete then
 		PlayerStateService.message(player, "Welcome back to TinyWorld, " .. profile.displayName .. ".")
 	else
-		PlayerStateService.message(player, "Welcome to TinyWorld. Choose your name and starter look to begin.")
+		PlayerStateService.message(player, "Welcome to TinyWorld. Choose your name and starter preferences to begin.")
 	end
 end
 
