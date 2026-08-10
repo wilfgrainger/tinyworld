@@ -79,7 +79,8 @@ function Inventory.add(profile: any, itemName: string, amount: number, mutationO
 end
 
 function Inventory.remove(profile: any, itemName: string, amount: number, mutationOwner: string?): boolean
-	if not PlayerMutationLock.canMutate(profile, mutationOwner)
+	if
+		not PlayerMutationLock.canMutate(profile, mutationOwner)
 		or not Inventory.isSupported(itemName)
 		or not validAmount(amount)
 	then
