@@ -99,6 +99,16 @@ for path in README.md AGENTS.md docs/README.md docs/progress.md docs/roadmap/roa
   fi
 done
 
+# Executable build contracts are current release authority, not historical evidence.
+for path in tests/build-contract.sh tests/build-contract.ps1; do
+  grep -Fq 'TinyWorld-v0.6.1.rbxlx' "$path" || fail "$path does not target the v0.6.1 artifact"
+  if grep -Fq 'TinyWorld-v0.6.0.rbxlx' "$path"; then
+    fail "$path still targets the v0.6.0 artifact"
+  fi
+done
+grep -Fq './tests/build-contract.sh' .github/workflows/rojo-build.yml \
+  || fail "Rojo workflow does not execute the shell build contract"
+
 # Active target-state language must be implementation-agent neutral.
 if grep -Fq '## Codex execution contract' docs/product/target-state-v1.md; then
   fail "target-state still has Codex-specific execution contract"
