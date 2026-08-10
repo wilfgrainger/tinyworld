@@ -4,6 +4,30 @@
 
 A TinyWorld home is a playable life space and the strongest long-term system in the game, not a room-shaped menu. Its exterior communicates ownership/welcome; its interior supports recognisable rooms, useful objects, storage, expression and visible persistent change.
 
+v0.6.1 treats the starter home as hero-tier visual content. The player should be able to enter it and immediately recognise a small believable life without reading labels over every object.
+
+## Visual target
+
+The home combines readable Roblox life-sandbox proportions with tactile, playful object design. Stylised/chunky is welcome. Anonymous blocks are not.
+
+Exterior requires:
+
+- characterful pitched roofline;
+- framed windows with depth;
+- obvious door/porch/step relationship;
+- coherent wall/roof/trim materials;
+- at least one small asymmetry such as chimney, planter, awning or local garden prop;
+- owner/home identity that does not depend on a giant floating `HOME GATE` panel.
+
+Interior requires recognisable room/object groupings before labels:
+
+- bedroom;
+- kitchen/dining;
+- bathroom;
+- living/social;
+- storage/utility;
+- garden/outdoor expression.
+
 ## Room taxonomy
 
 The target home system supports:
@@ -16,6 +40,24 @@ The target home system supports:
 - garden/outdoor expression.
 
 Higher home tiers may expand floor area/room relationships, but ordinary starter-home life must already feel complete enough to play.
+
+## Priority tactile objects
+
+v0.6.1 gives highest craft priority to the objects a new player is most likely to touch:
+
+- bed;
+- wardrobe;
+- sofa;
+- cooker;
+- sink;
+- bath/shower;
+- table/chairs;
+- storage chest/cabinet;
+- lamp;
+- garden planter/potting object;
+- representative Home Store sample furniture.
+
+Each should read through shape, scale and material at avatar distance. Interaction text is supplemental.
 
 ## Catalogue
 
@@ -32,9 +74,11 @@ The v1 floor is at least 80 home/furnishing entries across:
 
 At least 20 entries have meaningful interactions. `FurnitureDefinitions.luau` is the canonical definition layer; the profile stores ownership/placement state rather than duplicated display metadata.
 
+v0.6.1 does not grow the catalogue merely to increase counts. It improves the physical readability of the existing foundation.
+
 ## Placement model
 
-v0.6.0 uses bounded free placement with 90-degree rotation snapping rather than exposing arbitrary unrestricted CFrames.
+The home uses bounded free placement with 90-degree rotation snapping rather than exposing arbitrary unrestricted CFrames.
 
 The player may:
 
@@ -119,7 +163,9 @@ Storage is a real interaction concept tied to authoritative inventory. A chest/c
 
 ## Character expression
 
-Wardrobe interaction is part of home life. Free saved outfits/hair presets remain meaningful without requiring paid identity content. Production Roblox assets must use the approved asset manifest.
+Wardrobe interaction is part of home life. Free saved style preferences remain meaningful without requiring paid identity content.
+
+v0.6.1 adds a visual-quality safety rule: when no approved TinyWorld hair/clothing/shoe asset exists, preserve the player's Roblox avatar instead of attaching primitive geometry. Production Roblox assets must use the approved asset manifest.
 
 ## Acquisition
 
@@ -127,24 +173,37 @@ The Home Store owns furniture acquisition. Clients request IDs only. The server 
 
 Items sold as physical furniture must be placeable/visible rather than existing solely as a menu badge.
 
+The Home Store itself is a hero destination: a player should recognise furniture/homewares from physical displays/showroom language before reading a label.
+
+## Home world-text rules
+
+- no large always-on-top `HOME GATE`, `HOME STYLE` or `HOME SUPPLY` information walls;
+- home access/privacy belongs on the physical gate/doorbell/door interaction;
+- wardrobe/style belongs on the physical wardrobe/catalogue interaction;
+- Home Store supply belongs on the store counter/showroom interaction;
+- owner/proper-name text may use a small diegetic sign/plate where identity requires it.
+
 ## Visual rules
 
 Doors, beds, tables, chairs, wardrobes, appliances, baths/showers, shelves, garden tools and storage must communicate their function from silhouette/scale/material. Prompts attach to semantic anchors.
 
-A mesh may replace a native prefab only behind the same gameplay/anchor contract.
+A mesh may replace a native prefab only behind the same gameplay/anchor contract. Native-part construction is acceptable only when the resulting object itself looks intentional.
 
 ## Evidence
 
-v0.6.0 runtime acceptance requires Studio evidence for:
+v0.6.1 runtime acceptance requires observed Studio evidence for:
 
+- starter-home exterior labels-off recognition;
+- starter-home interior room/object recognition;
 - buy furniture;
 - place/rotate;
 - reject invalid/overlapping/out-of-bounds placement;
 - save/rejoin retains layout;
 - move/store/remove;
 - shell/theme rebuild retains placements;
-- two-client visitor replication/read-only behaviour;
+- two-client visitor replication/read-only behaviour where relevant;
 - phone/controller placement ergonomics;
-- representative high-placement-count performance.
+- representative performance;
+- normal Roblox avatar is not visually degraded by TinyWorld wardrobe fallback.
 
-Source implementation alone does not mark those routes PASS.
+Source implementation alone does not mark those player-facing rows PASS, and required v0.6.1 visual rows block merge-ready status until observed.
