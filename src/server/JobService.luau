@@ -73,7 +73,7 @@ local function attachParcel(player: Player)
 		Vector3.new(2.8, 2.2, 2.4),
 		boxCFrame,
 		VisualTheme.Colors.timber,
-		Enum.Material.Cardboard
+		Enum.Material.SmoothPlastic
 	)
 	local tape = parcelPart(
 		model,
