@@ -78,32 +78,29 @@ local function makeAnchor(parent: Instance, name: string, size: Vector3, positio
 	return anchor
 end
 
-local function makeLabel(parent: BasePart, text: string)
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "HouseLabel"
-	gui.Size = UDim2.fromOffset(220, 55)
-	gui.StudsOffset = Vector3.new(0, 3, 0)
-	gui.AlwaysOnTop = true
+local function makeSurfaceLabel(parent: BasePart, text: string): TextLabel
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "SignSurface"
+	gui.Face = Enum.NormalId.Front
+	gui.AlwaysOnTop = false
+	gui.LightInfluence = 1
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 42
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 0.04
-	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
 	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextScaled = true
 	label.TextWrapped = true
+	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = label
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.warmLight
-	stroke.Transparency = 0.52
-	stroke.Parent = label
+	local constraint = Instance.new("UITextSizeConstraint")
+	constraint.MinTextSize = 10
+	constraint.MaxTextSize = 24
+	constraint.Parent = label
 	return label
 end
 
@@ -491,7 +488,6 @@ function HomePrefabBuilder.buildShell(parent: Instance, anchor: Vector3, profile
 		)
 		homeCharmDisplay.Shape = Enum.PartType.Ball
 		homeCharmDisplay:SetAttribute("TinyWorldItem", "HomeCharm")
-		makeLabel(homeCharmDisplay, "HOME CHARM")
 		local homeLantern = makeDecoration(
 			shell,
 			"HomeLantern",
@@ -513,7 +509,7 @@ function HomePrefabBuilder.buildShell(parent: Instance, anchor: Vector3, profile
 		nil,
 		"home-name-sign"
 	)
-	makeLabel(namePost, if house then house.name else "TinyWorld Home")
+	makeSurfaceLabel(namePost, if house then house.name else "TinyWorld Home")
 	local frontDoorAnchor = makeAnchor(
 		shell,
 		"HomeFrontDoorAnchor",

@@ -38,29 +38,28 @@ local function makeDecoration(
 	return part
 end
 
-local function makeLabel(parent: BasePart, text: string, width: number): TextLabel
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(math.min(width, 280), 58)
-	gui.StudsOffset = Vector3.new(0, 4.5, 0)
-	gui.MaxDistance = 120
-	gui.AlwaysOnTop = true
+local function makeSurfaceLabel(parent: BasePart, text: string): TextLabel
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "SignSurface"
+	gui.Face = Enum.NormalId.Front
+	gui.AlwaysOnTop = false
+	gui.LightInfluence = 1
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 42
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.08
-	label.BackgroundColor3 = VisualTheme.Colors.ink
+	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
 	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextStrokeTransparency = 0.85
 	label.TextWrapped = true
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
 	local textConstraint = Instance.new("UITextSizeConstraint")
-	textConstraint.MinTextSize = 12
-	textConstraint.MaxTextSize = 22
+	textConstraint.MinTextSize = 10
+	textConstraint.MaxTextSize = 24
 	textConstraint.Parent = label
 	return label
 end
@@ -255,7 +254,7 @@ local function makeBoatDock(parent: Instance, half: number)
 		VisualTheme.Colors.skyDeep,
 		Enum.Material.WoodPlanks
 	)
-	makeLabel(shop, "TINY BOAT DOCK\n600 coins • Tidepool Cove", 320)
+	makeSurfaceLabel(shop, "Boat Dock")
 	local prompt = makePrompt(shop, "Buy Tiny Boat", "Sea Dock")
 	return prompt, CFrame.new(dockPosition + Vector3.new(0, 1.6, 0)) * CFrame.Angles(0, math.rad(90), 0)
 end
@@ -287,7 +286,6 @@ local function makeTidepoolCove(parent: Instance, half: number)
 		VisualTheme.Colors.gold,
 		Enum.Material.Neon
 	)
-	makeLabel(beacon, "TIDEPOOL COVE\nA new edge of TinyWorld", 280)
 	local storyStone = makePart(
 		parent,
 		"TidepoolCoveStoryStone",
@@ -296,7 +294,6 @@ local function makeTidepoolCove(parent: Instance, half: number)
 		VisualTheme.Colors.path,
 		Enum.Material.Rock
 	)
-	makeLabel(storyStone, "Tide pools remember every journey.", 260)
 	makeReedCluster(parent, "TidepoolCoveReeds", coveCenter + Vector3.new(-16, 0, 12))
 	makeRockCluster(parent, "TidepoolCoveRocks", coveCenter + Vector3.new(16, 0, -12), 0.65)
 
@@ -351,7 +348,6 @@ local function makeLandmark(parent: Instance, name: string, labelText: string, p
 		Enum.Material.Neon
 	)
 	beacon.Shape = Enum.PartType.Ball
-	makeLabel(anchor, labelText, 250)
 	local prompt = makePrompt(anchor, "Explore Landmark", "Boundary Explorer")
 	return prompt
 end
@@ -473,7 +469,7 @@ function BoundaryBuilder.build(parent: Instance, layout)
 		VisualTheme.Colors.timberDark,
 		Enum.Material.WoodPlanks
 	)
-	makeLabel(board, "BOUNDARY EXPLORER\nVisit woods, cliffs, and sea", 300)
+	makeSurfaceLabel(board, "Boundary Explorer")
 	local explorerPrompt = makePrompt(board, "Claim Explorer Reward", "Boundary Explorer Board")
 
 	return {

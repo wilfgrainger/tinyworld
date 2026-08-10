@@ -359,38 +359,29 @@ local function makePrompt(parent: Instance, actionText: string, objectText: stri
 	return prompt
 end
 
-local function makeLabel(parent: BasePart, text: string, width: number?, maxDistance: number?): TextLabel
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(math.min(width or 220, 260), 58)
-	gui.StudsOffset = Vector3.new(0, 3.4, 0)
-	gui.MaxDistance = maxDistance or 80
-	gui.AlwaysOnTop = true
+local function makeSurfaceLabel(parent: BasePart, text: string): TextLabel
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "SignSurface"
+	gui.Face = Enum.NormalId.Front
+	gui.AlwaysOnTop = false
+	gui.LightInfluence = 1
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 42
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.03
-	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
+	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
 	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextStrokeTransparency = 0.85
 	label.TextWrapped = true
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
 	local textConstraint = Instance.new("UITextSizeConstraint")
-	textConstraint.MinTextSize = 12
-	textConstraint.MaxTextSize = 22
+	textConstraint.MinTextSize = 10
+	textConstraint.MaxTextSize = 24
 	textConstraint.Parent = label
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = label
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = VisualTheme.Colors.warmLight
-	stroke.Transparency = 0.52
-	stroke.Thickness = 1
-	stroke.Parent = label
 	return label
 end
 
@@ -454,7 +445,7 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3, place
 		VisualTheme.Colors.timber,
 		Enum.Material.WoodPlanks
 	)
-	local ownerLabel = makeLabel(sign, "Available Plot", 180, 55)
+	local ownerLabel = makeSurfaceLabel(sign, "Available")
 
 	local upgradePrompt, privacyPrompt, visitPrompt, homeCharmPrompt =
 		AuthoredPrefabBuilder.buildPlotAffordances(interactionRoot, origin)
@@ -501,7 +492,6 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3, place
 		VisualTheme.Colors.inkSoft,
 		Enum.Material.Metal
 	)
-	local itemChestLabel = makeLabel(itemChest, "ITEM CHEST\nYour collected things", 190, 55)
 	local itemChestPrompt = makePrompt(itemChest, "View Items", "Item Chest")
 	local itemDisplay = Instance.new("Model")
 	itemDisplay.Name = "InventoryDisplay"
@@ -577,7 +567,6 @@ local function buildPlot(parent: Instance, index: number, origin: Vector3, place
 		upgradePrompt = upgradePrompt,
 		privacyPrompt = privacyPrompt,
 		itemChest = itemChest,
-		itemChestLabel = itemChestLabel,
 		itemChestPrompt = itemChestPrompt,
 		itemDisplay = itemDisplay,
 		visitPrompt = visitPrompt,
@@ -606,8 +595,7 @@ local function buildSocialBoard(parent: Instance, origin: Vector3)
 		VisualTheme.Colors.timberDark,
 		Enum.Material.Wood
 	)
-	local statusLabel =
-		makeLabel(sign, "VILLAGE MEETUP\nJoin a Village Walk\nVisit homes and trade safely together", 320, 32)
+	local statusLabel = makeSurfaceLabel(sign, "Village Walk")
 	local join = makePart(
 		parent,
 		"VillageWalkJoin",
@@ -653,7 +641,7 @@ local function buildKitchen(parent: Instance, origin: Vector3)
 		VisualTheme.Colors.timber,
 		Enum.Material.WoodPlanks
 	)
-	makeLabel(tableTop, "THE GIANT KITCHEN\nCollect all 3 Sugar Crystals", 380)
+	makeSurfaceLabel(tableTop, "Giant Kitchen")
 	for _, offset in
 		{
 			Vector3.new(-42, 14, -22),
@@ -766,7 +754,7 @@ local function buildMoonlitMeadow(parent: Instance, origin: Vector3)
 		VisualTheme.Colors.ink,
 		Enum.Material.Wood
 	)
-	makeLabel(sign, "MOONLIT MEADOW\nFind 3 Moonlit Seeds", 340)
+	makeSurfaceLabel(sign, "Moonlit Meadow")
 
 	makePond(meadow, origin + Vector3.new(28, 0, 8))
 	for index, position in
@@ -870,10 +858,9 @@ function WorldBuilder.build(maxPlayers: number?)
 	local _dailyFountain, dailyPrompt = AuthoredPrefabBuilder.buildDailyFountain(root, Vector3.new(0, 0, 16))
 
 	local _townHall, contributionAnchor, noticeboard = AuthoredPrefabBuilder.buildTownHall(root, Vector3.new(-44, 0, 0))
-	local contributionPrompt = makePrompt(contributionAnchor, "Contribute 50 Coins", "Village Fund")
-	local fundLabel = makeLabel(contributionAnchor, "Village Fund: 0 coins", 250)
-	makeLabel(noticeboard, "PROFESSION BOARD\nCourier • Farmer • Designer", 330)
-	local professionPrompt = makePrompt(noticeboard, "View Professions", "Profession Board")
+	local contributionPrompt = makePrompt(contributionAnchor, "Contribute 50 Coins", "Community Pot")
+	makeSurfaceLabel(noticeboard, "Village Jobs")
+	local professionPrompt = makePrompt(noticeboard, "Choose a Job", "Village Jobs")
 
 	local _courierDepot, courierPickupAnchor, _courierDeliveryAnchor =
 		AuthoredPrefabBuilder.buildCourierDepot(root, Vector3.new(0, 0, -44))
@@ -882,12 +869,9 @@ function WorldBuilder.build(maxPlayers: number?)
 	local _villageShop, shopDeliveryAnchor, supplyAnchor, styleAnchor, galleryAnchor =
 		AuthoredPrefabBuilder.buildVillageShop(root, Vector3.new(44, 0, -44))
 	local deliveryEndPrompt = makePrompt(shopDeliveryAnchor, "Deliver Parcel", "Courier Job")
-	local homeSupplyLabel = makeLabel(supplyAnchor, "HOME SUPPLY\nFurniture and essentials", 340)
-	local homeSupplyPrompt = makePrompt(supplyAnchor, "Buy Next Essential", "Home Supply")
-	local homeStyleLabel = makeLabel(styleAnchor, "HOME STYLE\nMeadow • Harbor • Sunset", 340)
-	local homeStylePrompt = makePrompt(styleAnchor, "Change Home Style", "Home Style")
-	local homeDecorLabel = makeLabel(galleryAnchor, "HOME GALLERY\nSix authored pieces", 340)
-	local homeDecorPrompt = makePrompt(galleryAnchor, "Collect Next Decor", "Home Gallery")
+	local homeSupplyPrompt = makePrompt(supplyAnchor, "Buy Next Essential", "Home Store")
+	local homeStylePrompt = makePrompt(styleAnchor, "Change Home Style", "Home Store")
+	local homeDecorPrompt = makePrompt(galleryAnchor, "Browse Home Decor", "Home Store")
 
 	local _transportWorkshop, transportAnchor =
 		AuthoredPrefabBuilder.buildTransportWorkshop(root, Vector3.new(44, 0, 0))
@@ -951,16 +935,12 @@ function WorldBuilder.build(maxPlayers: number?)
 		spawn = spawn,
 		dailyPrompt = dailyPrompt,
 		contributionPrompt = contributionPrompt,
-		fundLabel = fundLabel,
 		professionPrompt = professionPrompt,
 		deliveryStartPrompt = deliveryStartPrompt,
 		deliveryEndPrompt = deliveryEndPrompt,
 		homeSupplyPrompt = homeSupplyPrompt,
-		homeSupplyLabel = homeSupplyLabel,
 		homeStylePrompt = homeStylePrompt,
-		homeStyleLabel = homeStyleLabel,
 		homeDecorPrompt = homeDecorPrompt,
-		homeDecorLabel = homeDecorLabel,
 		transportPrompt = transportPrompt,
 		trade = trade,
 		social = social,

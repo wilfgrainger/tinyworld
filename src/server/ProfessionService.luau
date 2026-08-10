@@ -31,7 +31,7 @@ function ProfessionService:_inspect(player: Player)
 	if profile == nil then
 		return
 	end
-	self.PlayerStateService.message(player, "Profession Board: " .. table.concat({
+	self.PlayerStateService.message(player, "Village Jobs: " .. table.concat({
 		progressText(profile, "Courier"),
 		progressText(profile, "Farmer"),
 		progressText(profile, "Designer"),

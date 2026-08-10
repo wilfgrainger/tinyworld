@@ -70,32 +70,6 @@ local function makePhysicalPart(
 	return part
 end
 
-local function makeLabel(parent: BasePart, text: string, width: number?): TextLabel
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(math.min(width or 180, 180), 48)
-	gui.StudsOffset = Vector3.new(0, 3.2, 0)
-	gui.MaxDistance = 70
-	gui.AlwaysOnTop = true
-	gui.Parent = parent
-	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.08
-	label.BackgroundColor3 = VisualTheme.Colors.ink
-	label.Size = UDim2.fromScale(1, 1)
-	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextStrokeTransparency = 0.85
-	label.TextWrapped = true
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBold
-	label.Text = text
-	label.Parent = gui
-	local constraint = Instance.new("UITextSizeConstraint")
-	constraint.MinTextSize = 12
-	constraint.MaxTextSize = 20
-	constraint.Parent = label
-	return label
-end
-
 local function makePrompt(parent: Instance, name: string, actionText: string, objectText: string): ProximityPrompt
 	if parent:IsA("BasePart") then
 		parent:SetAttribute("TinyWorldInteractionAnchor", true)
@@ -343,7 +317,6 @@ local function makeCabin(parent: Instance, index: number, position: Vector3, wal
 		VisualTheme.Colors.timberDark,
 		Enum.Material.Wood
 	)
-	makeLabel(sign, "CABIN " .. tostring(index), 120)
 	return cabin
 end
 
@@ -395,7 +368,6 @@ local function makeNursery(parent: Instance, position: Vector3): BasePart
 		VisualTheme.Colors.ink,
 		Enum.Material.Wood
 	)
-	makeLabel(sign, "VILLAGE NURSERY\nCollect a Meadow Seed", 180)
 	return nursery:FindFirstChild("NurseryCounter") :: BasePart
 end
 
@@ -514,8 +486,6 @@ local function makePhysicalPickup(
 		tokenEdge.Orientation = Vector3.new(90, 0, 0)
 		tokenEdge.Transparency = 0.35
 	end
-
-	makeLabel(pickup, labelText, 180)
 	return makePrompt(pickup, "PickupPrompt", "Collect " .. itemName, "Village Find")
 end
 
