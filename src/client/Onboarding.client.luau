@@ -1,5 +1,5 @@
-local Players = game:GetService("Players")
 local ContextActionService = game:GetService("ContextActionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
@@ -9,7 +9,7 @@ local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local remote = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("OnboardingRemote")
 local playerGui = player:WaitForChild("PlayerGui")
 
-local MIN_TOUCH_TARGET = 72
+local MIN_TOUCH_TARGET = 64
 local BLOCK_ACTION = "TinyWorldOnboardingBlockMovement"
 
 local colors = {
@@ -24,25 +24,10 @@ local colors = {
 	white = Color3.fromHex(VisualPalette.white),
 }
 
-local outfitScenes = {
-	Meadow = {
-		scene = "Garden paths and picnic greens",
-		sky = Color3.fromRGB(180, 219, 230),
-		ground = Color3.fromRGB(104, 153, 93),
-		accent = Color3.fromRGB(246, 231, 183),
-	},
-	Harbor = {
-		scene = "Sea-blue docks and bright sails",
-		sky = Color3.fromRGB(160, 207, 229),
-		ground = Color3.fromRGB(67, 119, 168),
-		accent = Color3.fromRGB(211, 220, 226),
-	},
-	Sunset = {
-		scene = "Lantern orange and evening gold",
-		sky = Color3.fromRGB(246, 174, 118),
-		ground = Color3.fromRGB(222, 111, 51),
-		accent = Color3.fromRGB(255, 205, 91),
-	},
+local moodColors = {
+	Meadow = colors.meadowDeep,
+	Harbor = colors.skyDeep,
+	Sunset = Color3.fromRGB(222, 111, 51),
 }
 
 local function addCorner(parent: Instance, radius: number)
@@ -65,7 +50,7 @@ local function makeLabel(parent: Instance, name: string, size: UDim2, textSize: 
 	label.Name = name
 	label.Size = size
 	label.BackgroundTransparency = 1
-	label.TextColor3 = colors.paper
+	label.TextColor3 = colors.ink
 	label.TextSize = textSize
 	label.TextWrapped = true
 	label.TextXAlignment = Enum.TextXAlignment.Left
@@ -91,54 +76,43 @@ local backdrop = Instance.new("Frame")
 backdrop.Name = "Backdrop"
 backdrop.Size = UDim2.fromScale(1, 1)
 backdrop.BackgroundColor3 = colors.ink
-backdrop.BackgroundTransparency = 0.16
+backdrop.BackgroundTransparency = 0.34
 backdrop.BorderSizePixel = 0
 backdrop.Active = true
 backdrop.Parent = gui
-local backdropGradient = Instance.new("UIGradient")
-backdropGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, colors.skyDeep),
-	ColorSequenceKeypoint.new(1, colors.ink),
-})
-backdropGradient.Rotation = 90
-backdropGradient.Parent = backdrop
 
 local panel = Instance.new("Frame")
 panel.Name = "WelcomePanel"
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
-panel.Size = UDim2.new(0.94, 0, 0.92, 0)
-panel.BackgroundColor3 = colors.ink
+panel.Size = UDim2.new(0.9, 0, 0.84, 0)
+panel.BackgroundColor3 = colors.paper
 panel.BackgroundTransparency = 0.02
 panel.BorderSizePixel = 0
 panel.Parent = backdrop
 addCorner(panel, 20)
-addStroke(panel, colors.gold, 0.5, 1.5)
+addStroke(panel, colors.gold, 0.45, 1.5)
+
 local panelConstraint = Instance.new("UISizeConstraint")
-panelConstraint.MinSize = Vector2.new(300, 420)
-panelConstraint.MaxSize = Vector2.new(720, 680)
+panelConstraint.MinSize = Vector2.new(300, 430)
+panelConstraint.MaxSize = Vector2.new(620, 590)
 panelConstraint.Parent = panel
 
 local content = Instance.new("ScrollingFrame")
 content.Name = "Choices"
-content.Position = UDim2.fromOffset(10, 10)
-content.Size = UDim2.new(1, -20, 1, -20)
+content.Position = UDim2.fromOffset(16, 16)
+content.Size = UDim2.new(1, -32, 1, -32)
 content.BackgroundTransparency = 1
 content.BorderSizePixel = 0
 content.CanvasSize = UDim2.fromOffset(0, 0)
 content.AutomaticCanvasSize = Enum.AutomaticSize.Y
-content.ScrollBarThickness = 5
+content.ScrollBarThickness = 4
 content.ScrollBarImageColor3 = colors.gold
 content.ScrollingDirection = Enum.ScrollingDirection.Y
 content.Parent = panel
-local contentPadding = Instance.new("UIPadding")
-contentPadding.PaddingTop = UDim.new(0, 8)
-contentPadding.PaddingBottom = UDim.new(0, 8)
-contentPadding.PaddingLeft = UDim.new(0, 10)
-contentPadding.PaddingRight = UDim.new(0, 10)
-contentPadding.Parent = content
+
 local layout = Instance.new("UIListLayout")
-layout.Padding = UDim.new(0, 8)
+layout.Padding = UDim.new(0, 10)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
 layout.Parent = content
 
@@ -149,252 +123,144 @@ local function place(instance: GuiObject)
 	instance.Parent = content
 end
 
-local title = makeLabel(content, "Title", UDim2.new(1, 0, 0, 34), 25, true)
-title.Text = "Welcome to TinyWorld!"
-title.TextColor3 = colors.warmLight
+local title = makeLabel(content, "Title", UDim2.new(1, 0, 0, 36), 26, true)
+title.Text = "Welcome to TinyWorld"
+title.TextColor3 = colors.ink
 place(title)
-local subtitle = makeLabel(content, "Subtitle", UDim2.new(1, 0, 0, 38), 14, false)
-subtitle.Text = "Choose a name and preview the free look that feels like you."
-subtitle.TextColor3 = colors.paper
-subtitle.TextTransparency = 0.12
+
+local subtitle = makeLabel(content, "Subtitle", UDim2.new(1, 0, 0, 42), 14, false)
+subtitle.Text = "Choose your TinyWorld name and save the style you like."
+subtitle.TextColor3 = colors.inkSoft
 place(subtitle)
 
 local nameBox = Instance.new("TextBox")
 nameBox.Name = "DisplayName"
-nameBox.Size = UDim2.new(1, 0, 0, 48)
-nameBox.BackgroundColor3 = colors.inkSoft
+nameBox.Size = UDim2.new(1, 0, 0, 50)
+nameBox.BackgroundColor3 = colors.warmLight
 nameBox.BorderSizePixel = 0
 nameBox.ClearTextOnFocus = false
 nameBox.PlaceholderText = "Your TinyWorld name"
-nameBox.PlaceholderColor3 = colors.metal
-nameBox.TextColor3 = colors.white
+nameBox.PlaceholderColor3 = colors.inkSoft
+nameBox.TextColor3 = colors.ink
 nameBox.TextSize = 17
 nameBox.Font = Enum.Font.Gotham
 nameBox.TextXAlignment = Enum.TextXAlignment.Left
 place(nameBox)
+addCorner(nameBox, 11)
+addStroke(nameBox, colors.inkSoft, 0.72)
+
 local namePadding = Instance.new("UIPadding")
 namePadding.PaddingLeft = UDim.new(0, 14)
 namePadding.PaddingRight = UDim.new(0, 14)
 namePadding.Parent = nameBox
-addCorner(nameBox, 10)
-addStroke(nameBox, colors.metal, 0.66)
 
 local avatarLabel = makeLabel(content, "AvatarLabel", UDim2.new(1, 0, 0, 22), 14, true)
-avatarLabel.Text = "Choose your avatar style"
+avatarLabel.Text = "Character preference"
 place(avatarLabel)
 
+local avatarNote = makeLabel(content, "AvatarNote", UDim2.new(1, 0, 0, 36), 12, false)
+avatarNote.Text = "Your Roblox avatar stays exactly as it is. TinyWorld simply remembers this preference for future character styles."
+avatarNote.TextColor3 = colors.inkSoft
+avatarNote.TextYAlignment = Enum.TextYAlignment.Top
+place(avatarNote)
+
 local avatarRow = Instance.new("Frame")
-avatarRow.Name = "AvatarCards"
-avatarRow.Size = UDim2.new(1, 0, 0, 240)
+avatarRow.Name = "AvatarChoices"
+avatarRow.Size = UDim2.new(1, 0, 0, MIN_TOUCH_TARGET)
 avatarRow.BackgroundTransparency = 1
 place(avatarRow)
+
 local avatarGrid = Instance.new("UIGridLayout")
-avatarGrid.CellPadding = UDim2.fromOffset(0, 8)
-avatarGrid.CellSize = UDim2.new(1, 0, 0, 116)
-avatarGrid.FillDirectionMaxCells = 1
+avatarGrid.CellPadding = UDim2.fromOffset(8, 0)
+avatarGrid.CellSize = UDim2.new(0.5, -4, 1, 0)
+avatarGrid.FillDirectionMaxCells = 2
 avatarGrid.SortOrder = Enum.SortOrder.LayoutOrder
 avatarGrid.Parent = avatarRow
 
-local function makeSelectionMark(parent: Instance): TextLabel
-	local mark = makeLabel(parent, "SelectionMark", UDim2.fromOffset(28, 28), 18, true)
-	mark.Name = "SelectionMark"
-	mark.AnchorPoint = Vector2.new(1, 0)
-	mark.Position = UDim2.new(1, -8, 0, 8)
-	mark.BackgroundColor3 = colors.gold
-	mark.BackgroundTransparency = 0
-	mark.Text = "✓"
-	mark.TextColor3 = colors.ink
-	mark.TextXAlignment = Enum.TextXAlignment.Center
-	mark.Visible = false
-	addCorner(mark, 14)
-	return mark
+local moodLabel = makeLabel(content, "MoodLabel", UDim2.new(1, 0, 0, 22), 14, true)
+moodLabel.Text = "Favourite TinyWorld mood"
+place(moodLabel)
+
+local moodNote = makeLabel(content, "MoodNote", UDim2.new(1, 0, 0, 32), 12, false)
+moodNote.Text = "This is a saved preference, not a costume forced onto your avatar."
+moodNote.TextColor3 = colors.inkSoft
+place(moodNote)
+
+local moodRow = Instance.new("Frame")
+moodRow.Name = "MoodChoices"
+moodRow.Size = UDim2.new(1, 0, 0, MIN_TOUCH_TARGET)
+moodRow.BackgroundTransparency = 1
+place(moodRow)
+
+local moodGrid = Instance.new("UIGridLayout")
+moodGrid.CellPadding = UDim2.fromOffset(8, 0)
+moodGrid.CellSize = UDim2.new(1 / 3, -6, 1, 0)
+moodGrid.FillDirectionMaxCells = 3
+moodGrid.SortOrder = Enum.SortOrder.LayoutOrder
+moodGrid.Parent = moodRow
+
+local function makeChoiceButton(parent: Instance, name: string, text: string, order: number, accent: Color3): TextButton
+	local button = Instance.new("TextButton")
+	button.Name = name
+	button.LayoutOrder = order
+	button.BackgroundColor3 = colors.warmLight
+	button.BorderSizePixel = 0
+	button.Text = text
+	button.TextColor3 = colors.ink
+	button.TextSize = 15
+	button.TextWrapped = true
+	button.Font = Enum.Font.GothamBold
+	button.AutoButtonColor = true
+	button.Selectable = true
+	button.Parent = parent
+	button:SetAttribute("TinyWorldChoiceAccent", accent)
+	addCorner(button, 11)
+	addStroke(button, colors.inkSoft, 0.72, 1.5)
+	return button
 end
 
-local function makeAvatarCard(value: string, heading: string, description: string, accent: Color3): TextButton
-	local card = Instance.new("TextButton")
-	card.Size = UDim2.new(1, 0, 0, math.max(MIN_TOUCH_TARGET, 116))
-	card.BackgroundColor3 = colors.inkSoft
-	card.BorderSizePixel = 0
-	card.Text = ""
-	card.AutoButtonColor = false
-	card.Parent = avatarRow
-	addCorner(card, 12)
-	addStroke(card, colors.metal, 0.72, 1.5)
+local boyButton = makeChoiceButton(avatarRow, "BoyChoice", "Boy", 1, colors.skyDeep)
+local girlButton = makeChoiceButton(avatarRow, "GirlChoice", "Girl", 2, colors.meadowDeep)
 
-	local preview = Instance.new("Frame")
-	preview.Name = "AvatarPreview"
-	preview.Position = UDim2.fromOffset(10, 10)
-	preview.Size = UDim2.fromOffset(72, 96)
-	preview.BackgroundColor3 = colors.paper
-	preview.BackgroundTransparency = 0.9
-	preview.BorderSizePixel = 0
-	preview.Parent = card
-	addCorner(preview, 10)
-
-	local head = Instance.new("Frame")
-	head.Name = "Head"
-	head.AnchorPoint = Vector2.new(0.5, 0)
-	head.Position = UDim2.new(0.5, 0, 0, 10)
-	head.Size = UDim2.fromOffset(32, 32)
-	head.BackgroundColor3 = colors.warmLight
-	head.BorderSizePixel = 0
-	head.Parent = preview
-	addCorner(head, 16)
-
-	local hair = Instance.new("Frame")
-	hair.Name = "Hair"
-	hair.Size = UDim2.new(1, 0, 0.42, 0)
-	hair.BackgroundColor3 = colors.inkSoft
-	hair.BorderSizePixel = 0
-	hair.Parent = head
-	addCorner(hair, 12)
-
-	local body = Instance.new("Frame")
-	body.Name = "Body"
-	body.AnchorPoint = Vector2.new(0.5, 0)
-	body.Position = UDim2.new(0.5, 0, 0, 46)
-	body.Size = if value == "Girl" then UDim2.fromOffset(48, 42) else UDim2.fromOffset(42, 42)
-	body.BackgroundColor3 = accent
-	body.BorderSizePixel = 0
-	body.Parent = preview
-	addCorner(body, 9)
-
-	local cardTitle = makeLabel(card, "CardTitle", UDim2.new(1, -102, 0, 28), 16, true)
-	cardTitle.Position = UDim2.fromOffset(92, 20)
-	cardTitle.Text = heading
-	cardTitle.TextColor3 = colors.warmLight
-	local cardDescription = makeLabel(card, "Description", UDim2.new(1, -102, 0, 48), 12, false)
-	cardDescription.Position = UDim2.fromOffset(92, 48)
-	cardDescription.Text = description
-	cardDescription.TextYAlignment = Enum.TextYAlignment.Top
-	makeSelectionMark(card)
-	return card
-end
-
-local boyButton = makeAvatarCard("Boy", "Boy", "A bright, easy-going village silhouette.", colors.skyDeep)
-boyButton.Name = "BoyCard"
-local girlButton = makeAvatarCard("Girl", "Girl", "A bright, playful village silhouette.", colors.meadowDeep)
-girlButton.Name = "GirlCard"
-
-local outfitLabel = makeLabel(content, "OutfitLabel", UDim2.new(1, 0, 0, 22), 14, true)
-outfitLabel.Text = "Pick a free starter outfit"
-place(outfitLabel)
-
-local outfitRow = Instance.new("Frame")
-outfitRow.Name = "OutfitCards"
-outfitRow.Size = UDim2.new(1, 0, 0, 440)
-outfitRow.BackgroundTransparency = 1
-place(outfitRow)
-local outfitGrid = Instance.new("UIGridLayout")
-outfitGrid.CellPadding = UDim2.fromOffset(0, 7)
-outfitGrid.CellSize = UDim2.new(1, 0, 0, 142)
-outfitGrid.FillDirectionMaxCells = 1
-outfitGrid.SortOrder = Enum.SortOrder.LayoutOrder
-outfitGrid.Parent = outfitRow
-
-local function makeSceneDecoration(
-	parent: Instance,
-	name: string,
-	position: UDim2,
-	size: UDim2,
-	color: Color3,
-	round: boolean?
-)
-	local decoration = Instance.new("Frame")
-	decoration.Name = name
-	decoration.Position = position
-	decoration.Size = size
-	decoration.BackgroundColor3 = color
-	decoration.BorderSizePixel = 0
-	decoration.Parent = parent
-	if round then
-		addCorner(decoration, 20)
-	end
-	return decoration
-end
-
-local function makeOutfitCard(value: string, heading: string): TextButton
-	local scene = outfitScenes[value]
-	local card = Instance.new("TextButton")
-	card.Size = UDim2.new(1, 0, 0, math.max(MIN_TOUCH_TARGET, 142))
-	card.BackgroundColor3 = colors.inkSoft
-	card.BorderSizePixel = 0
-	card.Text = ""
-	card.AutoButtonColor = false
-	card.Parent = outfitRow
-	addCorner(card, 12)
-	addStroke(card, colors.metal, 0.72, 1.5)
-
-	local preview = Instance.new("Frame")
-	preview.Name = "ScenePreview"
-	preview.Position = UDim2.fromOffset(9, 9)
-	preview.Size = UDim2.new(1, -18, 0, 64)
-	preview.BackgroundColor3 = scene.sky
-	preview.BorderSizePixel = 0
-	preview.ClipsDescendants = true
-	preview.Parent = card
-	addCorner(preview, 9)
-	makeSceneDecoration(preview, "Ground", UDim2.fromScale(0, 0.58), UDim2.fromScale(1, 0.42), scene.ground)
-	makeSceneDecoration(preview, "Sun", UDim2.new(1, -28, 0, 8), UDim2.fromOffset(18, 18), scene.accent, true)
-	makeSceneDecoration(preview, "Path", UDim2.new(0.5, -12, 0.52, 0), UDim2.fromOffset(24, 40), colors.warmLight, true)
-
-	local cardTitle = makeLabel(card, "CardTitle", UDim2.new(1, -16, 0, 24), 14, true)
-	cardTitle.Position = UDim2.fromOffset(8, 77)
-	cardTitle.Text = heading
-	cardTitle.TextColor3 = colors.warmLight
-	cardTitle.TextXAlignment = Enum.TextXAlignment.Center
-	local cardDescription = makeLabel(card, "Description", UDim2.new(1, -14, 0, 34), 10, false)
-	cardDescription.Position = UDim2.fromOffset(7, 101)
-	cardDescription.Text = scene.scene
-	cardDescription.TextXAlignment = Enum.TextXAlignment.Center
-	cardDescription.TextYAlignment = Enum.TextYAlignment.Top
-	makeSelectionMark(card)
-	return card
-end
-
-local meadowButton = makeOutfitCard("Meadow", "Meadow")
-meadowButton.Name = "MeadowCard"
-local harborButton = makeOutfitCard("Harbor", "Harbor")
-harborButton.Name = "HarborCard"
-local sunsetButton = makeOutfitCard("Sunset", "Sunset")
-sunsetButton.Name = "SunsetCard"
+local meadowButton = makeChoiceButton(moodRow, "MeadowChoice", "Meadow", 1, moodColors.Meadow)
+local harborButton = makeChoiceButton(moodRow, "HarborChoice", "Harbor", 2, moodColors.Harbor)
+local sunsetButton = makeChoiceButton(moodRow, "SunsetChoice", "Sunset", 3, moodColors.Sunset)
 
 local status = makeLabel(content, "Status", UDim2.new(1, 0, 0, 38), 13, false)
-status.TextColor3 = colors.warmLight
-status.Text = "Pick a style and outfit to continue."
+status.TextColor3 = colors.inkSoft
+status.Text = "Choose a name and both preferences to continue."
 place(status)
 
 local beginButton = Instance.new("TextButton")
 beginButton.Name = "Begin"
 beginButton.Size = UDim2.new(1, 0, 0, 52)
-beginButton.BackgroundColor3 = colors.inkSoft
+beginButton.BackgroundColor3 = colors.warmLight
 beginButton.BorderSizePixel = 0
-beginButton.TextColor3 = colors.metal
+beginButton.TextColor3 = colors.inkSoft
 beginButton.TextSize = 17
 beginButton.Text = "Begin TinyWorld"
 beginButton.Font = Enum.Font.GothamBold
 beginButton.AutoButtonColor = true
 place(beginButton)
 addCorner(beginButton, 11)
-addStroke(beginButton, colors.warmLight, 0.62)
+addStroke(beginButton, colors.gold, 0.42, 1.5)
 
 local selectedGender: string? = nil
 local selectedOutfit: string? = nil
 local movementSnapshot = nil
 local blocking = false
 
-local function setChoiceVisual(card: TextButton, selected: boolean)
-	local selectionMark = card:FindFirstChild("SelectionMark")
-	if selectionMark and selectionMark:IsA("GuiObject") then
-		selectionMark.Visible = selected
-	end
-	local stroke = card:FindFirstChildOfClass("UIStroke")
+local function setChoiceVisual(button: TextButton, selected: boolean)
+	local stroke = button:FindFirstChildOfClass("UIStroke")
+	local accent = button:GetAttribute("TinyWorldChoiceAccent")
+	local accentColor = if typeof(accent) == "Color3" then accent else colors.gold
+	button.BackgroundColor3 = if selected then accentColor else colors.warmLight
+	button.TextColor3 = if selected then colors.white else colors.ink
 	if stroke then
-		stroke.Color = if selected then colors.gold else colors.metal
-		stroke.Transparency = if selected then 0.12 else 0.72
+		stroke.Color = if selected then colors.gold else colors.inkSoft
+		stroke.Transparency = if selected then 0.16 else 0.72
 		stroke.Thickness = if selected then 2.5 else 1.5
 	end
-	card.BackgroundColor3 = if selected then colors.skyDeep else colors.inkSoft
 end
 
 local function refreshChoices()
@@ -458,17 +324,16 @@ end
 local function setVisible(value: boolean)
 	gui.Enabled = value
 	setMovementBlocked(value)
-	if value then
-		nameBox:CaptureFocus()
-	end
 end
 
 local function updateSubmitState()
 	local validName = OnboardingRules.validateDisplayName(nameBox.Text)
 	local ready = validName and selectedGender ~= nil and selectedOutfit ~= nil
 	beginButton.Active = ready
-	beginButton.BackgroundColor3 = if ready then colors.meadowDeep else colors.inkSoft
-	beginButton.TextColor3 = if ready then colors.white else colors.metal
+	beginButton.Selectable = ready
+	beginButton.AutoButtonColor = ready
+	beginButton.BackgroundColor3 = if ready then colors.meadowDeep else colors.warmLight
+	beginButton.TextColor3 = if ready then colors.white else colors.inkSoft
 end
 
 boyButton.Activated:Connect(function()
@@ -506,7 +371,7 @@ nameBox:GetPropertyChangedSignal("Text"):Connect(updateSubmitState)
 beginButton.Activated:Connect(function()
 	local validName = OnboardingRules.validateDisplayName(nameBox.Text)
 	if not validName or selectedGender == nil or selectedOutfit == nil then
-		status.Text = "Choose a valid name, style, and outfit first."
+		status.Text = "Choose a valid name and both preferences first."
 		updateSubmitState()
 		return
 	end
