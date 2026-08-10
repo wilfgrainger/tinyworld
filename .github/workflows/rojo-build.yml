@@ -26,6 +26,8 @@ jobs:
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
+      - name: Verify build contract
+        run: ./tests/build-contract.sh
       - name: Verify release contract
         run: ./scripts/verify-release-contract.sh
       - name: Build release candidate
