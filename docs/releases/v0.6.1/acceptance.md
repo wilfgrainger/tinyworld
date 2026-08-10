@@ -16,17 +16,17 @@ A FAIL is useful evidence. It creates a bounded fix; it is never converted to PA
 
 The automated evidence below belongs to the implementation candidate, not to this later evidence-only documentation commit.
 
-- **Source branch SHA:** `a63e99fab79bf91653c5467504f7d7cea1ae8dea`
-- **GitHub PR merge-ref SHA tested/built:** `67402fac9fabc83a6f39ab657e4fe3bad8c766f2`
-- **Luau workflow:** `31402629294`
-- **Release Authority workflow:** `31402629480`
-- **Rojo workflow:** `31402629382`
-- **Rojo artifact ID:** `9068273355`
-- **Artifact archive digest:** `sha256:ee1e2acf9343b6e8b14a03efbce0c7425bf01007f06a95dd7be8d71e415b5de8`
+- **Source branch SHA:** `c5dfc50a9074ce0d46d370b260a114c913cafce5`
+- **GitHub PR merge-ref SHA tested/built:** `5fcab48c6b17d28bfa202d1ae6adcdc9810cfb88`
+- **Luau workflow:** `31403249879`
+- **Release Authority workflow:** `31403243365`
+- **Rojo workflow:** `31403247131`
+- **Rojo artifact ID:** `9068518759`
+- **Artifact archive digest:** `sha256:f0a24a91dc6d1a8927829564a1b39f4c235c8cca4ee1abb90c90ed27c8bc3172`
 - **Built `TinyWorld-v0.6.1.rbxlx` size:** `612354` bytes
 - **Built `TinyWorld-v0.6.1.rbxlx` SHA-256:** `f452f20e265ba2644d9de8f62f40293d30b58b27bfcc1f045f00690cdb7c97af`
 - **Release manifest version/name/schema:** `0.6.1` / `Visual Rescue` / `11`
-- **Repository line audit:** 225 tracked files, 225 text files, 32,258 text lines, 0 active TODO/FIXME/HACK/PLACEHOLDER markers.
+- **Repository line audit:** 225 tracked files, 225 text files, 32,299 text lines, 0 active TODO/FIXME/HACK/PLACEHOLDER markers.
 
 GitHub pull-request workflows check out the generated merge ref, while the workflow metadata records the source branch head. Both identifiers are retained above so the evidence is not presented as if they were the same commit.
 
@@ -107,20 +107,20 @@ The release must be observed end to end on the exact candidate:
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Pure Luau tests | PASS | workflow `31402629294`; 35 specs |
-| Shared Luau analysis | PASS | workflow `31402629294` |
-| StyLua check | PASS | workflow `31402629294` |
-| Recursive server/client compile | PASS | workflow `31402629294` |
-| Release authority | PASS | workflow `31402629480`; `tests/verify-release-authority.sh` |
-| v0.6.1 visual source contract | PASS | workflow `31402629480`; `tests/verify-v0.6.1-visual-contract.sh` |
-| Release contract | PASS | workflow `31402629382`; `scripts/verify-release-contract.sh` |
-| Build contract | PASS | workflow `31402629382`; `tests/build-contract.sh` |
-| Rojo candidate build | PASS | workflow `31402629382` |
-| Traceability manifest/artifact | PASS | artifact `9068273355`; hashes recorded above |
+| Pure Luau tests | PASS | workflow `31403249879`; 35 specs |
+| Shared Luau analysis | PASS | workflow `31403249879` |
+| StyLua check | PASS | workflow `31403249879` |
+| Recursive server/client compile | PASS | workflow `31403249879` |
+| Release authority | PASS | workflow `31403243365`; `tests/verify-release-authority.sh` |
+| v0.6.1 visual source contract | PASS | workflow `31403243365`; `tests/verify-v0.6.1-visual-contract.sh` |
+| Release contract | PASS | workflow `31403247131`; `scripts/verify-release-contract.sh` |
+| Build contract | PASS | workflow `31403247131`; `tests/build-contract.sh` |
+| Rojo candidate build | PASS | workflow `31403247131` |
+| Traceability manifest/artifact | PASS | artifact `9068518759`; hashes recorded above |
 
 Automated PASS does not satisfy any visual row below.
 
-The PowerShell build contract was corrected to the same v0.6.1 metadata in this candidate, but it was not executed by the Linux workflow and is not being used as evidence for the PASS row above; the executed shell contract is the evidence for that row.
+The PowerShell build contract was corrected to the same v0.6.1 metadata in this candidate, but it was not executed by the Linux workflow and is not being used as evidence for the PASS row above; the executed shell contract is the evidence for that row. The release and repository guards now also require that the shell/PowerShell contracts target v0.6.1 and that Rojo CI actually executes the shell contract.
 
 ## Studio single-client visual evidence
 
@@ -212,7 +212,7 @@ The remaining Graphite Mountain blockers are observed product evidence, not a kn
 - [x] no test/evidence claim is stronger than what actually ran;
 - [x] no smaller source-level root-cause deletion is currently obvious.
 
-Cave Pony source/diff audit found and corrected two late issues before this evidence snapshot: stale setup-goal copy/debug contrast, then a dormant v0.6.0 build-contract test that was not in CI. Visual acceptance still remains with Studio rather than being inferred from this audit.
+Cave Pony source/diff audit found and corrected late issues before this evidence snapshot: stale setup-goal copy/debug contrast, dormant v0.6.0 shell/PowerShell build contracts, and the missing CI/guard requirement that would have allowed those contracts to drift again. Visual acceptance still remains with Studio rather than being inferred from this audit.
 
 ## Merge-ready rule
 
