@@ -43,7 +43,25 @@ return function()
 	end
 	TestUtil.isTrue(meaningful >= 20, "v1 target requires at least 20 meaningful home interactions")
 
-	TestUtil.isTrue(#ActivityDefinitions.all() >= 4, "v1 target requires at least four ordinary-life activities")
+	local activityIds = { "Courier", "Gardener", "Designer", "VillageExplorer" }
+	TestUtil.equal(#ActivityDefinitions.all(), #activityIds, "v0.6.2 exposes exactly four canonical village activities")
+	for _, activityId in activityIds do
+		TestUtil.isTrue(
+			ActivityDefinitions.get(activityId) ~= nil,
+			"missing canonical village activity: " .. activityId
+		)
+	end
+	TestUtil.equal(
+		ActivityDefinitions.get("HarborHelper"),
+		nil,
+		"obsolete HarborHelper activity must not survive v0.6.2"
+	)
+	TestUtil.equal(
+		ActivityDefinitions.get("Gardener").professionId,
+		"Farmer",
+		"Gardener must preserve Farmer persistence"
+	)
+
 	TestUtil.equal(#WorldDefinitions.all(), 4)
 	TestUtil.equal(WorldDefinitions.get("GiantKitchen").displayName, "Giant Kitchen")
 	TestUtil.equal(WorldDefinitions.get("MoonlitMeadow").displayName, "Moonlit Meadow")

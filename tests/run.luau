@@ -2,6 +2,7 @@ local specs = {
 	require("./ProfileSchema.spec"),
 	require("./ProfileMigrations.spec"),
 	require("./ContentDefinitions.spec"),
+	require("./CourierRouteRules.spec"),
 	require("./FurniturePlacementRules.spec"),
 	require("./FurnitureUiRules.spec"),
 	require("./RemoteGuardRules.spec"),

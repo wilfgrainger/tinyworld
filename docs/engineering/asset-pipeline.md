@@ -6,6 +6,16 @@ Native-part authored prefabs are a valid production medium and fallback **only w
 
 Production Roblox-hosted assets are introduced only through `assets/manifests/assets.json`.
 
+## Visual state vocabulary
+
+v0.6.2 uses three explicit visual states:
+
+1. **fallback/prototype** — interaction scaffolding or temporary native presentation that is not accepted as finished player-facing art;
+2. **authored-native** — deliberately constructed Roblox-native geometry that may be production-acceptable only if it passes the relevant visual tier in Studio;
+3. **approved-production** — authored-native or Roblox-hosted art with required provenance/approval and exact-candidate visual evidence.
+
+`TinyWorldArtRole`, `TinyWorldRecognizableSilhouette` or similar metadata describes intent. It never upgrades an object from one state to another and never counts as observed evidence.
+
 ## Safe fallback rule
 
 When an approved asset is unavailable, choose the best safe existing presentation in this order:
@@ -16,6 +26,8 @@ When an approved asset is unavailable, choose the best safe existing presentatio
 4. leave the feature visually deferred rather than shipping obvious placeholder geometry.
 
 For player characters specifically, preserving the player's normal Roblox avatar is preferable to rectangular Part hair/shoes.
+
+For ambient characters, no creature is preferable to a block/ball animal that would be mistaken for finished content.
 
 No fallback is automatically acceptable because it has `TinyWorldArtRole` metadata.
 
@@ -83,10 +95,10 @@ The visual direction may use broad qualities such as Roblox life-sandbox readabi
 
 1. native/default presentation proves the gameplay contract without visibly degrading the experience;
 2. candidate asset receives provenance review;
-3. manifest entry created with real ID;
+3. manifest entry created with real ID where a Roblox-hosted asset is used;
 4. DEV visual/performance evidence recorded;
-5. entry marked DEV approved;
-6. launch/release review grants LIVE approval;
+5. entry or authored-native equivalent is accepted for the DEV candidate;
+6. launch/release review grants LIVE approval where applicable;
 7. exact approved build is promoted.
 
 For a player-facing release, source presence does not satisfy visual approval. Required Studio/device evidence must be observed before merge-ready status where the active acceptance record requires it.

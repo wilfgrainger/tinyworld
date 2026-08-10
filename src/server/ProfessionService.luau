@@ -6,14 +6,20 @@ local Profession = require(shared:WaitForChild("Profession"))
 local ProfessionService = {}
 ProfessionService.__index = ProfessionService
 
-local function progressText(profile, professionId: string): string
+local function progressText(profile, professionId: string, displayName: string?): string
 	local definition = Profession.get(professionId)
 	if definition == nil then
-		return professionId
+		return displayName or professionId
 	end
 	local level = profile[definition.levelField] or 1
 	local xp = profile[definition.xpField] or 0
-	return string.format("%s Lv.%d (%d/%d XP)", definition.name, level, xp, Profession.xpForNextLevel(level))
+	return string.format(
+		"%s Lv.%d (%d/%d XP)",
+		displayName or definition.name,
+		level,
+		xp,
+		Profession.xpForNextLevel(level)
+	)
 end
 
 function ProfessionService.new(world, ProfileStore, PlayerStateService)
@@ -31,11 +37,12 @@ function ProfessionService:_inspect(player: Player)
 	if profile == nil then
 		return
 	end
-	self.PlayerStateService.message(player, "Village Jobs: " .. table.concat({
+	self.PlayerStateService.message(player, "Village Life: " .. table.concat({
 		progressText(profile, "Courier"),
-		progressText(profile, "Farmer"),
+		progressText(profile, "Farmer", "Gardener"),
 		progressText(profile, "Designer"),
-	}, " • ") .. ". Courier deliveries, garden harvests, and home expression build your path.")
+		"Village Explorer · daily trail",
+	}, " • ") .. ". Deliver, grow, decorate and explore to build your life here.")
 end
 
 return ProfessionService

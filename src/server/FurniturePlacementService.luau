@@ -97,10 +97,11 @@ local function structuralCollision(plot, placement): boolean
 	return false
 end
 
-function FurniturePlacementService.new(ProfileStore, PlayerStateService)
+function FurniturePlacementService.new(ProfileStore, PlayerStateService, RouteService)
 	local self = setmetatable({}, FurniturePlacementService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.RouteService = RouteService
 	self.plotService = nil
 	self.remote = getRemote()
 	self.promptConnections = {}
@@ -386,12 +387,16 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 		profile.furniturePlacements[placementId] = canonical
 		self:_renderPlacement(player, plot, placementId, canonical)
 		player:SetAttribute("TinyWorldFurniturePlacementCount", countPlacements(profile))
+		local _routeChanged, routeText = self.RouteService:record(player, "home_design")
 		self.ProfileStore.save(player)
 		local placementDefinition = FurnitureDefinitions.get(payload.furnitureId)
 		self.PlayerStateService.message(
 			player,
 			(placementDefinition and placementDefinition.displayName or "Furniture") .. " placed in your home."
 		)
+		if routeText ~= "" then
+			self.PlayerStateService.message(player, routeText)
+		end
 		TinyAnalyticsService.log(player, AnalyticsEvents.FurniturePlaced)
 		self:_reply(player, true, "placed", placementId)
 		return

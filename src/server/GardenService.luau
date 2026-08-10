@@ -215,13 +215,13 @@ function GardenService:_interact(player: Player, plotIndex: number, bedIndex: nu
 	if ok and reason == "planted" then
 		self.PlayerStateService.message(player, "Carrot planted. Water it next.")
 	elseif ok and reason == "watered" then
-		self.PlayerStateService.message(player, "Carrot watered. It grows in about 5 seconds in this prototype.")
+		self.PlayerStateService.message(player, "Carrot watered. The leaves will tell you when it is ready.")
 	elseif ok and reason == "harvested" then
 		local suffix = if routeText == "" then "" else " " .. routeText
-		local levelSuffix = if farmerLevels > 0 then " Farmer level up!" else ""
+		local levelSuffix = if farmerLevels > 0 then " Gardener level up!" else ""
 		self.PlayerStateService.message(
 			player,
-			"Carrot harvested: +1 Carrot and +10 XP. Farmer XP +50." .. levelSuffix .. suffix
+			"Carrot harvested: +1 Carrot and +10 XP. Gardener XP +50." .. levelSuffix .. suffix
 		)
 	elseif reason == "inventory_full" then
 		self.PlayerStateService.message(player, "Your Carrot stack is full. Make room before harvesting this crop.")

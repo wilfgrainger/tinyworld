@@ -18,6 +18,8 @@ function ExplorationService.new(world, ProfileStore, PlayerStateService, RouteSe
 			self:_visit(player, landmark)
 		end)
 	end
+	world.boundary.explorerPrompt.ActionText = "Finish Village Trail"
+	world.boundary.explorerPrompt.ObjectText = "Village Explorer"
 	world.boundary.explorerPrompt.Triggered:Connect(function(player)
 		self:_claim(player)
 	end)
@@ -38,7 +40,7 @@ function ExplorationService:_visit(player: Player, landmark: string)
 		self.PlayerStateService.message(
 			player,
 			string.format(
-				"Boundary landmark found: %d/3. Return to the Explorer Board when all three are visited.",
+				"Village Trail landmark found: %d/3. Find all three, then return to the Explorer Board.",
 				visitedCount
 			)
 		)
@@ -46,7 +48,7 @@ function ExplorationService:_visit(player: Player, landmark: string)
 	elseif reason == "already_visited" then
 		self.PlayerStateService.message(
 			player,
-			string.format("You already visited this landmark today: %d/3 found.", visitedCount)
+			string.format("You already found this Village Trail landmark today: %d/3 found.", visitedCount)
 		)
 	end
 end
@@ -64,19 +66,16 @@ function ExplorationService:_claim(player: Player)
 		local suffix = if routeText == "" then "" else " " .. routeText
 		self.PlayerStateService.message(
 			player,
-			"Boundary route complete: +250 coins, +100 XP. Come back tomorrow for a new route." .. suffix
+			"Village Trail complete: +250 coins, +100 XP. A new trail is waiting tomorrow." .. suffix
 		)
 		self.ProfileStore.save(player)
 	elseif reason == "incomplete" then
 		self.PlayerStateService.message(
 			player,
-			string.format("Visit all three boundary landmarks first: %d/3 found.", ExplorationRules.count(profile))
+			string.format("Find all three Village Trail landmarks first: %d/3 found.", ExplorationRules.count(profile))
 		)
 	elseif reason == "already_claimed" then
-		self.PlayerStateService.message(
-			player,
-			"You already claimed today's Boundary Explorer reward. Come back tomorrow."
-		)
+		self.PlayerStateService.message(player, "You already finished today's Village Trail. Come back tomorrow.")
 	end
 end
 

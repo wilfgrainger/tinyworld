@@ -7,6 +7,7 @@ local player = Players.LocalPlayer
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
 local PortalJournalRules = require(shared:WaitForChild("PortalJournalRules"))
+local CourierRouteRules = require(shared:WaitForChild("CourierRouteRules"))
 local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local VisualQualityRules = require(shared:WaitForChild("VisualQualityRules"))
 local ModalController = require(script.Parent:WaitForChild("ModalController"))
@@ -425,7 +426,9 @@ local function friendlyQuest(): (string, string)
 		return "Clockwork Orchard", string.format("Gather the clockwork leaves  •  %d of 3", portalFinds)
 	end
 	if attr("TinyWorldCarryingParcel", false) then
-		return "Courier round", "Carry the parcel to the village shop"
+		local destinationId = attr("TinyWorldCourierDestination", "")
+		local destinationName = CourierRouteRules.displayName(destinationId) or "your delivery stop"
+		return "Courier round", "Carry the parcel to " .. destinationName
 	end
 
 	local suggested = attr("TinyWorldSuggestedGoal", "Explore the village.")
@@ -499,7 +502,7 @@ local function update()
 	)
 
 	careersDetails.Text = string.format(
-		"Courier  •  Level %d  •  %d XP\nFarmer  •  Level %d  •  %d XP\nDesigner  •  Level %d  •  %d XP",
+		"Courier  •  Level %d  •  %d XP\nGardener  •  Level %d  •  %d XP\nDesigner  •  Level %d  •  %d XP\nVillage Explorer  •  daily trail",
 		attr("TinyWorldCourierLevel", 1),
 		attr("TinyWorldCourierXP", 0),
 		attr("TinyWorldFarmerLevel", 1),
@@ -512,7 +515,7 @@ local function update()
 	local dailyCount = attr("TinyWorldDailyRouteCount", 0)
 	local dailyTotal = attr("TinyWorldDailyRouteTotal", 3)
 	collectionDetails.Text = string.format(
-		"%s\n\nVillage edges visited  %d of 3\nToday’s village trail  %d of %d\nHome showcases shared  %d",
+		"%s\n\nVillage landmarks visited  %d of 3\nToday’s village route  %d of %d\nHome showcases shared  %d",
 		portalJournalCopy(),
 		visited,
 		dailyCount,
@@ -554,6 +557,7 @@ local observed = {
 	"TinyWorldPortalWorld",
 	"TinyWorldSuggestedGoal",
 	"TinyWorldCarryingParcel",
+	"TinyWorldCourierDestination",
 	"TinyWorldDailyRouteCount",
 	"TinyWorldDailyRouteTotal",
 	"TinyWorldHomeOwnedCount",

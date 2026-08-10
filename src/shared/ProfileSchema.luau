@@ -485,10 +485,10 @@ function ProfileSchema.normalize(value: any): PlayerProfile
 		homeDecor = normaliseHomeDecor(value.homeDecor),
 		homeShowcaseCount = normaliseInteger(value.homeShowcaseCount, 0, 0),
 		dailyRouteDay = if type(value.dailyRouteDay) == "string" then value.dailyRouteDay else "",
-		dailyRouteMask = normaliseInteger(value.dailyRouteMask, 0, 0, 15),
+		dailyRouteMask = normaliseInteger(value.dailyRouteMask, 0, 0, 31),
 		dailyRouteClaimedDay = if type(value.dailyRouteClaimedDay) == "string" then value.dailyRouteClaimedDay else "",
 		weeklyRouteWeek = if type(value.weeklyRouteWeek) == "string" then value.weeklyRouteWeek else "",
-		weeklyRouteMask = normaliseInteger(value.weeklyRouteMask, 0, 0, 15),
+		weeklyRouteMask = normaliseInteger(value.weeklyRouteMask, 0, 0, 31),
 		weeklyRouteClaimedWeek = if type(value.weeklyRouteClaimedWeek) == "string"
 			then value.weeklyRouteClaimedWeek
 			else "",

@@ -13,6 +13,7 @@ RouteRules.TASK_BITS = {
 	courier_delivery = 2,
 	garden_harvest = 4,
 	boundary_route = 8,
+	home_design = 16,
 }
 RouteRules.REWARDS = {
 	daily = { coins = 75, xp = 25 },
@@ -22,13 +23,15 @@ RouteRules.REWARDS = {
 local DAILY_ROTATIONS = {
 	{ "daily_reward", "courier_delivery", "garden_harvest" },
 	{ "daily_reward", "courier_delivery", "boundary_route" },
-	{ "daily_reward", "garden_harvest", "boundary_route" },
+	{ "daily_reward", "garden_harvest", "home_design" },
+	{ "daily_reward", "boundary_route", "home_design" },
 }
 
 local WEEKLY_ROTATIONS = {
 	{ "courier_delivery", "garden_harvest", "boundary_route" },
-	{ "daily_reward", "courier_delivery", "boundary_route" },
-	{ "daily_reward", "garden_harvest", "boundary_route" },
+	{ "courier_delivery", "boundary_route", "home_design" },
+	{ "garden_harvest", "boundary_route", "home_design" },
+	{ "courier_delivery", "garden_harvest", "home_design" },
 }
 
 local function parseDayKey(dayKey: string): (number, number, number)
