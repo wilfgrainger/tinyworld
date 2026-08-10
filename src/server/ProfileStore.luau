@@ -60,6 +60,7 @@ local function setDiagnostics(player: Player, record)
 	player:SetAttribute("TinyWorldSessionState", record.sessionState)
 	player:SetAttribute("TinyWorldEnvironment", EnvironmentConfig.environment())
 	player:SetAttribute("TinyWorldProfileSchema", ProfileSchema.VERSION)
+	player:SetAttribute("TinyWorldProfileMutationLocked", record.mutationLockOwner ~= nil)
 end
 
 local function setState(player: Player, record, state: string)
@@ -197,6 +198,7 @@ function ProfileStore.load(player: Player)
 		releasing = false,
 		heartbeatFailures = 0,
 		sessionState = "active",
+		mutationLockOwner = nil,
 	}
 	profiles[player] = record
 	setDiagnostics(player, record)
@@ -206,7 +208,36 @@ end
 
 function ProfileStore.get(player: Player)
 	local record = profiles[player]
-	return if record then record.profile else nil
+	if record == nil or not ProfileStoreRules.externalMutationAllowed(record.mutationLockOwner) then
+		return nil
+	end
+	return record.profile
+end
+
+function ProfileStore.lockMutations(player: Player, owner: string): boolean
+	local record = profiles[player]
+	if record == nil or record.releasing or not ProfileStoreRules.canAcquireMutationLock(record.mutationLockOwner, owner) then
+		return false
+	end
+	record.mutationLockOwner = ProfileStoreRules.acquireMutationLock(record.mutationLockOwner, owner)
+	setDiagnostics(player, record)
+	return record.mutationLockOwner == owner
+end
+
+function ProfileStore.unlockMutations(player: Player, owner: string): boolean
+	local record = profiles[player]
+	if record == nil then
+		return false
+	end
+	local previous = record.mutationLockOwner
+	record.mutationLockOwner = ProfileStoreRules.releaseMutationLock(record.mutationLockOwner, owner)
+	setDiagnostics(player, record)
+	return previous == owner and record.mutationLockOwner == nil
+end
+
+function ProfileStore.isMutationLocked(player: Player): boolean
+	local record = profiles[player]
+	return record ~= nil and not ProfileStoreRules.externalMutationAllowed(record.mutationLockOwner)
 end
 
 function ProfileStore.save(player: Player): boolean
@@ -400,6 +431,7 @@ function ProfileStore.getDiagnostics(player: Player?)
 			sessionState = record.sessionState,
 			version = record.version,
 			savedVersion = record.savedVersion,
+			mutationLocked = record.mutationLockOwner ~= nil,
 			environment = EnvironmentConfig.environment(),
 			dataStoreName = DATASTORE_NAME,
 		}
