@@ -2,7 +2,7 @@
 
 **Release:** v0.6.1  
 **Profile schema:** 11  
-**Status:** active corrective release; merge blocked until required player-facing visual evidence is observed.
+**Status:** automated/source candidate green; merge blocked until required player-facing visual evidence is observed.
 
 ## Evidence rule for this release
 
@@ -12,39 +12,59 @@ Unlike v0.6.0, required player-facing visual rows may be `NOT RUN` while this PR
 
 A FAIL is useful evidence. It creates a bounded fix; it is never converted to PASS by source inspection.
 
+## Verified implementation candidate
+
+The automated evidence below belongs to the implementation candidate, not to this later evidence-only documentation commit.
+
+- **Source branch SHA:** `a63e99fab79bf91653c5467504f7d7cea1ae8dea`
+- **GitHub PR merge-ref SHA tested/built:** `67402fac9fabc83a6f39ab657e4fe3bad8c766f2`
+- **Luau workflow:** `31402629294`
+- **Release Authority workflow:** `31402629480`
+- **Rojo workflow:** `31402629382`
+- **Rojo artifact ID:** `9068273355`
+- **Artifact archive digest:** `sha256:ee1e2acf9343b6e8b14a03efbce0c7425bf01007f06a95dd7be8d71e415b5de8`
+- **Built `TinyWorld-v0.6.1.rbxlx` size:** `612354` bytes
+- **Built `TinyWorld-v0.6.1.rbxlx` SHA-256:** `f452f20e265ba2644d9de8f62f40293d30b58b27bfcc1f045f00690cdb7c97af`
+- **Release manifest version/name/schema:** `0.6.1` / `Visual Rescue` / `11`
+- **Repository line audit:** 225 tracked files, 225 text files, 32,258 text lines, 0 active TODO/FIXME/HACK/PLACEHOLDER markers.
+
+GitHub pull-request workflows check out the generated merge ref, while the workflow metadata records the source branch head. Both identifiers are retained above so the evidence is not presented as if they were the same commit.
+
 ## Release/product contract
 
-- [ ] Canonical authority identifies v0.6.1 Visual Rescue as the active release.
-- [ ] Profile schema remains 11 with no migration introduced by this release.
-- [ ] v0.6.0 remains a merged historical baseline rather than current release authority.
-- [ ] Current durable docs define Brookhaven-level readability, Toca-style tactile warmth and Ready Player One-style fantasy contrast as broad inspiration only, while requiring original TinyWorld expression.
-- [ ] Active implementation-agent guidance is tool-neutral rather than Codex-mandatory.
-- [ ] Historical release/spec/plan records remain clearly historical where they are not rewritten.
+- [x] Canonical authority identifies v0.6.1 Visual Rescue as the active release.
+- [x] Profile schema remains 11 with no migration introduced by this release.
+- [x] v0.6.0 remains a merged historical baseline rather than current release authority.
+- [x] Current durable docs define Brookhaven-level readability, Toca-style tactile warmth and Ready Player One-style fantasy contrast as broad inspiration only, while requiring original TinyWorld expression.
+- [x] Active implementation-agent guidance is tool-neutral rather than Codex-mandatory.
+- [x] Historical release/spec/plan records remain clearly historical where they are not rewritten.
 
 ## Prototype-removal contract
 
 ### Character
 
-- [ ] `CharacterAppearanceBuilder.luau` primitive fallback is removed from normal runtime.
-- [ ] No `TinyWorldHairFallback` geometry is created.
-- [ ] No `TinyWorldShoesFallback` geometry is created.
-- [ ] AppearanceService preserves the player's normal Roblox avatar/clothing/accessories when no approved TinyWorld character asset exists.
-- [ ] Appearance preference persistence and server-side ID validation remain intact.
+- [x] `CharacterAppearanceBuilder.luau` primitive fallback is removed from normal runtime.
+- [x] No `TinyWorldHairFallback` geometry is created.
+- [x] No `TinyWorldShoesFallback` geometry is created.
+- [x] AppearanceService preserves the player's normal Roblox avatar/clothing/accessories when no approved TinyWorld character asset exists.
+- [x] Appearance preference persistence and server-side ID validation remain intact.
 
 ### World labels
 
-- [ ] Ordinary village builders do not create large always-on-top BillboardGui information panels.
-- [ ] Home Gate, Home Style, Home Supply, Daily Fountain, Village Fund and Profession Board are not presented as floating prototype information walls.
-- [ ] Destination proper names, where text is useful, are integrated into physical signs/boards rather than floating over the street.
-- [ ] Contextual ProximityPrompt text remains local, short and action-oriented.
+- [x] Ordinary village builders do not create large always-on-top BillboardGui information panels.
+- [x] Home Gate, Home Style, Home Supply, Daily Fountain, Village Fund and Profession Board are not presented as floating prototype information walls.
+- [x] Destination proper names, where text is useful, are integrated into physical signs/boards rather than floating over the street.
+- [x] Contextual ProximityPrompt text remains local, short and action-oriented.
 
 ### HUD
 
-- [ ] Permanent full-width website-style status/navigation chrome is absent.
-- [ ] Permanent developer/system category dashboard is absent from normal play.
-- [ ] Normal HUD is limited to compact coins/level/current-task/navigation/toast information.
-- [ ] Home/Wardrobe/Journal launch controls form one coherent compact navigation surface rather than competing large independent buttons.
-- [ ] Deep panels use a warm/light information surface by default rather than large near-black slabs.
+- [x] Permanent full-width website-style status/navigation chrome is absent.
+- [x] Permanent developer/system category dashboard is absent from normal play.
+- [x] Normal HUD is limited to compact coins/level/current-task/navigation/toast information.
+- [x] Home/Wardrobe/Journal launch controls form one coherent compact navigation surface rather than competing large independent buttons.
+- [x] Deep panels use a warm/light information surface by default rather than large near-black slabs.
+
+These prototype-removal rows are source/contract assertions. They do **not** assert that the resulting rendered composition looks good until the Studio rows below are observed.
 
 ## Hero visual contract
 
@@ -63,7 +83,7 @@ Each required hero must pass silhouette, scale, material and feedback checks wit
 - [ ] Giant Kitchen entrance;
 - [ ] Moonlit Meadow entrance.
 
-Semantic `TinyWorldArtRole` attributes do not satisfy this section by themselves.
+Semantic `TinyWorldArtRole` attributes do not satisfy this section by themselves. Source review found multi-part authored silhouettes for the major civic/home/travel objects, but none is promoted to PASS without the required Studio views.
 
 ## Golden route
 
@@ -87,18 +107,20 @@ The release must be observed end to end on the exact candidate:
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Pure Luau tests | NOT RUN | exact workflow/run to be recorded |
-| Shared Luau analysis | NOT RUN | exact workflow/run to be recorded |
-| StyLua check | NOT RUN | exact workflow/run to be recorded |
-| Recursive server/client compile | NOT RUN | exact workflow/run to be recorded |
-| Release authority | NOT RUN | `tests/verify-release-authority.sh` |
-| v0.6.1 visual source contract | NOT RUN | `tests/verify-v0.6.1-visual-contract.sh` |
-| Release contract | NOT RUN | `scripts/verify-release-contract.sh` |
-| Build contract | NOT RUN | `tests/build-contract.sh` |
-| Rojo candidate build | NOT RUN | exact workflow/run to be recorded |
-| Traceability manifest/artifact | NOT RUN | exact artifact/hash to be recorded |
+| Pure Luau tests | PASS | workflow `31402629294`; 35 specs |
+| Shared Luau analysis | PASS | workflow `31402629294` |
+| StyLua check | PASS | workflow `31402629294` |
+| Recursive server/client compile | PASS | workflow `31402629294` |
+| Release authority | PASS | workflow `31402629480`; `tests/verify-release-authority.sh` |
+| v0.6.1 visual source contract | PASS | workflow `31402629480`; `tests/verify-v0.6.1-visual-contract.sh` |
+| Release contract | PASS | workflow `31402629382`; `scripts/verify-release-contract.sh` |
+| Build contract | PASS | workflow `31402629382`; `tests/build-contract.sh` |
+| Rojo candidate build | PASS | workflow `31402629382` |
+| Traceability manifest/artifact | PASS | artifact `9068273355`; hashes recorded above |
 
 Automated PASS does not satisfy any visual row below.
+
+The PowerShell build contract was corrected to the same v0.6.1 metadata in this candidate, but it was not executed by the Linux workflow and is not being used as evidence for the PASS row above; the executed shell contract is the evidence for that row.
 
 ## Studio single-client visual evidence
 
@@ -157,36 +179,40 @@ Required on at least one agreed phone for the golden route:
 
 ## Gameplay/security regression
 
-- [ ] profile migration/future-version protections remain green;
-- [ ] DEV/LIVE DataStore separation remains green;
-- [ ] Home Store price/ownership authority remains green;
-- [ ] furniture placement authority remains green;
-- [ ] trade transaction/recovery tests remain green;
-- [ ] RemoteGuard tests remain green;
-- [ ] no production credential or fake Roblox ID is introduced;
-- [ ] no automatic LIVE publish surface is introduced.
+- [x] profile migration/future-version protections remain green.
+- [x] DEV/LIVE DataStore separation remains green.
+- [x] Home Store price/ownership authority remains green.
+- [x] furniture placement authority remains green.
+- [x] trade transaction/recovery tests remain green.
+- [x] RemoteGuard tests remain green.
+- [x] no production credential or fake Roblox ID is introduced.
+- [x] no automatic LIVE publish surface is introduced.
+
+Evidence: the 35-spec Luau suite is green on the candidate and the release/repository guards pass. This section records deterministic/source regressions only, not published-runtime behaviour.
 
 ## Graphite Mountain review
 
-Before ready-for-review status, the actual branch diff receives one reconciled review covering:
+The actual candidate diff was reviewed sequentially through the Graphite Mountain lenses; no claim is made that separate subagents ran.
 
-- [ ] Delivery Chair: scope, outcome, acceptance and release claim;
-- [ ] Architecture Lead: preserved boundaries and smallest coherent implementation;
-- [ ] Engineering Lead: complete golden route and maintainability;
-- [ ] Platform and Safety Lead: security/persistence/build/recovery regression;
-- [ ] Adversarial Strategy Lead: IP imitation risk, misleading quality claims and metric gaming;
-- [ ] Customer Advocate: labels-off comprehension, child/family readability and phone/controller usability.
+- [x] Delivery Chair: v0.6.1 remains a bounded visual-rescue release; v0.7.0 gameplay expansion is deferred.
+- [x] Architecture Lead: server authority/profile schema remain intact; one small shared `GameNav` replaces competing launch controls without a UI framework.
+- [ ] Engineering Lead: source/build/maintainability review is clean, but the complete golden route remains NOT RUN in Studio.
+- [x] Platform and Safety Lead: persistence/security/build/release regression gates are green; workflows are read-only and no publishing credential/action was added.
+- [x] Adversarial Strategy Lead: inspiration is documented as design principles only; original TinyWorld expression is mandatory and visual claims remain evidence-bounded.
+- [ ] Customer Advocate: source copy/structure is improved and onboarding is honest, but labels-off comprehension and phone/controller usability remain NOT RUN.
 
-Blocking findings must be fixed or explicitly rejected with evidence.
+The remaining Graphite Mountain blockers are observed product evidence, not a known source defect.
 
 ## Cave Pony final audit
 
-- [ ] no avoidable visual framework/dependency was introduced;
-- [ ] no new text layer merely replaces deleted text walls;
-- [ ] no duplicate UI navigation system remains;
-- [ ] no hero object is accepted only because metadata calls it authored;
-- [ ] no test/evidence claim is stronger than what actually ran;
-- [ ] no smaller root-cause deletion was left obvious.
+- [x] no avoidable visual framework/dependency was introduced;
+- [x] no new text layer merely replaces deleted text walls;
+- [x] no duplicate UI navigation system remains;
+- [x] no hero object is accepted only because metadata calls it authored;
+- [x] no test/evidence claim is stronger than what actually ran;
+- [x] no smaller source-level root-cause deletion is currently obvious.
+
+Cave Pony source/diff audit found and corrected two late issues before this evidence snapshot: stale setup-goal copy/debug contrast, then a dormant v0.6.0 build-contract test that was not in CI. Visual acceptance still remains with Studio rather than being inferred from this audit.
 
 ## Merge-ready rule
 
@@ -199,5 +225,7 @@ v0.6.1 is **not merge-ready** until:
 5. phone/controller rows required by the route are PASS or the user explicitly accepts a documented blocker;
 6. Graphite Mountain has no blocking finding;
 7. Cave Pony has no blocking finding.
+
+Current state: rules 1, 2 and the source-level Cave Pony audit are satisfied. Rules 3, 4, 5 and the observation-dependent Graphite Mountain findings remain open.
 
 No merge is authorised by this acceptance file.
