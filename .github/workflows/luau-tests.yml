@@ -8,17 +8,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  review-remediation-once:
-    if: github.event_name == 'pull_request' && github.head_ref == 'docs/target-state-v1'
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: docs/target-state-v1
-          fetch-depth: 0
 
       - name: Install Luau 0.732
         env:
@@ -45,107 +41,15 @@ jobs:
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
 
-      - name: Add regression assertions first and observe RED
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          def replace_once(path, old, new):
-              p = Path(path); text = p.read_text()
-              if old not in text: raise SystemExit(f"missing RED anchor in {path}")
-              p.write_text(text.replace(old, new, 1))
-          replace_once("tests/TradeTransactionRules.spec.luau", '\tif not ok then\n\t\treturn\n\tend\n', '\tif not ok then\n\t\treturn\n\tend\n\n\tTestUtil.equal(type(TradeTransactionRules.authoritativeCommitAccepted), "function", "authoritative commit helper must exist")\n\tif type(TradeTransactionRules.authoritativeCommitAccepted) == "function" then\n\t\tTestUtil.isTrue(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "committed" }))\n\t\tTestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "recovering" }))\n\t\tTestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(false, { state = "committed" }))\n\t\tTestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, nil))\n\tend\n')
-          replace_once("tests/ProfileStoreRules.spec.luau", 'return function()\n', 'return function()\n\tTestUtil.equal(type(ProfileStoreRules.unwrapPersisted), "function", "persisted envelope classifier must exist")\n\tif type(ProfileStoreRules.unwrapPersisted) == "function" then\n\t\tlocal fresh, freshSession, freshError = ProfileStoreRules.unwrapPersisted(nil)\n\t\tTestUtil.equal(fresh, nil)\n\t\tTestUtil.equal(freshSession, nil)\n\t\tTestUtil.equal(freshError, nil)\n\t\tlocal legacy = { version = 10, coins = 42 }\n\t\tlocal legacyProfile, legacySession, legacyError = ProfileStoreRules.unwrapPersisted(legacy)\n\t\tTestUtil.equal(legacyProfile, legacy)\n\t\tTestUtil.equal(legacySession, nil)\n\t\tTestUtil.equal(legacyError, nil)\n\t\tlocal nested = { version = 11, coins = 99 }\n\t\tlocal session = { token = "safe", expiresAt = 100 }\n\t\tlocal nestedProfile, nestedSession, nestedError = ProfileStoreRules.unwrapPersisted({ profile = nested, session = session })\n\t\tTestUtil.equal(nestedProfile, nested)\n\t\tTestUtil.equal(nestedSession, session)\n\t\tTestUtil.equal(nestedError, nil)\n\t\tlocal malformedProfile, _, malformedError = ProfileStoreRules.unwrapPersisted({ profile = "corrupt", session = session })\n\t\tTestUtil.equal(malformedProfile, nil)\n\t\tTestUtil.equal(malformedError, "invalid_envelope_profile")\n\t\tlocal missingProfile, _, missingError = ProfileStoreRules.unwrapPersisted({ session = session })\n\t\tTestUtil.equal(missingProfile, nil)\n\t\tTestUtil.equal(missingError, "invalid_envelope_profile")\n\tend\n')
-          replace_once("tests/TransportRules.spec.luau", 'local TransportRules = require("../src/shared/TransportRules")\n', 'local TransportRules = require("../src/shared/TransportRules")\nlocal ShopDefinitions = require("../src/shared/ShopDefinitions")\n')
-          replace_once("tests/TransportRules.spec.luau", 'return function()\n', 'return function()\n\tTestUtil.equal(ShopDefinitions.priceFor("Workshop", "TinyBike"), 300, "Tiny Bike catalogue price must remain 300")\n\tTestUtil.equal(TransportRules.TINY_BIKE_PRICE, ShopDefinitions.priceFor("Workshop", "TinyBike"), "transport purchase must use canonical shop price")\n')
-          PY
-          if luau tests/run.luau >/tmp/tinyworld-red.log 2>&1; then echo "Expected RED but suite passed"; exit 1; fi
-          cat /tmp/tinyworld-red.log
-          grep -Eq 'authoritative commit helper must exist|persisted envelope classifier must exist|Tiny Bike catalogue price must remain 300' /tmp/tinyworld-red.log
-
-      - name: Apply six review fixes
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          def replace_once(path, old, new):
-              p = Path(path); text = p.read_text()
-              if old not in text: raise SystemExit(f"missing production anchor in {path}")
-              p.write_text(text.replace(old, new, 1))
-          replace_once("src/shared/TradeTransactionRules.luau", 'function TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: any): any\n', 'function TradeTransactionRules.authoritativeCommitAccepted(writeOk: any, authoritative: any): boolean\n\treturn writeOk == true and type(authoritative) == "table" and authoritative.state == "committed"\nend\n\nfunction TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: any): any\n')
-          replace_once("src/server/TradeService.luau", '\tlocal committedSnapshot = table.clone(transaction)\n\tcommittedSnapshot.state = "committed"\n\tif not TradeJournal.write(committedSnapshot) then\n\t\tself:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "commit_journal_failed")\n\t\treturn\n\tend\n\tTradeTransactionRules.commit(transaction)\n', '\tlocal committedSnapshot = table.clone(transaction)\n\tcommittedSnapshot.state = "committed"\n\tlocal wroteCommit, authoritativeCommit = TradeJournal.write(committedSnapshot)\n\tif not TradeTransactionRules.authoritativeCommitAccepted(wroteCommit, authoritativeCommit) then\n\t\tlocal recoveryReason = if wroteCommit then "commit_rejected_by_authoritative_recovery" else "commit_journal_failed"\n\t\tself:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, recoveryReason)\n\t\treturn\n\tend\n\tTradeTransactionRules.commit(transaction)\n')
-          replace_once("src/shared/ProfileStoreRules.luau", 'function ProfileStoreRules.isLeaseActive(session, now: number, _ownerToken: string): boolean\n', 'function ProfileStoreRules.unwrapPersisted(value: any): (any?, any?, string?)\n\tif value == nil or type(value) ~= "table" then\n\t\treturn value, nil, nil\n\tend\n\tlocal envelopeShaped = value.profile ~= nil or value.session ~= nil\n\tif not envelopeShaped then\n\t\treturn value, nil, nil\n\tend\n\tif type(value.profile) ~= "table" then\n\t\treturn nil, value.session, "invalid_envelope_profile"\n\tend\n\treturn value.profile, value.session, nil\nend\n\nfunction ProfileStoreRules.isLeaseActive(session, now: number, _ownerToken: string): boolean\n')
-          replace_once("src/server/ProfileStore.luau", 'local function decode(value): (any?, any?, string?)\n\tlocal rawProfile = value\n\tlocal session = nil\n\tif type(value) == "table" and type(value.profile) == "table" then\n\t\trawProfile = value.profile\n\t\tsession = value.session\n\tend\n\tlocal migrated, migrationError = ProfileMigrations.migrate(rawProfile)\n', 'local function decode(value): (any?, any?, string?)\n\tlocal rawProfile, session, envelopeError = ProfileStoreRules.unwrapPersisted(value)\n\tif envelopeError ~= nil then\n\t\treturn nil, session, envelopeError\n\tend\n\tlocal migrated, migrationError = ProfileMigrations.migrate(rawProfile)\n')
-          replace_once("src/shared/ShopDefinitions.luau", '\t\tTinyBike = 350,\n', '\t\tTinyBike = 300,\n')
-          replace_once("src/shared/TransportRules.luau", 'local TransportRules = {}\nTransportRules.TINY_BIKE_PRICE = 300\n', 'local ShopDefinitions\nif script ~= nil then\n\tShopDefinitions = require(script.Parent:WaitForChild("ShopDefinitions"))\nelse\n\tShopDefinitions = require("./ShopDefinitions")\nend\n\nlocal TransportRules = {}\nlocal tinyBikePrice = ShopDefinitions.priceFor("Workshop", "TinyBike")\nassert(type(tinyBikePrice) == "number", "Tiny Bike must have a canonical Workshop price")\nTransportRules.TINY_BIKE_PRICE = tinyBikePrice\n')
-          replace_once("src/server/TransportService.luau", 'then "The Tiny Bike costs 300 coins."\n', 'then string.format("The Tiny Bike costs %d coins.", TransportRules.TINY_BIKE_PRICE)\n')
-          Path("src/shared/FurnitureUiRules.luau").write_text('''local FurnitureUiRules = {}\n\nlocal REJECTION_COPY = {\n\tstructural_collision = "That spot is blocked by a wall or a fixed home object.",\n\tnot_at_home = "Go back to your own home before changing furniture.",\n\tout_of_bounds = "Keep the whole item inside your home.",\n\toverlap = "That would overlap furniture you already placed.",\n\tnot_owned = "You do not own an available copy of that item.",\n\tplacement_budget = "Your home has reached its furniture placement limit. Store an item before placing another.",\n\trate_limit = "Too many placement changes at once. Try again in a moment.",\n\thome_unavailable = "Your home is not ready for furniture changes yet.",\n\tinvalid_request = "TinyWorld could not understand that placement. Try another spot.",\n}\n\nfunction FurnitureUiRules.rejectionCopy(reason: any): string\n\treturn REJECTION_COPY[reason] or "That placement was rejected by TinyWorld. Try another spot."\nend\n\nfunction FurnitureUiRules.furnitureIdFromButtonName(name: any): string?\n\tif type(name) ~= "string" then return nil end\n\treturn string.match(name, "^Furniture_(.+)$")\nend\n\nfunction FurnitureUiRules.preferredFurnitureId(previousId: any, availableIds: any): string?\n\tif type(availableIds) ~= "table" then return nil end\n\tif type(previousId) == "string" then\n\t\tfor _, itemId in availableIds do if itemId == previousId then return previousId end end\n\tend\n\tfor _, itemId in availableIds do if type(itemId) == "string" then return itemId end end\n\treturn nil\nend\n\nreturn FurnitureUiRules\n''')
-          Path("tests/FurnitureUiRules.spec.luau").write_text('''local TestUtil = require("./TestUtil")\nlocal FurnitureUiRules = require("../src/shared/FurnitureUiRules")\n\nreturn function()\n\tTestUtil.equal(FurnitureUiRules.rejectionCopy("out_of_bounds"), "Keep the whole item inside your home.")\n\tTestUtil.equal(FurnitureUiRules.rejectionCopy("placement_budget"), "Your home has reached its furniture placement limit. Store an item before placing another.")\n\tTestUtil.equal(FurnitureUiRules.furnitureIdFromButtonName("Furniture_Sofa"), "Sofa")\n\tTestUtil.equal(FurnitureUiRules.furnitureIdFromButtonName("CloseButton"), nil)\n\tTestUtil.equal(FurnitureUiRules.preferredFurnitureId("Chair", { "Lamp", "Chair" }), "Chair")\n\tTestUtil.equal(FurnitureUiRules.preferredFurnitureId("Missing", { "Lamp", "Chair" }), "Lamp")\n\tTestUtil.equal(FurnitureUiRules.preferredFurnitureId(nil, {}), nil)\nend\n''')
-          replace_once("tests/run.luau", '\trequire("./FurniturePlacementRules.spec"),\n', '\trequire("./FurniturePlacementRules.spec"),\n\trequire("./FurnitureUiRules.spec"),\n')
-          replace_once("src/client/FurniturePlacement.client.luau", 'local ContextActionService = game:GetService("ContextActionService")\n', 'local ContextActionService = game:GetService("ContextActionService")\nlocal GuiService = game:GetService("GuiService")\n')
-          replace_once("src/client/FurniturePlacement.client.luau", 'local FurniturePlacementRules = require(shared:WaitForChild("FurniturePlacementRules"))\n', 'local FurniturePlacementRules = require(shared:WaitForChild("FurniturePlacementRules"))\nlocal FurnitureUiRules = require(shared:WaitForChild("FurnitureUiRules"))\n')
-          replace_once("src/client/FurniturePlacement.client.luau", '''local REJECTION_COPY = {\n\tstructural_collision = "That spot is blocked by a wall or a fixed home object.",\n\tnot_at_home = "Go back to your own home before changing furniture.",\n\toutside_bounds = "Keep the whole item inside your home.",\n\toverlap = "That would overlap furniture you already placed.",\n\tnot_owned = "You do not own an available copy of that item.",\n\tplacement_limit = "Your home has reached its furniture placement limit.",\n\trate_limit = "Too many placement changes at once. Try again in a moment.",\n\thome_unavailable = "Your home is not ready for furniture changes yet.",\n\tinvalid_request = "TinyWorld could not understand that placement. Try another spot.",\n}\n\n''', '')
-          replace_once("src/client/FurniturePlacement.client.luau", '\tplacementFeedback.Text = REJECTION_COPY[reason] or "That placement was rejected by TinyWorld. Try another spot."\n', '\tplacementFeedback.Text = FurnitureUiRules.rejectionCopy(reason)\n')
-          replace_once("src/client/FurniturePlacement.client.luau", 'local function refreshItems()\n\tfor _, child in itemScroll:GetChildren() do\n', 'local function refreshItems()\n\tlocal selectedFurnitureId = nil\n\tlocal selectedObject = GuiService.SelectedObject\n\tif selectedObject and selectedObject:IsDescendantOf(itemScroll) then\n\t\tselectedFurnitureId = FurnitureUiRules.furnitureIdFromButtonName(selectedObject.Name)\n\tend\n\tlocal itemButtonsById = {}\n\tlocal availableItemIds = {}\n\tfor _, child in itemScroll:GetChildren() do\n')
-          replace_once("src/client/FurniturePlacement.client.luau", '\t\tbutton.Parent = itemScroll\n\t\tlocal corner = Instance.new("UICorner")\n', '\t\tbutton.Parent = itemScroll\n\t\titemButtonsById[definition.id] = button\n\t\ttable.insert(availableItemIds, definition.id)\n\t\tlocal corner = Instance.new("UICorner")\n')
-          replace_once("src/client/FurniturePlacement.client.luau", '\tFocusController.grid(itemButtons, UiScaleRules.columns(viewportSize()))\nend\n\nfor index, category in categories do\n', '\tFocusController.grid(itemButtons, UiScaleRules.columns(viewportSize()))\n\tif backdrop.Visible then\n\t\tlocal preferredId = FurnitureUiRules.preferredFurnitureId(selectedFurnitureId, availableItemIds)\n\t\tGuiService.SelectedObject = if preferredId then itemButtonsById[preferredId] else closeButton\n\tend\nend\n\nfor index, category in categories do\n')
-          PY
-
-      - name: Format and verify remediation
-        run: |
-          set -euo pipefail
-          stylua src tests
-          luau tests/run.luau
-          luau-analyze src/shared/*.luau tests/*.luau
-          stylua --check src tests
-          find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
-          find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
-          ./scripts/verify-release-contract.sh
-          ./tests/build-contract.sh
-          git diff --check
-
-      - name: Commit source and tests only
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src tests
-          git commit -m "fix: close final Codex review findings"
-          git fetch origin docs/target-state-v1
-          test "$(git rev-parse HEAD^)" = "$(git rev-parse origin/docs/target-state-v1)" || { echo "Branch moved during remediation; refusing unsafe push."; exit 1; }
-          git push origin HEAD:docs/target-state-v1
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Install Luau 0.732
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          api="https://api.github.com/repos/luau-lang/luau/releases/tags/0.732"
-          asset_url="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$api" | jq -r '.assets[] | select(.name == "luau-ubuntu.zip") | .browser_download_url')"
-          test -n "$asset_url"; test "$asset_url" != "null"
-          curl -fsSL "$asset_url" -o /tmp/luau.zip
-          mkdir -p "$RUNNER_TEMP/luau"; unzip -q /tmp/luau.zip -d "$RUNNER_TEMP/luau"
-          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze" "$RUNNER_TEMP/luau/luau-compile"
-          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
-      - name: Install pinned Rokit tools
-        run: |
-          set -euo pipefail
-          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
-          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
-          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
-          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
-          export PATH="$HOME/.rokit/bin:$PATH"
-          rokit install --no-trust-check
       - name: Run unit tests
         run: luau tests/run.luau
+
       - name: Analyze shared Luau
         run: luau-analyze src/shared/*.luau tests/*.luau
+
       - name: Check formatting
         run: stylua --check src tests
+
       - name: Compile runtime Luau for syntax
         run: |
           find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
