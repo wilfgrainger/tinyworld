@@ -95,6 +95,8 @@ function TradeService.new(world, ProfileStore, PlayerStateService, SocialService
 	self.lastActivity = {}
 	self.version = 1
 	self.commitInProgress = false
+	self.commitMutationOwner = nil
+	self.commitMutationPlayers = {}
 	self.TRADE_TIMEOUT_SECONDS = 120
 
 	for side, refs in world.trade.sides do
@@ -154,7 +156,19 @@ function TradeService:_invalidateConfirmations()
 	self.confirmedVersion = {}
 end
 
+function TradeService:_releaseMutationLocks()
+	local owner = self.commitMutationOwner
+	if owner ~= nil then
+		for _, player in self.commitMutationPlayers do
+			self.ProfileStore.unlockMutations(player, owner)
+		end
+	end
+	self.commitMutationOwner = nil
+	self.commitMutationPlayers = {}
+end
+
 function TradeService:_resetActiveTrade()
+	self:_releaseMutationLocks()
 	self.players = {}
 	self.offers = {}
 	self.lastActivity = {}
@@ -379,7 +393,28 @@ function TradeService:_complete(a: Player, b: Player)
 		return
 	end
 
-	-- Single-flight lock is set before the first DataStore-yielding journal write.
+	local mutationOwner = "trade:" .. transaction.id
+	if not self.ProfileStore.lockMutations(a, mutationOwner) then
+		self:_invalidateConfirmations()
+		self.PlayerStateService.message(a, "Trade stopped because your inventory is busy. Please try again.")
+		self.PlayerStateService.message(b, "Trade stopped because the other inventory is busy. Please try again.")
+		self:_updateSign()
+		return
+	end
+	if not self.ProfileStore.lockMutations(b, mutationOwner) then
+		self.ProfileStore.unlockMutations(a, mutationOwner)
+		self:_invalidateConfirmations()
+		self.PlayerStateService.message(a, "Trade stopped because the other inventory is busy. Please try again.")
+		self.PlayerStateService.message(b, "Trade stopped because your inventory is busy. Please try again.")
+		self:_updateSign()
+		return
+	end
+	self.commitMutationOwner = mutationOwner
+	self.commitMutationPlayers = { a, b }
+
+	-- The trade single-flight and both participant mutation locks are active
+	-- before the first DataStore-yielding journal write. Normal ProfileStore.get
+	-- calls now fail closed for both participants until commit/recovery is safe.
 	self.commitInProgress = true
 	if not TradeJournal.write(transaction) then
 		TradeTransactionRules.beginRecovery(transaction, "journal_index_failed_before_exchange")
@@ -438,6 +473,7 @@ function TradeService:_complete(a: Player, b: Player)
 		return
 	end
 	TradeTransactionRules.commit(transaction)
+	self:_releaseMutationLocks()
 	self.PlayerStateService.sync(a, profileA)
 	self.PlayerStateService.sync(b, profileB)
 	TinyAnalyticsService.log(a, AnalyticsEvents.TradeCompleted)
