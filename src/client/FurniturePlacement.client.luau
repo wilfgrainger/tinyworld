@@ -306,7 +306,9 @@ local function updateConfirmState(valid: boolean)
 	confirmButton.Selectable = valid
 	confirmButton.AutoButtonColor = valid
 	local moving = FurnitureUiRules.placementAction(movingPlacementId) == "move"
-	confirmButton.Text = if valid then (if moving then "Move" else "Place") else (if moving then "Can't move" else "Can't place")
+	confirmButton.Text = if valid
+		then (if moving then "Move" else "Place")
+		else (if moving then "Can't move" else "Can't place")
 	confirmButton.BackgroundColor3 = if valid then UiTokens.Colors.Meadow else UiTokens.Colors.Danger
 	if previewPart then
 		previewPart.Color = if valid then UiTokens.Colors.GhostValid else UiTokens.Colors.GhostInvalid
