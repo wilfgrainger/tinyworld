@@ -4,7 +4,17 @@ local VillageCompositionRules = {}
 
 local MANIFEST = {
 	neighbourhoods = {
-		{ name = "MeadowLane", features = { curvedPath = true, stream = true, bridge = true, grassBanks = true, elevation = true, dressing = true } },
+		{
+			name = "MeadowLane",
+			features = {
+				curvedPath = true,
+				stream = true,
+				bridge = true,
+				grassBanks = true,
+				elevation = true,
+				dressing = true,
+			},
+		},
 		{ name = "HarbourRow", features = { curvedPath = true, elevation = true, dressing = true } },
 		{ name = "WoodlandRise", features = { curvedPath = true, elevation = true, dressing = true } },
 		{ name = "OrchardEnd", features = { curvedPath = true, elevation = true, dressing = true } },

@@ -207,7 +207,10 @@ function BoatService:_mount(player: Player)
 	end
 	local mounted, reason = TraversalRules.mountTinyBoat(profile)
 	if not mounted then
-		self.PlayerStateService.message(player, if reason == "not_owned" then "Buy the Tiny Boat first." else "You are already in Tidepool Cove.")
+		self.PlayerStateService.message(
+			player,
+			if reason == "not_owned" then "Buy the Tiny Boat first." else "You are already in Tidepool Cove."
+		)
 		return
 	end
 	boat.model:PivotTo(self.world.boundary.coveBoatCFrame)
@@ -259,7 +262,12 @@ function BoatService:_useShop(player: Player)
 	if not profile.ownsTinyBoat then
 		local bought, reason = TraversalRules.buyTinyBoat(profile)
 		if not bought then
-			self.PlayerStateService.message(player, if reason == "not_enough_coins" then "The Tiny Boat costs 600 coins." else "You already own the Tiny Boat.")
+			self.PlayerStateService.message(
+				player,
+				if reason == "not_enough_coins"
+					then "The Tiny Boat costs 600 coins."
+					else "You already own the Tiny Boat."
+			)
 			return
 		end
 		self:_ensureBoat(player)

@@ -1,0 +1,28 @@
+{
+  "release": "0.6.0",
+  "verifiedSourceSha": "acdc88cd51081c7128caf51e32a7debc3867e292",
+  "verifiedPullRequestMergeSha": "914511d4f3b59810aab7dfe15ce3dd43496d7d8c",
+  "verifiedAtUtc": "2026-08-10T08:09:00Z",
+  "workflowRuns": {
+    "luau": 31368787077,
+    "releaseAuthority": 31368787051,
+    "rojoBuild": 31368787062
+  },
+  "profileSchema": 11,
+  "artifact": "TinyWorld-v0.6.0.rbxlx",
+  "artifactSha256": "07bb321ad11d20a5bc7720eda3c7aab920f93781dc1ceb6f8f7a73bd0641d14d",
+  "workflowArtifactDigest": "sha256:f153c65ded63c3ef7750cabec0673dc007e52698ef8e3dfb4c3f3f56a7c460f2",
+  "gates": {
+    "luauTests": "PASS",
+    "luauAnalyze": "PASS",
+    "stylua": "PASS",
+    "serverCompile": "PASS",
+    "clientCompile": "PASS",
+    "releaseAuthority": "PASS",
+    "releaseContract": "PASS",
+    "rojoBuild": "PASS",
+    "traceabilityArtifact": "PASS"
+  },
+  "runtimeEvidence": "PENDING",
+  "evidenceNote": "The source SHA is the clean implementation candidate verified by the cited workflows. The Rojo artifact was built from the cited pull-request merge SHA for that source head, and both the inner rbxlx SHA-256 and uploaded workflow-artifact digest are recorded above. This evidence file is committed afterward as metadata; the resulting evidence-only PR head must also pass repository CI before merge. Roblox Studio, save/rejoin runtime, two-client multiplayer, phone/controller/device performance, published DEV and exact-artifact LIVE promotion evidence remain pending."
+}

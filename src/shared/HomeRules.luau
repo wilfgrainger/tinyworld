@@ -41,7 +41,14 @@ function HomeRules.buy(profile: any, itemId: string): (boolean, string)
 		return false, "not_enough_coins"
 	end
 	profile.coins -= item.price
+	if type(profile.homeItems) ~= "table" then
+		profile.homeItems = {}
+	end
 	profile.homeItems[itemId] = 1
+	if type(profile.ownedFurniture) ~= "table" then
+		profile.ownedFurniture = {}
+	end
+	profile.ownedFurniture[itemId] = math.max(1, profile.ownedFurniture[itemId] or 0)
 	return true, "bought"
 end
 
@@ -57,4 +64,3 @@ function HomeRules.use(profile: any, itemId: string): (boolean, string)
 end
 
 return HomeRules
-

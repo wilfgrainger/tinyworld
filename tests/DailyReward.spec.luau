@@ -17,5 +17,15 @@ return function()
 	TestUtil.equal(secondReason, "already_claimed")
 	TestUtil.equal(profile.coins, 300)
 	TestUtil.equal(profile.inventory.Carrot, 1)
-end
 
+	local fullProfile = ProfileSchema.new()
+	fullProfile.inventory.Carrot = 999
+	fullProfile.inventoryStacks.Carrot = 999
+	local blocked, blockedReason = DailyReward.claim(fullProfile, "2026-08-08")
+	TestUtil.isFalse(blocked)
+	TestUtil.equal(blockedReason, "inventory_full")
+	TestUtil.equal(fullProfile.lastDailyDay, "")
+	TestUtil.equal(fullProfile.coins, 100)
+	TestUtil.equal(fullProfile.xp, 0)
+	TestUtil.equal(fullProfile.inventory.Carrot, 999)
+end

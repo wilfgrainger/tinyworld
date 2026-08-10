@@ -3,7 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
 local Profession = require(shared:WaitForChild("Profession"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local JobService = {}
 JobService.__index = JobService
@@ -107,11 +109,20 @@ function JobService:_finish(player: Player)
 	local professionLevels = Profession.addCourierXp(profile, 100)
 	local _routeChanged, routeText = self.RouteService:record(player, "courier_delivery")
 	self.PlayerStateService.sync(player, profile)
-	self.PlayerStateService.message(player, string.format("Delivery complete: +150 coins, +75 XP, +100 Courier XP%s", if professionLevels > 0 then " — Courier level up!" else "."))
+	self.PlayerStateService.message(
+		player,
+		string.format(
+			"Delivery complete: +150 coins, +75 XP, +100 Courier XP%s",
+			if professionLevels > 0 then " — Courier level up!" else "."
+		)
+	)
 	if routeText ~= "" then
 		self.PlayerStateService.message(player, routeText)
 	end
-	self.ProfileStore.save(player)
+	if self.ProfileStore.save(player) then
+		TinyAnalyticsService.log(player, AnalyticsEvents.CurrencyEarned, 150)
+		TinyAnalyticsService.log(player, AnalyticsEvents.CareerCompleted)
+	end
 end
 
 function JobService:removePlayer(player: Player)

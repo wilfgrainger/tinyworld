@@ -1,0 +1,200 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local root = ReplicatedStorage:WaitForChild("TinyWorld")
+local shared = root:WaitForChild("Shared")
+local AppearanceDefinitions = require(shared:WaitForChild("AppearanceDefinitions"))
+local UiTokens = require(script.Parent:WaitForChild("UiTokens"))
+local UiScaleRules = require(script.Parent:WaitForChild("UiScaleRules"))
+local ButtonFactory = require(script.Parent:WaitForChild("ButtonFactory"))
+local PanelFactory = require(script.Parent:WaitForChild("PanelFactory"))
+local ModalController = require(script.Parent:WaitForChild("ModalController"))
+
+local remote = root:WaitForChild("AppearanceRemote") :: RemoteEvent
+local camera = Workspace.CurrentCamera
+local modalController = ModalController.new()
+local selectedHair = "Tousled"
+local selectedOutfit = "Starter"
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TinyWorldWardrobe"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = false
+gui.DisplayOrder = UiTokens.ModalDisplayOrder + 1
+gui.Parent = playerGui
+
+local wardrobeButton = Instance.new("TextButton")
+wardrobeButton.Name = "WardrobeButton"
+wardrobeButton.AnchorPoint = Vector2.new(1, 1)
+wardrobeButton.Position = UDim2.new(1, -140, 1, -18)
+wardrobeButton.Size = UDim2.fromOffset(112, UiTokens.TouchTarget)
+wardrobeButton.BackgroundColor3 = UiTokens.Colors.Berry
+wardrobeButton.BorderSizePixel = 0
+wardrobeButton.Text = "Wardrobe"
+wardrobeButton.TextColor3 = UiTokens.Colors.Paper
+wardrobeButton.TextSize = 15
+wardrobeButton.Font = UiTokens.Fonts.Strong
+wardrobeButton.Selectable = true
+wardrobeButton.Parent = gui
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, UiTokens.CornerRadius)
+buttonCorner.Parent = wardrobeButton
+
+local backdrop = Instance.new("Frame")
+backdrop.Size = UDim2.fromScale(1, 1)
+backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
+backdrop.BackgroundTransparency = 0.45
+backdrop.Visible = false
+backdrop.Active = true
+backdrop.Parent = gui
+
+local panel = PanelFactory.create(backdrop, "WardrobePanel")
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.fromScale(0.5, 0.5)
+
+local layout = PanelFactory.verticalLayout(panel, 8)
+layout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+local title = Instance.new("TextLabel")
+title.LayoutOrder = 1
+title.Size = UDim2.new(1, 0, 0, 36)
+title.BackgroundTransparency = 1
+title.Text = "Wardrobe"
+title.TextColor3 = UiTokens.Colors.Ink
+title.TextSize = 24
+title.Font = UiTokens.Fonts.Title
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = panel
+
+local hint = Instance.new("TextLabel")
+hint.LayoutOrder = 2
+hint.Size = UDim2.new(1, 0, 0, 42)
+hint.BackgroundTransparency = 1
+hint.Text = "All starter looks are free. Pick a hair style and outfit that feels like you."
+hint.TextColor3 = UiTokens.Colors.InkSoft
+hint.TextSize = 14
+hint.TextWrapped = true
+hint.Font = UiTokens.Fonts.Body
+hint.TextXAlignment = Enum.TextXAlignment.Left
+hint.Parent = panel
+
+local hairScroll = Instance.new("ScrollingFrame")
+hairScroll.LayoutOrder = 3
+hairScroll.Size = UDim2.new(1, 0, 0, 62)
+hairScroll.BackgroundTransparency = 1
+hairScroll.BorderSizePixel = 0
+hairScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
+hairScroll.CanvasSize = UDim2.new()
+hairScroll.ScrollingDirection = Enum.ScrollingDirection.X
+hairScroll.ScrollBarThickness = 4
+hairScroll.Parent = panel
+local hairLayout = Instance.new("UIListLayout")
+hairLayout.FillDirection = Enum.FillDirection.Horizontal
+hairLayout.Padding = UDim.new(0, 8)
+hairLayout.Parent = hairScroll
+
+local outfitScroll = Instance.new("ScrollingFrame")
+outfitScroll.LayoutOrder = 4
+outfitScroll.Size = UDim2.new(1, 0, 1, -220)
+outfitScroll.BackgroundTransparency = 1
+outfitScroll.BorderSizePixel = 0
+outfitScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+outfitScroll.CanvasSize = UDim2.new()
+outfitScroll.ScrollBarThickness = 6
+outfitScroll.Parent = panel
+local outfitLayout = Instance.new("UIGridLayout")
+outfitLayout.CellPadding = UDim2.fromOffset(8, 8)
+outfitLayout.CellSize = UDim2.new(0.5, -6, 0, 64)
+outfitLayout.Parent = outfitScroll
+
+local saveButton = ButtonFactory.create(panel, "Save Look", 5)
+local closeButton = ButtonFactory.secondary(panel, "Close", 6)
+
+local hairButtons = {}
+for index, hair in AppearanceDefinitions.hairStyles() do
+	local button = ButtonFactory.secondary(hairScroll, hair.displayName, index)
+	button.Size = UDim2.fromOffset(128, UiTokens.TouchTarget)
+	button.Activated:Connect(function()
+		selectedHair = hair.id
+		for id, other in hairButtons do
+			other.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+		end
+	end)
+	hairButtons[hair.id] = button
+end
+
+local outfitButtons = {}
+for index, outfit in AppearanceDefinitions.outfits() do
+	local button = Instance.new("TextButton")
+	button.Name = "Outfit_" .. outfit.id
+	button.LayoutOrder = index
+	button.BackgroundColor3 = UiTokens.Colors.PaperSoft
+	button.BorderSizePixel = 0
+	button.Text = outfit.displayName .. "\nFREE"
+	button.TextColor3 = UiTokens.Colors.Ink
+	button.TextSize = 14
+	button.TextWrapped = true
+	button.Font = UiTokens.Fonts.Strong
+	button.Selectable = true
+	button.Parent = outfitScroll
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 10)
+	corner.Parent = button
+	button.Activated:Connect(function()
+		selectedOutfit = outfit.id
+		for id, other in outfitButtons do
+			other.BackgroundColor3 = if id == selectedOutfit then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+		end
+	end)
+	outfitButtons[outfit.id] = button
+end
+
+local function updateResponsive()
+	local viewport = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+	panel.Size = UiScaleRules.modalSize(viewport)
+	local columns = math.min(3, UiScaleRules.columns(viewport))
+	outfitLayout.FillDirectionMaxCells = columns
+	outfitLayout.CellSize = UDim2.new(1 / columns, -8, 0, 66)
+end
+
+local function openWardrobe()
+	remote:FireServer({ action = "state" })
+	backdrop.Visible = true
+	modalController:open(backdrop, saveButton)
+end
+
+wardrobeButton.Activated:Connect(openWardrobe)
+saveButton.Activated:Connect(function()
+	remote:FireServer({ action = "save", hairId = selectedHair, outfitId = selectedOutfit })
+end)
+closeButton.Activated:Connect(function()
+	modalController:close(backdrop)
+	backdrop.Visible = false
+end)
+
+remote.OnClientEvent:Connect(function(payload)
+	if type(payload) ~= "table" or payload.kind ~= "state" then
+		return
+	end
+	if type(payload.hairId) == "string" and hairButtons[payload.hairId] then
+		selectedHair = payload.hairId
+	end
+	if type(payload.outfitId) == "string" and outfitButtons[payload.outfitId] then
+		selectedOutfit = payload.outfitId
+	end
+	for id, button in hairButtons do
+		button.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+	end
+	for id, button in outfitButtons do
+		button.BackgroundColor3 = if id == selectedOutfit then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
+	end
+end)
+
+if camera then
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateResponsive)
+end
+updateResponsive()
+remote:FireServer({ action = "state" })

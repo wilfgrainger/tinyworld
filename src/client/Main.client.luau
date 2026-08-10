@@ -6,8 +6,11 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Progression = require(shared:WaitForChild("Progression"))
+local PortalJournalRules = require(shared:WaitForChild("PortalJournalRules"))
 local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local VisualQualityRules = require(shared:WaitForChild("VisualQualityRules"))
+local ModalController = require(script.Parent:WaitForChild("ModalController"))
+local modalController = ModalController.new()
 
 local colors = {
 	ink = Color3.fromHex(VisualPalette.ink),
@@ -270,7 +273,14 @@ local function makeJournalSection(): Frame
 	return section
 end
 
-local function makeSectionLabel(parent: Instance, name: string, position: UDim2, size: UDim2, textSize: number, bold: boolean): TextLabel
+local function makeSectionLabel(
+	parent: Instance,
+	name: string,
+	position: UDim2,
+	size: UDim2,
+	textSize: number,
+	bold: boolean
+): TextLabel
 	local label = makeLabel(parent, name, textSize, bold)
 	label.Position = position
 	label.Size = size
@@ -284,35 +294,42 @@ local todayHeading = makeSectionLabel(todaySection, "Heading", UDim2.fromOffset(
 todayHeading.Text = "Today’s adventure"
 todayHeading.TextColor3 = colors.gold
 local todayQuest = makeSectionLabel(todaySection, "Quest", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 0, 64), 16, true)
-local todayProgress = makeSectionLabel(todaySection, "Progress", UDim2.fromOffset(0, 116), UDim2.new(1, 0, 0, 82), 14, false)
+local todayProgress =
+	makeSectionLabel(todaySection, "Progress", UDim2.fromOffset(0, 116), UDim2.new(1, 0, 0, 82), 14, false)
 
 local bagSection = makeJournalSection()
 bagSection.Name = "BagSection"
 local bagHeading = makeSectionLabel(bagSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 bagHeading.Text = "What’s in my bag"
 bagHeading.TextColor3 = colors.gold
-local bagContents = makeSectionLabel(bagSection, "Inventory", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
+local bagContents =
+	makeSectionLabel(bagSection, "Inventory", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local homeSection = makeJournalSection()
 homeSection.Name = "HomeSection"
 local homeHeading = makeSectionLabel(homeSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 homeHeading.Text = "My home"
 homeHeading.TextColor3 = colors.gold
-local homeDetails = makeSectionLabel(homeSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
+local homeDetails =
+	makeSectionLabel(homeSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local careersSection = makeJournalSection()
 careersSection.Name = "CareersSection"
-local careersHeading = makeSectionLabel(careersSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
+local careersHeading =
+	makeSectionLabel(careersSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 careersHeading.Text = "Things I’m learning"
 careersHeading.TextColor3 = colors.gold
-local careersDetails = makeSectionLabel(careersSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
+local careersDetails =
+	makeSectionLabel(careersSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local collectionSection = makeJournalSection()
 collectionSection.Name = "CollectionSection"
-local collectionHeading = makeSectionLabel(collectionSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
+local collectionHeading =
+	makeSectionLabel(collectionSection, "Heading", UDim2.fromOffset(0, 0), UDim2.new(1, 0, 0, 34), 20, true)
 collectionHeading.Text = "Places and keepsakes"
 collectionHeading.TextColor3 = colors.gold
-local collectionDetails = makeSectionLabel(collectionSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
+local collectionDetails =
+	makeSectionLabel(collectionSection, "Details", UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -48), 15, false)
 
 local tabEntries = {
 	{ button = todayTab, section = todaySection },
@@ -340,10 +357,14 @@ end
 selectJournalTab(todayTab)
 
 journalButton.Activated:Connect(function()
-	journalPanel.Visible = not journalPanel.Visible
+	if journalPanel.Visible then
+		modalController:close(journalPanel)
+	else
+		modalController:open(journalPanel, journalClose)
+	end
 end)
 journalClose.Activated:Connect(function()
-	journalPanel.Visible = false
+	modalController:close(journalPanel)
 end)
 
 local toast = Instance.new("Frame")
@@ -390,9 +411,11 @@ local function showToast(message: string)
 		if currentToastToken ~= toastToken then
 			return
 		end
-		local hideTween = TweenService:Create(toast, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-			Position = UDim2.new(0.5, 0, 1, 76),
-		})
+		local hideTween = TweenService:Create(
+			toast,
+			TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ Position = UDim2.new(0.5, 0, 1, 76) }
+		)
 		hideTween.Completed:Connect(function()
 			if currentToastToken ~= toastToken then
 				return
@@ -411,6 +434,12 @@ local function friendlyQuest(): (string, string)
 	end
 	if portalWorld == "GiantKitchen" then
 		return "Giant Kitchen", string.format("Gather the sugar crystals  •  %d of 3", portalFinds)
+	end
+	if portalWorld == "CloudpostObservatory" then
+		return "Cloudpost Observatory", string.format("Gather the bottled breezes  •  %d of 3", portalFinds)
+	end
+	if portalWorld == "ClockworkOrchard" then
+		return "Clockwork Orchard", string.format("Gather the clockwork leaves  •  %d of 3", portalFinds)
 	end
 	if attr("TinyWorldCarryingParcel", false) then
 		return "Courier round", "Carry the parcel to the village shop"
@@ -439,14 +468,12 @@ local function boundaryVisitCount(mask: number): number
 end
 
 local function portalJournalCopy(): string
-	local completions = attr("TinyWorldPortalCompletions", 0)
-	if completions < 1 then
-		return "The Giant Kitchen is waiting beyond the first portal."
-	end
-	if completions < 2 then
-		return "Giant Kitchen  ●\nMoonlit Meadow  ○"
-	end
-	return "Giant Kitchen  ●\nMoonlit Meadow  ●"
+	return PortalJournalRules.copy({
+		GiantKitchen = attr("TinyWorldDiscoveredGiantKitchen", false),
+		MoonlitMeadow = attr("TinyWorldDiscoveredMoonlitMeadow", false),
+		CloudpostObservatory = attr("TinyWorldDiscoveredCloudpostObservatory", false),
+		ClockworkOrchard = attr("TinyWorldDiscoveredClockworkOrchard", false),
+	})
 end
 
 local updateDebug = function() end
@@ -535,6 +562,10 @@ local observed = {
 	"TinyWorldDesignerLevel",
 	"TinyWorldDesignerXP",
 	"TinyWorldPortalCompletions",
+	"TinyWorldDiscoveredGiantKitchen",
+	"TinyWorldDiscoveredMoonlitMeadow",
+	"TinyWorldDiscoveredCloudpostObservatory",
+	"TinyWorldDiscoveredClockworkOrchard",
 	"TinyWorldBoundaryMask",
 	"TinyWorldPortalCrystals",
 	"TinyWorldPortalWorld",

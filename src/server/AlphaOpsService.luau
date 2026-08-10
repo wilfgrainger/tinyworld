@@ -70,7 +70,10 @@ function AlphaOpsService:_syncPlayer(player: Player)
 	end
 	if previousHealth ~= "recovery-required" and health == "recovery-required" then
 		self.events.recoveryTransitions += 1
-		self.PlayerStateService.message(player, "TinyWorld needs a safe session restart. Please rejoin before continuing.")
+		self.PlayerStateService.message(
+			player,
+			"TinyWorld needs a safe session restart. Please rejoin before continuing."
+		)
 	end
 
 	player:SetAttribute("TinyWorldAlphaReleaseVersion", AlphaOpsRules.RELEASE_VERSION)
@@ -123,10 +126,13 @@ function AlphaOpsService:setupPlayer(player: Player)
 	local record = { connections = {}, health = nil }
 	self.players[player] = record
 	for _, attribute in OBSERVED_ATTRIBUTES do
-		table.insert(record.connections, player:GetAttributeChangedSignal(attribute):Connect(function()
-			self:_syncPlayer(player)
-			self:_syncAggregate()
-		end))
+		table.insert(
+			record.connections,
+			player:GetAttributeChangedSignal(attribute):Connect(function()
+				self:_syncPlayer(player)
+				self:_syncAggregate()
+			end)
+		)
 	end
 	self:_syncPlayer(player)
 	self:_syncAggregate()
@@ -162,4 +168,3 @@ function AlphaOpsService:stop()
 end
 
 return AlphaOpsService
-

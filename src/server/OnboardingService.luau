@@ -3,27 +3,12 @@ local TextService = game:GetService("TextService")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local OnboardingRules = require(shared:WaitForChild("OnboardingRules"))
+local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
+local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local OnboardingService = {}
 OnboardingService.__index = OnboardingService
-
-local PALETTES = {
-	Meadow = {
-		torso = Color3.fromRGB(104, 153, 93),
-		arms = Color3.fromRGB(246, 231, 183),
-		legs = Color3.fromRGB(112, 76, 48),
-	},
-	Harbor = {
-		torso = Color3.fromRGB(67, 119, 168),
-		arms = Color3.fromRGB(211, 220, 226),
-		legs = Color3.fromRGB(38, 56, 82),
-	},
-	Sunset = {
-		torso = Color3.fromRGB(222, 111, 51),
-		arms = Color3.fromRGB(255, 205, 91),
-		legs = Color3.fromRGB(91, 54, 44),
-	},
-}
 
 local function getRemote(): RemoteEvent
 	local folder = ReplicatedStorage:WaitForChild("TinyWorld")
@@ -40,33 +25,13 @@ local function getRemote(): RemoteEvent
 	return remote
 end
 
-local function applyPalette(player: Player, outfit: string)
-	local palette = PALETTES[outfit]
-	local character = player.Character
-	if palette == nil or character == nil then
-		return
-	end
-
-	local bodyColors = character:FindFirstChildOfClass("BodyColors")
-	if bodyColors == nil then
-		bodyColors = Instance.new("BodyColors")
-		bodyColors.Parent = character
-	end
-
-	bodyColors.TorsoColor = BrickColor.new(palette.torso)
-	bodyColors.LeftArmColor = BrickColor.new(palette.arms)
-	bodyColors.RightArmColor = BrickColor.new(palette.arms)
-	bodyColors.LeftLegColor = BrickColor.new(palette.legs)
-	bodyColors.RightLegColor = BrickColor.new(palette.legs)
-end
-
-function OnboardingService.new(ProfileStore, PlayerStateService)
+function OnboardingService.new(ProfileStore, PlayerStateService, AppearanceService)
 	local self = setmetatable({}, OnboardingService)
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.AppearanceService = AppearanceService
 	self.remote = getRemote()
-	self.characterConnections = {}
-	self.remote.OnServerEvent:Connect(function(player, payload)
+	self.remoteConnection = self.remote.OnServerEvent:Connect(function(player, payload)
 		self:_submit(player, payload)
 	end)
 	return self
@@ -81,26 +46,16 @@ function OnboardingService:_setState(player: Player, profile)
 	self.PlayerStateService.sync(player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", complete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not complete)
-	if complete then
-		applyPalette(player, profile.starterOutfit)
+	if complete and self.AppearanceService then
+		-- AppearanceService is the single writer for the complete TinyWorld look:
+		-- body palette, hair fallback, shoes fallback and active-outfit attribute.
+		self.AppearanceService:applyProfile(player, profile)
 	end
 	return complete
 end
 
 function OnboardingService:setupPlayer(player: Player, profile)
-	local oldConnection = self.characterConnections[player]
-	if oldConnection then
-		oldConnection:Disconnect()
-	end
-
 	self:_setState(player, profile)
-	self.characterConnections[player] = player.CharacterAdded:Connect(function()
-		task.wait(0.25)
-		local latest = self.ProfileStore.get(player)
-		if latest and OnboardingRules.isComplete(latest) then
-			applyPalette(player, latest.starterOutfit)
-		end
-	end)
 end
 
 function OnboardingService:_filterName(player: Player, name: string): (string?, string?)
@@ -124,8 +79,29 @@ function OnboardingService:_submit(player: Player, payload: any)
 	if profile == nil or OnboardingRules.isComplete(profile) then
 		return
 	end
+	if not RemoteGuard.checkRate(player, "onboarding_submit", 5, 10) then
+		RemoteGuard.warn(player, "onboarding_submit", "rate_limit")
+		self:_reply(player, false, "Please wait a moment before trying again.")
+		return
+	end
 	if type(payload) ~= "table" then
+		RemoteGuard.warn(player, "onboarding_submit", "invalid_payload")
 		self:_reply(player, false, "Please choose a name, style, and outfit.")
+		return
+	end
+	if not RemoteGuard.stringWithin(payload.displayName, 3, 16) then
+		RemoteGuard.warn(player, "onboarding_submit", "display_name_length")
+		self:_reply(player, false, "Use 3-16 letters, numbers, spaces, _ or - for your name.")
+		return
+	end
+	if
+		type(payload.avatarStyle) ~= "string"
+		or #payload.avatarStyle > 16
+		or type(payload.starterOutfit) ~= "string"
+		or #payload.starterOutfit > 16
+	then
+		RemoteGuard.warn(player, "onboarding_submit", "selection_shape")
+		self:_reply(player, false, "Please choose a valid style and outfit.")
 		return
 	end
 
@@ -135,10 +111,12 @@ function OnboardingService:_submit(player: Player, payload: any)
 		return
 	end
 	if not OnboardingRules.isValidAvatarStyle(payload.avatarStyle) then
+		RemoteGuard.warn(player, "onboarding_submit", "avatar_style")
 		self:_reply(player, false, "Choose Boy or Girl to continue.")
 		return
 	end
 	if not OnboardingRules.isValidStarterOutfit(payload.starterOutfit) then
+		RemoteGuard.warn(player, "onboarding_submit", "starter_outfit")
 		self:_reply(player, false, "Choose one of the three free outfits to continue.")
 		return
 	end
@@ -171,17 +149,13 @@ function OnboardingService:_submit(player: Player, payload: any)
 	end
 
 	self:_setState(player, profile)
+	TinyAnalyticsService.log(player, AnalyticsEvents.OnboardingCompleted)
 	self.PlayerStateService.message(player, "Welcome to TinyWorld, " .. profile.displayName .. "!")
 	self:_reply(player, true, "Your TinyWorld setup is saved.")
 end
 
 function OnboardingService:removePlayer(player: Player)
-	local connection = self.characterConnections[player]
-	if connection then
-		connection:Disconnect()
-		self.characterConnections[player] = nil
-	end
+	RemoteGuard.clearPlayer(player)
 end
 
 return OnboardingService
-

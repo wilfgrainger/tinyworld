@@ -30,5 +30,17 @@ return function()
 
 	local harvestedAgain = GardenRules.harvest(profile, bed, 105)
 	TestUtil.isFalse(harvestedAgain)
-end
 
+	local fullProfile = ProfileSchema.new()
+	fullProfile.inventory.Carrot = 999
+	fullProfile.inventoryStacks.Carrot = 999
+	local fullBed = fullProfile.gardenBeds[1]
+	fullBed.stage = "ready"
+	fullBed.readyAt = 0
+	local blocked, blockedReason = GardenRules.harvest(fullProfile, fullBed, 1000)
+	TestUtil.isFalse(blocked)
+	TestUtil.equal(blockedReason, "inventory_full")
+	TestUtil.equal(fullProfile.inventory.Carrot, 999)
+	TestUtil.equal(fullProfile.xp, 0)
+	TestUtil.equal(fullBed.stage, "ready")
+end

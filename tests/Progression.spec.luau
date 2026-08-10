@@ -23,4 +23,3 @@ return function()
 	TestUtil.equal(unchanged.level, 1)
 	TestUtil.equal(unchanged.xp, 0)
 end
-

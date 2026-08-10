@@ -1,9 +1,15 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
+local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 
 local ProfileStore = require(script.Parent:WaitForChild("ProfileStore"))
 local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateService"))
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
+local ImpossibleWorldBuilder = require(script.Parent:WaitForChild("ImpossibleWorldBuilder"))
+local PortalMechanicBuilder = require(script.Parent:WaitForChild("PortalMechanicBuilder"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
 local GardenService = require(script.Parent:WaitForChild("GardenService"))
 local DailyRewardService = require(script.Parent:WaitForChild("DailyRewardService"))
@@ -17,25 +23,38 @@ local LivingWorldService = require(script.Parent:WaitForChild("LivingWorldServic
 local RouteService = require(script.Parent:WaitForChild("RouteService"))
 local SocialService = require(script.Parent:WaitForChild("SocialService"))
 local HomeService = require(script.Parent:WaitForChild("HomeService"))
+local HomeStoreService = require(script.Parent:WaitForChild("HomeStoreService"))
+local FurniturePlacementService = require(script.Parent:WaitForChild("FurniturePlacementService"))
+local AppearanceService = require(script.Parent:WaitForChild("AppearanceService"))
 local AlphaOpsService = require(script.Parent:WaitForChild("AlphaOpsService"))
 local PhysicalItemService = require(script.Parent:WaitForChild("PhysicalItemService"))
 local ProfessionService = require(script.Parent:WaitForChild("ProfessionService"))
 local BoatService = require(script.Parent:WaitForChild("BoatService"))
+local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
+ImpossibleWorldBuilder.extend(world)
+PortalMechanicBuilder.extend(world)
+local ambientLifeService = AmbientLifeService.new(world)
 local routeService = RouteService.new(ProfileStore, PlayerStateService)
 local socialService = SocialService.new(world, ProfileStore, PlayerStateService)
 local homeService = HomeService.new(world, ProfileStore, PlayerStateService)
+local homeStoreService = HomeStoreService.new(ProfileStore, PlayerStateService)
+local furniturePlacementService = FurniturePlacementService.new(ProfileStore, PlayerStateService)
+local appearanceService = AppearanceService.new(ProfileStore, PlayerStateService)
 local plotService = PlotService.new(world, ProfileStore, PlayerStateService, socialService, homeService)
 homeService:setPlotService(plotService)
+furniturePlacementService:setPlotService(plotService)
+plotService:setFurniturePlacementService(furniturePlacementService)
 local physicalItemService = PhysicalItemService.new(world, plotService, ProfileStore, PlayerStateService)
-local onboardingService = OnboardingService.new(ProfileStore, PlayerStateService)
+local onboardingService = OnboardingService.new(ProfileStore, PlayerStateService, appearanceService)
 local alphaOpsService = AlphaOpsService.new(world, ProfileStore, PlayerStateService)
 local gardenService = GardenService.new(world, plotService, ProfileStore, PlayerStateService, routeService)
 local _dailyRewardService = DailyRewardService.new(world, ProfileStore, PlayerStateService, routeService)
 local jobService = JobService.new(world, ProfileStore, PlayerStateService, routeService)
 local transportService = TransportService.new(world, ProfileStore, PlayerStateService)
-local portalService = PortalService.new(world, ProfileStore, PlayerStateService)
+local portalService = PortalService.new(world, ProfileStore, PlayerStateService, plotService)
 local tradeService = TradeService.new(world, ProfileStore, PlayerStateService, socialService)
 local _villageService = VillageService.new(world, ProfileStore, PlayerStateService)
 local _explorationService = ExplorationService.new(world, ProfileStore, PlayerStateService, routeService)
@@ -43,20 +62,43 @@ local _livingWorldService = LivingWorldService.new(world, ProfileStore, PlayerSt
 local _professionService = ProfessionService.new(world, ProfileStore, PlayerStateService)
 local boatService = BoatService.new(world, ProfileStore, PlayerStateService)
 
+local function rejectOverflowPlayer(player: Player)
+	player:Kick("This TinyWorld village already has all sixteen resident homes. Please rejoin to find another village.")
+end
+
 local function onPlayerAdded(player: Player)
+	local currentPlayers = #Players:GetPlayers()
+	local admittedBeforeJoin = math.max(0, currentPlayers - 1)
+	if not WorldLayoutRules.canAdmitPlayer(admittedBeforeJoin) or currentPlayers > #world.plots then
+		rejectOverflowPlayer(player)
+		return
+	end
+
 	local profile = ProfileStore.load(player)
 	if profile == nil then
 		player:Kick("TinyWorld could not safely load your saved data. Please rejoin in a moment.")
 		return
 	end
+	if not tradeService:setupPlayer(player) then
+		ProfileStore.release(player)
+		player:Kick("TinyWorld is safely recovering an interrupted trade. Please rejoin in a moment.")
+		return
+	end
 
 	PlayerStateService.setup(player, profile)
 	onboardingService:setupPlayer(player, profile)
+	appearanceService:setupPlayer(player, profile)
 	alphaOpsService:setupPlayer(player)
 	routeService:sync(player, profile)
 	socialService:setupPlayer(player)
 	homeService:syncPlayer(player, profile)
-	plotService:assign(player, profile)
+	local plotIndex = plotService:assign(player, profile)
+	if plotIndex == nil then
+		ProfileStore.release(player)
+		rejectOverflowPlayer(player)
+		return
+	end
+	TinyAnalyticsService.setupPlayer(player, profile)
 	physicalItemService:refresh(player, profile)
 	gardenService:syncPlayer(player)
 	jobService:trackPlayer(player)
@@ -80,8 +122,12 @@ local function onPlayerRemoving(player: Player)
 	jobService:removePlayer(player)
 	transportService:removePlayer(player)
 	boatService:removePlayer(player)
+	appearanceService:removePlayer(player)
+	furniturePlacementService:removePlayer(player)
+	homeStoreService:removePlayer(player)
 	onboardingService:removePlayer(player)
 	alphaOpsService:removePlayer(player)
+	TinyAnalyticsService.removePlayer(player)
 	plotService:release(player)
 	ProfileStore.release(player)
 end
@@ -94,7 +140,7 @@ for _, player in Players:GetPlayers() do
 end
 
 game:BindToClose(function()
+	ambientLifeService:stop()
 	alphaOpsService:stop()
 	ProfileStore.shutdown(25)
 end)
-

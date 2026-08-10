@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEFAULT_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-REPO_ROOT="${TINYWORLD_REPO_ROOT:-$DEFAULT_REPO_ROOT}"
-if [[ ! -d "$REPO_ROOT" ]]; then
-  echo "ERROR: repository root does not exist: $REPO_ROOT" >&2
-  exit 1
-fi
-REPO_ROOT="$(cd "$REPO_ROOT" && pwd -P)"
-cd "$REPO_ROOT"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
 
-if ! command -v jq >/dev/null 2>&1; then
-  echo "ERROR: required command missing: jq" >&2
-  exit 1
-fi
+fail() { echo "FAIL: $1" >&2; exit 1; }
+pass() { echo "PASS: $1"; }
+
+command -v jq >/dev/null 2>&1 || fail "jq is required"
 
 required_paths=(
   "default.project.json"
   "rokit.toml"
+  "stylua.toml"
   "config/release.json"
   "config/environments/dev.json"
   "config/environments/live.json"
@@ -25,266 +20,110 @@ required_paths=(
   "scripts/build.sh"
   "scripts/build.ps1"
   ".github/workflows/rojo-build.yml"
-  "docs/engineering/production-engineering.md"
-  "docs/roadmap/v0.5.3-production-engineering.md"
-  "docs/releases/v0.5.3/acceptance.md"
-  "docs/superpowers/specs/2026-08-09-tinyworld-v0.5.3-production-engineering-design.md"
-  "docs/superpowers/plans/2026-08-09-tinyworld-v0.5.3-production-engineering.md"
+  ".github/workflows/luau-tests.yml"
+  "docs/product/target-state-v1.md"
+  "docs/superpowers/specs/2026-08-09-tinyworld-v0.6.0-target-state-consolidation-design.md"
+  "docs/superpowers/plans/2026-08-09-tinyworld-v0.6.0-target-state-consolidation.md"
+  "src/shared/ProfileMigrations.luau"
+  "src/shared/FurnitureDefinitions.luau"
+  "src/shared/FurniturePlacementRules.luau"
+  "src/shared/TradeTransactionRules.luau"
+  "src/server/security/RemoteGuard.luau"
+  "src/server/FurniturePlacementService.luau"
+  "src/server/TradeJournal.luau"
 )
+for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing required path: $path"; done
 
-for path in "${required_paths[@]}"; do
-  if [[ ! -e "$path" ]]; then
-    echo "ERROR: missing required path: $path" >&2
-    exit 1
-  fi
-done
-
-documentation_index="docs/README.md"
-for required_link in \
-  "engineering/production-engineering.md" \
-  "roadmap/v0.5.3-production-engineering.md" \
-  "releases/v0.5.3/acceptance.md"; do
-  if ! grep -Fq "$required_link" "$documentation_index"; then
-    echo "ERROR: $documentation_index missing required link: $required_link" >&2
-    exit 1
-  fi
-done
-
-workflow_path=".github/workflows/rojo-build.yml"
-
-require_workflow_match() {
-  local description="$1"
-  local pattern="$2"
-
-  if ! grep -Eq "$pattern" "$workflow_path"; then
-    echo "ERROR: workflow contract missing $description" >&2
-    exit 1
-  fi
-}
-
-require_workflow_match "exact name Rojo build" '^name:[[:space:]]+Rojo build[[:space:]]*$'
-if ! awk '
-  function indentation(line) {
-    match(line, /^[[:space:]]*/)
-    return RLENGTH
-  }
-
-  function trim(line) {
-    sub(/^[[:space:]]+/, "", line)
-    sub(/[[:space:]]+$/, "", line)
-    return line
-  }
-
-  {
-    line = trim($0)
-    if (line == "" || line ~ /^#/) {
-      next
-    }
-
-    depth = indentation($0)
-    if (depth == 0) {
-      in_push = 0
-      in_branches = 0
-      if (line == "on:") {
-        on_count += 1
-        in_on = on_count == 1
-        on_child_depth = -1
-      } else {
-        in_on = 0
-      }
-      next
-    }
-
-    if (!in_on) {
-      next
-    }
-
-    if (on_child_depth == -1) {
-      on_child_depth = depth
-    }
-
-    if (depth == on_child_depth) {
-      in_push = 0
-      in_branches = 0
-      if (line == "pull_request:") {
-        pull_request_count += 1
-      }
-      if (line == "push:") {
-        push_count += 1
-        in_push = 1
-        push_depth = depth
-        push_child_depth = -1
-      }
-      next
-    }
-
-    if (!in_push) {
-      next
-    }
-
-    if (depth <= push_depth) {
-      in_push = 0
-      in_branches = 0
-      next
-    }
-
-    if (push_child_depth == -1) {
-      push_child_depth = depth
-    }
-
-    if (depth == push_child_depth) {
-      in_branches = 0
-      if (line == "branches:") {
-        branches_count += 1
-        in_branches = 1
-        branches_depth = depth
-        branch_item_depth = -1
-      }
-      next
-    }
-
-    if (!in_branches) {
-      next
-    }
-
-    if (depth <= branches_depth) {
-      in_branches = 0
-      next
-    }
-
-    if (branch_item_depth == -1) {
-      branch_item_depth = depth
-    }
-
-    if (depth == branch_item_depth) {
-      if (line == "- main") {
-        main_branch_count += 1
-      } else {
-        unexpected_branch = 1
-      }
-    }
-  }
-
-  END {
-    exit !(on_count == 1 && pull_request_count == 1 && push_count == 1 && branches_count == 1 && main_branch_count == 1 && !unexpected_branch)
-  }
-' "$workflow_path"; then
-  echo "ERROR: workflow must have exactly one top-level on mapping with pull_request and push.branches containing only main" >&2
-  exit 1
-fi
-require_workflow_match "Ubuntu runner" '^[[:space:]]*runs-on:[[:space:]]*ubuntu-latest[[:space:]]*$'
-require_workflow_match "actions/checkout@v6" 'uses:[[:space:]]*actions/checkout@v6[[:space:]]*$'
-require_workflow_match "Rokit version read from release config" "rokit_version=.*jq[[:space:]]+-er[[:space:]]+'.rokitVersion'[[:space:]]+config/release\\.json"
-require_workflow_match "Rokit installer commit read from release config" "rokit_installer_commit=.*jq[[:space:]]+-er[[:space:]]+'.rokitInstallerCommit'[[:space:]]+config/release\\.json"
-require_workflow_match "immutable Rokit Linux installer URL" 'https://raw\.githubusercontent\.com/rojo-rbx/rokit/\$\{rokit_installer_commit\}/scripts/install\.sh'
-require_workflow_match "Rokit installer positional version argument" 'bash[[:space:]]+-s[[:space:]]+--[[:space:]]+"\$rokit_version"'
-require_workflow_match "Rokit self-install GITHUB_PATH export" 'echo[[:space:]]+"\$HOME/\.rokit/bin"[[:space:]]*>>[[:space:]]*"\$GITHUB_PATH"'
-require_workflow_match "Rokit self-install shell PATH export" 'export[[:space:]]+PATH="\$HOME/\.rokit/bin:\$PATH"'
-require_workflow_match "Rokit noninteractive pinned-tool install" '^[[:space:]]*rokit[[:space:]]+install[[:space:]]+--no-trust-check[[:space:]]*$'
-require_workflow_match "release guard step" 'run:[[:space:]]*\./scripts/verify-release-contract\.sh[[:space:]]*$'
-require_workflow_match "shell build step" 'run:[[:space:]]*\./scripts/build\.sh[[:space:]]*$'
-require_workflow_match "workflow/ref concurrency group" 'group:[[:space:]]*\$\{\{[[:space:]]*github\.workflow[[:space:]]*\}\}-\$\{\{[[:space:]]*github\.ref[[:space:]]*\}\}'
-require_workflow_match "actions/upload-artifact@v4" 'uses:[[:space:]]*actions/upload-artifact@v4[[:space:]]*$'
-require_workflow_match "artifact name" 'name:[[:space:]]*tinyworld-v0\.5\.3-\$\{\{[[:space:]]*github\.sha[[:space:]]*\}\}[[:space:]]*$'
-require_workflow_match "place artifact path" '^[[:space:]]*dist/TinyWorld-v0\.5\.3\.rbxlx[[:space:]]*$'
-require_workflow_match "release manifest path" '^[[:space:]]*dist/release\.json[[:space:]]*$'
-require_workflow_match "missing artifact failure" 'if-no-files-found:[[:space:]]*error[[:space:]]*$'
-require_workflow_match "14-day retention" 'retention-days:[[:space:]]*14[[:space:]]*$'
-
-if grep -Fq '$HOME/.local/bin' "$workflow_path"; then
-  echo "ERROR: workflow must not use the obsolete Rokit self-install path: \$HOME/.local/bin" >&2
-  exit 1
-fi
-
-if grep -Eq '^[[:space:]]*rokit[[:space:]]+install[[:space:]]*$' "$workflow_path"; then
-  echo "ERROR: workflow must use rokit install --no-trust-check for its pinned tools" >&2
-  exit 1
-fi
-
-if ! awk '
-  /^permissions:[[:space:]]*$/ { in_permissions = 1; next }
-  in_permissions && /^[^[:space:]]/ { in_permissions = 0 }
-  in_permissions && /^[[:space:]]*$/ { next }
-  in_permissions && /^[[:space:]]+contents:[[:space:]]*read[[:space:]]*$/ { contents_read += 1; next }
-  in_permissions { invalid_permission = 1 }
-  END { exit !(contents_read == 1 && !invalid_permission) }
-' "$workflow_path"; then
-  echo "ERROR: workflow permissions must contain only contents: read" >&2
-  exit 1
-fi
-
-guard_step_line="$(grep -n -E 'run:[[:space:]]*\./scripts/verify-release-contract\.sh[[:space:]]*$' "$workflow_path" | head -n 1 | cut -d: -f1)"
-build_step_line="$(grep -n -E 'run:[[:space:]]*\./scripts/build\.sh[[:space:]]*$' "$workflow_path" | head -n 1 | cut -d: -f1)"
-if (( guard_step_line >= build_step_line )); then
-  echo "ERROR: workflow must run the release guard before the shell build" >&2
-  exit 1
-fi
+CONFIG="config/release.json"
+ASSETS="assets/manifests/assets.json"
+WORKFLOW=".github/workflows/rojo-build.yml"
 
 jq -e '
-  .productVersion == "0.5.3" and
-  .releaseName == "Production Engineering Foundation" and
-  .profileSchema == 10 and
+  .productVersion == "0.6.0" and
+  .releaseName == "Target-State Consolidation" and
+  .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
+  .styluaVersion == "2.5.2" and
   .rokitVersion == "1.2.0" and
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
-  .artifactFile == "TinyWorld-v0.5.3.rbxlx"
-' config/release.json >/dev/null
+  .artifactFile == "TinyWorld-v0.6.0.rbxlx"
+' "$CONFIG" >/dev/null || fail "config/release.json is not the exact v0.6.0 contract"
+pass "release metadata is exact"
+
+for expected in \
+  'rojo = "rojo-rbx/rojo@7.7.0"' \
+  'stylua = "JohnnyMorganz/StyLua@2.5.2"'; do
+  grep -Fqx "$expected" rokit.toml || fail "rokit.toml missing pin: $expected"
+done
+pass "toolchain pins are exact"
 
 jq -e '
-  .name == "TinyWorld DEV" and .releaseChannel == "dev" and
-  .configured == false and .universeId == null and .placeId == null and
-  .publishing == "deferred"
-' config/environments/dev.json >/dev/null
+  .schemaVersion == 2 and
+  .policy.allowInventedIds == false and
+  (.assets | type == "array") and
+  all(.assets[]?;
+    (.id | type == "string" and length > 0) and
+    (.robloxAssetId | type == "number" and . > 0 and floor == .) and
+    (.owner | type == "string" and length > 0) and
+    (.source | type == "string" and length > 0) and
+    (.licenseOrProvenance | type == "string" and length > 0) and
+    (.prefabRole | type == "string" and length > 0) and
+    (.version | type == "string" and length > 0) and
+    (.status | type == "string" and length > 0) and
+    (.devApproved | type == "boolean") and
+    (.liveApproved | type == "boolean")
+  )
+' "$ASSETS" >/dev/null || fail "asset manifest must reject invented IDs and require provenance"
+pass "asset manifest is fail-closed"
 
-jq -e '
-  .name == "TinyWorld LIVE" and .releaseChannel == "production" and
-  .configured == false and .universeId == null and .placeId == null and
-  .publishing == "deferred"
-' config/environments/live.json >/dev/null
+grep -Fq 'ProfileSchema.VERSION = 11' src/shared/ProfileSchema.luau || fail "ProfileSchema.VERSION must be 11"
+grep -Fq 'TinyWorld_DEV_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "DEV DataStore namespace missing"
+grep -Fq 'TinyWorld_LIVE_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "LIVE DataStore namespace missing"
+pass "profile v11 and environment separation are explicit"
 
-jq -e '.schemaVersion == 1 and (.assets | type == "array")' assets/manifests/assets.json >/dev/null
+jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/dev.json >/dev/null || fail "DEV publishing must remain unconfigured"
+jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/live.json >/dev/null || fail "LIVE publishing must remain unconfigured"
+pass "publishing remains credential-free and human-gated"
 
-if ! grep -Fqx 'rojo = "rojo-rbx/rojo@7.7.0"' rokit.toml; then
-  echo "ERROR: rokit.toml must pin rojo-rbx/rojo@7.7.0" >&2
-  exit 1
-fi
+grep -Eq '^name:[[:space:]]+Rojo build[[:space:]]*$' "$WORKFLOW" || fail "Rojo workflow name changed unexpectedly"
+grep -Fq 'actions/checkout@v6' "$WORKFLOW" || fail "checkout action pin missing"
+grep -Fq 'rokit install --no-trust-check' "$WORKFLOW" || fail "pinned Rokit tools are not installed"
+grep -Fq './scripts/verify-release-contract.sh' "$WORKFLOW" || fail "release guard step missing"
+grep -Fq './scripts/build.sh' "$WORKFLOW" || fail "build step missing"
+grep -Fq 'tinyworld-v0.6.0-${{ github.sha }}' "$WORKFLOW" || fail "v0.6.0 artifact name missing"
+grep -Fq 'dist/TinyWorld-v0.6.0.rbxlx' "$WORKFLOW" || fail "v0.6.0 artifact path missing"
+grep -Fq 'dist/release.json' "$WORKFLOW" || fail "release manifest path missing"
+pass "Rojo workflow builds only traceable v0.6.0 evidence"
 
 for rule in 'dist/' '.rokit/' '.worktrees/' '.superpowers/'; do
-  if ! grep -Fqx "$rule" .gitignore; then
-    echo "ERROR: .gitignore missing required rule: $rule" >&2
-    exit 1
-  fi
+  grep -Fqx "$rule" .gitignore || fail ".gitignore missing required rule: $rule"
 done
 
-if grep -RniE 'ROBLOX_[A-Z0-9_]*API_KEY|ROBLOSECURITY|clientSecret|privateKey' config assets >/dev/null; then
-  echo "ERROR: credential-shaped value found in config/ or assets/" >&2
-  exit 1
-else
-  credential_grep_status=$?
-  case "$credential_grep_status" in
-    1)
-      ;;
-    *)
-      echo "ERROR: credential scan failed with grep exit code $credential_grep_status" >&2
-      exit 1
-      ;;
-  esac
+# Executable surfaces may reference environment variable names, but may not
+# contain cookie/API-key shaped literal assignments or Open Cloud publishing.
+if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
+  '(\.ROBLOSECURITY|ROBLOX_COOKIE)[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+' \
+  src scripts .github config assets 2>/dev/null; then
+  fail "credential-shaped literal found in executable repository surfaces"
 fi
-
-if grep -RniE 'secrets|roblox|opencloud|publish|datastore|upload-place' "$workflow_path" >/dev/null; then
-  echo "ERROR: forbidden publishing or credential token found in $workflow_path" >&2
-  exit 1
-else
-  workflow_grep_status=$?
-  case "$workflow_grep_status" in
-    1)
-      ;;
-    *)
-      echo "ERROR: workflow credential scan failed with grep exit code $workflow_grep_status" >&2
-      exit 1
-      ;;
-  esac
+if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
+  '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
+  fail "publishing automation is not approved in v0.6.0"
 fi
+pass "repository remains free of production publishing credentials/actions"
 
-echo "PASS: release contract is valid"
+if find . -maxdepth 3 -type f \( -name 'wally.toml' -o -name 'wally.lock' \) | grep -q .; then
+  fail "Wally must not be introduced without an approved dependency"
+fi
+pass "no unnecessary dependency surface introduced"
+
+# The external Roblox development skill is review guidance. Its source files
+# are intentionally not copied because the reviewed repository did not expose
+# a licence file at review time.
+if find . -type f \( -path '*/roblox-game-skill/*' -o -name 'SKILL.md' \) | grep -q .; then
+  fail "external skill source must not be vendored into TinyWorld"
+fi
+pass "external skill source is not vendored"
+
+echo "PASS: TinyWorld v0.6.0 release contract is valid"

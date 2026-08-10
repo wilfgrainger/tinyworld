@@ -73,15 +73,15 @@ if "%output%"=="" exit /b 1
     $env:TINYWORLD_ALLOW_DIRTY_BUILD = '1'
     & (Join-Path $rootDir 'scripts/build.ps1') -OutputDirectory $outputDirectory
 
-    $artifactPath = Join-Path $outputDirectory 'TinyWorld-v0.5.3.rbxlx'
+    $artifactPath = Join-Path $outputDirectory 'TinyWorld-v0.6.0.rbxlx'
     $manifestPath = Join-Path $outputDirectory 'release.json'
     if (-not (Test-Path $artifactPath) -or -not (Test-Path $manifestPath)) {
         throw 'PowerShell build did not produce the artifact and manifest'
     }
 
     $manifest = Get-Content -Raw $manifestPath | ConvertFrom-Json
-    if ($manifest.productVersion -ne '0.5.3' -or $manifest.rojoVersion -ne '7.7.0' -or $manifest.artifact -ne 'TinyWorld-v0.5.3.rbxlx' -or $manifest.buildTimestampUtc -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') {
-        throw 'PowerShell build manifest did not satisfy the release contract'
+    if ($manifest.productVersion -ne '0.6.0' -or $manifest.rojoVersion -ne '7.7.0' -or $manifest.artifact -ne 'TinyWorld-v0.6.0.rbxlx' -or $manifest.profileSchema -ne 11 -or $manifest.buildTimestampUtc -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') {
+        throw 'PowerShell build manifest did not satisfy the v0.6.0 release contract'
     }
 
     if ($manifest.sha256 -ne (Get-FileHash -Algorithm SHA256 $artifactPath).Hash.ToLowerInvariant()) {

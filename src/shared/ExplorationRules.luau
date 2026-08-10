@@ -68,4 +68,3 @@ function ExplorationRules.claim(profile, dayKey: string): (boolean, string)
 end
 
 return ExplorationRules
-

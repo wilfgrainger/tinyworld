@@ -4,39 +4,45 @@
 
 TinyWorld is a persistent Roblox life sandbox: **Build your life. Explore impossible worlds. Discover the secrets of TinyWorld.**
 
-## Active product contract
+## Active authority
 
-For current work, treat the canonical documentation index and active release records as authoritative:
+For current work, read these in order:
 
-1. `docs/README.md` for documentation authority and current links.
-2. `docs/engineering/production-engineering.md` and `docs/releases/v0.5.3/acceptance.md` for current build/release authority and evidence state.
-3. `docs/roadmap/v0.5.3-production-engineering.md` for the sequenced engineering/deployment phases.
-4. `docs/releases/v0.5.2/acceptance.md` and `docs/roadmap/v0.5.2-village-soul.md` for product/presentation acceptance and active v0.5.2 inputs.
-5. `README.md` for the current Studio smoke-test route.
+1. `docs/README.md` for documentation precedence and current links.
+2. `docs/releases/v0.6.0/acceptance.md` for what v0.6.0 actually proves and what remains pending.
+3. `docs/product/target-state-v1.md` for the v1 product north star and non-negotiables.
+4. The relevant durable product/engineering/quality document.
+5. `docs/roadmap/v0.6.0-target-state-consolidation.md` plus the active v0.6.0 Superpowers design/plan for implementation scope.
 
-For build or release work, read the v0.5.3 engineering and acceptance records before editing. v0.5.2 remains authoritative for product behavior and visual-quality acceptance. Earlier v0.01 and foundation specs/plans remain historical context for the progression scaffold. They are useful decision records, but do not override the canonical index or active release records. Where historical guidance conflicts with active v0.5.2 product or v0.5.3 engineering documents, **the active release documents win**.
+v0.5.2 and v0.5.3 records are historical evidence. They remain valuable decision records but do not override v0.6.0 or the v1 target state.
 
-Before adding the next feature slice, run the Superpowers brainstorming/design process and write a new dated spec/plan rather than silently expanding scope.
+Before expanding scope beyond the current approved release, use Superpowers brainstorming/specification and write a dated design/plan. For Roblox implementation/review, also apply the external `brockmartin/roblox-game-skill` guidance without copying/vendoring its source unless licence provenance is confirmed.
 
 ## Engineering rules
 
-1. Keep authoritative economy/progression logic on the server.
-2. Put deterministic, Roblox-service-free game rules in `src/shared`.
-3. Keep files focused; do not build unrelated future systems while implementing a slice.
-4. Use test-first development for gameplay rules. Add a failing behavior test before production logic.
-5. Do not trust client-supplied coins, XP, levels, prices, ownership, rewards, or trade contents.
-6. Never silently replace inaccessible saved data with a fresh profile after a DataStore failure.
-7. Prefer clear boring code over framework-heavy abstractions until the game needs them.
-8. Do not add pay-to-win mechanics. Premium content may be cosmetic, expressive, convenient, or a bounded variant, but free players must retain equivalent gameplay power.
-9. Do not add fake Roblox product/game-pass IDs. Monetisation wiring starts only after real experience products exist.
-10. Preserve schema-v2 migration compatibility unless a new spec explicitly defines a migration.
+1. Keep authoritative economy, progression, ownership, trade, rewards and final placement state on the server.
+2. Put deterministic, Roblox-service-free game rules and definitions in `src/shared`.
+3. Keep files focused and prefer explicit service boundaries over a framework rewrite.
+4. Use test-first development for deterministic behaviour: failing test first, then minimal implementation.
+5. Never trust client-supplied coins, XP, levels, prices, ownership, rewards, trade contents or final transforms.
+6. Use `RemoteGuard` for new mutating remotes and validate type/size/range/ID/rate/context/ownership as relevant.
+7. Never silently replace inaccessible, lease-conflicted, failed-migration or future-version saved data with a fresh profile.
+8. Profile schema v11 is the active compatibility bridge. Keep legacy resource/home fields until a later explicit migration removes all consumers.
+9. DEV and LIVE persistence namespaces must remain separate. Studio defaults to DEV.
+10. Prefer clear boring Luau over Knit/React/Roact/Wally unless a measured need and approved design justifies the dependency.
+11. Do not add pay-to-win mechanics or fake Roblox product/game-pass/asset IDs.
+12. Production assets enter only through the manifest with owner/source/licence/provenance and approval state.
+13. Do not use labels to rescue unclear finished 3D objects. Major objects must remain recognisable labels-off.
+14. Do not claim Studio, multiplayer, device, published DEV or LIVE evidence from source inspection.
 
 ## Source layout
 
-- `src/shared`: pure Luau domain rules mapped to `ReplicatedStorage/TinyWorld/Shared`.
-- `src/server`: server-only Roblox adapters and services mapped to `ServerScriptService/TinyWorld`.
-- `src/client`: presentation-only code mapped to `StarterPlayerScripts/TinyWorld`; it must not mint or validate economic state.
-- `tests`: Luau CLI behavior tests for deterministic rules.
+- `src/shared`: deterministic rules/definitions mapped to `ReplicatedStorage/TinyWorld/Shared`.
+- `src/server`: authoritative adapters/services mapped to `ServerScriptService/TinyWorld`.
+- `src/server/security`: server-only remote/security adapters.
+- `src/client`: presentation and input intent mapped to `StarterPlayerScripts/TinyWorld`.
+- `tests`: pure Luau behaviour tests plus build/release guards.
+- `docs`: canonical product/engineering/quality/release contracts.
 
 ## Verification before merge
 
@@ -45,17 +51,19 @@ At minimum:
 ```sh
 luau tests/run.luau
 luau-analyze src/shared/*.luau tests/*.luau
-luau-compile src/server/*.luau >/dev/null
-luau-compile src/client/*.luau >/dev/null
+stylua --check src tests
+find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+./scripts/verify-release-contract.sh
+./tests/build-contract.sh
+./scripts/build.sh
+git diff --check
 ```
 
-For gameplay/runtime changes, the README Studio smoke test is also required before merging the active vertical-slice PR.
+Gameplay/runtime changes also require the Studio/multi-client/device routes in `docs/releases/v0.6.0/acceptance.md` before those evidence rows can be marked PASS.
 
-For v0.5.3 build/release changes, also run `./scripts/verify-release-contract.sh`,
-`./tests/build-contract.sh`, and `git diff --check`. Do not add Roblox
-credentials, real IDs, or publishing steps. DEV/LIVE deployment remains an
-explicit future human-gated phase; Codex must not publish LIVE.
+Do not add production credentials or automated LIVE publishing. DEV/LIVE promotion remains separately configured and human-approved, using the exact tested artifact.
 
 ## Commit discipline
 
-Use small commits with conventional prefixes (`feat:`, `fix:`, `test:`, `docs:`, `chore:`). Keep PRs scoped to one playable slice.
+Use small conventional commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`). The active v0.6.0 work is intentionally one consolidated PR; future releases should return to focused playable slices unless explicitly approved otherwise.

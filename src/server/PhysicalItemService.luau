@@ -10,14 +10,39 @@ PhysicalItemService.__index = PhysicalItemService
 PhysicalItemService.PHYSICAL_AFFORDANCE_INVARIANT = "world-or-popup"
 
 local VISUALS = {
-	Carrot = { color = VisualTheme.Colors.warmLight, material = Enum.Material.SmoothPlastic, artRole = "inventory-carrot" },
-	SugarCrystal = { color = VisualTheme.Colors.crystal, material = Enum.Material.Neon, artRole = "inventory-sugar-crystal" },
+	Carrot = {
+		color = VisualTheme.Colors.warmLight,
+		material = Enum.Material.SmoothPlastic,
+		artRole = "inventory-carrot",
+	},
+	SugarCrystal = {
+		color = VisualTheme.Colors.crystal,
+		material = Enum.Material.Neon,
+		artRole = "inventory-sugar-crystal",
+	},
 	MeadowSeed = { color = VisualTheme.Colors.leafLight, material = Enum.Material.Grass, artRole = "inventory-seed" },
-	Seashell = { color = VisualTheme.Colors.white, material = Enum.Material.CeramicTiles, artRole = "inventory-seashell" },
-	WoodToken = { color = VisualTheme.Colors.woodLight, material = Enum.Material.Wood, artRole = "inventory-wood-token" },
+	Seashell = {
+		color = VisualTheme.Colors.white,
+		material = Enum.Material.CeramicTiles,
+		artRole = "inventory-seashell",
+	},
+	WoodToken = {
+		color = VisualTheme.Colors.woodLight,
+		material = Enum.Material.Wood,
+		artRole = "inventory-wood-token",
+	},
 }
 
-local function makePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3, material: Enum.Material, shape: Enum.PartType?, artRole: string?): Part
+local function makePart(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material,
+	shape: Enum.PartType?,
+	artRole: string?
+): Part
 	local part = Instance.new("Part")
 	part.Name = name
 	part.Size = size
@@ -65,26 +90,96 @@ local function makeLabel(parent: BasePart, text: string)
 	return label
 end
 
-local function makeInventoryShape(parent: Instance, itemId: string, position: Vector3, color: Color3, material: Enum.Material, artRole: string): Part
+local function makeInventoryShape(
+	parent: Instance,
+	itemId: string,
+	position: Vector3,
+	color: Color3,
+	material: Enum.Material,
+	artRole: string
+): Part
 	if itemId == "Carrot" then
-		local body = makePart(parent, itemId .. "Body", Vector3.new(1.2, 1.8, 1.2), position, color, material, Enum.PartType.Ball, artRole)
-		makePart(parent, itemId .. "Leaves", Vector3.new(1.3, 0.5, 1.3), position + Vector3.new(0, 1, 0), VisualTheme.Colors.leaf, Enum.Material.Grass, Enum.PartType.Ball, "inventory-carrot-leaves")
+		local body = makePart(
+			parent,
+			itemId .. "Body",
+			Vector3.new(1.2, 1.8, 1.2),
+			position,
+			color,
+			material,
+			Enum.PartType.Ball,
+			artRole
+		)
+		makePart(
+			parent,
+			itemId .. "Leaves",
+			Vector3.new(1.3, 0.5, 1.3),
+			position + Vector3.new(0, 1, 0),
+			VisualTheme.Colors.leaf,
+			Enum.Material.Grass,
+			Enum.PartType.Ball,
+			"inventory-carrot-leaves"
+		)
 		return body
 	elseif itemId == "SugarCrystal" then
-		local crystal = makePart(parent, itemId .. "Object", Vector3.new(1.5, 2.6, 1.5), position, color, material, Enum.PartType.Block, artRole)
+		local crystal = makePart(
+			parent,
+			itemId .. "Object",
+			Vector3.new(1.5, 2.6, 1.5),
+			position,
+			color,
+			material,
+			Enum.PartType.Block,
+			artRole
+		)
 		crystal.Orientation = Vector3.new(0, 45, 0)
 		return crystal
 	elseif itemId == "MeadowSeed" then
-		local seed = makePart(parent, itemId .. "Object", Vector3.new(1.4, 1.4, 1.4), position, color, material, Enum.PartType.Ball, artRole)
+		local seed = makePart(
+			parent,
+			itemId .. "Object",
+			Vector3.new(1.4, 1.4, 1.4),
+			position,
+			color,
+			material,
+			Enum.PartType.Ball,
+			artRole
+		)
 		seed.Orientation = Vector3.new(0, 0, 18)
 		return seed
 	elseif itemId == "Seashell" then
-		local shell = makePart(parent, itemId .. "Object", Vector3.new(1.8, 0.8, 1.4), position, color, material, Enum.PartType.Ball, artRole)
+		local shell = makePart(
+			parent,
+			itemId .. "Object",
+			Vector3.new(1.8, 0.8, 1.4),
+			position,
+			color,
+			material,
+			Enum.PartType.Ball,
+			artRole
+		)
 		shell.Orientation = Vector3.new(0, 0, 22)
-		makePart(parent, itemId .. "Ridge", Vector3.new(1.2, 0.25, 1), position + Vector3.new(0, 0.4, 0), VisualTheme.Colors.warmLight, Enum.Material.CeramicTiles, Enum.PartType.Ball, "inventory-seashell-ridge")
+		makePart(
+			parent,
+			itemId .. "Ridge",
+			Vector3.new(1.2, 0.25, 1),
+			position + Vector3.new(0, 0.4, 0),
+			VisualTheme.Colors.warmLight,
+			Enum.Material.CeramicTiles,
+			Enum.PartType.Ball,
+			"inventory-seashell-ridge"
+		)
 		return shell
 	end
-	return makePart(parent, itemId .. "Object", Vector3.new(1.5, 1.5, 1.5), position, color, material, Enum.PartType.Block, artRole)
+	return makePart(
+		parent,
+		itemId .. "Object",
+		Vector3.new(1.5, 1.5, 1.5),
+		position,
+		color,
+		material,
+		Enum.PartType.Block,
+		artRole
+	)
 end
 
 local function summary(profile): string
@@ -136,7 +231,14 @@ function PhysicalItemService:refresh(player: Player, profile)
 			local x = ((index - 1) % 3) * 1.8
 			local z = if index > 3 then 1.1 else 0
 			local visual = VISUALS[itemId]
-			local object = makeInventoryShape(plot.itemDisplay, itemId, origin + Vector3.new(x, 0, z), visual.color, visual.material, visual.artRole)
+			local object = makeInventoryShape(
+				plot.itemDisplay,
+				itemId,
+				origin + Vector3.new(x, 0, z),
+				visual.color,
+				visual.material,
+				visual.artRole
+			)
 			object.Name = "InventoryItem_" .. itemId
 			object:SetAttribute("TinyWorldItem", itemId)
 			object:SetAttribute("TinyWorldItemCount", count)
@@ -147,10 +249,20 @@ function PhysicalItemService:refresh(player: Player, profile)
 	end
 
 	if visible == 0 then
-		local empty = makePart(plot.itemDisplay, "InventoryEmpty", Vector3.new(1.8, 0.4, 1.8), plot.itemChest.Position + Vector3.new(0, 2.75, 0), VisualTheme.Colors.inkSoft, Enum.Material.Wood, nil, "inventory-empty-display")
+		local empty = makePart(
+			plot.itemDisplay,
+			"InventoryEmpty",
+			Vector3.new(1.8, 0.4, 1.8),
+			plot.itemChest.Position + Vector3.new(0, 2.75, 0),
+			VisualTheme.Colors.inkSoft,
+			Enum.Material.Wood,
+			nil,
+			"inventory-empty-display"
+		)
 		makeLabel(empty, "Empty")
 	end
-	plot.itemChestLabel.Text = "ITEM CHEST\n" .. (if visible == 0 then "Nothing collected" else string.format("%d kinds on display", visible))
+	plot.itemChestLabel.Text = "ITEM CHEST\n"
+		.. (if visible == 0 then "Nothing collected" else string.format("%d kinds on display", visible))
 end
 
 function PhysicalItemService:_inspectChest(player: Player, plotIndex: number)

@@ -27,4 +27,3 @@ function HomeCatalog.all(): { Item }
 end
 
 return HomeCatalog
-

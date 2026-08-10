@@ -1,94 +1,104 @@
 # Production engineering
 
-## v0.5.3 operating authority
+## v0.6.0 operating authority
 
-v0.5.3, **Production Engineering Foundation**, makes the build and release
-boundary explicit without changing TinyWorld's server-authoritative runtime or
-profile schema 10. This document and the [v0.5.3 acceptance record](../releases/v0.5.3/acceptance.md)
-are the authority for engineering and release work. The v0.5.2 acceptance
-record remains the authority for product and presentation acceptance.
+v0.6.0 **Target-State Consolidation** is the current repository/build contract. The [v0.6.0 acceptance record](../releases/v0.6.0/acceptance.md) owns evidence status; the [v1 target state](../product/target-state-v1.md) owns product direction.
 
 | State category | Authority | Rule |
 | --- | --- | --- |
-| Git-authoritative | Luau, tests, configuration, docs, Rojo project, build tooling, release/environment declarations, asset manifest | Changes are reviewed, built, and evidenced from Git. |
-| Roblox-authoritative | Published places, DataStores, cloud asset/package IDs, permissions, analytics, moderation, platform configuration | Never invent or overwrite this state from an undocumented local assumption. |
-| Git-declared / Roblox-hosted | Named future asset and deployment entries | Declare the relationship in a manifest or environment contract; do not scatter IDs in source or Studio. |
+| Git-authoritative | Luau, tests, configuration, docs, Rojo project, tooling, release/environment declarations, asset manifest | Review/build/evidence from Git. |
+| Roblox-authoritative | Published places, DataStores, hosted asset IDs, permissions, analytics/moderation/platform state | Never invent or overwrite from undocumented assumptions. |
+| Git-declared / Roblox-hosted | Approved asset/deployment relationships | Declare in manifest/environment contracts; never scatter IDs/secrets through source. |
 
-Studio remains valuable for visual authoring and runtime playtesting. It is not
-an undocumented release master: source inputs, target identity, artifact, and
-evidence must be recorded through the repository contracts.
+Studio is a runtime/visual evidence surface, not an undocumented release master.
 
-## Build boundary and local contract
+## Toolchain/build
 
-`default.project.json` is the current Rojo build boundary. The exact Rojo
-version is the `config/release.json` `rojoVersion` property (7.7.0), while
-`rokit.toml` pins the matching package; no DataModel remapping is part of this
-release.
+Pinned through repository contracts:
 
-```sh
-./scripts/verify-release-contract.sh
-./scripts/build.sh
-```
+- Rojo 7.7.0;
+- StyLua 2.5.2;
+- Rokit 1.2.0;
+- profile schema 11.
 
-Windows developers may run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
-```
-
-The existing source gates remain required:
+Required source/build gates:
 
 ```sh
 luau tests/run.luau
 luau-analyze src/shared/*.luau tests/*.luau
-luau-compile src/server/*.luau >/dev/null
-luau-compile src/client/*.luau >/dev/null
+stylua --check src tests
+find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+./scripts/verify-release-contract.sh
+./tests/build-contract.sh
+./scripts/build.sh
+git diff --check
 ```
 
-The build produces ignored output:
+Windows build parity uses `scripts/build.ps1` and `tests/build-contract.ps1`.
+
+The candidate output is:
 
 ```text
-dist/TinyWorld-v0.5.3.rbxlx
+dist/TinyWorld-v0.6.0.rbxlx
 dist/release.json
 ```
 
-`release.json` is the artifact manifest. It records product version and release
-name, source commit and branch, exact `buildTimestampUtc`, Rojo version, project
-file, profile schema, artifact filename, and SHA-256. The artifact is a release
-candidate; the manifest supplies its traceability. Reproducible means a clean
-checkout can produce a functionally equivalent artifact, not byte identity of
-build-time metadata.
+The manifest records source commit/branch, build timestamp, tool/project/profile versions, artifact filename and SHA-256. The artifact is a candidate until runtime/device evidence passes.
 
-## CI, environments, and credentials
+## DEV/LIVE environment safety
 
-The `Rojo build` CI workflow is credential-free PR/main validation: it reads
-Rokit `1.2.0` and immutable installer commit
-`2f2618428ef31279e2fc80b0b1d73485bc929ddd` from `config/release.json`, installs
-that pinned bootstrap with the configured version as its first positional
-installer argument, then runs `rokit install --no-trust-check` so
-noninteractive CI accepts only the existing `rokit.toml` tool pin. It does not
-run `rokit add` or mutate the manifest, then builds from the pinned toolchain
-and uploads the artifact and manifest. CI validation is not deployment.
+Repository environment declarations remain credential-free/unconfigured until explicit approval.
 
-`config/environments/dev.json` and `config/environments/live.json` declare
-separate DEV and LIVE channels. Both are intentionally unconfigured in v0.5.3:
-they contain no real IDs, secrets, or publishing capability. DEV and LIVE must
-remain separate identities and later require separately scoped credentials and
-DataStore namespaces. Never commit credentials, cookies, API keys, private
-keys, universe IDs, or place IDs. Codex must not publish DEV or LIVE casually;
-LIVE requires an explicit human promotion decision over an approved artifact.
+Persistence is already separated by runtime namespace:
 
-## Evidence and deferrals
+- DEV: `TinyWorld_DEV_PlayerProfile_v11`;
+- LIVE: `TinyWorld_LIVE_PlayerProfile_v11`.
 
-Evidence is cumulative and has distinct classes: source, assembly, Roblox
-runtime, multiplayer, published DEV, device/family, and production. Local
-guards and CI prove only source and assembly evidence; they do not imply a
-Studio run, multiplayer behavior, a published place, device/family acceptance,
-or LIVE readiness.
+Studio defaults to DEV. Never let Studio testing write LIVE player data.
 
-v0.5.3 implements only the credential-free foundation. It defers real
-universe/place IDs, Open Cloud publishing, environment secrets and approvals,
-DEV/LIVE DataStore wiring, automated runtime tests, same-artifact promotion,
-asset/package uploads, production art export/licensing governance, and rollback
-automation. Follow the [v0.5.3 roadmap](../roadmap/v0.5.3-production-engineering.md)
-for the gated order of that work.
+Future configured deployment requires separate DEV/LIVE place identity, scoped Open Cloud credentials stored outside source control and environment protection. Untrusted PRs must never receive publishing credentials.
+
+## Target same-artifact promotion
+
+```text
+commit
+  -> CI tests/analysis/format/compile
+  -> exact Rojo artifact + SHA manifest
+  -> publish that exact artifact to DEV
+  -> runtime/multiplayer/device evidence
+  -> explicit human approval
+  -> promote the exact approved artifact to LIVE
+```
+
+Do not rebuild different source for LIVE after DEV approval.
+
+## Rollback contract
+
+Before LIVE publishing is enabled, document/record:
+
+- last-known-good artifact/SHA;
+- rollback trigger/operator;
+- exact rollback procedure;
+- profile-schema compatibility;
+- migrations that cannot be reversed;
+- emergency disable strategy for risky systems.
+
+A code rollback cannot blindly reverse persisted data migrations.
+
+## Asset release boundary
+
+Roblox-hosted production assets enter only through `assets/manifests/assets.json` with real IDs and provenance. Empty manifest means native fallbacks remain authoritative. Asset upload/publishing remains separately permissioned.
+
+## Evidence classes
+
+Keep these independent:
+
+1. automated source/build;
+2. Studio single-client;
+3. Studio multi-client;
+4. real-device/accessibility/performance;
+5. published DEV;
+6. LIVE promotion/rollback.
+
+CI success proves only class 1. v0.6.0 must never mark the other classes PASS without direct evidence.

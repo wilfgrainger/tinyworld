@@ -8,7 +8,12 @@ RouteService.__index = RouteService
 
 local function completionText(scope: string): string
 	local reward = RouteRules.REWARDS[scope]
-	return string.format("%s route complete: +%d coins, +%d XP.", if scope == "daily" then "Today's" else "This week's", reward.coins, reward.xp)
+	return string.format(
+		"%s route complete: +%d coins, +%d XP.",
+		if scope == "daily" then "Today's" else "This week's",
+		reward.coins,
+		reward.xp
+	)
 end
 
 function RouteService.new(ProfileStore, PlayerStateService)
@@ -66,4 +71,3 @@ function RouteService:record(player: Player, taskId: string): (boolean, string)
 end
 
 return RouteService
-

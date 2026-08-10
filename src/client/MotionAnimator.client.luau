@@ -17,9 +17,9 @@ local function rememberModel(model: Model)
 				end
 			end
 		end
-			modelOffsets[model] = offsets
-		end
+		modelOffsets[model] = offsets
 	end
+end
 
 local function trackModel(model: Instance)
 	if not model:IsA("Model") then
@@ -59,14 +59,18 @@ RunService.Heartbeat:Connect(function()
 			snapshot = { phase = phase, receivedAt = now }
 			phaseSnapshots[model] = snapshot
 		end
-		local visualPhase = if state == "parked" or state == "docked" then 0 else snapshot.phase + ((now - snapshot.receivedAt) * 8)
+		local visualPhase = if state == "parked" or state == "docked"
+			then 0
+			else snapshot.phase + ((now - snapshot.receivedAt) * 8)
 		local pivot = model:GetPivot()
 		for part, offset in modelOffsets[model] do
 			if part.Parent == nil then
 				continue
 			end
 			local role = part:GetAttribute("TinyWorldMotionRole")
-			local rotation = if role == "wheel-spin" then CFrame.Angles(visualPhase, 0, 0) else CFrame.Angles(0, math.sin(visualPhase * 1.7) * 0.12, 0)
+			local rotation = if role == "wheel-spin"
+				then CFrame.Angles(visualPhase, 0, 0)
+				else CFrame.Angles(0, math.sin(visualPhase * 1.7) * 0.12, 0)
 			part.CFrame = pivot * offset * rotation
 		end
 	end

@@ -18,6 +18,12 @@ end
 
 return function()
 	TestUtil.equal(WorldLayoutRules.MAX_PLOTS, 16)
+	TestUtil.equal(WorldLayoutRules.MAX_SERVER_PLAYERS, 16)
+	TestUtil.isTrue(WorldLayoutRules.canAdmitPlayer(0))
+	TestUtil.isTrue(WorldLayoutRules.canAdmitPlayer(15))
+	TestUtil.isFalse(WorldLayoutRules.canAdmitPlayer(16))
+	TestUtil.isFalse(WorldLayoutRules.canAdmitPlayer(99))
+	TestUtil.isFalse(WorldLayoutRules.canAdmitPlayer(-1))
 	TestUtil.equal(#WorldLayoutRules.NEIGHBOURHOODS, 4)
 	for index, expected in EXPECTED_NEIGHBOURHOODS do
 		TestUtil.equal(WorldLayoutRules.NEIGHBOURHOODS[index], expected)

@@ -48,11 +48,16 @@ return function()
 
 	local resourceProfile = ProfileSchema.new()
 	resourceProfile.inventory.MeadowSeed = 1
+	resourceProfile.inventoryStacks.MeadowSeed = 1
 	local crafted, craftReason = HomeExpressionRules.acquire(resourceProfile, "MeadowSeedShelf")
 	TestUtil.isTrue(crafted)
 	TestUtil.equal(craftReason, "acquired")
 	TestUtil.equal(resourceProfile.coins, 100)
 	TestUtil.equal(resourceProfile.inventory.MeadowSeed, 0)
+	TestUtil.equal(resourceProfile.inventoryStacks.MeadowSeed, 0)
+	local normalizedResourceProfile = ProfileSchema.normalize(resourceProfile)
+	TestUtil.equal(normalizedResourceProfile.inventory.MeadowSeed, 0)
+	TestUtil.equal(normalizedResourceProfile.inventoryStacks.MeadowSeed, 0)
 	TestUtil.isTrue(HomeExpressionRules.hasDecoration(resourceProfile, "MeadowSeedShelf"))
 
 	local missingResource = ProfileSchema.new()

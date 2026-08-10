@@ -52,9 +52,17 @@ end
 function SocialService:_updateBoard()
 	local size = SocialRules.partySize(self.members)
 	local leaderText = if self.leader then displayName(self.leader) else "waiting for a leader"
-	self.world.social.joinPrompt.ActionText = if size >= SocialRules.MAX_PARTY_SIZE then "Party Full" else "Join Village Walk"
+	self.world.social.joinPrompt.ActionText = if size >= SocialRules.MAX_PARTY_SIZE
+		then "Party Full"
+		else "Join Village Walk"
 	self.world.social.leavePrompt.ActionText = if size > 0 then "Leave Village Walk" else "No Party to Leave"
-	self.world.social.statusLabel.Text = string.format("VILLAGE MEETUP\nVillage Walk %d/%d\nLeader: %s\nShared activities: %d", size, SocialRules.MAX_PARTY_SIZE, leaderText, self.sharedActivityCount)
+	self.world.social.statusLabel.Text = string.format(
+		"VILLAGE MEETUP\nVillage Walk %d/%d\nLeader: %s\nShared activities: %d",
+		size,
+		SocialRules.MAX_PARTY_SIZE,
+		leaderText,
+		self.sharedActivityCount
+	)
 end
 
 function SocialService:setupPlayer(player: Player)
@@ -68,7 +76,12 @@ function SocialService:_join(player: Player)
 	end
 	local joined, reason = SocialRules.joinParty(self.members, player)
 	if not joined then
-		self.PlayerStateService.message(player, if reason == "already_member" then "You are already in the Village Walk party. Use Leave Village Walk to step out." else "The Village Walk party is full (4 players).")
+		self.PlayerStateService.message(
+			player,
+			if reason == "already_member"
+				then "You are already in the Village Walk party. Use Leave Village Walk to step out."
+				else "The Village Walk party is full (4 players)."
+		)
 		return
 	end
 	if self.leader == nil then
@@ -76,7 +89,14 @@ function SocialService:_join(player: Player)
 	end
 	self:_syncAll()
 	self:_updateBoard()
-	self.PlayerStateService.message(player, string.format("Joined the Village Walk party: %d/%d. Visit a home or trade together for a shared activity.", SocialRules.partySize(self.members), SocialRules.MAX_PARTY_SIZE))
+	self.PlayerStateService.message(
+		player,
+		string.format(
+			"Joined the Village Walk party: %d/%d. Visit a home or trade together for a shared activity.",
+			SocialRules.partySize(self.members),
+			SocialRules.MAX_PARTY_SIZE
+		)
+	)
 end
 
 function SocialService:_leave(player: Player)
@@ -111,7 +131,11 @@ function SocialService:recordVisit(visitor: Player, owner: Player, _plotIndex: n
 		self.sharedActivityCount += 1
 		self:_syncAll()
 		self:_updateBoard()
-		local message = string.format("Shared activity %d: you visited %s's home with the Village Walk party.", self.sharedActivityCount, displayName(owner))
+		local message = string.format(
+			"Shared activity %d: you visited %s's home with the Village Walk party.",
+			self.sharedActivityCount,
+			displayName(owner)
+		)
 		self.PlayerStateService.message(visitor, message)
 		self.PlayerStateService.message(owner, message)
 	end
@@ -140,4 +164,3 @@ function SocialService:removePlayer(player: Player)
 end
 
 return SocialService
-

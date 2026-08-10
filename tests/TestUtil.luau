@@ -19,4 +19,3 @@ function TestUtil.isFalse(value: any, message: string?)
 end
 
 return TestUtil
-

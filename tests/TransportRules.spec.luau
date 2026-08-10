@@ -1,8 +1,15 @@
 local TestUtil = require("./TestUtil")
 local ProfileSchema = require("../src/shared/ProfileSchema")
 local TransportRules = require("../src/shared/TransportRules")
+local ShopDefinitions = require("../src/shared/ShopDefinitions")
 
 return function()
+	TestUtil.equal(ShopDefinitions.priceFor("Workshop", "TinyBike"), 300, "Tiny Bike catalogue price must remain 300")
+	TestUtil.equal(
+		TransportRules.TINY_BIKE_PRICE,
+		ShopDefinitions.priceFor("Workshop", "TinyBike"),
+		"transport purchase must use canonical shop price"
+	)
 	local poor = ProfileSchema.new()
 	local boughtPoor, poorReason = TransportRules.buyTinyBike(poor)
 	TestUtil.isFalse(boughtPoor)
@@ -45,4 +52,3 @@ return function()
 	TestUtil.equal(secondReason, "already_owned")
 	TestUtil.equal(profile.coins, 100)
 end
-

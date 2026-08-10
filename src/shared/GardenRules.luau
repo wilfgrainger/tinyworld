@@ -42,6 +42,9 @@ function GardenRules.harvest(profile: any, bed: any, now: number): (boolean, str
 	if bed.stage ~= "ready" then
 		return false, "not_ready"
 	end
+	if not Inventory.canAdd(profile, "Carrot", 1) then
+		return false, "inventory_full"
+	end
 	Inventory.add(profile, "Carrot", 1)
 	Progression.addXp(profile, 10)
 	bed.stage = "empty"
@@ -50,4 +53,3 @@ function GardenRules.harvest(profile: any, bed: any, now: number): (boolean, str
 end
 
 return GardenRules
-

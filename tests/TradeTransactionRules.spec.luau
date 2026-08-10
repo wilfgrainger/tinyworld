@@ -1,0 +1,108 @@
+local TestUtil = require("./TestUtil")
+local ok, TradeTransactionRules = pcall(require, "../src/shared/TradeTransactionRules")
+
+return function()
+	TestUtil.isTrue(ok, "TradeTransactionRules must exist")
+	if not ok then
+		return
+	end
+
+	TestUtil.equal(
+		type(TradeTransactionRules.authoritativeCommitAccepted),
+		"function",
+		"authoritative commit helper must exist"
+	)
+	if type(TradeTransactionRules.authoritativeCommitAccepted) == "function" then
+		TestUtil.isTrue(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "committed" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "recovering" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(false, { state = "committed" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, nil))
+	end
+
+	local tx = TradeTransactionRules.new("tx-1", 101, 202, { Carrot = 2 }, { Seashell = 1 }, 7)
+	TestUtil.equal(tx.id, "tx-1")
+	TestUtil.equal(tx.state, "locked")
+	TestUtil.equal(tx.offerVersion, 7)
+	TestUtil.equal(tx.fromA.Carrot, 2)
+	TestUtil.equal(tx.fromB.Seashell, 1)
+
+	local confirmed, confirmReason = TradeTransactionRules.confirm(tx, 101, 7)
+	TestUtil.isTrue(confirmed)
+	TestUtil.equal(confirmReason, "confirmed")
+	local confirmedB = TradeTransactionRules.confirm(tx, 202, 7)
+	TestUtil.isTrue(confirmedB)
+	TestUtil.isTrue(TradeTransactionRules.readyToCommit(tx))
+
+	local committing, committingReason = TradeTransactionRules.beginCommit(tx)
+	TestUtil.isTrue(committing)
+	TestUtil.equal(committingReason, "committing")
+	local duplicateBegin, duplicateBeginReason = TradeTransactionRules.beginCommit(tx)
+	TestUtil.isFalse(duplicateBegin)
+	TestUtil.equal(duplicateBeginReason, "not_ready")
+	local committed, committedReason = TradeTransactionRules.commit(tx)
+	TestUtil.isTrue(committed)
+	TestUtil.equal(committedReason, "committed")
+	local duplicate, duplicateReason = TradeTransactionRules.commit(tx)
+	TestUtil.isFalse(duplicate)
+	TestUtil.equal(duplicateReason, "already_committed")
+
+	local recovering = TradeTransactionRules.new("tx-recover", 11, 22, { Carrot = 1 }, { SugarCrystal = 1 }, 9)
+	TestUtil.isTrue(TradeTransactionRules.confirm(recovering, 11, 9))
+	TestUtil.isTrue(TradeTransactionRules.confirm(recovering, 22, 9))
+	TestUtil.isTrue(TradeTransactionRules.beginCommit(recovering))
+	local recoveryStarted, recoveryReason = TradeTransactionRules.beginRecovery(recovering, "profile_save_failed")
+	TestUtil.isTrue(recoveryStarted)
+	TestUtil.equal(recoveryReason, "recovering")
+	TestUtil.equal(recovering.state, "recovering")
+	TestUtil.equal(recovering.recoveryReason, "profile_save_failed")
+	local unsafeCommit, unsafeCommitReason = TradeTransactionRules.commit(recovering)
+	TestUtil.isFalse(unsafeCommit)
+	TestUtil.equal(unsafeCommitReason, "invalid_state")
+	local earlyFinish, earlyFinishReason = TradeTransactionRules.finishRecovery(recovering)
+	TestUtil.isFalse(earlyFinish)
+	TestUtil.equal(earlyFinishReason, "rollback_not_durable")
+	recovering.rollbackSavedA = true
+	recovering.rollbackSavedB = true
+	local recoveryFinished, recoveryFinishedReason = TradeTransactionRules.finishRecovery(recovering)
+	TestUtil.isTrue(recoveryFinished)
+	TestUtil.equal(recoveryFinishedReason, "cancelled")
+	TestUtil.equal(recovering.state, "cancelled")
+	TestUtil.equal(recovering.cancelReason, "profile_save_failed")
+
+	local checkpointA = {
+		id = "tx-race",
+		state = "recovering",
+		persistedA = true,
+		persistedB = false,
+		rollbackSavedA = true,
+		rollbackSavedB = false,
+		recoveryReason = "server_resume",
+	}
+	local checkpointB = {
+		id = "tx-race",
+		state = "recovering",
+		persistedA = false,
+		persistedB = true,
+		rollbackSavedA = false,
+		rollbackSavedB = true,
+		recoveryReason = "server_resume",
+	}
+	local merged = TradeTransactionRules.mergeRecoveryCheckpoint(checkpointA, checkpointB)
+	TestUtil.equal(merged.state, "recovering")
+	TestUtil.isTrue(merged.persistedA)
+	TestUtil.isTrue(merged.persistedB)
+	TestUtil.isTrue(merged.rollbackSavedA)
+	TestUtil.isTrue(merged.rollbackSavedB)
+
+	local terminal = TradeTransactionRules.mergeRecoveryCheckpoint({ id = "tx-race", state = "committed" }, checkpointB)
+	TestUtil.equal(terminal.state, "committed")
+
+	local stale = TradeTransactionRules.new("tx-2", 1, 2, {}, {}, 3)
+	local staleConfirm, staleReason = TradeTransactionRules.confirm(stale, 1, 2)
+	TestUtil.isFalse(staleConfirm)
+	TestUtil.equal(staleReason, "stale_offer")
+	local cancelled, cancelReason = TradeTransactionRules.cancel(stale, "timeout")
+	TestUtil.isTrue(cancelled)
+	TestUtil.equal(cancelReason, "cancelled")
+	TestUtil.equal(stale.cancelReason, "timeout")
+end

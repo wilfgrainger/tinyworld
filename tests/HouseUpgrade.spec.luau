@@ -43,4 +43,3 @@ return function()
 	TestUtil.equal(success.houseTier, 2)
 	TestUtil.equal(success.coins, 250)
 end
-

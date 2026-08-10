@@ -1,3 +1,10 @@
+local Inventory
+if script ~= nil then
+	Inventory = require(script.Parent:WaitForChild("Inventory"))
+else
+	Inventory = require("./Inventory")
+end
+
 local HomeExpressionRules = {}
 
 export type Theme = { id: string, name: string }
@@ -18,12 +25,60 @@ local THEMES: { Theme } = {
 }
 
 local DECORATIONS: { Decoration } = {
-	{ id = "LanternNook", name = "Lantern Nook", action = "Collect Lantern Nook", costCoins = 80, resource = nil, requiresPortal = false, colour = "gold" },
-	{ id = "StoryBookStack", name = "Story Book Stack", action = "Collect Story Books", costCoins = 120, resource = nil, requiresPortal = false, colour = "paper" },
-	{ id = "MeadowSeedShelf", name = "Meadow Seed Shelf", action = "Craft Seed Shelf", costCoins = 0, resource = "MeadowSeed", requiresPortal = false, colour = "flower" },
-	{ id = "SeashellDisplay", name = "Seashell Display", action = "Craft Seashell Display", costCoins = 0, resource = "Seashell", requiresPortal = false, colour = "sky" },
-	{ id = "WoodlandBench", name = "Woodland Bench", action = "Craft Woodland Bench", costCoins = 0, resource = "WoodToken", requiresPortal = false, colour = "timber" },
-	{ id = "PortalPainting", name = "Portal Painting", action = "Collect Portal Painting", costCoins = 250, resource = nil, requiresPortal = true, colour = "portal" },
+	{
+		id = "LanternNook",
+		name = "Lantern Nook",
+		action = "Collect Lantern Nook",
+		costCoins = 80,
+		resource = nil,
+		requiresPortal = false,
+		colour = "gold",
+	},
+	{
+		id = "StoryBookStack",
+		name = "Story Book Stack",
+		action = "Collect Story Books",
+		costCoins = 120,
+		resource = nil,
+		requiresPortal = false,
+		colour = "paper",
+	},
+	{
+		id = "MeadowSeedShelf",
+		name = "Meadow Seed Shelf",
+		action = "Craft Seed Shelf",
+		costCoins = 0,
+		resource = "MeadowSeed",
+		requiresPortal = false,
+		colour = "flower",
+	},
+	{
+		id = "SeashellDisplay",
+		name = "Seashell Display",
+		action = "Craft Seashell Display",
+		costCoins = 0,
+		resource = "Seashell",
+		requiresPortal = false,
+		colour = "sky",
+	},
+	{
+		id = "WoodlandBench",
+		name = "Woodland Bench",
+		action = "Craft Woodland Bench",
+		costCoins = 0,
+		resource = "WoodToken",
+		requiresPortal = false,
+		colour = "timber",
+	},
+	{
+		id = "PortalPainting",
+		name = "Portal Painting",
+		action = "Collect Portal Painting",
+		costCoins = 250,
+		resource = nil,
+		requiresPortal = true,
+		colour = "portal",
+	},
 }
 
 local THEMES_BY_ID = {}
@@ -101,12 +156,8 @@ function HomeExpressionRules.acquire(profile, itemId: string): (boolean, string)
 	if (profile.coins or 0) < item.costCoins then
 		return false, "not_enough_coins"
 	end
-	if item.resource ~= nil then
-		local inventory = if type(profile.inventory) == "table" then profile.inventory else {}
-		if (inventory[item.resource] or 0) < 1 then
-			return false, "missing_resource"
-		end
-		inventory[item.resource] -= 1
+	if item.resource ~= nil and not Inventory.remove(profile, item.resource, 1) then
+		return false, "missing_resource"
 	end
 	profile.coins -= item.costCoins
 	decorItems(profile)[itemId] = 1
@@ -136,4 +187,3 @@ function HomeExpressionRules.showcase(profile): number
 end
 
 return HomeExpressionRules
-
