@@ -12,37 +12,43 @@ local function supported(itemName: string): boolean
 	return Inventory.isSupported(itemName)
 end
 
-function TradeRules.exchange(profileA: any, itemA: string, profileB: any, itemB: string): (boolean, string)
+function TradeRules.exchange(
+	profileA: any,
+	itemA: string,
+	profileB: any,
+	itemB: string,
+	mutationOwner: string?
+): (boolean, string)
 	local canTrade, reason = TradeRules.canExchange(profileA, itemA, profileB, itemB)
 	if not canTrade then
 		return false, reason
 	end
 
-	local removedA = Inventory.remove(profileA, itemA, 1)
-	local removedB = Inventory.remove(profileB, itemB, 1)
+	local removedA = Inventory.remove(profileA, itemA, 1, mutationOwner)
+	local removedB = Inventory.remove(profileB, itemB, 1, mutationOwner)
 	if not (removedA and removedB) then
 		if removedA then
-			Inventory.add(profileA, itemA, 1)
+			Inventory.add(profileA, itemA, 1, mutationOwner)
 		end
 		if removedB then
-			Inventory.add(profileB, itemB, 1)
+			Inventory.add(profileB, itemB, 1, mutationOwner)
 		end
 		return false, "inventory_changed"
 	end
-	local addedA = Inventory.add(profileA, itemB, 1)
-	local addedB = Inventory.add(profileB, itemA, 1)
+	local addedA = Inventory.add(profileA, itemB, 1, mutationOwner)
+	local addedB = Inventory.add(profileB, itemA, 1, mutationOwner)
 	if not (addedA and addedB) then
 		-- canExchange preflights these additions, so reaching this branch means
 		-- state changed unexpectedly inside the operation. Restore what we can
 		-- and report failure rather than silently dropping an item.
 		if addedA then
-			Inventory.remove(profileA, itemB, 1)
+			Inventory.remove(profileA, itemB, 1, mutationOwner)
 		end
 		if addedB then
-			Inventory.remove(profileB, itemA, 1)
+			Inventory.remove(profileB, itemA, 1, mutationOwner)
 		end
-		Inventory.add(profileA, itemA, 1)
-		Inventory.add(profileB, itemB, 1)
+		Inventory.add(profileA, itemA, 1, mutationOwner)
+		Inventory.add(profileB, itemB, 1, mutationOwner)
 		return false, "inventory_changed"
 	end
 	return true, "traded"
