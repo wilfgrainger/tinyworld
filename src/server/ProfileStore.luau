@@ -6,6 +6,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local ProfileSchema = require(shared:WaitForChild("ProfileSchema"))
 local ProfileMigrations = require(shared:WaitForChild("ProfileMigrations"))
 local ProfileStoreRules = require(shared:WaitForChild("ProfileStoreRules"))
+local PlayerMutationLock = require(shared:WaitForChild("PlayerMutationLock"))
 local EnvironmentConfig = require(script.Parent:WaitForChild("EnvironmentConfig"))
 
 local ProfileStore = {}
@@ -223,6 +224,9 @@ function ProfileStore.lockMutations(player: Player, owner: string): boolean
 	then
 		return false
 	end
+	if not PlayerMutationLock.acquire(record.profile, owner) then
+		return false
+	end
 	record.mutationLockOwner = ProfileStoreRules.acquireMutationLock(record.mutationLockOwner, owner)
 	setDiagnostics(player, record)
 	return record.mutationLockOwner == owner
@@ -230,13 +234,15 @@ end
 
 function ProfileStore.unlockMutations(player: Player, owner: string): boolean
 	local record = profiles[player]
-	if record == nil then
+	if record == nil or record.mutationLockOwner ~= owner then
 		return false
 	end
-	local previous = record.mutationLockOwner
+	if not PlayerMutationLock.release(record.profile, owner) then
+		return false
+	end
 	record.mutationLockOwner = ProfileStoreRules.releaseMutationLock(record.mutationLockOwner, owner)
 	setDiagnostics(player, record)
-	return previous == owner and record.mutationLockOwner == nil
+	return record.mutationLockOwner == nil
 end
 
 function ProfileStore.isMutationLocked(player: Player): boolean
