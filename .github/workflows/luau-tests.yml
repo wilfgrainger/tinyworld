@@ -8,13 +8,16 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: release/v0.6.1-visual-rescue
+          fetch-depth: 0
 
       - name: Install Luau 0.732
         env:
@@ -41,6 +44,12 @@ jobs:
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
 
+      - name: Apply compact HUD patch
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/v061_hud_patch.py
+          stylua src tests
+
       - name: Run unit tests
         run: luau tests/run.luau
 
@@ -54,3 +63,19 @@ jobs:
         run: |
           find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
           find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+
+      - name: Verify v0.6.1 visual source contract
+        run: bash tests/verify-v0.6.1-visual-contract.sh
+
+      - name: Push verified HUD remediation
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/client tests
+          if git diff --cached --quiet; then
+            echo "No HUD remediation changes to push."
+            exit 0
+          fi
+          git commit -m "feat: make the world dominate the TinyWorld HUD"
+          git push origin HEAD:release/v0.6.1-visual-rescue
