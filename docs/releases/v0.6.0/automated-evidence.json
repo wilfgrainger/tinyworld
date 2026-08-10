@@ -1,17 +1,17 @@
 {
   "release": "0.6.0",
-  "verifiedSourceSha": "25f0b1d3c5b4dee509d8b0878b84c01a45c5f7d6",
-  "verifiedPullRequestMergeSha": "96078544606fe86a106310f7231dde3f7e5b230a",
-  "verifiedAtUtc": "2026-08-10T07:53:49Z",
+  "verifiedSourceSha": "acdc88cd51081c7128caf51e32a7debc3867e292",
+  "verifiedPullRequestMergeSha": "914511d4f3b59810aab7dfe15ce3dd43496d7d8c",
+  "verifiedAtUtc": "2026-08-10T08:09:00Z",
   "workflowRuns": {
-    "luau": 31367714401,
-    "releaseAuthority": 31367714400,
-    "rojoBuild": 31367714406
+    "luau": 31368787077,
+    "releaseAuthority": 31368787051,
+    "rojoBuild": 31368787062
   },
   "profileSchema": 11,
   "artifact": "TinyWorld-v0.6.0.rbxlx",
-  "artifactSha256": "9ef2b3e7ba67fad514f0569138e11d69015c3cdbc9a09dbdb54bcdcca12f04bd",
-  "workflowArtifactDigest": "sha256:09f5db37353de026d555d6f5eeb871c3450b472a05f425dcf20453845e6dc69c",
+  "artifactSha256": "07bb321ad11d20a5bc7720eda3c7aab920f93781dc1ceb6f8f7a73bd0641d14d",
+  "workflowArtifactDigest": "sha256:f153c65ded63c3ef7750cabec0673dc007e52698ef8e3dfb4c3f3f56a7c460f2",
   "gates": {
     "luauTests": "PASS",
     "luauAnalyze": "PASS",
