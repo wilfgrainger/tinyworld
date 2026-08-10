@@ -8,16 +8,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: release/v0.6.1-visual-rescue
-          fetch-depth: 0
 
       - name: Install Luau 0.732
         env:
@@ -44,14 +41,6 @@ jobs:
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
 
-      - name: Apply deterministic visual rescue patch
-        run: |
-          set -euo pipefail
-          python3 .github/scripts/v061_visual_rescue_patch.py
-          python3 .github/scripts/v061_runtime_copy_patch.py
-          python3 .github/scripts/v061_target_state_patch.py
-          stylua src tests
-
       - name: Run unit tests
         run: luau tests/run.luau
 
@@ -65,32 +54,3 @@ jobs:
         run: |
           find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
           find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
-
-      - name: Verify visual checkpoint
-        run: |
-          set +e
-          output="$(bash tests/verify-v0.6.1-visual-contract.sh 2>&1)"
-          status=$?
-          set -e
-          printf '%s\n' "$output"
-          if [[ $status -eq 0 ]]; then
-            echo "Visual contract fully passes."
-          elif grep -Fq 'compact StatusCluster missing' <<<"$output"; then
-            echo "Character/world checkpoint passes; HUD reset remains the next intentional RED gate."
-          else
-            echo "Unexpected visual-contract failure." >&2
-            exit 1
-          fi
-
-      - name: Push verified remediation
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src tests docs/product/target-state-v1.md
-          if git diff --cached --quiet; then
-            echo "No remediation changes to push."
-            exit 0
-          fi
-          git commit -m "fix: replace prototype world labels with physical cues"
-          git push origin HEAD:release/v0.6.1-visual-rescue
