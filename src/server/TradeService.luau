@@ -302,8 +302,7 @@ function TradeService:_recoverActiveTrade(
 	end
 	TradeJournal.write(transaction)
 
-	local reversed, reverseReason =
-		TradeRules.exchange(profileA, itemB, profileB, itemA, self.commitMutationOwner)
+	local reversed, reverseReason = TradeRules.exchange(profileA, itemB, profileB, itemA, self.commitMutationOwner)
 	if not reversed then
 		transaction.recoveryReason = reason .. ":" .. reverseReason
 		TradeJournal.write(transaction)
