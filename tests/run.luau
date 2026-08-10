@@ -6,6 +6,7 @@ local specs = {
 	require("./FurnitureUiRules.spec"),
 	require("./RemoteGuardRules.spec"),
 	require("./TradeTransactionRules.spec"),
+	require("./PlayerMutationLock.spec"),
 	require("./OnboardingRules.spec"),
 	require("./GoalRules.spec"),
 	require("./Progression.spec"),
