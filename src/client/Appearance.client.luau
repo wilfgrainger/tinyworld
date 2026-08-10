@@ -33,7 +33,7 @@ wardrobeButton.Position = UDim2.new(1, -140, 1, -18)
 wardrobeButton.Size = UDim2.fromOffset(112, UiTokens.TouchTarget)
 wardrobeButton.BackgroundColor3 = UiTokens.Colors.Berry
 wardrobeButton.BorderSizePixel = 0
-wardrobeButton.Text = "Wardrobe"
+wardrobeButton.Text = "Style"
 wardrobeButton.TextColor3 = UiTokens.Colors.Paper
 wardrobeButton.TextSize = 15
 wardrobeButton.Font = UiTokens.Fonts.Strong
@@ -62,7 +62,7 @@ local title = Instance.new("TextLabel")
 title.LayoutOrder = 1
 title.Size = UDim2.new(1, 0, 0, 36)
 title.BackgroundTransparency = 1
-title.Text = "Wardrobe"
+title.Text = "My Style"
 title.TextColor3 = UiTokens.Colors.Ink
 title.TextSize = 24
 title.Font = UiTokens.Fonts.Title
@@ -71,34 +71,28 @@ title.Parent = panel
 
 local hint = Instance.new("TextLabel")
 hint.LayoutOrder = 2
-hint.Size = UDim2.new(1, 0, 0, 42)
+hint.Size = UDim2.new(1, 0, 0, 58)
 hint.BackgroundTransparency = 1
-hint.Text = "All starter looks are free. Pick a hair style and outfit that feels like you."
+hint.Text = "Your Roblox avatar stays intact while TinyWorld character art is upgraded. You can still save a style preference for later."
 hint.TextColor3 = UiTokens.Colors.InkSoft
 hint.TextSize = 14
 hint.TextWrapped = true
 hint.Font = UiTokens.Fonts.Body
 hint.TextXAlignment = Enum.TextXAlignment.Left
+hint.TextYAlignment = Enum.TextYAlignment.Top
 hint.Parent = panel
 
-local hairScroll = Instance.new("ScrollingFrame")
-hairScroll.LayoutOrder = 3
-hairScroll.Size = UDim2.new(1, 0, 0, 62)
-hairScroll.BackgroundTransparency = 1
-hairScroll.BorderSizePixel = 0
-hairScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
-hairScroll.CanvasSize = UDim2.new()
-hairScroll.ScrollingDirection = Enum.ScrollingDirection.X
-hairScroll.ScrollBarThickness = 4
-hairScroll.Parent = panel
-local hairLayout = Instance.new("UIListLayout")
-hairLayout.FillDirection = Enum.FillDirection.Horizontal
-hairLayout.Padding = UDim.new(0, 8)
-hairLayout.Parent = hairScroll
+-- v0.6.1 deliberately hides the old hair-choice row. The server keeps the
+-- saved preference data, but no longer pretends a primitive Part hairstyle is
+-- a finished visual option.
+local hairButtons = {}
+for _, hair in AppearanceDefinitions.hairStyles() do
+	hairButtons[hair.id] = hair
+end
 
 local outfitScroll = Instance.new("ScrollingFrame")
-outfitScroll.LayoutOrder = 4
-outfitScroll.Size = UDim2.new(1, 0, 1, -220)
+outfitScroll.LayoutOrder = 3
+outfitScroll.Size = UDim2.new(1, 0, 1, -176)
 outfitScroll.BackgroundTransparency = 1
 outfitScroll.BorderSizePixel = 0
 outfitScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -110,21 +104,8 @@ outfitLayout.CellPadding = UDim2.fromOffset(8, 8)
 outfitLayout.CellSize = UDim2.new(0.5, -6, 0, 64)
 outfitLayout.Parent = outfitScroll
 
-local saveButton = ButtonFactory.create(panel, "Save Look", 5)
-local closeButton = ButtonFactory.secondary(panel, "Close", 6)
-
-local hairButtons = {}
-for index, hair in AppearanceDefinitions.hairStyles() do
-	local button = ButtonFactory.secondary(hairScroll, hair.displayName, index)
-	button.Size = UDim2.fromOffset(128, UiTokens.TouchTarget)
-	button.Activated:Connect(function()
-		selectedHair = hair.id
-		for id, other in hairButtons do
-			other.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
-		end
-	end)
-	hairButtons[hair.id] = button
-end
+local saveButton = ButtonFactory.create(panel, "Save Preference", 4)
+local closeButton = ButtonFactory.secondary(panel, "Close", 5)
 
 local outfitButtons = {}
 for index, outfit in AppearanceDefinitions.outfits() do
@@ -133,7 +114,7 @@ for index, outfit in AppearanceDefinitions.outfits() do
 	button.LayoutOrder = index
 	button.BackgroundColor3 = UiTokens.Colors.PaperSoft
 	button.BorderSizePixel = 0
-	button.Text = outfit.displayName .. "\nFREE"
+	button.Text = outfit.displayName .. "\nSTYLE"
 	button.TextColor3 = UiTokens.Colors.Ink
 	button.TextSize = 14
 	button.TextWrapped = true
@@ -184,9 +165,6 @@ remote.OnClientEvent:Connect(function(payload)
 	end
 	if type(payload.outfitId) == "string" and outfitButtons[payload.outfitId] then
 		selectedOutfit = payload.outfitId
-	end
-	for id, button in hairButtons do
-		button.BackgroundColor3 = if id == selectedHair then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
 	end
 	for id, button in outfitButtons do
 		button.BackgroundColor3 = if id == selectedOutfit then UiTokens.Colors.Gold else UiTokens.Colors.PaperSoft
