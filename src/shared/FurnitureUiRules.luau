@@ -42,4 +42,15 @@ function FurnitureUiRules.preferredFurnitureId(previousId: any, availableIds: an
 	return nil
 end
 
+function FurnitureUiRules.placementAction(placementId: any): string
+	return if type(placementId) == "string" and placementId ~= "" then "move" else "place"
+end
+
+function FurnitureUiRules.homeCatalogueReservedHeight(touchTarget: number, padding: number): number
+	local safeTouchTarget = math.max(0, touchTarget)
+	local safePadding = math.max(0, padding)
+	local fixedChildren = 36 + 38 + (safeTouchTarget + 8) + safeTouchTarget
+	return fixedChildren + (safePadding * 4)
+end
+
 return FurnitureUiRules
