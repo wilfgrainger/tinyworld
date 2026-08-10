@@ -53,9 +53,16 @@ while IFS= read -r -d '' path; do
       fail "CRLF/carriage-return found at $path:$line_number"
     fi
 
-    if [[ "$line" =~ [[:blank:]]+$ ]] && [[ -n "${line//[[:blank:]]/}" ]]; then
-      fail "trailing whitespace found at $path:$line_number"
-    fi
+    # Markdown legitimately uses trailing spaces for explicit hard line breaks.
+    # Other tracked text formats should not carry hidden trailing whitespace.
+    case "$path" in
+      *.md) ;;
+      *)
+        if [[ "$line" =~ [[:blank:]]+$ ]] && [[ -n "${line//[[:blank:]]/}" ]]; then
+          fail "trailing whitespace found at $path:$line_number"
+        fi
+        ;;
+    esac
 
     if (( ${#line} > 220 )); then
       long_lines=$((long_lines + 1))
