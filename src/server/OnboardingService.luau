@@ -47,8 +47,8 @@ function OnboardingService:_setState(player: Player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", complete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not complete)
 	if complete and self.AppearanceService then
-		-- AppearanceService is the single writer for the complete TinyWorld look:
-		-- body palette, hair fallback, shoes fallback and active-outfit attribute.
+		-- v0.6.1 preserves the player's Roblox avatar while AppearanceService
+		-- remains the single writer for validated TinyWorld style preference state.
 		self.AppearanceService:applyProfile(player, profile)
 	end
 	return complete
@@ -86,7 +86,7 @@ function OnboardingService:_submit(player: Player, payload: any)
 	end
 	if type(payload) ~= "table" then
 		RemoteGuard.warn(player, "onboarding_submit", "invalid_payload")
-		self:_reply(player, false, "Please choose a name, style, and outfit.")
+		self:_reply(player, false, "Please choose a name and both preferences.")
 		return
 	end
 	if not RemoteGuard.stringWithin(payload.displayName, 3, 16) then
@@ -101,7 +101,7 @@ function OnboardingService:_submit(player: Player, payload: any)
 		or #payload.starterOutfit > 16
 	then
 		RemoteGuard.warn(player, "onboarding_submit", "selection_shape")
-		self:_reply(player, false, "Please choose a valid style and outfit.")
+		self:_reply(player, false, "Please choose valid TinyWorld preferences.")
 		return
 	end
 
@@ -112,12 +112,12 @@ function OnboardingService:_submit(player: Player, payload: any)
 	end
 	if not OnboardingRules.isValidAvatarStyle(payload.avatarStyle) then
 		RemoteGuard.warn(player, "onboarding_submit", "avatar_style")
-		self:_reply(player, false, "Choose Boy or Girl to continue.")
+		self:_reply(player, false, "Choose a character preference to continue.")
 		return
 	end
 	if not OnboardingRules.isValidStarterOutfit(payload.starterOutfit) then
 		RemoteGuard.warn(player, "onboarding_submit", "starter_outfit")
-		self:_reply(player, false, "Choose one of the three free outfits to continue.")
+		self:_reply(player, false, "Choose one of the three TinyWorld moods to continue.")
 		return
 	end
 

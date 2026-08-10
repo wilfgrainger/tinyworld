@@ -2,16 +2,53 @@
 
 ## Normal play
 
-The permanent in-play layer stays quiet:
+The permanent in-play layer stays quiet enough that the 3D world remains the primary information surface.
 
-- `CoinChip`: icon/current coins;
-- `LevelChip`: compact level/progress;
-- `QuestChip`: one current activity in player language;
-- `JournalButton`: intentional access to deeper information;
+Normal play may show:
+
+- compact coins;
+- compact level/progress;
+- one current useful task when needed;
+- one compact navigation/journal surface;
 - short-lived toast feedback;
 - contextual physical `ProximityPrompt` interactions.
 
 Do not turn profile/analytics/debug state into permanent HUD telemetry.
+
+Do not use a full-width website-style navigation/header across normal gameplay. Home, Wardrobe, Journal and other deep surfaces belong behind one coherent compact navigation cluster and one modal owner.
+
+## Visual language
+
+Ordinary information panels use warm/light surfaces by default:
+
+- `Paper` / `PaperSoft` body surfaces;
+- `Ink` / `InkSoft` text;
+- one restrained accent at a time;
+- clear spacing and rounded containers;
+- icons or simple thumbnail silhouettes where they reduce text dependence.
+
+Dark surfaces remain available for contrast, overlays, fantasy moments or brief feedback. They are not the default body of every ordinary panel.
+
+Gold/orange is an accent, not a full-screen UI field.
+
+## World versus UI responsibility
+
+The world should communicate:
+
+- where the home is;
+- what kind of building a destination is;
+- whether an object looks interactable;
+- what a fountain, parcel, bike, bed, cooker or jobs board physically is.
+
+UI should communicate:
+
+- precise counts/prices/progress;
+- choices that require multiple options;
+- inventory/collection detail;
+- confirmation/error/recovery;
+- deeper information intentionally opened by the player.
+
+A floating information rectangle is not a valid substitute for unclear world art.
 
 ## Deep information architecture
 
@@ -55,6 +92,16 @@ Required flow:
 
 Preview movement is local-only; never fire gameplay remotes every render frame.
 
+## Character and wardrobe UX
+
+The player's Roblox avatar is the safe visual baseline when no approved TinyWorld character asset exists.
+
+- do not show a wardrobe option as a rendered hair/shoe choice when normal runtime can only simulate it with primitive blocks;
+- preserve saved appearance preference data for future approved assets;
+- copy must be honest about what is visibly applied now;
+- do not destroy existing Roblox clothing/accessories as a side effect of TinyWorld styling;
+- identity remains meaningful and free, but visual-quality regression is not accepted merely to demonstrate variety.
+
 ## Responsive breakpoints
 
 TinyWorld-native breakpoints:
@@ -90,11 +137,14 @@ Use scale-based panel layouts plus pixel padding/minimum-size constraints. Avoid
 - primary button/title text larger;
 - wrapped copy may not clip;
 - avoid `TextScaled` as a blanket fix;
-- important state is not conveyed by colour alone.
+- important state is not conveyed by colour alone;
+- world text is short and local; paragraphs belong in intentional panels, not above landmarks.
 
 ## Modal layering
 
 Use one modal owner at a time. Normal HUD remains behind it. A new modal closes/replaces the previous modal rather than stacking opaque panels indefinitely.
+
+Home, Wardrobe and Journal launch controls may be owned by separate feature modules internally, but their normal-play presentation should form one coherent navigation cluster rather than three competing large buttons.
 
 ## Required states
 
@@ -112,26 +162,24 @@ Raw Roblox/service exceptions are never player copy.
 
 The client may optimistically preview presentation, but it confirms economic/progression/ownership/placement success only after the server response/replicated state confirms it. Message nonces prevent old toast timers hiding newer feedback.
 
-## Onboarding and appearance
-
-Legacy Boy/Girl plus Meadow/Harbor/Sunset onboarding values remain supported for compatibility. Long-term character expression uses free hair/outfit presets and saved outfits. Production Roblox assets require manifest approval; identity is never paywalled by design.
-
 ## Debugging
 
 Raw attributes may appear only in a separate Studio-only opt-in drawer. The debug control is absent from published normal play.
 
 ## Evidence
 
-The active release acceptance route checks:
+The active v0.6.1 acceptance route checks:
 
+- normal HUD leaves the world visually dominant;
+- no permanent system-dashboard/website-header treatment;
 - smallest agreed phone viewport;
 - portrait/landscape;
 - tablet/desktop;
 - controller focus/navigation;
 - catalogue purchase;
 - furniture placement/rejection;
-- wardrobe;
+- wardrobe honesty/preservation of normal avatar;
 - no clipped journal tabs/copy;
 - no hover-only core feature.
 
-Source structure cannot by itself mark device usability PASS.
+For v0.6.1 player-facing UI work, source structure cannot mark device/visual usability PASS and required observed rows block merge-ready status.

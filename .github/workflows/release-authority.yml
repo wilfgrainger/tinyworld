@@ -15,4 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Verify canonical release authority
-        run: bash ./tests/verify-v0.6.0-release-authority.sh
+        run: bash ./tests/verify-release-authority.sh
+      - name: Verify visual source contract
+        run: bash ./tests/verify-v0.6.1-visual-contract.sh
+      - name: Audit every tracked text line
+        run: bash ./tests/verify-v0.6.1-repository-audit.sh

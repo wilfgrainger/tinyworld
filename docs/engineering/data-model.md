@@ -6,9 +6,11 @@
 
 Current schema: **v11**.
 
+v0.6.1 Visual Rescue does not introduce a profile migration.
+
 ## v11 compatibility bridge
 
-v11 adds scalable structures while retaining legacy vertical-slice fields so existing jobs, gardens, routes, transport and HUD behaviour do not break during the transition.
+v11 adds scalable structures while retaining legacy vertical-slice fields so jobs, gardens, routes, transport and other compatibility paths do not break during the transition.
 
 ### Generic stack inventory
 
@@ -34,11 +36,15 @@ Definitions contain display/price/art metadata. Profiles contain ownership only.
 
 Coordinates are canonical home-local coordinates decided by the server. Placement count is capped at 60. Clients may request a world/local transform; the server owns conversion, snapping, overlap/bounds validation and persistence.
 
-### Character expression
+### Character expression preferences
 
 `savedOutfits[outfitId] = { hair, top, bottom, shoes, accessory }`
 
-`activeOutfitId` selects the current free look. Production Roblox assets are manifest-driven and are not embedded in profile data.
+`activeOutfitId` selects the player's current **TinyWorld style preference**.
+
+That persisted preference is not a guarantee that every field has a currently approved rendered asset. v0.6.1 deliberately preserves the player's Roblox avatar instead of rendering primitive Part hair/shoes while approved TinyWorld character assets are absent. Future approved assets may consume the saved preference without a schema change.
+
+Production Roblox assets are manifest-driven and are not embedded in profile data.
 
 ### Discovery
 
@@ -80,3 +86,5 @@ Studio defaults to DEV. LIVE selection must be explicit.
 ## Data ownership
 
 Client presentation attributes are mirrors, not authority. A client may never author coins, XP, price, reward, ownership, trade contents or final placement state.
+
+Visual rescue may change how a saved preference is presented without changing profile authority or silently rewriting saved data.

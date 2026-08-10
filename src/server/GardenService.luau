@@ -124,22 +124,6 @@ local function renderBed(plot, bedIndex: number, stage: string)
 			Enum.Material.Grass,
 			Enum.PartType.Ball
 		)
-		local gui = Instance.new("BillboardGui")
-		gui.Name = "ReadyLabel"
-		gui.Size = UDim2.fromOffset(120, 30)
-		gui.StudsOffset = Vector3.new(0, 2.6, 0)
-		gui.MaxDistance = 45
-		gui.AlwaysOnTop = true
-		gui.Parent = carrot
-		local label = Instance.new("TextLabel")
-		label.BackgroundColor3 = VisualTheme.Colors.inkSoft
-		label.BackgroundTransparency = 0.08
-		label.Size = UDim2.fromScale(1, 1)
-		label.TextColor3 = VisualTheme.Colors.paper
-		label.TextScaled = true
-		label.Font = Enum.Font.GothamBold
-		label.Text = "CARROT READY"
-		label.Parent = gui
 	end
 end
 

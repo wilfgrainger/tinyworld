@@ -130,29 +130,28 @@ local function makeInteractablePart(
 	return part
 end
 
-local function makeLabel(parent: BasePart, text: string, width: number?): TextLabel
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(math.min(width or 300, 360), 62)
-	gui.StudsOffset = Vector3.new(0, 3.6, 0)
-	gui.MaxDistance = 80
-	gui.AlwaysOnTop = true
+local function makeSurfaceLabel(parent: BasePart, text: string): TextLabel
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "SignSurface"
+	gui.Face = Enum.NormalId.Front
+	gui.AlwaysOnTop = false
+	gui.LightInfluence = 1
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 42
 	gui.Parent = parent
 
 	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 0.04
-	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
+	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
 	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextStrokeTransparency = 0.85
 	label.TextWrapped = true
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBold
 	label.Text = text
 	label.Parent = gui
 	local constraint = Instance.new("UITextSizeConstraint")
-	constraint.MinTextSize = 12
-	constraint.MaxTextSize = 22
+	constraint.MinTextSize = 10
+	constraint.MaxTextSize = 24
 	constraint.Parent = label
 	return label
 end
@@ -314,7 +313,6 @@ function AuthoredPrefabBuilder.buildWorldPortal(
 	)
 	lensGlow.Orientation = Vector3.new(90, 0, 0)
 	lensGlow.Transparency = 0.72
-	makeLabel(lens, labelText, 300)
 	local prompt = makePrompt(lens, actionText, objectText)
 	return model, prompt
 end
@@ -394,7 +392,6 @@ function AuthoredPrefabBuilder.buildSugarCrystal(
 		Enum.PartType.Ball,
 		"sugar-crystal-crown"
 	)
-	makeLabel(core, labelText, 190)
 	return model, makePrompt(core, "Collect Crystal", labelText)
 end
 
@@ -471,7 +468,6 @@ function AuthoredPrefabBuilder.buildMoonlitSeed(
 		"moonlit-seed-leaf"
 	)
 	leafRight.Orientation = Vector3.new(0, 0, 25)
-	makeLabel(seed, labelText, 190)
 	return model, makePrompt(seed, "Collect Seed", labelText)
 end
 
@@ -565,7 +561,6 @@ function AuthoredPrefabBuilder.buildDailyFountain(parent: Instance, origin: Vect
 			"daily-fountain-water-jet"
 		)
 	end
-	makeLabel(basin, "DAILY FOUNTAIN\n200 coins • 50 XP • 1 Carrot", 320)
 	local prompt = makePrompt(basin, "Claim Daily Reward", "Village Fountain")
 	return model, prompt
 end
@@ -712,6 +707,10 @@ function AuthoredPrefabBuilder.buildTownHall(parent: Instance, origin: Vector3)
 		origin + Vector3.new(-10, 4, 13),
 		"profession-noticeboard"
 	)
+	noticeboard.Transparency = 0
+	noticeboard.Color = VisualTheme.Colors.warmLight
+	noticeboard.Material = Enum.Material.WoodPlanks
+	noticeboard.CanCollide = false
 	makeDecoration(
 		model,
 		"CivicNoticeboardFrame",
@@ -739,6 +738,17 @@ function AuthoredPrefabBuilder.buildTownHall(parent: Instance, origin: Vector3)
 		Enum.Material.Wood,
 		"profession-noticeboard-post"
 	)
+	for index, x in { -13, -10, -7 } do
+		makeDecoration(
+			model,
+			"CivicJobCard" .. index,
+			Vector3.new(2.2, 3.2, 0.2),
+			origin + Vector3.new(x, 4, 13.85),
+			if index % 2 == 0 then VisualTheme.Colors.sky else VisualTheme.Colors.paper,
+			Enum.Material.SmoothPlastic,
+			"profession-job-card"
+		)
+	end
 	return model, contributionAnchor, noticeboard
 end
 
@@ -1225,7 +1235,7 @@ function AuthoredPrefabBuilder.buildMarket(parent: Instance, origin: Vector3)
 		Enum.Material.Wood,
 		"market-status-sign"
 	)
-	local statusLabel = makeLabel(sign, "TRADING POST\nTwo players: join → choose item → confirm", 340)
+	local statusLabel = makeSurfaceLabel(sign, "Trading Post")
 
 	local sides = {}
 	local sideSpecs = {

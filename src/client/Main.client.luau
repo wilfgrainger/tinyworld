@@ -10,6 +10,7 @@ local PortalJournalRules = require(shared:WaitForChild("PortalJournalRules"))
 local VisualPalette = require(shared:WaitForChild("VisualPalette"))
 local VisualQualityRules = require(shared:WaitForChild("VisualQualityRules"))
 local ModalController = require(script.Parent:WaitForChild("ModalController"))
+local GameNav = require(script.Parent:WaitForChild("GameNav"))
 local modalController = ModalController.new()
 
 local colors = {
@@ -60,7 +61,7 @@ local function makeLabel(parent: Instance, name: string, textSize: number, bold:
 	local label = Instance.new("TextLabel")
 	label.Name = name
 	label.BackgroundTransparency = 1
-	label.TextColor3 = colors.paper
+	label.TextColor3 = colors.ink
 	label.Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham
 	label.TextSize = textSize
 	label.TextWrapped = true
@@ -83,43 +84,48 @@ gui.IgnoreGuiInset = false
 gui.DisplayOrder = 10
 gui.Parent = playerGui
 
+local statusCluster = Instance.new("Frame")
+statusCluster.Name = "StatusCluster"
+statusCluster.Position = UDim2.fromOffset(12, 12)
+statusCluster.Size = UDim2.fromOffset(252, 104)
+statusCluster.BackgroundTransparency = 1
+statusCluster.Parent = gui
+
 local function makeChip(name: string, position: UDim2, size: UDim2): Frame
 	local chip = Instance.new("Frame")
 	chip.Name = name
 	chip.Position = position
 	chip.Size = size
-	chip.BackgroundColor3 = colors.ink
-	chip.BackgroundTransparency = 0.08
+	chip.BackgroundColor3 = colors.paper
+	chip.BackgroundTransparency = 0.05
 	chip.BorderSizePixel = 0
-	chip.Parent = gui
-	addCorner(chip, 12)
-	addStroke(chip, colors.metal, 0.72)
+	chip.Parent = statusCluster
+	addCorner(chip, 11)
+	addStroke(chip, colors.inkSoft, 0.78)
 	return chip
 end
 
-local coinChip = makeChip("CoinChip", UDim2.fromOffset(12, 12), UDim2.fromOffset(116, 44))
-coinChip.Name = "CoinChip"
-local coinIcon = makeLabel(coinChip, "Icon", 20, true)
-coinIcon.Position = UDim2.fromOffset(12, 0)
-coinIcon.Size = UDim2.fromOffset(24, 44)
+local coinChip = makeChip("CoinChip", UDim2.fromOffset(0, 0), UDim2.fromOffset(96, 40))
+local coinIcon = makeLabel(coinChip, "Icon", 18, true)
+coinIcon.Position = UDim2.fromOffset(10, 0)
+coinIcon.Size = UDim2.fromOffset(20, 40)
 coinIcon.Text = "●"
 coinIcon.TextColor3 = colors.gold
 coinIcon.TextXAlignment = Enum.TextXAlignment.Center
-local coinValue = makeLabel(coinChip, "Value", 17, true)
-coinValue.Position = UDim2.fromOffset(42, 0)
-coinValue.Size = UDim2.new(1, -50, 1, 0)
-coinValue.TextColor3 = colors.warmLight
+local coinValue = makeLabel(coinChip, "Value", 16, true)
+coinValue.Position = UDim2.fromOffset(34, 0)
+coinValue.Size = UDim2.new(1, -42, 1, 0)
+coinValue.TextColor3 = colors.ink
 
-local levelChip = makeChip("LevelChip", UDim2.new(0, 136, 0, 12), UDim2.new(1, -208, 0, 44))
-levelChip.Name = "LevelChip"
-local levelText = makeLabel(levelChip, "Level", 14, true)
-levelText.Position = UDim2.fromOffset(12, 1)
-levelText.Size = UDim2.new(1, -24, 0, 25)
+local levelChip = makeChip("LevelChip", UDim2.fromOffset(102, 0), UDim2.fromOffset(150, 40))
+local levelText = makeLabel(levelChip, "Level", 12, true)
+levelText.Position = UDim2.fromOffset(10, 0)
+levelText.Size = UDim2.new(1, -20, 0, 25)
 local levelTrack = Instance.new("Frame")
 levelTrack.Name = "ProgressTrack"
-levelTrack.Position = UDim2.fromOffset(12, 29)
-levelTrack.Size = UDim2.new(1, -24, 0, 6)
-levelTrack.BackgroundColor3 = colors.inkSoft
+levelTrack.Position = UDim2.fromOffset(10, 28)
+levelTrack.Size = UDim2.new(1, -20, 0, 5)
+levelTrack.BackgroundColor3 = colors.warmLight
 levelTrack.BorderSizePixel = 0
 levelTrack.Parent = levelChip
 addCorner(levelTrack, 3)
@@ -131,51 +137,28 @@ levelProgress.BorderSizePixel = 0
 levelProgress.Parent = levelTrack
 addCorner(levelProgress, 3)
 
-local questChip = makeChip("QuestChip", UDim2.fromOffset(12, 64), UDim2.new(0.72, 0, 0, 58))
-questChip.Name = "QuestChip"
-local questConstraint = Instance.new("UISizeConstraint")
-questConstraint.MinSize = Vector2.new(250, 58)
-questConstraint.MaxSize = Vector2.new(430, 58)
-questConstraint.Parent = questChip
-local questIcon = makeLabel(questChip, "Icon", 22, true)
-questIcon.Position = UDim2.fromOffset(12, 0)
-questIcon.Size = UDim2.fromOffset(30, 58)
+local questChip = makeChip("QuestChip", UDim2.fromOffset(0, 46), UDim2.fromOffset(252, 56))
+local questIcon = makeLabel(questChip, "Icon", 18, true)
+questIcon.Position = UDim2.fromOffset(10, 0)
+questIcon.Size = UDim2.fromOffset(24, 56)
 questIcon.Text = "✦"
 questIcon.TextColor3 = colors.gold
 questIcon.TextXAlignment = Enum.TextXAlignment.Center
-local questTitle = makeLabel(questChip, "Title", 14, true)
-questTitle.Position = UDim2.fromOffset(50, 5)
-questTitle.Size = UDim2.new(1, -60, 0, 25)
-questTitle.TextColor3 = colors.warmLight
-local questDetail = makeLabel(questChip, "Detail", 12, false)
-questDetail.Position = UDim2.fromOffset(50, 27)
-questDetail.Size = UDim2.new(1, -60, 0, 25)
-questDetail.TextColor3 = colors.paper
-questDetail.TextTransparency = 0.18
-
-local journalButton = Instance.new("TextButton")
-journalButton.Name = "JournalButton"
-journalButton.AnchorPoint = Vector2.new(1, 0)
-journalButton.Position = UDim2.new(1, -12, 0, 12)
-journalButton.Size = UDim2.fromOffset(50, 50)
-journalButton.BackgroundColor3 = colors.ink
-journalButton.BackgroundTransparency = 0.08
-journalButton.BorderSizePixel = 0
-journalButton.Text = "☰"
-journalButton.TextColor3 = colors.warmLight
-journalButton.TextSize = 22
-journalButton.Font = Enum.Font.GothamBold
-journalButton.AutoButtonColor = true
-journalButton.Parent = gui
-addCorner(journalButton, 12)
-addStroke(journalButton, colors.gold, 0.55)
+local questTitle = makeLabel(questChip, "Title", 13, true)
+questTitle.Position = UDim2.fromOffset(42, 4)
+questTitle.Size = UDim2.new(1, -50, 0, 23)
+questTitle.TextColor3 = colors.ink
+local questDetail = makeLabel(questChip, "Detail", 11, false)
+questDetail.Position = UDim2.fromOffset(42, 25)
+questDetail.Size = UDim2.new(1, -50, 0, 26)
+questDetail.TextColor3 = colors.inkSoft
 
 local journalPanel = Instance.new("Frame")
 journalPanel.Name = "JournalPanel"
 journalPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 journalPanel.Position = UDim2.fromScale(0.5, 0.5)
 journalPanel.Size = UDim2.new(0.88, 0, 0.78, 0)
-journalPanel.BackgroundColor3 = colors.ink
+journalPanel.BackgroundColor3 = colors.paper
 journalPanel.BackgroundTransparency = 0.02
 journalPanel.BorderSizePixel = 0
 journalPanel.Visible = false
@@ -191,17 +174,17 @@ local journalHeading = makeLabel(journalPanel, "Heading", 22, true)
 journalHeading.Position = UDim2.fromOffset(20, 10)
 journalHeading.Size = UDim2.new(1, -80, 0, 38)
 journalHeading.Text = "My TinyWorld Journal"
-journalHeading.TextColor3 = colors.warmLight
+journalHeading.TextColor3 = colors.ink
 
 local journalClose = Instance.new("TextButton")
 journalClose.Name = "Close"
 journalClose.AnchorPoint = Vector2.new(1, 0)
 journalClose.Position = UDim2.new(1, -14, 0, 12)
 journalClose.Size = UDim2.fromOffset(40, 40)
-journalClose.BackgroundColor3 = colors.inkSoft
+journalClose.BackgroundColor3 = colors.warmLight
 journalClose.BorderSizePixel = 0
 journalClose.Text = "×"
-journalClose.TextColor3 = colors.paper
+journalClose.TextColor3 = colors.ink
 journalClose.TextSize = 24
 journalClose.Font = Enum.Font.GothamBold
 journalClose.Parent = journalPanel
@@ -224,8 +207,8 @@ local content = Instance.new("ScrollingFrame")
 content.Name = "Content"
 content.Position = UDim2.fromOffset(18, 110)
 content.Size = UDim2.new(1, -36, 1, -128)
-content.BackgroundColor3 = colors.inkSoft
-content.BackgroundTransparency = 0.28
+content.BackgroundColor3 = colors.warmLight
+content.BackgroundTransparency = 0.16
 content.BorderSizePixel = 0
 content.ClipsDescendants = true
 content.CanvasSize = UDim2.fromOffset(0, 0)
@@ -240,10 +223,10 @@ addPadding(content, 14, 12)
 local function makeJournalTab(text: string, order: number): TextButton
 	local button = Instance.new("TextButton")
 	button.LayoutOrder = order
-	button.BackgroundColor3 = colors.inkSoft
+	button.BackgroundColor3 = colors.warmLight
 	button.BorderSizePixel = 0
 	button.Text = text
-	button.TextColor3 = colors.paper
+	button.TextColor3 = colors.ink
 	button.TextSize = 11
 	button.TextWrapped = true
 	button.Font = Enum.Font.GothamBold
@@ -343,8 +326,8 @@ local function selectJournalTab(selectedButton: TextButton)
 	for _, entry in tabEntries do
 		local selected = entry.button == selectedButton
 		entry.section.Visible = selected
-		entry.button.BackgroundColor3 = if selected then colors.gold else colors.inkSoft
-		entry.button.TextColor3 = if selected then colors.ink else colors.paper
+		entry.button.BackgroundColor3 = if selected then colors.gold else colors.warmLight
+		entry.button.TextColor3 = colors.ink
 	end
 	content.CanvasPosition = Vector2.zero
 end
@@ -356,7 +339,7 @@ for _, entry in tabEntries do
 end
 selectJournalTab(todayTab)
 
-journalButton.Activated:Connect(function()
+GameNav.register("Journal", "Journal", 1, function()
 	if journalPanel.Visible then
 		modalController:close(journalPanel)
 	else
@@ -447,7 +430,7 @@ local function friendlyQuest(): (string, string)
 
 	local suggested = attr("TinyWorldSuggestedGoal", "Explore the village.")
 	local friendlyGoals = {
-		["Complete your TinyWorld setup."] = "Choose your TinyWorld look",
+		["Complete your TinyWorld setup."] = "Finish your TinyWorld setup",
 		["Claim the fountain reward or grow a Carrot."] = "Grow your first carrot",
 		["Try a Courier delivery from the depot."] = "Visit the courier depot",
 		["Save 300 coins and buy the Tiny Bike."] = "Save for a Tiny Bike",
@@ -614,6 +597,7 @@ if RunService:IsStudio() then
 	debugText.Size = UDim2.new(1, -4, 0, 0)
 	debugText.AutomaticSize = Enum.AutomaticSize.Y
 	debugText.Font = Enum.Font.Code
+	debugText.TextColor3 = colors.paper
 	debugText.TextYAlignment = Enum.TextYAlignment.Top
 
 	updateDebug = function()

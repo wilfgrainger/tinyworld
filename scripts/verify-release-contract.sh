@@ -21,9 +21,16 @@ required_paths=(
   "scripts/build.ps1"
   ".github/workflows/rojo-build.yml"
   ".github/workflows/luau-tests.yml"
+  ".github/workflows/release-authority.yml"
   "docs/product/target-state-v1.md"
-  "docs/superpowers/specs/2026-08-09-tinyworld-v0.6.0-target-state-consolidation-design.md"
-  "docs/superpowers/plans/2026-08-09-tinyworld-v0.6.0-target-state-consolidation.md"
+  "docs/roadmap/v0.6.1-visual-rescue.md"
+  "docs/releases/v0.6.1/acceptance.md"
+  "docs/superpowers/specs/2026-08-10-tinyworld-v0.6.1-visual-rescue-design.md"
+  "docs/superpowers/plans/2026-08-10-tinyworld-v0.6.1-visual-rescue.md"
+  "tests/verify-release-authority.sh"
+  "tests/verify-v0.6.1-visual-contract.sh"
+  "tests/build-contract.sh"
+  "tests/build-contract.ps1"
   "src/shared/ProfileMigrations.luau"
   "src/shared/FurnitureDefinitions.luau"
   "src/shared/FurniturePlacementRules.luau"
@@ -37,18 +44,19 @@ for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing require
 CONFIG="config/release.json"
 ASSETS="assets/manifests/assets.json"
 WORKFLOW=".github/workflows/rojo-build.yml"
+AUTHORITY_WORKFLOW=".github/workflows/release-authority.yml"
 
 jq -e '
-  .productVersion == "0.6.0" and
-  .releaseName == "Target-State Consolidation" and
+  .productVersion == "0.6.1" and
+  .releaseName == "Visual Rescue" and
   .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
   .styluaVersion == "2.5.2" and
   .rokitVersion == "1.2.0" and
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
-  .artifactFile == "TinyWorld-v0.6.0.rbxlx"
-' "$CONFIG" >/dev/null || fail "config/release.json is not the exact v0.6.0 contract"
+  .artifactFile == "TinyWorld-v0.6.1.rbxlx"
+' "$CONFIG" >/dev/null || fail "config/release.json is not the exact v0.6.1 contract"
 pass "release metadata is exact"
 
 for expected in \
@@ -89,19 +97,21 @@ pass "publishing remains credential-free and human-gated"
 grep -Eq '^name:[[:space:]]+Rojo build[[:space:]]*$' "$WORKFLOW" || fail "Rojo workflow name changed unexpectedly"
 grep -Fq 'actions/checkout@v6' "$WORKFLOW" || fail "checkout action pin missing"
 grep -Fq 'rokit install --no-trust-check' "$WORKFLOW" || fail "pinned Rokit tools are not installed"
+grep -Fq './tests/build-contract.sh' "$WORKFLOW" || fail "build-contract verification step missing"
 grep -Fq './scripts/verify-release-contract.sh' "$WORKFLOW" || fail "release guard step missing"
 grep -Fq './scripts/build.sh' "$WORKFLOW" || fail "build step missing"
-grep -Fq 'tinyworld-v0.6.0-${{ github.sha }}' "$WORKFLOW" || fail "v0.6.0 artifact name missing"
-grep -Fq 'dist/TinyWorld-v0.6.0.rbxlx' "$WORKFLOW" || fail "v0.6.0 artifact path missing"
+grep -Fq 'tinyworld-v0.6.1-${{ github.sha }}' "$WORKFLOW" || fail "v0.6.1 artifact name missing"
+grep -Fq 'dist/TinyWorld-v0.6.1.rbxlx' "$WORKFLOW" || fail "v0.6.1 artifact path missing"
 grep -Fq 'dist/release.json' "$WORKFLOW" || fail "release manifest path missing"
-pass "Rojo workflow builds only traceable v0.6.0 evidence"
+pass "Rojo workflow verifies contracts and builds only traceable v0.6.1 evidence"
+
+grep -Fq 'bash ./tests/verify-release-authority.sh' "$AUTHORITY_WORKFLOW" || fail "release authority workflow must use generic current-release guard"
+pass "release authority workflow is version-name independent"
 
 for rule in 'dist/' '.rokit/' '.worktrees/' '.superpowers/'; do
   grep -Fqx "$rule" .gitignore || fail ".gitignore missing required rule: $rule"
 done
 
-# Executable surfaces may reference environment variable names, but may not
-# contain cookie/API-key shaped literal assignments or Open Cloud publishing.
 if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
   '(\.ROBLOSECURITY|ROBLOX_COOKIE)[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+' \
   src scripts .github config assets 2>/dev/null; then
@@ -109,7 +119,7 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
 fi
 if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
   '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
-  fail "publishing automation is not approved in v0.6.0"
+  fail "publishing automation is not approved in v0.6.1"
 fi
 pass "repository remains free of production publishing credentials/actions"
 
@@ -118,12 +128,9 @@ if find . -maxdepth 3 -type f \( -name 'wally.toml' -o -name 'wally.lock' \) | g
 fi
 pass "no unnecessary dependency surface introduced"
 
-# The external Roblox development skill is review guidance. Its source files
-# are intentionally not copied because the reviewed repository did not expose
-# a licence file at review time.
 if find . -type f \( -path '*/roblox-game-skill/*' -o -name 'SKILL.md' \) | grep -q .; then
   fail "external skill source must not be vendored into TinyWorld"
 fi
 pass "external skill source is not vendored"
 
-echo "PASS: TinyWorld v0.6.0 release contract is valid"
+echo "PASS: TinyWorld v0.6.1 Visual Rescue release contract is valid"

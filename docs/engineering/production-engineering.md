@@ -1,8 +1,8 @@
 # Production engineering
 
-## v0.6.0 operating authority
+## v0.6.1 operating authority
 
-v0.6.0 **Target-State Consolidation** is the current repository/build contract. The [v0.6.0 acceptance record](../releases/v0.6.0/acceptance.md) owns evidence status; the [v1 target state](../product/target-state-v1.md) owns product direction.
+v0.6.1 **Visual Rescue** is the current repository/build contract. The [v0.6.1 acceptance record](../releases/v0.6.1/acceptance.md) owns evidence status; the [v1 target state](../product/target-state-v1.md) owns product direction; merged v0.6.0 remains the technical/product baseline beneath this corrective release.
 
 | State category | Authority | Rule |
 | --- | --- | --- |
@@ -29,6 +29,8 @@ luau-analyze src/shared/*.luau tests/*.luau
 stylua --check src tests
 find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
 find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+bash tests/verify-release-authority.sh
+bash tests/verify-v0.6.1-visual-contract.sh
 ./scripts/verify-release-contract.sh
 ./tests/build-contract.sh
 ./scripts/build.sh
@@ -40,17 +42,31 @@ Windows build parity uses `scripts/build.ps1` and `tests/build-contract.ps1`.
 The candidate output is:
 
 ```text
-dist/TinyWorld-v0.6.0.rbxlx
+dist/TinyWorld-v0.6.1.rbxlx
 dist/release.json
 ```
 
-The manifest records source commit/branch, build timestamp, tool/project/profile versions, artifact filename and SHA-256. The artifact is a candidate until runtime/device evidence passes.
+The manifest records source commit/branch, build timestamp, tool/project/profile versions, artifact filename and SHA-256. The artifact is a candidate until the active runtime/device evidence passes.
+
+## Visual evidence as a release gate
+
+v0.6.1 corrects a process weakness exposed by the first observed v0.6.0 screenshots: source/build completion cannot stand in for rendered quality.
+
+For player-facing visual work:
+
+1. automated source/build checks remain mandatory;
+2. required Studio/device rows may remain `NOT RUN` while the PR is draft;
+3. the PR may not become merge-ready while required visual rows remain `NOT RUN`, `PENDING` or `FAIL`;
+4. screenshots/route notes identify the exact candidate SHA/artifact;
+5. a failed visual row creates bounded corrective work rather than being reclassified from source inspection.
+
+The exact v0.6.1 visual rows are owned by `docs/releases/v0.6.1/acceptance.md`.
 
 ## DEV/LIVE environment safety
 
 Repository environment declarations remain credential-free/unconfigured until explicit approval.
 
-Persistence is already separated by runtime namespace:
+Persistence is separated by runtime namespace:
 
 - DEV: `TinyWorld_DEV_PlayerProfile_v11`;
 - LIVE: `TinyWorld_LIVE_PlayerProfile_v11`.
@@ -65,8 +81,9 @@ Future configured deployment requires separate DEV/LIVE place identity, scoped O
 commit
   -> CI tests/analysis/format/compile
   -> exact Rojo artifact + SHA manifest
-  -> publish that exact artifact to DEV
-  -> runtime/multiplayer/device evidence
+  -> Studio/device visual and runtime evidence for player-facing changes
+  -> publish that exact artifact to DEV when configured/approved
+  -> published runtime/multiplayer/device evidence
   -> explicit human approval
   -> promote the exact approved artifact to LIVE
 ```
@@ -86,9 +103,15 @@ Before LIVE publishing is enabled, document/record:
 
 A code rollback cannot blindly reverse persisted data migrations.
 
+v0.6.1 does not change profile schema, which reduces rollback risk, but presentation changes still use an exact identifiable candidate.
+
 ## Asset release boundary
 
-Roblox-hosted production assets enter only through `assets/manifests/assets.json` with real IDs and provenance. Empty manifest means native fallbacks remain authoritative. Asset upload/publishing remains separately permissioned.
+Roblox-hosted production assets enter only through `assets/manifests/assets.json` with real IDs and provenance. Empty manifest means approved native/default presentation remains authoritative.
+
+A native fallback is not automatically visual approval. Hero-tier presentation must satisfy the visual-quality bar or preserve a better Roblox-native baseline instead.
+
+Asset upload/publishing remains separately permissioned.
 
 ## Evidence classes
 
@@ -101,4 +124,4 @@ Keep these independent:
 5. published DEV;
 6. LIVE promotion/rollback.
 
-CI success proves only class 1. v0.6.0 must never mark the other classes PASS without direct evidence.
+CI success proves only class 1. For v0.6.1 the required class 2/4 visual rows are explicit merge-readiness gates, not post-merge aspirations.

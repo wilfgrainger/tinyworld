@@ -64,32 +64,6 @@ local function makePart(
 	return part
 end
 
-local function makeLabel(parent: BasePart, text: string)
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "ItemLabel"
-	gui.Size = UDim2.fromOffset(110, 30)
-	gui.StudsOffset = Vector3.new(0, 1.8, 0)
-	gui.MaxDistance = 55
-	gui.AlwaysOnTop = true
-	gui.Parent = parent
-
-	local label = Instance.new("TextLabel")
-	label.BackgroundColor3 = VisualTheme.Colors.inkSoft
-	label.BackgroundTransparency = 0.08
-	label.Size = UDim2.fromScale(1, 1)
-	label.TextColor3 = VisualTheme.Colors.paper
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBold
-	label.Text = text
-	label.Parent = gui
-
-	local constraint = Instance.new("UITextSizeConstraint")
-	constraint.MinTextSize = 10
-	constraint.MaxTextSize = 16
-	constraint.Parent = label
-	return label
-end
-
 local function makeInventoryShape(
 	parent: Instance,
 	itemId: string,
@@ -244,7 +218,6 @@ function PhysicalItemService:refresh(player: Player, profile)
 			object:SetAttribute("TinyWorldItemCount", count)
 			object:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 			object:SetAttribute("TinyWorldRecognizableSilhouette", true)
-			makeLabel(object, string.format("%s x%d", PhysicalAffordanceRules.displayName(itemId), count))
 		end
 	end
 
@@ -259,10 +232,10 @@ function PhysicalItemService:refresh(player: Player, profile)
 			nil,
 			"inventory-empty-display"
 		)
-		makeLabel(empty, "Empty")
 	end
-	plot.itemChestLabel.Text = "ITEM CHEST\n"
-		.. (if visible == 0 then "Nothing collected" else string.format("%d kinds on display", visible))
+	plot.itemChestPrompt.ObjectText = if visible == 0
+		then "Item Chest • Empty"
+		else string.format("Item Chest • %d kinds", visible)
 end
 
 function PhysicalItemService:_inspectChest(player: Player, plotIndex: number)

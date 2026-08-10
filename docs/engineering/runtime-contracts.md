@@ -22,7 +22,7 @@ Presentation and input intent only. Clients may preview, animate, select and req
 - HomeStoreService: server-priced furniture ownership.
 - FurniturePlacementService: final home-local placement authority and physical replication.
 - TradeService/TradeJournal: bounded low-value exchange plus durable transaction record.
-- AppearanceService: safe free preset selection/persistence.
+- AppearanceService: safe free style-preference validation/persistence while preserving the Roblox avatar baseline when approved TinyWorld character art is absent.
 - PortalService: authored world sessions and server rewards.
 - AnalyticsService: bounded milestone events only.
 - AmbientLifeService: small deterministic non-authoritative village ambience.
@@ -54,15 +54,46 @@ Shell/theme changes may rebuild the authored home container. Furniture-only chan
 
 Visitors observe the same server-replicated models. They do not receive a private client-only decoration state.
 
-## World content
+## World-content presentation contract
 
-World builders return semantic contracts, not gameplay authority. A production mesh/model may replace a native fallback only when it preserves expected art role, interaction anchors, collision/query behaviour and performance constraints.
+World builders return semantic contracts, not gameplay authority.
+
+For ordinary village content:
+
+- architecture/silhouette/material/props carry destination identity first;
+- contextual `ProximityPrompt` text carries the nearby action;
+- proper names may use small physical/diegetic signs;
+- large always-on-top information panels are not a supported ordinary-world presentation primitive;
+- dynamic world text that genuinely belongs in-scene is attached to a physical surface or exposed contextually.
+
+A production mesh/model may replace a native fallback only when it preserves expected art role, interaction anchors, collision/query behaviour and performance constraints.
+
+A native fallback is accepted by visual quality, not by the fact that a builder can construct it.
+
+## Character presentation contract
+
+Saved TinyWorld appearance data remains server validated/persisted. Visible application is deliberately separate from persistence.
+
+When no approved TinyWorld character asset exists, runtime preserves the player's Roblox avatar/accessories/clothing rather than constructing primitive Part hair or shoe geometry. This is a presentation choice, not a schema or authority change.
+
+## UI presentation contract
+
+Normal play uses:
+
+- compact `StatusCluster`;
+- one shared `GameNav` for Journal/Home/Style;
+- one modal owner;
+- short toasts;
+- contextual prompts.
+
+Home/Wardrobe/Journal may remain separate feature modules, but they register into the same normal-play navigation surface rather than drawing competing standalone buttons.
 
 ## Runtime evidence
 
 Static source checks cannot prove:
 
 - recognisability;
+- visual craft;
 - FPS/memory;
 - network behaviour;
 - multi-client replication;
@@ -70,3 +101,5 @@ Static source checks cannot prove:
 - published-place behaviour.
 
 Those are explicit Studio/device evidence gates in release acceptance.
+
+For v0.6.1 player-facing work, required observed visual/device rows block merge-ready status until run against the exact candidate.

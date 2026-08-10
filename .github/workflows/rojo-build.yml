@@ -26,6 +26,8 @@ jobs:
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
+      - name: Verify build contract
+        run: ./tests/build-contract.sh
       - name: Verify release contract
         run: ./scripts/verify-release-contract.sh
       - name: Build release candidate
@@ -33,9 +35,9 @@ jobs:
       - name: Upload release evidence
         uses: actions/upload-artifact@v4
         with:
-          name: tinyworld-v0.6.0-${{ github.sha }}
+          name: tinyworld-v0.6.1-${{ github.sha }}
           path: |
-            dist/TinyWorld-v0.6.0.rbxlx
+            dist/TinyWorld-v0.6.1.rbxlx
             dist/release.json
           if-no-files-found: error
           retention-days: 14

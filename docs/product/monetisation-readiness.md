@@ -8,9 +8,9 @@ TinyWorld does not need monetisation code to be a complete game foundation. The 
 
 Free players retain equivalent gameplay power, ordinary-life loops, portal access and meaningful character/home expression.
 
-## Not present in v0.6.0
+## Not present through v0.6.1
 
-v0.6.0 intentionally contains no:
+The current game intentionally contains no:
 
 - fake Game Pass IDs;
 - fake developer product IDs;
@@ -19,6 +19,8 @@ v0.6.0 intentionally contains no:
 - paid career/progression power;
 - paid identity requirement;
 - coercive countdown/purchase pressure.
+
+v0.6.1 Visual Rescue does not introduce monetisation. Its character correction specifically avoids turning the absence of approved TinyWorld character assets into a reason to degrade free/default avatar identity.
 
 ## Future acceptable categories
 
@@ -51,3 +53,5 @@ Clients may request a purchase prompt, but they never grant themselves an entitl
 ## Product test
 
 A monetisation feature fails the TinyWorld target state if removing payment makes the ordinary game feel deliberately broken, humiliating, unreasonably slow or visually identity-less.
+
+A free/default Roblox avatar must remain coherent even when optional TinyWorld cosmetic assets are unavailable.

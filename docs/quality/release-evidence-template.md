@@ -17,19 +17,43 @@ Copy this structure into each active release acceptance record. Never convert an
 
 | Gate | Command/workflow | Result | Evidence |
 |---|---|---|---|
-| Pure Luau behaviour | `luau tests/run.luau` | PENDING | |
-| Shared analysis | `luau-analyze src/shared/*.luau tests/*.luau` | PENDING | |
-| Formatting | `stylua --check src tests` | PENDING | |
-| Server syntax | recursive `luau-compile` | PENDING | |
-| Client syntax | recursive `luau-compile` | PENDING | |
-| Release contract | `./scripts/verify-release-contract.sh` | PENDING | |
-| Build contract | `./tests/build-contract.sh` | PENDING | |
-| Rojo artifact | `./scripts/build.sh` / CI | PENDING | |
-| Diff whitespace | `git diff --check` | PENDING | |
+| Pure Luau behaviour | `luau tests/run.luau` | NOT RUN | |
+| Shared analysis | `luau-analyze src/shared/*.luau tests/*.luau` | NOT RUN | |
+| Formatting | `stylua --check src tests` | NOT RUN | |
+| Server syntax | recursive `luau-compile` | NOT RUN | |
+| Client syntax | recursive `luau-compile` | NOT RUN | |
+| Release authority | active release guard | NOT RUN | |
+| Player-facing source contract | active visual/source guard where applicable | NOT RUN | |
+| Release contract | `./scripts/verify-release-contract.sh` | NOT RUN | |
+| Build contract | `./tests/build-contract.sh` | NOT RUN | |
+| Rojo artifact | `./scripts/build.sh` / CI | NOT RUN | |
+| Diff whitespace | `git diff --check` | NOT RUN | |
+
+Automated checks prove only the properties they actually exercise. A source rule that bans a known placeholder mechanism does not prove the replacement looks good.
+
+## Player-facing visual evidence
+
+For any release changing character presentation, HUD, world art, buildings, furniture, interactions, portals or player-facing layout, define the required views/routes in the active acceptance record.
+
+Record for each view:
+
+- exact candidate SHA/artifact;
+- Studio/published environment;
+- viewport/device/graphics setting where relevant;
+- whether explanatory labels/prompts were hidden;
+- PASS/FAIL/BLOCKED/NOT RUN;
+- screenshot/video/observation path;
+- concise failure reason when not PASS.
+
+**Merge-readiness rule:** required player-facing visual rows may be `NOT RUN` while a PR is draft, but a player-facing release cannot become merge-ready while required rows remain `NOT RUN`, `PENDING` or `FAIL` unless the user explicitly accepts a documented exception.
+
+Generated mockups/reference-game images are design inputs, not release evidence.
 
 ## Studio single-client evidence
 
 Record build SHA and exact route.
+
+Typical checks:
 
 - no critical Output errors;
 - profile load/save/rejoin;
@@ -40,22 +64,23 @@ Record build SHA and exact route.
 - place/rotate/store furniture;
 - garden/careers;
 - transport;
-- each impossible world;
-- character expression;
-- privacy.
+- impossible worlds;
+- character expression/presentation;
+- privacy;
+- labels-off hero recognition where player-facing visuals changed.
 
-Result: **PENDING until observed**.
+Result: **NOT RUN until observed**.
 
 ## Studio multi-client evidence
 
 - visit permissions;
 - placed furniture replication;
 - low-value trade happy path;
-- trade timeout/stale confirmation;
+- trade timeout/stale confirmation/recovery as relevant;
 - conflicting/hostile remote requests;
 - concurrent profile/session behaviour where testable.
 
-Result: **PENDING until observed**.
+Result: **NOT RUN until observed**.
 
 ## Device evidence
 
@@ -64,9 +89,10 @@ For each target device record model, graphics setting, player count, FPS, memory
 - phone touch/portrait/landscape;
 - controller focus/input;
 - labels-off recognisability;
+- visual occlusion/safe areas;
 - performance route from `performance-budgets.md`.
 
-Result: **PENDING until observed**.
+Result: **NOT RUN until observed**.
 
 ## Published DEV evidence
 
@@ -81,7 +107,7 @@ Record:
 - device test result;
 - approval identity/date.
 
-Result: **PENDING while DEV publishing is deferred**.
+Result: **NOT RUN while DEV publishing is deferred**.
 
 ## LIVE promotion
 
@@ -93,8 +119,10 @@ LIVE may use only the exact artifact approved in DEV. Record:
 - migration compatibility review;
 - release metadata/thumbnails/icon checks.
 
-Result: **PENDING until explicitly approved and performed**.
+Result: **NOT RUN until explicitly approved and performed**.
 
 ## Evidence honesty rule
 
 CI proves source/build properties only. It does not prove visual quality, FPS, multiplayer behaviour, device ergonomics or published-place correctness.
+
+A visually focused release is not complete merely because every automated gate is green.

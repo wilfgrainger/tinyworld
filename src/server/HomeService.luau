@@ -152,17 +152,12 @@ function HomeService:_ownedCount(profile): number
 end
 
 function HomeService:_updateSupplyLabel()
-	local names = {}
-	for _, item in HomeCatalog.all() do
-		if item.price == 0 then
-			table.insert(names, item.name .. " included")
-		else
-			table.insert(names, string.format("%s %d coins", item.name, item.price))
-		end
-	end
-	self.world.homeSupplyLabel.Text = "HOME SUPPLY\n" .. table.concat(names, "\n")
-	self.world.homeDecorLabel.Text = "HOME GALLERY\nSix authored pieces\nCoins, keepsakes, portals"
-	self.world.homeStyleLabel.Text = "HOME STYLE\nMeadow • Harbor • Sunset\nChoose your light"
+	self.world.homeSupplyPrompt.ActionText = "Buy Next Essential"
+	self.world.homeSupplyPrompt.ObjectText = "Home Store"
+	self.world.homeStylePrompt.ActionText = "Change Home Style"
+	self.world.homeStylePrompt.ObjectText = "Home Store"
+	self.world.homeDecorPrompt.ActionText = "Browse Home Decor"
+	self.world.homeDecorPrompt.ObjectText = "Home Store"
 end
 
 function HomeService:_acquireNextDecoration(player: Player)
@@ -309,7 +304,7 @@ function HomeService:_use(player: Player, plotIndex: number, itemId: string, tar
 		self.PlayerStateService.message(
 			player,
 			if reason == "not_owned"
-				then "Buy this home item at the Home Supply counter first."
+				then "Buy this home item at the Home Store first."
 				else "That home item is unavailable."
 		)
 		return
