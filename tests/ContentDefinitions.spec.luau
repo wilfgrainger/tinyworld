@@ -46,10 +46,21 @@ return function()
 	local activityIds = { "Courier", "Gardener", "Designer", "VillageExplorer" }
 	TestUtil.equal(#ActivityDefinitions.all(), #activityIds, "v0.6.2 exposes exactly four canonical village activities")
 	for _, activityId in activityIds do
-		TestUtil.isTrue(ActivityDefinitions.get(activityId) ~= nil, "missing canonical village activity: " .. activityId)
+		TestUtil.isTrue(
+			ActivityDefinitions.get(activityId) ~= nil,
+			"missing canonical village activity: " .. activityId
+		)
 	end
-	TestUtil.equal(ActivityDefinitions.get("HarborHelper"), nil, "obsolete HarborHelper activity must not survive v0.6.2")
-	TestUtil.equal(ActivityDefinitions.get("Gardener").professionId, "Farmer", "Gardener must preserve Farmer persistence")
+	TestUtil.equal(
+		ActivityDefinitions.get("HarborHelper"),
+		nil,
+		"obsolete HarborHelper activity must not survive v0.6.2"
+	)
+	TestUtil.equal(
+		ActivityDefinitions.get("Gardener").professionId,
+		"Farmer",
+		"Gardener must preserve Farmer persistence"
+	)
 
 	TestUtil.equal(#WorldDefinitions.all(), 4)
 	TestUtil.equal(WorldDefinitions.get("GiantKitchen").displayName, "Giant Kitchen")
