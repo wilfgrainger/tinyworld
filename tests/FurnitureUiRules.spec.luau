@@ -12,4 +12,8 @@ return function()
 	TestUtil.equal(FurnitureUiRules.preferredFurnitureId("Chair", { "Lamp", "Chair" }), "Chair")
 	TestUtil.equal(FurnitureUiRules.preferredFurnitureId("Missing", { "Lamp", "Chair" }), "Lamp")
 	TestUtil.equal(FurnitureUiRules.preferredFurnitureId(nil, {}), nil)
+	TestUtil.equal(FurnitureUiRules.placementAction(nil), "place")
+	TestUtil.equal(FurnitureUiRules.placementAction("placement-1"), "move")
+	TestUtil.equal(FurnitureUiRules.placementAction(""), "place")
+	TestUtil.equal(FurnitureUiRules.homeCatalogueReservedHeight(44, 8), 202)
 end
