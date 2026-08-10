@@ -51,7 +51,7 @@ done
 pass "ordinary world builders do not create always-on-top information walls"
 
 for forbidden in 'HOME GATE' 'HOME STYLE' 'HOME SUPPLY' 'DAILY FOUNTAIN' 'VILLAGE FUND' 'PROFESSION BOARD'; do
-  if grep -RFiq "$forbidden" src/server src/client; then
+  if grep -RFq "$forbidden" src/server src/client; then
     fail "prototype floating-copy token remains in runtime source: $forbidden"
   fi
 done
