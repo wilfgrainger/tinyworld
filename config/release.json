@@ -1,11 +1,11 @@
 {
-  "productVersion": "0.6.1",
-  "releaseName": "Visual Rescue",
+  "productVersion": "0.6.2",
+  "releaseName": "Village Life & Visual Craft",
   "profileSchema": 11,
   "rojoVersion": "7.7.0",
   "styluaVersion": "2.5.2",
   "rokitVersion": "1.2.0",
   "rokitInstallerCommit": "2f2618428ef31279e2fc80b0b1d73485bc929ddd",
   "projectFile": "default.project.json",
-  "artifactFile": "TinyWorld-v0.6.1.rbxlx"
+  "artifactFile": "TinyWorld-v0.6.2.rbxlx"
 }
