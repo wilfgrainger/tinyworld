@@ -2,7 +2,7 @@
 
 **Release:** v0.6.2  
 **Profile schema:** 11  
-**Status:** automated/source candidate evidenced; observed Studio/device evidence remains NOT RUN.
+**Status:** final automated/source candidate evidenced; observed Studio/device evidence remains NOT RUN.
 
 ## Release contract
 
@@ -61,32 +61,32 @@ These rows require the combination of source evidence and any relevant runtime o
 
 ## Automated candidate evidence
 
-**Source head:** `6154b509b18529019a4ae41c1ac3ba4fb69d5cf5`  
-**PR merge-test/build commit:** `bf5f280ac24e80ea6465725aee0f7647c2f9260e`
+**Implementation source head:** `62ee24015811971121b3576a227dfa47da94b270`  
+**PR merge-test/build commit:** `e198c1cc3c667c0f117bdcfaa0410f8904ffc964`
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Pure Luau specs | PASS | workflow `31416511697`; `TinyWorld tests passed: 36 specs` |
-| Shared Luau analysis | PASS | workflow `31416511697`, `luau-analyze src/shared/*.luau tests/*.luau` |
-| StyLua | PASS | workflow `31416511697`, `stylua --check src tests` |
-| Recursive runtime compile | PASS | workflow `31416511697`, server + client `luau-compile` |
-| Release authority | PASS | workflow `31416511850`, canonical v0.6.2/schema 11 guard |
-| v0.6.2 source contract | PASS | workflow `31416511850`, all Village Life/visual-craft source clauses PASS |
-| Repository/current-version audit | PASS | workflow `31416511850`; 234 tracked text files / 33,886 lines, 0 active markers |
-| Shell build contract | PASS | Rojo workflow `31416511893` |
-| Release contract | PASS | Rojo workflow `31416511893` |
-| Rojo candidate build | PASS | Rojo workflow `31416511893` |
-| Traceability artifact/manifest | PASS | artifact `9073614714`; archive digest `sha256:69b911f3e35bd1a7ef31f6f40ead2a42aef25b2c064eee7b84419af75add820b` |
+| Pure Luau specs | PASS | workflow `31417881706`; 36 specs |
+| Shared Luau analysis | PASS | workflow `31417881706`, `luau-analyze src/shared/*.luau tests/*.luau` |
+| StyLua | PASS | workflow `31417881706`, `stylua --check src tests` |
+| Recursive runtime compile | PASS | workflow `31417881706`, server + client `luau-compile` |
+| Release authority | PASS | workflow `31417881452`, canonical v0.6.2/schema 11 guard |
+| v0.6.2 source contract | PASS | workflow `31417881452`, including canonical activities, varied Courier routes, Designer route, distinct six civic destinations, Home Store authority, 80+ content contract, safe visiting, durable Trading Post, ambient motion and Claude asset-state guards |
+| Repository/current-version audit | PASS | workflow `31417881452`; 235 tracked text files / 34,231 lines, 0 active markers |
+| Shell build contract | PASS | Rojo workflow `31417880388` |
+| Release contract | PASS | Rojo workflow `31417880388` |
+| Rojo candidate build | PASS | Rojo workflow `31417880388` |
+| Traceability artifact/manifest | PASS | artifact `9074126257`; archive digest `sha256:1823e18e529e6b52b720ecda91d805ae466c2011da4c95a5122c742e8a94af86` |
 
 Candidate artifact:
 
 - `TinyWorld-v0.6.2.rbxlx`
-- SHA-256 `0cd2139dcbb1793032baabea4053b79783990e7b31089d9039699806886f454d`
+- SHA-256 `35b3367172db54d2bfb283c2d647e20e2f3ae769982a2001761de4e0644a8734`
 - manifest product version `0.6.2`
 - manifest release name `Village Life & Visual Craft`
 - manifest schema `11`
 - manifest Rojo `7.7.0`
-- manifest build timestamp `2026-08-10T17:56:10Z`
+- manifest build timestamp `2026-08-10T18:12:27Z`
 
 The artifact hash above was independently recomputed from the downloaded GitHub Actions artifact and matches `release.json` exactly.
 
