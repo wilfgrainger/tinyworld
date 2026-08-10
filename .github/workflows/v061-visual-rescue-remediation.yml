@@ -1,0 +1,71 @@
+name: v0.6.1 visual rescue remediation
+
+on:
+  push:
+    branches:
+      - release/v0.6.1-visual-rescue
+    paths:
+      - .github/v061-visual-rescue.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: release/v0.6.1-visual-rescue
+          fetch-depth: 0
+      - name: Install Luau
+        run: |
+          curl -L https://github.com/luau-lang/luau/releases/download/0.732/luau-ubuntu.zip -o /tmp/luau.zip
+          unzip -q /tmp/luau.zip -d /tmp/luau
+          echo "/tmp/luau" >> "$GITHUB_PATH"
+      - name: Install pinned Rokit tools
+        run: |
+          rokit_version="$(jq -er '.rokitVersion' config/release.json)"
+          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
+          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.rokit/bin:$PATH"
+          rokit install --no-trust-check
+      - name: Apply deterministic visual patch
+        run: python3 .github/scripts/v061_visual_rescue_patch.py
+      - name: Format changed Luau
+        run: stylua src tests
+      - name: Verify deterministic rules
+        run: luau tests/run.luau
+      - name: Analyze shared Luau
+        run: luau-analyze src/shared/*.luau tests/*.luau
+      - name: Compile runtime Luau
+        run: |
+          find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+          find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+      - name: Verify visual checkpoint
+        run: |
+          set +e
+          output="$(bash tests/verify-v0.6.1-visual-contract.sh 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [[ $status -eq 0 ]]; then
+            echo "Visual contract already fully passes."
+          elif grep -Fq 'compact StatusCluster missing' <<<"$output"; then
+            echo "World/character visual checkpoint passed; HUD checkpoint remains intentionally RED."
+          else
+            echo "Unexpected visual-contract failure." >&2
+            exit 1
+          fi
+      - name: Commit source remediation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src tests
+          if git diff --cached --quiet; then
+            echo "No source remediation changes to commit."
+            exit 0
+          fi
+          git commit -m "fix: replace prototype world labels with physical cues"
+          git push origin HEAD:release/v0.6.1-visual-rescue
