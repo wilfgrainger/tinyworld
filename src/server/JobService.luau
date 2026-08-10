@@ -21,7 +21,14 @@ local function removeParcel(player: Player)
 	end
 end
 
-local function parcelPart(model: Model, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material)
+local function parcelPart(
+	model: Model,
+	name: string,
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	material: Enum.Material
+)
 	local part = Instance.new("Part")
 	part.Name = name
 	part.Size = size
@@ -188,7 +195,9 @@ function JobService:_start(player: Player)
 	attachParcel(player)
 	self.PlayerStateService.message(
 		player,
-		"Courier round started. Take this parcel to " .. (CourierRouteRules.displayName(destinationId) or destinationId) .. "."
+		"Courier round started. Take this parcel to "
+			.. (CourierRouteRules.displayName(destinationId) or destinationId)
+			.. "."
 	)
 end
 
