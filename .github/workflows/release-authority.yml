@@ -19,4 +19,4 @@ jobs:
       - name: Verify v0.6.2 source contract
         run: bash ./tests/verify-v0.6.2-source-contract.sh
       - name: Audit every tracked text line
-        run: bash ./tests/verify-v0.6.1-repository-audit.sh
+        run: bash ./tests/verify-v0.6.2-repository-audit.sh
