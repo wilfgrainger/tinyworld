@@ -159,7 +159,8 @@ avatarLabel.Text = "Character preference"
 place(avatarLabel)
 
 local avatarNote = makeLabel(content, "AvatarNote", UDim2.new(1, 0, 0, 36), 12, false)
-avatarNote.Text = "Your Roblox avatar stays exactly as it is. TinyWorld simply remembers this preference for future character styles."
+avatarNote.Text =
+	"Your Roblox avatar stays exactly as it is. TinyWorld simply remembers this preference for future character styles."
 avatarNote.TextColor3 = colors.inkSoft
 avatarNote.TextYAlignment = Enum.TextYAlignment.Top
 place(avatarNote)
