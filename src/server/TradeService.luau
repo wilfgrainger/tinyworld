@@ -302,7 +302,8 @@ function TradeService:_recoverActiveTrade(
 	end
 	TradeJournal.write(transaction)
 
-	local reversed, reverseReason = TradeRules.exchange(profileA, itemB, profileB, itemA)
+	local reversed, reverseReason =
+		TradeRules.exchange(profileA, itemB, profileB, itemA, self.commitMutationOwner)
 	if not reversed then
 		transaction.recoveryReason = reason .. ":" .. reverseReason
 		TradeJournal.write(transaction)
@@ -413,8 +414,9 @@ function TradeService:_complete(a: Player, b: Player)
 	self.commitMutationPlayers = { a, b }
 
 	-- The trade single-flight and both participant mutation locks are active
-	-- before the first DataStore-yielding journal write. Normal ProfileStore.get
-	-- calls now fail closed for both participants until commit/recovery is safe.
+	-- before the first DataStore-yielding journal write. ProfileStore.get fails
+	-- closed for new handlers, and Inventory.add/remove independently reject
+	-- stale profile references unless they carry this exact transaction owner.
 	self.commitInProgress = true
 	if not TradeJournal.write(transaction) then
 		TradeTransactionRules.beginRecovery(transaction, "journal_index_failed_before_exchange")
@@ -434,7 +436,7 @@ function TradeService:_complete(a: Player, b: Player)
 		return
 	end
 
-	local traded, reason = TradeRules.exchange(profileA, itemA, profileB, itemB)
+	local traded, reason = TradeRules.exchange(profileA, itemA, profileB, itemB, mutationOwner)
 	if not traded then
 		TradeTransactionRules.cancel(transaction, reason)
 		TradeJournal.write(transaction)
