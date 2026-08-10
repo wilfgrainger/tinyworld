@@ -210,6 +210,45 @@ function FurniturePlacementService:_bindInteraction(owner: Player, model: Model,
 		)
 	end
 
+	local movePrompt = anchor:FindFirstChild("MoveFurniturePrompt")
+	if movePrompt == nil then
+		movePrompt = Instance.new("ProximityPrompt")
+		movePrompt.Name = "MoveFurniturePrompt"
+		movePrompt.ActionText = "Move"
+		movePrompt.ObjectText = definition.displayName
+		movePrompt.HoldDuration = 0.25
+		movePrompt.MaxActivationDistance = 9
+		movePrompt.RequiresLineOfSight = false
+		movePrompt.Parent = anchor
+	end
+	if movePrompt:IsA("ProximityPrompt") then
+		table.insert(
+			connections,
+			movePrompt.Triggered:Connect(function(player)
+				if player ~= owner then
+					self.PlayerStateService.message(player, "Only the homeowner can move this furniture.")
+					return
+				end
+				local placementId = model:GetAttribute("TinyWorldPlacementId")
+				local profile = self.ProfileStore.get(player)
+				local placements = if profile and type(profile.furniturePlacements) == "table"
+					then profile.furniturePlacements
+					else nil
+				local placement = if placements and type(placementId) == "string" then placements[placementId] else nil
+				if type(placementId) ~= "string" or type(placement) ~= "table" then
+					self.PlayerStateService.message(player, "That furniture placement is not available to move.")
+					return
+				end
+				self.remote:FireClient(player, {
+					kind = "begin_move",
+					placementId = placementId,
+					furnitureId = placement.furnitureId,
+					rotation = placement.rotation,
+				})
+			end)
+		)
+	end
+
 	local storePrompt = anchor:FindFirstChild("StoreFurniturePrompt")
 	if storePrompt == nil then
 		storePrompt = Instance.new("ProximityPrompt")
@@ -348,10 +387,10 @@ function FurniturePlacementService:_handle(player: Player, payload: any)
 		self:_renderPlacement(player, plot, placementId, canonical)
 		player:SetAttribute("TinyWorldFurniturePlacementCount", countPlacements(profile))
 		self.ProfileStore.save(player)
-		local definition = FurnitureDefinitions.get(payload.furnitureId)
+		local placementDefinition = FurnitureDefinitions.get(payload.furnitureId)
 		self.PlayerStateService.message(
 			player,
-			(definition and definition.displayName or "Furniture") .. " placed in your home."
+			(placementDefinition and placementDefinition.displayName or "Furniture") .. " placed in your home."
 		)
 		TinyAnalyticsService.log(player, AnalyticsEvents.FurniturePlaced)
 		self:_reply(player, true, "placed", placementId)
