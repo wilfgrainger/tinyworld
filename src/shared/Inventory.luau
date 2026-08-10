@@ -1,8 +1,11 @@
 local ItemDefinitions
+local PlayerMutationLock
 if script ~= nil then
 	ItemDefinitions = require(script.Parent:WaitForChild("ItemDefinitions"))
+	PlayerMutationLock = require(script.Parent:WaitForChild("PlayerMutationLock"))
 else
 	ItemDefinitions = require("./ItemDefinitions")
+	PlayerMutationLock = require("./PlayerMutationLock")
 end
 
 local Inventory = {}
@@ -67,16 +70,19 @@ function Inventory.canAdd(profile: any, itemName: string, amount: number): boole
 	return definition ~= nil and Inventory.get(profile, itemName) + amount <= definition.maxStack
 end
 
-function Inventory.add(profile: any, itemName: string, amount: number): boolean
-	if not Inventory.canAdd(profile, itemName, amount) then
+function Inventory.add(profile: any, itemName: string, amount: number, mutationOwner: string?): boolean
+	if not PlayerMutationLock.canMutate(profile, mutationOwner) or not Inventory.canAdd(profile, itemName, amount) then
 		return false
 	end
 	set(profile, itemName, Inventory.get(profile, itemName) + amount)
 	return true
 end
 
-function Inventory.remove(profile: any, itemName: string, amount: number): boolean
-	if not Inventory.isSupported(itemName) or not validAmount(amount) then
+function Inventory.remove(profile: any, itemName: string, amount: number, mutationOwner: string?): boolean
+	if not PlayerMutationLock.canMutate(profile, mutationOwner)
+		or not Inventory.isSupported(itemName)
+		or not validAmount(amount)
+	then
 		return false
 	end
 	local current = Inventory.get(profile, itemName)
