@@ -8,31 +8,38 @@ TinyWorld is a persistent life sandbox first and an impossible-world adventure s
 
 Every ordinary play space should support the same readable rhythm:
 
-1. notice a recognisable thing;
-2. approach it physically;
-3. interact through touch, mouse or controller;
-4. receive visible/tactile feedback;
-5. change the world, collection or progression;
-6. make an obvious next choice.
+1. notice a recognisable thing or place;
+2. understand its broad category from physical form/context;
+3. approach it physically;
+4. receive a short contextual interaction when relevant;
+5. interact through touch, mouse or controller;
+6. receive visible/tactile feedback;
+7. change the world, collection or progression;
+8. make an obvious next choice.
 
 Finished interactions are physical affordances, not floating debug geometry or menu-only verbs.
+
+The player should not need to read a paragraph floating over an object before they know whether it is a fountain, shop, jobs board, parcel, bike, bed or cooker.
 
 ## First two minutes
 
 A new player should, without external explanation:
 
-1. understand that TinyWorld is a village and home-life game;
-2. choose a safe display name and starter presentation;
-3. see Coins, Level and the current next goal without a telemetry wall;
+1. see a coherent player character rather than a visibly degraded TinyWorld fallback;
+2. understand that TinyWorld is a village and home-life game;
+3. see compact Coins, Level and the current useful goal without a telemetry wall;
 4. identify their home/plot;
 5. walk into it;
-6. use at least one recognisable home object.
+6. use at least one recognisable home object;
+7. notice that deeper information lives behind intentional navigation rather than permanent dashboards.
 
 Failure conditions:
 
 - the player cannot identify their home;
 - onboarding blocks because the layout clips on a phone;
-- a label is required to explain what a major 3D object is;
+- a floating information wall is required to explain what a major destination/object is;
+- TinyWorld character styling makes the player's avatar visibly worse;
+- the HUD covers enough screen to compete with the world;
 - the player is pushed into a portal before understanding ordinary life.
 
 ## First ten minutes
@@ -42,14 +49,22 @@ A successful first ten minutes contains all of the following:
 1. onboarding complete and persisted;
 2. own home entered;
 3. at least three home interactions used;
-4. one village destination visited;
+4. one village destination identified and visited;
 5. one ordinary-life activity completed;
 6. currency earned through play;
 7. one useful or expressive home item acquired;
-8. one visible home or character change made;
+8. one visible home or character-preference change made;
 9. one portal/mystery tease discovered without forced entry.
 
 The experience should communicate: **this is my little life, my home, my village, and I can step through the impossible whenever I want.**
+
+## v0.6.1 golden route
+
+The corrective visual release concentrates quality on one ordinary-life route:
+
+`spawn -> understand HUD -> identify home -> enter/use home object -> identify Courier Depot -> visible parcel delivery -> earn coins -> identify Home Store -> buy/place item -> rejoin continuity`
+
+A technically successful mutation still fails this route if the player cannot understand the visible cause/effect without developer coaching.
 
 ## First thirty minutes
 
@@ -61,7 +76,7 @@ A successful first session should allow the player to choose among:
 - travel by available transport;
 - visit another home safely;
 - collect or display a keepsake;
-- change their appearance;
+- save a character/style preference;
 - enter and complete an impossible world;
 - return home and see a payoff from that world.
 
@@ -91,7 +106,7 @@ Across sessions the player builds:
 - discovered places and secrets;
 - portal keepsakes with home-life meaning;
 - village relationships and safe visits;
-- cosmetic identity and saved outfits;
+- cosmetic/style identity and saved preferences/outfits;
 - personal routines and stories.
 
 ## Portal/home rule
@@ -108,6 +123,8 @@ Every impossible world must feed ordinary life through at least one of:
 
 A portal may not become a separate progression game that makes the village feel like a lobby.
 
+The portal should also look more visually impossible than ordinary village life; constant village spectacle weakens this contrast.
+
 ## Evidence
 
 Playtests record:
@@ -115,6 +132,7 @@ Playtests record:
 - time to first successful home interaction;
 - time to first earned currency;
 - time to first visible persistent change;
+- whether the player recognises key destination/object categories without floating system labels;
 - whether the player can state what they want to do next without prompting;
 - where they become confused or exit.
 
