@@ -2,53 +2,40 @@
 
 ## Current repository release
 
-**v0.6.1 Visual Rescue** is the active corrective release on `release/v0.6.1-visual-rescue` / PR #6.
+**v0.6.2 Village Life & Visual Craft** is the active release on `release/v0.6.2-village-life-visual-craft` / PR #7.
 
-It inherits the merged v0.6.0 Target-State Consolidation architecture and profile schema 11 while correcting the first observed presentation regressions before v0.7.0 Village Life expands further.
+It builds on merged v0.6.1 Visual Rescue and profile schema 11. It absorbs the previously planned v0.7.0 Village Life scope plus the remaining Claude visual-craft recommendations.
 
-## Why v0.6.1 is active
+v0.7.0 is reserved for the family/girls review and intentionally has no delivery scope yet.
 
-Observed v0.6.0 screenshots exposed player-facing failures that source/CI had not proved or prevented:
+## Implemented source slices
 
-- primitive Part hair/shoes attached to the player;
-- large black always-on-top information panels across the village;
-- HUD/navigation chrome competing with the 3D world;
-- labels explaining systems that should be communicated by recognisable landmarks;
-- hero buildings/objects still reading too strongly as fallback geometry.
-
-Those are release blockers for a visual corrective release, not cosmetic backlog trivia.
-
-## Source status
-
-| Area | Source status | Evidence status |
+| Area | Source status | Player-facing evidence |
 | --- | --- | --- |
-| v0.6.1 design/plan/roadmap/acceptance | Implemented | Source review in progress |
-| Release identity 0.6.1 / schema 11 | In progress | CI authority/release gates being updated |
-| Primitive character fallback removal | In progress | Studio character screenshot required |
-| Ordinary floating information-wall removal | In progress | Labels-off Studio views required |
-| Compact world-first HUD | In progress | Phone/controller screenshot/route required |
-| Hero civic destination rebuild | Planned | Labels-off Studio views required |
-| Starter-home/touched-object craft pass | Planned | Studio interior/exterior evidence required |
-| Golden ordinary-life route | Planned | Exact Studio/rejoin route required |
-| Visual benchmarks | Planned | Exact-candidate screenshots only |
-| Full Markdown authority audit | In progress | Canonical docs being reconciled |
-| Full repository line-by-line audit | Planned | Final branch audit ledger required |
-| Graphite Mountain integrated review | Planned | Actual-diff review required |
-| Cave Pony final audit | Planned | Actual-diff audit required |
+| v0.6.2 design/plan/roadmap/acceptance | Implemented | documentation/source only |
+| Canonical activities | Implemented: Courier, Gardener, Designer, Village Explorer | Studio route still required |
+| Courier route variety | Implemented: four server-selected destinations | Studio parcel/destination route NOT RUN |
+| Gardener presentation | Implemented over persisted Farmer compatibility | Studio grow/harvest route NOT RUN |
+| Village Explorer presentation | Implemented over existing server-observed trail | Studio trail NOT RUN |
+| Designer route progress | Implemented on successful new placement only | Studio Home Store/place route NOT RUN |
+| Primitive ambient character fallback | Removed | no replacement creature accepted without assets/evidence |
+| Release/build authority 0.6.2 / schema 11 | In progress | CI final exact-head evidence pending |
+| Hero-home/golden route | Contract in progress | Studio/rejoin evidence NOT RUN |
+| Claude visual-craft hero destination review | Source contract in progress | labels-off Studio evidence NOT RUN |
 
-## Preserved v0.6.0 foundation
+## Preserved foundation
 
-v0.6.1 does not redesign these systems:
+v0.6.2 deliberately preserves:
 
-- profile schema v11 and migrations;
+- profile schema v11 and fail-closed migrations;
+- deterministic sixteen-home village cap;
 - generic item/furniture/content definitions;
-- Home Store and authoritative furniture placement;
-- RemoteGuard and onboarding security;
+- authoritative Home Store and furniture placement;
+- RemoteGuard;
 - DEV/LIVE persistence separation;
-- durable low-value trade journal/protocol;
+- durable trade journal/mutation locks;
 - four impossible-world foundations;
-- analytics taxonomy/adapter;
-- performance/accessibility/asset contracts;
+- analytics adapter;
 - credential-free Rojo build and exact-artifact evidence model.
 
 Any regression in those areas blocks the release.
@@ -57,17 +44,17 @@ Any regression in those areas blocks the release.
 
 - [Canonical documentation index](README.md)
 - [v1 target state](product/target-state-v1.md)
-- [v0.6.1 roadmap](roadmap/v0.6.1-visual-rescue.md)
-- [v0.6.1 acceptance record](releases/v0.6.1/acceptance.md)
-- [v0.6.1 Superpowers design](superpowers/specs/2026-08-10-tinyworld-v0.6.1-visual-rescue-design.md)
-- [v0.6.1 implementation plan](superpowers/plans/2026-08-10-tinyworld-v0.6.1-visual-rescue.md)
+- [v0.6.2 roadmap](roadmap/v0.6.2-village-life-visual-craft.md)
+- [v0.6.2 acceptance record](releases/v0.6.2/acceptance.md)
+- [v0.6.2 Superpowers design](superpowers/specs/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft-design.md)
+- [v0.6.2 implementation plan](superpowers/plans/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft.md)
 
 ## Evidence rule
 
 Automated source/build evidence, one-player Studio, multi-client Studio, real-device, published DEV and LIVE promotion remain separate gates.
 
-For v0.6.1, required player-facing visual/device evidence may be NOT RUN while the PR is draft, but it blocks merge-ready status. The release cannot repeat the pattern of treating source-complete visual work as acceptable while every real rendering row remains pending.
+For v0.6.2, the requested execution stops at a pushed PR with required automated checks green. That does not convert unobserved Studio/device rows to PASS. Those remain explicit follow-on release evidence.
 
 ## Historical baseline
 
-v0.6.0 Target-State Consolidation is merged history and remains the technical/product baseline beneath this corrective release. v0.5.2 Village Soul and v0.5.3 Production Engineering Foundation are earlier historical baselines. None is the active release after v0.6.1 begins.
+v0.6.1 Visual Rescue is the merged presentation baseline. v0.6.0 Target-State Consolidation remains the underlying technical/product foundation. Earlier release records remain historical evidence, not current authority.
