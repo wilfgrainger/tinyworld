@@ -20,6 +20,30 @@ function ProfileStoreRules.unwrapPersisted(value: any): (any?, any?, string?)
 	return value.profile, value.session, nil
 end
 
+function ProfileStoreRules.canAcquireMutationLock(currentOwner: any, requestedOwner: any): boolean
+	return type(requestedOwner) == "string"
+		and requestedOwner ~= ""
+		and (currentOwner == nil or currentOwner == requestedOwner)
+end
+
+function ProfileStoreRules.acquireMutationLock(currentOwner: any, requestedOwner: any): string?
+	if ProfileStoreRules.canAcquireMutationLock(currentOwner, requestedOwner) then
+		return requestedOwner
+	end
+	return currentOwner
+end
+
+function ProfileStoreRules.releaseMutationLock(currentOwner: any, requestedOwner: any): string?
+	if currentOwner == requestedOwner then
+		return nil
+	end
+	return currentOwner
+end
+
+function ProfileStoreRules.externalMutationAllowed(currentOwner: any): boolean
+	return currentOwner == nil
+end
+
 function ProfileStoreRules.isLeaseActive(session, now: number, _ownerToken: string): boolean
 	return type(session) == "table"
 		and type(session.token) == "string"
