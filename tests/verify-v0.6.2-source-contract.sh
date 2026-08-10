@@ -10,7 +10,8 @@ pass() { echo "PASS: $1"; }
 [[ -f docs/roadmap/v0.6.2-village-life-visual-craft.md ]] || fail "v0.6.2 roadmap missing"
 [[ -f docs/releases/v0.6.2/acceptance.md ]] || fail "v0.6.2 acceptance missing"
 [[ -f src/shared/CourierRouteRules.luau ]] || fail "CourierRouteRules missing"
-pass "v0.6.2 release and courier rule files exist"
+[[ -f src/server/HomeStoreDestinationBuilder.luau ]] || fail "distinct Home Store builder missing"
+pass "v0.6.2 release and focused Village Life files exist"
 
 jq -e '.productVersion == "0.6.2" and .releaseName == "Village Life & Visual Craft" and .profileSchema == 11 and .artifactFile == "TinyWorld-v0.6.2.rbxlx"' config/release.json >/dev/null \
   || fail "release metadata is not v0.6.2 Village Life & Visual Craft / schema 11"
@@ -55,9 +56,50 @@ grep -Fq 'Gardener' src/server/ProfessionService.luau || fail "Gardener player-f
 grep -Fq 'Village Trail' src/server/ExplorationService.luau || fail "Village Explorer trail language missing"
 pass "Gardener and Village Explorer read as player-facing activities"
 
+# The former v0.7.0 destination/home/social scope must exist in source, not only the roadmap.
+grep -Fq 'WorldLayoutRules.MAX_PLOTS = 16' src/shared/WorldLayoutRules.luau || fail "sixteen-home cap missing"
+for builder in buildTownHall buildCourierDepot buildVillageShop buildTransportWorkshop buildMarket; do
+  grep -Fq "$builder" src/server/WorldBuilder.luau || fail "civic destination builder missing: $builder"
+done
+grep -Fq 'HomeStoreDestinationBuilder.extend(world)' src/server/Main.server.luau \
+  || fail "distinct Home Store destination is not activated"
+grep -Fq 'model.Name = "HomeStoreDestination"' src/server/HomeStoreDestinationBuilder.luau \
+  || fail "Home Store destination model missing"
+grep -Fq 'TinyWorldRecognizableSilhouette' src/server/HomeStoreDestinationBuilder.luau \
+  || fail "Home Store destination lacks explicit silhouette intent"
+pass "six civic destinations have separate physical source surfaces"
+
+grep -Fq 'RemoteGuard.checkRate(player, "home_store"' src/server/HomeStoreService.luau \
+  || fail "Home Store server mutation guard missing"
+grep -Fq 'ShopDefinitions.priceFor("HomeStore", furnitureId)' src/server/HomeStoreService.luau \
+  || fail "Home Store server-owned price path missing"
+grep -Fq '#furniture >= 80' tests/ContentDefinitions.spec.luau \
+  || fail "80+ home-content catalogue contract missing"
+pass "Home Store and home-content authority remain in scope"
+
+grep -Fq 'function SocialService:recordVisit' src/server/SocialService.luau \
+  || fail "safe home-visiting path missing"
+grep -Fq 'self.ProfileStore.get(player)' src/server/FurniturePlacementService.luau \
+  || fail "home mutation ownership/profile authority missing"
+pass "safe social visiting remains available without visitor mutation authority"
+
+[[ -f src/server/TradeJournal.luau ]] || fail "durable trade journal missing"
+grep -Fq 'TradeJournal' src/server/TradeService.luau || fail "Trading Post service no longer uses durable trade journal"
+pass "Market/Trading Post retains hardened durable trade path"
+
+grep -Fq 'MotionAnimator' default.project.json src/client/MotionAnimator.client.luau 2>/dev/null \
+  || [[ -f src/client/MotionAnimator.client.luau ]] \
+  || fail "existing authored ambient/world motion path missing"
+pass "restrained existing ambient/world motion path remains without an NPC framework"
+
 grep -Fq 'reserved for the family/girls review' docs/roadmap/v0.7.0-village-life.md \
   || fail "v0.7.0 is not explicitly reserved for the family/girls review"
 pass "v0.7.0 milestone is reserved for the later review"
+
+grep -Fq 'fallback/prototype' docs/engineering/asset-pipeline.md || fail "fallback/prototype visual state missing"
+grep -Fq 'authored-native' docs/engineering/asset-pipeline.md || fail "authored-native visual state missing"
+grep -Fq 'approved-production' docs/engineering/asset-pipeline.md || fail "approved-production visual state missing"
+pass "Claude visual-craft asset states are durable"
 
 grep -Fq 'tinyworld-v0.6.2-${{ github.sha }}' .github/workflows/rojo-build.yml || fail "Rojo artifact name is stale"
 grep -Fq 'dist/TinyWorld-v0.6.2.rbxlx' .github/workflows/rojo-build.yml || fail "Rojo artifact path is stale"
