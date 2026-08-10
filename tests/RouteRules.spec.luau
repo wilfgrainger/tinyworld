@@ -2,10 +2,30 @@ local TestUtil = require("./TestUtil")
 local ProfileSchema = require("../src/shared/ProfileSchema")
 local RouteRules = require("../src/shared/RouteRules")
 
+local function contains(values, expected): boolean
+	for _, value in values do
+		if value == expected then
+			return true
+		end
+	end
+	return false
+end
+
 return function()
 	local profile = ProfileSchema.new()
 	local day = "2026-08-09"
 	local week = RouteRules.weekKeyForDay(day)
+
+	TestUtil.equal(RouteRules.TASK_BITS.home_design, 16, "home design must have a stable route bit")
+	local foundHomeDesign = false
+	for offset = 0, 9 do
+		local candidateDay = string.format("2026-08-%02d", 9 + offset)
+		if contains(RouteRules.taskIds("daily", candidateDay), "home_design") then
+			foundHomeDesign = true
+			break
+		end
+	end
+	TestUtil.isTrue(foundHomeDesign, "daily route rotations must include legitimate home design")
 
 	local dailyTasks = RouteRules.taskIds("daily", day)
 	TestUtil.equal(#dailyTasks, 3)
@@ -102,7 +122,7 @@ return function()
 		weeklyRouteMask = -2,
 		weeklyRouteClaimedWeek = week,
 	})
-	TestUtil.equal(repaired.dailyRouteMask, 15)
+	TestUtil.equal(repaired.dailyRouteMask, 31, "v0.6.2 route masks must retain the home-design bit")
 	TestUtil.equal(repaired.weeklyRouteMask, 0)
 	TestUtil.equal(repaired.dailyRouteClaimedDay, day)
 	TestUtil.equal(repaired.weeklyRouteClaimedWeek, week)
