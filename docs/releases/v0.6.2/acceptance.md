@@ -2,7 +2,7 @@
 
 **Release:** v0.6.2  
 **Profile schema:** 11  
-**Status:** active release; automated/source evidence and observed player-facing evidence are separate.
+**Status:** automated/source candidate evidenced; observed Studio/device evidence remains NOT RUN.
 
 ## Release contract
 
@@ -12,6 +12,8 @@
 - [ ] v0.7.0 is reserved for the family/girls review;
 - [ ] no new framework, Wally dependency, fake Roblox ID, production credential or automatic LIVE publish path is introduced;
 - [ ] existing trade journal/mutation-lock and DEV/LIVE protections remain intact.
+
+These rows require the combination of source evidence and any relevant runtime observation. Automated evidence below records only what actually ran.
 
 ## Village Life contract
 
@@ -57,27 +59,42 @@
 - [ ] one hero home completes the required physical interaction route;
 - [ ] real exact-candidate screenshots are required for visual acceptance.
 
-## Automated gates
+## Automated candidate evidence
+
+**Source head:** `6154b509b18529019a4ae41c1ac3ba4fb69d5cf5`  
+**PR merge-test/build commit:** `bf5f280ac24e80ea6465725aee0f7647c2f9260e`
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Pure Luau specs | NOT RUN | exact final workflow/run to be recorded |
-| Shared Luau analysis | NOT RUN | exact final workflow/run to be recorded |
-| StyLua | NOT RUN | exact final workflow/run to be recorded |
-| Recursive runtime compile | NOT RUN | exact final workflow/run to be recorded |
-| Release authority | NOT RUN | `tests/verify-release-authority.sh` |
-| v0.6.2 source contract | NOT RUN | `tests/verify-v0.6.2-source-contract.sh` |
-| Repository/current-version audit | NOT RUN | exact current audit to be recorded |
-| Shell build contract | NOT RUN | `tests/build-contract.sh` |
-| Release contract | NOT RUN | `scripts/verify-release-contract.sh` |
-| Rojo candidate build | NOT RUN | exact final workflow/run to be recorded |
-| Traceability artifact/manifest | NOT RUN | exact artifact/hash to be recorded |
+| Pure Luau specs | PASS | workflow `31416511697`; `TinyWorld tests passed: 36 specs` |
+| Shared Luau analysis | PASS | workflow `31416511697`, `luau-analyze src/shared/*.luau tests/*.luau` |
+| StyLua | PASS | workflow `31416511697`, `stylua --check src tests` |
+| Recursive runtime compile | PASS | workflow `31416511697`, server + client `luau-compile` |
+| Release authority | PASS | workflow `31416511850`, canonical v0.6.2/schema 11 guard |
+| v0.6.2 source contract | PASS | workflow `31416511850`, all Village Life/visual-craft source clauses PASS |
+| Repository/current-version audit | PASS | workflow `31416511850`; 234 tracked text files / 33,886 lines, 0 active markers |
+| Shell build contract | PASS | Rojo workflow `31416511893` |
+| Release contract | PASS | Rojo workflow `31416511893` |
+| Rojo candidate build | PASS | Rojo workflow `31416511893` |
+| Traceability artifact/manifest | PASS | artifact `9073614714`; archive digest `sha256:69b911f3e35bd1a7ef31f6f40ead2a42aef25b2c064eee7b84419af75add820b` |
+
+Candidate artifact:
+
+- `TinyWorld-v0.6.2.rbxlx`
+- SHA-256 `0cd2139dcbb1793032baabea4053b79783990e7b31089d9039699806886f454d`
+- manifest product version `0.6.2`
+- manifest release name `Village Life & Visual Craft`
+- manifest schema `11`
+- manifest Rojo `7.7.0`
+- manifest build timestamp `2026-08-10T17:56:10Z`
+
+The artifact hash above was independently recomputed from the downloaded GitHub Actions artifact and matches `release.json` exactly.
 
 Automated PASS never satisfies the player-facing rows below.
 
 ## Studio single-client evidence
 
-All rows begin `NOT RUN` and remain so until observed against the exact candidate.
+All rows remain `NOT RUN` until observed against the exact candidate. Use `docs/v0.6.2-village-life-visual-craft-test.md`.
 
 | View / journey | Status | Evidence |
 | --- | --- | --- |
@@ -121,6 +138,10 @@ The exact candidate must be observed end to end:
 `spawn -> understand village -> home -> physical home interaction -> Courier pickup -> assigned delivery -> reward -> Home Store -> buy -> place -> rejoin`
 
 A FAIL is evidence and creates a bounded fix. It is never converted to PASS from source inspection.
+
+## Green-PR boundary
+
+The requested v0.6.2 implementation execution may stop when the pushed PR's exact head has all required automated workflows green. That state is **automated/source green**, not player-facing visual acceptance.
 
 ## Merge-ready rule
 
