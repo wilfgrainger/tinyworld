@@ -28,6 +28,7 @@ local ownedFurniture = {}
 local furniturePlacements = {}
 local currentCategory = "living"
 local placementDefinition = nil
+local movingPlacementId = nil
 local placementRotation = 0
 local placementPoint = nil
 local placementValid = false
@@ -71,6 +72,12 @@ backdrop.Parent = gui
 local panel = PanelFactory.create(backdrop, "HomeLifePanel")
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
+panel.ClipsDescendants = true
+local panelLayout = Instance.new("UIListLayout")
+panelLayout.FillDirection = Enum.FillDirection.Vertical
+panelLayout.Padding = UDim.new(0, 8)
+panelLayout.SortOrder = Enum.SortOrder.LayoutOrder
+panelLayout.Parent = panel
 
 local title = Instance.new("TextLabel")
 title.LayoutOrder = 1
@@ -113,7 +120,7 @@ categoryLayout.Parent = categoryScroll
 
 local itemScroll = Instance.new("ScrollingFrame")
 itemScroll.LayoutOrder = 4
-itemScroll.Size = UDim2.new(1, 0, 1, -190)
+itemScroll.Size = UDim2.new(1, 0, 1, -FurnitureUiRules.homeCatalogueReservedHeight(UiTokens.TouchTarget, 8))
 itemScroll.BackgroundTransparency = 1
 itemScroll.BorderSizePixel = 0
 itemScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -191,6 +198,23 @@ local function updateResponsive()
 	grid.CellSize = UDim2.new(1 / columns, -10, 0, if UiScaleRules.classify(viewport) == "phone" then 92 else 104)
 end
 
+local function beginPlacement(definition: any, placementId: string?, rotation: number?)
+	placementDefinition = definition
+	movingPlacementId = placementId
+	placementRotation = if type(rotation) == "number" then rotation % 360 else 0
+	placementPoint = nil
+	placementValid = false
+	authoritativeBlockUntil = 0
+	placementFeedback.Visible = false
+	if backdrop.Visible then
+		modalController:close(backdrop)
+		backdrop.Visible = false
+	end
+	placementBar.Visible = true
+	homeButton.Visible = false
+	confirmButton.Text = if FurnitureUiRules.placementAction(movingPlacementId) == "move" then "Move" else "Place"
+end
+
 local categories = { "living", "bedroom", "kitchen", "bathroom", "storage", "garden", "decoration", "lighting" }
 local categoryButtons = {}
 local itemButtons = {}
@@ -237,15 +261,7 @@ local function refreshItems()
 		corner.Parent = button
 		button.Activated:Connect(function()
 			if (ownedFurniture[definition.id] or 0) > 0 then
-				placementDefinition = definition
-				placementRotation = 0
-				placementValid = false
-				authoritativeBlockUntil = 0
-				placementFeedback.Visible = false
-				modalController:close(backdrop)
-				backdrop.Visible = false
-				placementBar.Visible = true
-				homeButton.Visible = false
+				beginPlacement(definition, nil, 0)
 			else
 				storeRemote:FireServer({ action = "purchase", furnitureId = definition.id })
 			end
@@ -289,7 +305,8 @@ local function updateConfirmState(valid: boolean)
 	confirmButton.Active = valid
 	confirmButton.Selectable = valid
 	confirmButton.AutoButtonColor = valid
-	confirmButton.Text = if valid then "Place" else "Can't place"
+	local moving = FurnitureUiRules.placementAction(movingPlacementId) == "move"
+	confirmButton.Text = if valid then (if moving then "Move" else "Place") else (if moving then "Can't move" else "Can't place")
 	confirmButton.BackgroundColor3 = if valid then UiTokens.Colors.Meadow else UiTokens.Colors.Danger
 	if previewPart then
 		previewPart.Color = if valid then UiTokens.Colors.GhostValid else UiTokens.Colors.GhostInvalid
@@ -302,6 +319,7 @@ local function removePreview()
 		previewPart = nil
 	end
 	placementDefinition = nil
+	movingPlacementId = nil
 	placementPoint = nil
 	placementValid = false
 	authoritativeBlockUntil = 0
@@ -341,14 +359,18 @@ local function confirmPlacement()
 	if placementDefinition and placementPoint and placementValid then
 		authoritativeBlockUntil = os.clock() + 0.8
 		updateConfirmState(false)
-		placementRemote:FireServer({
-			action = "place",
+		local payload = {
+			action = FurnitureUiRules.placementAction(movingPlacementId),
 			furnitureId = placementDefinition.id,
 			worldX = placementPoint.X,
 			worldY = placementPoint.Y,
 			worldZ = placementPoint.Z,
 			rotation = placementRotation,
-		})
+		}
+		if movingPlacementId then
+			payload.placementId = movingPlacementId
+		end
+		placementRemote:FireServer(payload)
 	end
 end
 
@@ -414,10 +436,13 @@ local function validatePreview(worldPoint: Vector3): boolean
 	if request == nil then
 		return false
 	end
-	local valid = FurniturePlacementRules.validate({
+	local profileView = {
 		ownedFurniture = ownedFurniture,
 		furniturePlacements = furniturePlacements,
-	}, placementDefinition.id, request)
+	}
+	local valid = if movingPlacementId
+		then FurniturePlacementRules.validateExisting(profileView, movingPlacementId, request)
+		else FurniturePlacementRules.validate(profileView, placementDefinition.id, request)
 	return valid == true
 end
 
@@ -474,7 +499,20 @@ placementRemote.OnClientEvent:Connect(function(payload)
 	if type(payload) ~= "table" then
 		return
 	end
-	if payload.ok == true and payload.reason == "placed" then
+	if payload.kind == "begin_move" then
+		local placementId = payload.placementId
+		local furnitureId = payload.furnitureId
+		if type(placementId) ~= "string" or type(furnitureId) ~= "string" then
+			showFeedback("invalid_request")
+			return
+		end
+		local definition = FurnitureDefinitions.get(furnitureId)
+		if definition == nil then
+			showFeedback("invalid_request")
+			return
+		end
+		beginPlacement(definition, placementId, if type(payload.rotation) == "number" then payload.rotation else 0)
+	elseif payload.ok == true and (payload.reason == "placed" or payload.reason == "moved") then
 		removePreview()
 		storeRemote:FireServer({ action = "state" })
 	elseif payload.ok == false then
