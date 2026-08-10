@@ -39,7 +39,10 @@ function ExplorationService:_visit(player: Player, landmark: string)
 		self.PlayerStateService.sync(player, profile)
 		self.PlayerStateService.message(
 			player,
-			string.format("Village Trail landmark found: %d/3. Find all three, then return to the Explorer Board.", visitedCount)
+			string.format(
+				"Village Trail landmark found: %d/3. Find all three, then return to the Explorer Board.",
+				visitedCount
+			)
 		)
 		self.ProfileStore.save(player)
 	elseif reason == "already_visited" then
