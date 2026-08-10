@@ -19,6 +19,7 @@ local ButtonFactory = require(script.Parent:WaitForChild("ButtonFactory"))
 local PanelFactory = require(script.Parent:WaitForChild("PanelFactory"))
 local ModalController = require(script.Parent:WaitForChild("ModalController"))
 local FocusController = require(script.Parent:WaitForChild("FocusController"))
+local GameNav = require(script.Parent:WaitForChild("GameNav"))
 
 local storeRemote = tinyWorld:WaitForChild("HomeStoreRemote") :: RemoteEvent
 local placementRemote = tinyWorld:WaitForChild("FurniturePlacementRemote") :: RemoteEvent
@@ -42,23 +43,6 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = false
 gui.DisplayOrder = UiTokens.ModalDisplayOrder
 gui.Parent = playerGui
-
-local homeButton = Instance.new("TextButton")
-homeButton.Name = "HomeLifeButton"
-homeButton.AnchorPoint = Vector2.new(1, 1)
-homeButton.Position = UDim2.new(1, -16, 1, -18)
-homeButton.Size = UDim2.fromOffset(112, UiTokens.TouchTarget)
-homeButton.BackgroundColor3 = UiTokens.Colors.Meadow
-homeButton.BorderSizePixel = 0
-homeButton.Text = "My Home"
-homeButton.TextColor3 = UiTokens.Colors.Paper
-homeButton.TextSize = 16
-homeButton.Font = UiTokens.Fonts.Strong
-homeButton.Selectable = true
-homeButton.Parent = gui
-local homeCorner = Instance.new("UICorner")
-homeCorner.CornerRadius = UDim.new(0, UiTokens.CornerRadius)
-homeCorner.Parent = homeButton
 
 local backdrop = Instance.new("Frame")
 backdrop.Name = "HomeLifeBackdrop"
@@ -211,7 +195,7 @@ local function beginPlacement(definition: any, placementId: string?, rotation: n
 		backdrop.Visible = false
 	end
 	placementBar.Visible = true
-	homeButton.Visible = false
+	GameNav.setVisible(false)
 	confirmButton.Text = if FurnitureUiRules.placementAction(movingPlacementId) == "move" then "Move" else "Place"
 end
 
@@ -327,7 +311,7 @@ local function removePreview()
 	authoritativeBlockUntil = 0
 	placementFeedback.Visible = false
 	placementBar.Visible = false
-	homeButton.Visible = true
+	GameNav.setVisible(true)
 	ContextActionService:UnbindAction("TinyWorldRotateFurniture")
 	ContextActionService:UnbindAction("TinyWorldConfirmFurniture")
 	ContextActionService:UnbindAction("TinyWorldCancelFurniture")
@@ -376,7 +360,7 @@ local function confirmPlacement()
 	end
 end
 
-homeButton.Activated:Connect(openHome)
+GameNav.register("Home", "Home", 2, openHome)
 closeButton.Activated:Connect(function()
 	modalController:close(backdrop)
 	backdrop.Visible = false

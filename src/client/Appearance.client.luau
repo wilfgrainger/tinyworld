@@ -12,6 +12,7 @@ local UiScaleRules = require(script.Parent:WaitForChild("UiScaleRules"))
 local ButtonFactory = require(script.Parent:WaitForChild("ButtonFactory"))
 local PanelFactory = require(script.Parent:WaitForChild("PanelFactory"))
 local ModalController = require(script.Parent:WaitForChild("ModalController"))
+local GameNav = require(script.Parent:WaitForChild("GameNav"))
 
 local remote = root:WaitForChild("AppearanceRemote") :: RemoteEvent
 local camera = Workspace.CurrentCamera
@@ -25,23 +26,6 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = false
 gui.DisplayOrder = UiTokens.ModalDisplayOrder + 1
 gui.Parent = playerGui
-
-local wardrobeButton = Instance.new("TextButton")
-wardrobeButton.Name = "WardrobeButton"
-wardrobeButton.AnchorPoint = Vector2.new(1, 1)
-wardrobeButton.Position = UDim2.new(1, -140, 1, -18)
-wardrobeButton.Size = UDim2.fromOffset(112, UiTokens.TouchTarget)
-wardrobeButton.BackgroundColor3 = UiTokens.Colors.Berry
-wardrobeButton.BorderSizePixel = 0
-wardrobeButton.Text = "Style"
-wardrobeButton.TextColor3 = UiTokens.Colors.Paper
-wardrobeButton.TextSize = 15
-wardrobeButton.Font = UiTokens.Fonts.Strong
-wardrobeButton.Selectable = true
-wardrobeButton.Parent = gui
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, UiTokens.CornerRadius)
-buttonCorner.Parent = wardrobeButton
 
 local backdrop = Instance.new("Frame")
 backdrop.Size = UDim2.fromScale(1, 1)
@@ -148,7 +132,7 @@ local function openWardrobe()
 	modalController:open(backdrop, saveButton)
 end
 
-wardrobeButton.Activated:Connect(openWardrobe)
+GameNav.register("Style", "Style", 3, openWardrobe)
 saveButton.Activated:Connect(function()
 	remote:FireServer({ action = "save", hairId = selectedHair, outfitId = selectedOutfit })
 end)
