@@ -430,7 +430,7 @@ local function friendlyQuest(): (string, string)
 
 	local suggested = attr("TinyWorldSuggestedGoal", "Explore the village.")
 	local friendlyGoals = {
-		["Complete your TinyWorld setup."] = "Choose your TinyWorld look",
+		["Complete your TinyWorld setup."] = "Finish your TinyWorld setup",
 		["Claim the fountain reward or grow a Carrot."] = "Grow your first carrot",
 		["Try a Courier delivery from the depot."] = "Visit the courier depot",
 		["Save 300 coins and buy the Tiny Bike."] = "Save for a Tiny Bike",
@@ -597,6 +597,7 @@ if RunService:IsStudio() then
 	debugText.Size = UDim2.new(1, -4, 0, 0)
 	debugText.AutomaticSize = Enum.AutomaticSize.Y
 	debugText.Font = Enum.Font.Code
+	debugText.TextColor3 = colors.paper
 	debugText.TextYAlignment = Enum.TextYAlignment.Top
 
 	updateDebug = function()
