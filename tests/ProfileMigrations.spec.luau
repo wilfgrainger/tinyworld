@@ -17,6 +17,22 @@ return function()
 		TestUtil.equal(rejectedReason, "invalid_profile_type")
 	end
 
+	local absentVersion, absentVersionReason = ProfileMigrations.migrate({
+		coins = 7,
+		inventory = { Carrot = 1 },
+	})
+	TestUtil.equal(absentVersionReason, nil)
+	TestUtil.equal(absentVersion.version, 11)
+
+	for _, malformedVersion in { "10", true, 10.5, 0, -1, math.huge, -math.huge, 0 / 0 } do
+		local rejected, rejectedReason = ProfileMigrations.migrate({
+			version = malformedVersion,
+			coins = 100,
+		})
+		TestUtil.equal(rejected, nil)
+		TestUtil.equal(rejectedReason, "invalid_version")
+	end
+
 	local legacy = {
 		version = 10,
 		inventory = { Carrot = 4, SugarCrystal = 2, MeadowSeed = 3, Seashell = 1, WoodToken = 5 },
