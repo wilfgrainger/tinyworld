@@ -1,17 +1,17 @@
 {
   "release": "0.6.0",
-  "verifiedSourceSha": "cfe72c8cdc615c3235f2abe771ae6ac4bcdb9fef",
-  "verifiedPullRequestMergeSha": "e50f650043dfefcea62b3fb6677df0cb68ec610a",
-  "verifiedAtUtc": "2026-08-09T21:39:27Z",
+  "verifiedSourceSha": "bdf202065e197659b7c6b03a62401991a19191fa",
+  "verifiedPullRequestMergeSha": "4911333ad474632c3471086dcae7d9421f62c30e",
+  "verifiedAtUtc": "2026-08-10T06:02:27Z",
   "workflowRuns": {
-    "luau": 31337392456,
-    "releaseAuthority": 31337392451,
-    "rojoBuild": 31337392458
+    "luau": 31360520825,
+    "releaseAuthority": 31360520829,
+    "rojoBuild": 31360520831
   },
   "profileSchema": 11,
   "artifact": "TinyWorld-v0.6.0.rbxlx",
-  "artifactSha256": "b60e31fb78b029972189a0f3d45828e9579dd49fd6fb36d70658fdcf6c6d33c5",
-  "workflowArtifactDigest": "sha256:f8e44421ff470e6b7321fbdf93c159674a0f3d3e46e43be876e4b75de8c17ed3",
+  "artifactSha256": "fd497c2cb3cf348ab3855b22624f0fe30f1b440837a63a6f5c15972d0e1901f9",
+  "workflowArtifactDigest": "sha256:1a1dc94ad17f8b351929aa2ae70cf895571b5137fc350adfbb23221a6b423482",
   "gates": {
     "luauTests": "PASS",
     "luauAnalyze": "PASS",
@@ -24,5 +24,5 @@
     "traceabilityArtifact": "PASS"
   },
   "runtimeEvidence": "PENDING",
-  "evidenceNote": "The source SHA is the implementation head verified by the cited workflows. This evidence file is committed afterward as metadata; the resulting evidence-only PR head must also pass repository CI before merge. Studio, multiplayer, device and published-place evidence remain pending."
+  "evidenceNote": "The source SHA is the clean implementation candidate verified by the cited workflows. The Rojo artifact was built from the cited pull-request merge SHA for that source head, and both the inner rbxlx SHA-256 and uploaded workflow-artifact digest are recorded above. This evidence file is committed afterward as metadata; the resulting evidence-only PR head must also pass repository CI before merge. Roblox Studio, save/rejoin runtime, two-client multiplayer, phone/controller/device performance, published DEV and exact-artifact LIVE promotion evidence remain pending."
 }
