@@ -216,7 +216,11 @@ end
 
 function ProfileStore.lockMutations(player: Player, owner: string): boolean
 	local record = profiles[player]
-	if record == nil or record.releasing or not ProfileStoreRules.canAcquireMutationLock(record.mutationLockOwner, owner) then
+	if
+		record == nil
+		or record.releasing
+		or not ProfileStoreRules.canAcquireMutationLock(record.mutationLockOwner, owner)
+	then
 		return false
 	end
 	record.mutationLockOwner = ProfileStoreRules.acquireMutationLock(record.mutationLockOwner, owner)
