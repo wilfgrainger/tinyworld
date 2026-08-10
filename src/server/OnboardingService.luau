@@ -47,8 +47,8 @@ function OnboardingService:_setState(player: Player, profile)
 	player:SetAttribute("TinyWorldOnboardingComplete", complete)
 	player:SetAttribute("TinyWorldOnboardingRequired", not complete)
 	if complete and self.AppearanceService then
-		-- AppearanceService is the single writer for the complete TinyWorld look:
-		-- body palette, hair fallback, shoes fallback and active-outfit attribute.
+		-- v0.6.1 preserves the player's Roblox avatar while AppearanceService
+		-- remains the single writer for validated TinyWorld style preference state.
 		self.AppearanceService:applyProfile(player, profile)
 	end
 	return complete
