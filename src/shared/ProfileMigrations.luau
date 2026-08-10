@@ -83,6 +83,16 @@ local MIGRATIONS = {
 	[10] = migrate10To11,
 }
 
+local function explicitVersion(value: any): (number?, string?)
+	if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then
+		return nil, "invalid_version"
+	end
+	if value % 1 ~= 0 or value < ProfileMigrations.OLDEST_SUPPORTED_VERSION then
+		return nil, "invalid_version"
+	end
+	return value, nil
+end
+
 function ProfileMigrations.migrate(raw: any): (any?, string?)
 	if raw == nil then
 		return { version = ProfileMigrations.CURRENT_VERSION }, nil
@@ -92,14 +102,16 @@ function ProfileMigrations.migrate(raw: any): (any?, string?)
 	end
 
 	local working = deepCopy(raw)
-	local rawVersion = if type(working.version) == "number"
-		then math.floor(working.version)
-		else ProfileMigrations.OLDEST_SUPPORTED_VERSION
+	local rawVersion = ProfileMigrations.OLDEST_SUPPORTED_VERSION
+	if working.version ~= nil then
+		local parsedVersion, versionError = explicitVersion(working.version)
+		if parsedVersion == nil then
+			return nil, versionError
+		end
+		rawVersion = parsedVersion
+	end
 	if rawVersion > ProfileMigrations.CURRENT_VERSION then
 		return nil, "future_version"
-	end
-	if rawVersion < ProfileMigrations.OLDEST_SUPPORTED_VERSION then
-		rawVersion = ProfileMigrations.OLDEST_SUPPORTED_VERSION
 	end
 
 	-- Versions 1-9 used additive normalization only. They are first promoted to
