@@ -6,6 +6,20 @@ local ProfileStoreRules = {
 	MAX_RETRIES = 5,
 }
 
+function ProfileStoreRules.unwrapPersisted(value: any): (any?, any?, string?)
+	if value == nil or type(value) ~= "table" then
+		return value, nil, nil
+	end
+	local envelopeShaped = value.profile ~= nil or value.session ~= nil
+	if not envelopeShaped then
+		return value, nil, nil
+	end
+	if type(value.profile) ~= "table" then
+		return nil, value.session, "invalid_envelope_profile"
+	end
+	return value.profile, value.session, nil
+end
+
 function ProfileStoreRules.isLeaseActive(session, now: number, _ownerToken: string): boolean
 	return type(session) == "table"
 		and type(session.token) == "string"

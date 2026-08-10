@@ -429,8 +429,12 @@ function TradeService:_complete(a: Player, b: Player)
 
 	local committedSnapshot = table.clone(transaction)
 	committedSnapshot.state = "committed"
-	if not TradeJournal.write(committedSnapshot) then
-		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, "commit_journal_failed")
+	local wroteCommit, authoritativeCommit = TradeJournal.write(committedSnapshot)
+	if not TradeTransactionRules.authoritativeCommitAccepted(wroteCommit, authoritativeCommit) then
+		local recoveryReason = if wroteCommit
+			then "commit_rejected_by_authoritative_recovery"
+			else "commit_journal_failed"
+		self:_recoverActiveTrade(transaction, a, b, profileA, profileB, itemA, itemB, recoveryReason)
 		return
 	end
 	TradeTransactionRules.commit(transaction)

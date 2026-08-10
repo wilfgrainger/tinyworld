@@ -2,6 +2,32 @@ local TestUtil = require("./TestUtil")
 local ProfileStoreRules = require("../src/shared/ProfileStoreRules")
 
 return function()
+	TestUtil.equal(type(ProfileStoreRules.unwrapPersisted), "function", "persisted envelope classifier must exist")
+	if type(ProfileStoreRules.unwrapPersisted) == "function" then
+		local fresh, freshSession, freshError = ProfileStoreRules.unwrapPersisted(nil)
+		TestUtil.equal(fresh, nil)
+		TestUtil.equal(freshSession, nil)
+		TestUtil.equal(freshError, nil)
+		local legacy = { version = 10, coins = 42 }
+		local legacyProfile, legacySession, legacyError = ProfileStoreRules.unwrapPersisted(legacy)
+		TestUtil.equal(legacyProfile, legacy)
+		TestUtil.equal(legacySession, nil)
+		TestUtil.equal(legacyError, nil)
+		local nested = { version = 11, coins = 99 }
+		local session = { token = "safe", expiresAt = 100 }
+		local nestedProfile, nestedSession, nestedError =
+			ProfileStoreRules.unwrapPersisted({ profile = nested, session = session })
+		TestUtil.equal(nestedProfile, nested)
+		TestUtil.equal(nestedSession, session)
+		TestUtil.equal(nestedError, nil)
+		local malformedProfile, _, malformedError =
+			ProfileStoreRules.unwrapPersisted({ profile = "corrupt", session = session })
+		TestUtil.equal(malformedProfile, nil)
+		TestUtil.equal(malformedError, "invalid_envelope_profile")
+		local missingProfile, _, missingError = ProfileStoreRules.unwrapPersisted({ session = session })
+		TestUtil.equal(missingProfile, nil)
+		TestUtil.equal(missingError, "invalid_envelope_profile")
+	end
 	TestUtil.equal(ProfileStoreRules.SESSION_LEASE_SECONDS, 120)
 	TestUtil.equal(ProfileStoreRules.SAVE_DEBOUNCE_SECONDS, 8)
 	TestUtil.equal(ProfileStoreRules.RETRY_BASE_SECONDS, 5)

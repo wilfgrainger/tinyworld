@@ -3,6 +3,7 @@ local specs = {
 	require("./ProfileMigrations.spec"),
 	require("./ContentDefinitions.spec"),
 	require("./FurniturePlacementRules.spec"),
+	require("./FurnitureUiRules.spec"),
 	require("./RemoteGuardRules.spec"),
 	require("./TradeTransactionRules.spec"),
 	require("./OnboardingRules.spec"),

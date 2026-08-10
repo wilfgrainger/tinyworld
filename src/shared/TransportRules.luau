@@ -1,5 +1,14 @@
+local ShopDefinitions
+if script ~= nil then
+	ShopDefinitions = require(script.Parent:WaitForChild("ShopDefinitions"))
+else
+	ShopDefinitions = require("./ShopDefinitions")
+end
+
 local TransportRules = {}
-TransportRules.TINY_BIKE_PRICE = 300
+local tinyBikePrice = ShopDefinitions.priceFor("Workshop", "TinyBike")
+assert(type(tinyBikePrice) == "number", "Tiny Bike must have a canonical Workshop price")
+TransportRules.TINY_BIKE_PRICE = tinyBikePrice
 
 function TransportRules.buyTinyBike(profile: any): (boolean, string)
 	if profile.ownsTinyBike then

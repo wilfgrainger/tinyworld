@@ -146,6 +146,10 @@ function TradeTransactionRules.cancel(transaction: any, reason: string): (boolea
 	return true, "cancelled"
 end
 
+function TradeTransactionRules.authoritativeCommitAccepted(writeOk: any, authoritative: any): boolean
+	return writeOk == true and type(authoritative) == "table" and authoritative.state == "committed"
+end
+
 function TradeTransactionRules.mergeRecoveryCheckpoint(previous: any, incoming: any): any
 	if type(previous) ~= "table" then
 		return shallowCopy(incoming)

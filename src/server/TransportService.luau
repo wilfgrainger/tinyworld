@@ -275,7 +275,7 @@ function TransportService:_useShop(player: Player)
 			self.PlayerStateService.message(
 				player,
 				if reason == "not_enough_coins"
-					then "The Tiny Bike costs 300 coins."
+					then string.format("The Tiny Bike costs %d coins.", TransportRules.TINY_BIKE_PRICE)
 					else "You already own the Tiny Bike."
 			)
 			return

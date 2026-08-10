@@ -7,6 +7,18 @@ return function()
 		return
 	end
 
+	TestUtil.equal(
+		type(TradeTransactionRules.authoritativeCommitAccepted),
+		"function",
+		"authoritative commit helper must exist"
+	)
+	if type(TradeTransactionRules.authoritativeCommitAccepted) == "function" then
+		TestUtil.isTrue(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "committed" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, { state = "recovering" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(false, { state = "committed" }))
+		TestUtil.isFalse(TradeTransactionRules.authoritativeCommitAccepted(true, nil))
+	end
+
 	local tx = TradeTransactionRules.new("tx-1", 101, 202, { Carrot = 2 }, { Seashell = 1 }, 7)
 	TestUtil.equal(tx.id, "tx-1")
 	TestUtil.equal(tx.state, "locked")

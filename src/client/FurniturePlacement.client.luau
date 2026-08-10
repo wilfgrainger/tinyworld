@@ -1,4 +1,5 @@
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,6 +12,7 @@ local tinyWorld = ReplicatedStorage:WaitForChild("TinyWorld")
 local shared = tinyWorld:WaitForChild("Shared")
 local FurnitureDefinitions = require(shared:WaitForChild("FurnitureDefinitions"))
 local FurniturePlacementRules = require(shared:WaitForChild("FurniturePlacementRules"))
+local FurnitureUiRules = require(shared:WaitForChild("FurnitureUiRules"))
 local UiTokens = require(script.Parent:WaitForChild("UiTokens"))
 local UiScaleRules = require(script.Parent:WaitForChild("UiScaleRules"))
 local ButtonFactory = require(script.Parent:WaitForChild("ButtonFactory"))
@@ -164,22 +166,10 @@ local feedbackCorner = Instance.new("UICorner")
 feedbackCorner.CornerRadius = UDim.new(0, UiTokens.CornerRadius)
 feedbackCorner.Parent = placementFeedback
 
-local REJECTION_COPY = {
-	structural_collision = "That spot is blocked by a wall or a fixed home object.",
-	not_at_home = "Go back to your own home before changing furniture.",
-	outside_bounds = "Keep the whole item inside your home.",
-	overlap = "That would overlap furniture you already placed.",
-	not_owned = "You do not own an available copy of that item.",
-	placement_limit = "Your home has reached its furniture placement limit.",
-	rate_limit = "Too many placement changes at once. Try again in a moment.",
-	home_unavailable = "Your home is not ready for furniture changes yet.",
-	invalid_request = "TinyWorld could not understand that placement. Try another spot.",
-}
-
 local function showFeedback(reason: string)
 	feedbackToken += 1
 	local token = feedbackToken
-	placementFeedback.Text = REJECTION_COPY[reason] or "That placement was rejected by TinyWorld. Try another spot."
+	placementFeedback.Text = FurnitureUiRules.rejectionCopy(reason)
 	placementFeedback.Visible = true
 	player:SetAttribute("TinyWorldHomeUiMessage", reason)
 	task.delay(2.5, function()
@@ -206,6 +196,13 @@ local categoryButtons = {}
 local itemButtons = {}
 
 local function refreshItems()
+	local selectedFurnitureId = nil
+	local selectedObject = GuiService.SelectedObject
+	if selectedObject and selectedObject:IsDescendantOf(itemScroll) then
+		selectedFurnitureId = FurnitureUiRules.furnitureIdFromButtonName(selectedObject.Name)
+	end
+	local itemButtonsById = {}
+	local availableItemIds = {}
 	for _, child in itemScroll:GetChildren() do
 		if child:IsA("GuiButton") then
 			child:Destroy()
@@ -233,6 +230,8 @@ local function refreshItems()
 		button.Font = UiTokens.Fonts.Strong
 		button.Selectable = true
 		button.Parent = itemScroll
+		itemButtonsById[definition.id] = button
+		table.insert(availableItemIds, definition.id)
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 10)
 		corner.Parent = button
@@ -254,6 +253,10 @@ local function refreshItems()
 		table.insert(itemButtons, button)
 	end
 	FocusController.grid(itemButtons, UiScaleRules.columns(viewportSize()))
+	if backdrop.Visible then
+		local preferredId = FurnitureUiRules.preferredFurnitureId(selectedFurnitureId, availableItemIds)
+		GuiService.SelectedObject = if preferredId then itemButtonsById[preferredId] else closeButton
+	end
 end
 
 for index, category in categories do

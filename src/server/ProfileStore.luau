@@ -23,11 +23,9 @@ local function now(): number
 end
 
 local function decode(value): (any?, any?, string?)
-	local rawProfile = value
-	local session = nil
-	if type(value) == "table" and type(value.profile) == "table" then
-		rawProfile = value.profile
-		session = value.session
+	local rawProfile, session, envelopeError = ProfileStoreRules.unwrapPersisted(value)
+	if envelopeError ~= nil then
+		return nil, session, envelopeError
 	end
 	local migrated, migrationError = ProfileMigrations.migrate(rawProfile)
 	if migrated == nil then

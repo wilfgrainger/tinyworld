@@ -55,7 +55,7 @@ function ShopDefinitions.priceFor(shopId: string, itemId: string): number?
 	local fixed = {
 		Carrot = 10,
 		MeadowSeed = 20,
-		TinyBike = 350,
+		TinyBike = 300,
 		TinyBoat = 600,
 	}
 	return fixed[itemId]
