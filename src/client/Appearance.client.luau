@@ -73,7 +73,8 @@ local hint = Instance.new("TextLabel")
 hint.LayoutOrder = 2
 hint.Size = UDim2.new(1, 0, 0, 58)
 hint.BackgroundTransparency = 1
-hint.Text = "Your Roblox avatar stays intact while TinyWorld character art is upgraded. You can still save a style preference for later."
+hint.Text =
+	"Your Roblox avatar stays intact while TinyWorld character art is upgraded. You can still save a style preference for later."
 hint.TextColor3 = UiTokens.Colors.InkSoft
 hint.TextSize = 14
 hint.TextWrapped = true
