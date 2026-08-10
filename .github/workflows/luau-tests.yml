@@ -48,6 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 .github/scripts/v061_visual_rescue_patch.py
+          python3 .github/scripts/v061_runtime_copy_patch.py
           python3 .github/scripts/v061_target_state_patch.py
           stylua src tests
 
