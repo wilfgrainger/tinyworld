@@ -37,17 +37,12 @@ function ProfessionService:_inspect(player: Player)
 	if profile == nil then
 		return
 	end
-	self.PlayerStateService.message(
-		player,
-		"Village Life: "
-			.. table.concat({
-				progressText(profile, "Courier"),
-				progressText(profile, "Farmer", "Gardener"),
-				progressText(profile, "Designer"),
-				"Village Explorer · daily trail",
-			}, " • ")
-			.. ". Deliver, grow, decorate and explore to build your life here."
-	)
+	self.PlayerStateService.message(player, "Village Life: " .. table.concat({
+		progressText(profile, "Courier"),
+		progressText(profile, "Farmer", "Gardener"),
+		progressText(profile, "Designer"),
+		"Village Explorer · daily trail",
+	}, " • ") .. ". Deliver, grow, decorate and explore to build your life here.")
 end
 
 return ProfessionService
