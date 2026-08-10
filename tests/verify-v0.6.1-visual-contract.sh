@@ -33,6 +33,16 @@ if grep -Fq 'CharacterAppearanceBuilder' src/server/AppearanceService.luau; then
 fi
 pass "primitive character fallback is not in the active appearance path"
 
+for misleading in \
+  'preview the free look' \
+  'Pick a free starter outfit' \
+  'Make your TinyWorld character'; do
+  if grep -Fq "$misleading" src/client/Onboarding.client.luau; then
+    fail "onboarding still promises removed visual fallback: $misleading"
+  fi
+done
+pass "onboarding copy does not promise unavailable character rendering"
+
 ordinary_world_files=(
   src/server/AuthoredPrefabBuilder.luau
   src/server/WorldBuilder.luau
