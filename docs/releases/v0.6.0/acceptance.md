@@ -1,10 +1,10 @@
 # v0.6.0 Target-State Consolidation acceptance
 
-**Release:** v0.6.0
-**Profile schema:** 11
-**Status:** release candidate; evidence updated from CI/observed routes only.
+**Release:** v0.6.0  
+**Profile schema:** 11  
+**Status:** merged historical evidence record. This file preserves what v0.6.0 proved and left unobserved at merge time; it is not current release authority. Current acceptance is `../v0.6.1/acceptance.md`.
 
-## Repository/product contract
+## Repository/product contract at v0.6.0 merge
 
 - [x] Canonical v1 target-state document exists.
 - [x] Core loop, content catalogue and safety/social contracts exist.
@@ -17,7 +17,7 @@
 - [x] 30+ keepsake definitions exist.
 - [x] Free character-expression definitions exist.
 
-## Authority/security
+## Authority/security at v0.6.0 merge
 
 - [x] Economy/progression/shop/reward state remains server-authoritative.
 - [x] Server-only `RemoteGuard` and pure validation rules exist.
@@ -29,21 +29,23 @@
 - [x] Durable trade transaction IDs/snapshots/journal/idempotent state exist.
 - [x] High-value/unique trading remains disabled pending recovery evidence.
 
-## Home/player-facing foundation
+## Home/player-facing source foundation at v0.6.0 merge
 
 - [x] Physical placed furniture persists as canonical home-local transforms.
 - [x] Furniture-only mutation does not require a complete house rebuild.
 - [x] House rebuilds re-render persisted placements.
-- [x] Recognisable native-part furniture prefab fallback exists.
-- [x] Responsive Home catalogue and placement UI exists.
-- [x] Placement preview is client-local and red/green using the shared pure ownership/budget/bounds/overlap rules; the server independently revalidates and adds structural collision checks before persistence.
+- [x] Native-part furniture prefab source fallback exists.
+- [x] Responsive Home catalogue and placement UI source exists.
+- [x] Placement preview is client-local and red/green using shared pure ownership/budget/bounds/overlap rules; the server independently revalidates and adds structural collision checks before persistence.
 - [x] Confirm sends one bounded mutation request rather than streaming placement transforms.
-- [x] Touch targets/controller placement bindings are explicit.
-- [x] Wardrobe UI and persisted free appearance selection exist.
-- [x] Asset-free visible character-expression fallback is wired into the runtime without fabricated Roblox asset IDs.
+- [x] Touch targets/controller placement bindings are explicit in source.
+- [x] Wardrobe UI and persisted free appearance selection source exists.
+- [x] Asset-free character-expression fallback source was wired without fabricated Roblox asset IDs.
 - [x] Portal completion creates a physical keepsake display back at the resident home.
 
-## World/operations foundation
+**Historical correction:** the first screenshots observed after merge showed that several of those player-facing source mechanisms did not meet the intended visual craft bar. In particular, the native character fallback and large ordinary-world information panels were visually unacceptable. v0.6.1 corrects them. Their source presence above is not retroactive proof of visual quality.
+
+## World/operations foundation at v0.6.0 merge
 
 - [x] Giant Kitchen and Moonlit Meadow retained.
 - [x] Cloudpost Observatory authored with post office/observatory/wind-route physical identity.
@@ -55,9 +57,9 @@
 - [x] Asset manifest rejects invented IDs and requires provenance for production entries.
 - [x] Gameplay server capacity is tied to the sixteen resident plots and fails closed on overflow/configuration drift.
 
-## Automated gates
+## Automated gates recorded for v0.6.0
 
-The implementation source SHA and PR synthetic merge SHA proved by the workflows are recorded in `automated-evidence.json`. Evidence metadata is committed after those workflows, so the resulting evidence-only PR head must separately pass the repository CI before merge. A documentation-only evidence commit does not silently change the implementation artifact it records.
+The implementation source SHA and PR synthetic merge SHA proved by the workflows are recorded in `automated-evidence.json`. The committed record remains the historical automated evidence for that release.
 
 | Gate | Status | Evidence |
 |---|---|---|
@@ -69,35 +71,37 @@ The implementation source SHA and PR synthetic merge SHA proved by the workflows
 | Rojo candidate build | PASS | `automated-evidence.json` |
 | Traceability manifest/artifact | PASS | `automated-evidence.json` |
 
-## Studio single-client evidence
+## Studio single-client evidence at merge
 
-**PENDING.** This review/implementation session has no Roblox Studio MCP/runtime access. Required route:
+**NOT RUN / PENDING.** The implementation/review environment did not provide Roblox Studio runtime evidence before merge. Required route had included:
 
 - profile load/rejoin/migration;
 - first 2/10/30 minute route;
 - Home Store purchase;
-- place/rotate/store furniture, including red/green preview and server structural rejection;
+- place/rotate/store furniture;
 - home rebuild retains placements;
-- wardrobe changes and visible character fallback;
+- wardrobe/character presentation;
 - careers/garden/transport;
 - all four portal worlds, mechanics, secrets and home keepsakes;
 - 16-player resident-cap route and deliberate overflow-misconfiguration rejection;
-- Output contains no critical errors.
+- Output review.
 
-## Multiplayer evidence
+The later screenshots that motivated v0.6.1 are useful evidence of visual failures, but they do not retroactively turn this whole historical route into PASS.
 
-**PENDING.** Required Server & Clients route:
+## Multiplayer evidence at merge
+
+**NOT RUN / PENDING.** Required Server & Clients route had included:
 
 - visitors see authoritative placed furniture;
 - guests cannot mutate owner furniture;
 - Open/Friends/Private home access;
-- trade happy path, timeout, stale confirmation and disconnect;
+- trade happy path, timeout, stale confirmation and disconnect/recovery;
 - hostile/malformed placement/shop/onboarding remotes are rejected;
 - portal mechanics remain correct with concurrent players.
 
-## Device/accessibility/performance evidence
+## Device/accessibility/performance evidence at merge
 
-**PENDING.** Required real-device evidence:
+**NOT RUN / PENDING.** Required evidence had included:
 
 - phone portrait/landscape touch flow;
 - controller focus and placement;
@@ -108,10 +112,12 @@ The implementation source SHA and PR synthetic merge SHA proved by the workflows
 - desktop 60 FPS target where practical;
 - Developer Console network behaviour.
 
-## Published DEV / LIVE
+## Published DEV / LIVE at merge
 
-**PENDING BY DESIGN.** DEV/LIVE config files remain unconfigured and credential-free. No LIVE promotion is permitted until an exact v0.6.0 artifact passes DEV/runtime/device evidence and receives explicit human approval.
+**NOT RUN / PENDING BY DESIGN.** DEV/LIVE config files remained unconfigured and credential-free. No LIVE promotion occurred through this release record.
 
-## Evidence honesty
+## Historical evidence honesty
 
-A green CI build does not convert the Studio, multiplayer, device or published rows to PASS.
+A green v0.6.0 CI build did not prove its Studio, multiplayer, device or published rows. Those rows remain historical PENDING/NOT RUN rather than being edited into PASS after the fact.
+
+v0.6.1 changes the forward process: required player-facing visual evidence now blocks merge-ready status for the corrective visual release.
