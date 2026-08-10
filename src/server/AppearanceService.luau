@@ -3,53 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local AppearanceDefinitions = require(shared:WaitForChild("AppearanceDefinitions"))
 local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
-local CharacterAppearanceBuilder = require(script.Parent:WaitForChild("CharacterAppearanceBuilder"))
 
 local AppearanceService = {}
 AppearanceService.__index = AppearanceService
-
-local PALETTES = {
-	Starter = {
-		torso = Color3.fromRGB(104, 153, 93),
-		arms = Color3.fromRGB(246, 231, 183),
-		legs = Color3.fromRGB(112, 76, 48),
-	},
-	Meadow = {
-		torso = Color3.fromRGB(104, 153, 93),
-		arms = Color3.fromRGB(246, 231, 183),
-		legs = Color3.fromRGB(92, 118, 69),
-	},
-	Harbor = {
-		torso = Color3.fromRGB(67, 119, 168),
-		arms = Color3.fromRGB(211, 220, 226),
-		legs = Color3.fromRGB(38, 56, 82),
-	},
-	Sunset = {
-		torso = Color3.fromRGB(222, 111, 51),
-		arms = Color3.fromRGB(255, 205, 91),
-		legs = Color3.fromRGB(91, 54, 44),
-	},
-	Courier = {
-		torso = Color3.fromRGB(206, 153, 55),
-		arms = Color3.fromRGB(245, 226, 184),
-		legs = Color3.fromRGB(68, 76, 92),
-	},
-	Workshop = {
-		torso = Color3.fromRGB(74, 97, 112),
-		arms = Color3.fromRGB(223, 203, 166),
-		legs = Color3.fromRGB(82, 67, 56),
-	},
-	Moonlight = {
-		torso = Color3.fromRGB(91, 91, 151),
-		arms = Color3.fromRGB(222, 218, 244),
-		legs = Color3.fromRGB(55, 55, 91),
-	},
-	Cloudpost = {
-		torso = Color3.fromRGB(101, 164, 196),
-		arms = Color3.fromRGB(244, 240, 214),
-		legs = Color3.fromRGB(74, 103, 135),
-	},
-}
 
 local LEGACY_OUTFITS = {
 	Meadow = true,
@@ -102,21 +58,10 @@ local function resolvedHair(profile, outfitId: string): string
 end
 
 local function applyLook(player: Player, outfitId: string, hairId: string)
-	local character = player.Character
-	local palette = PALETTES[outfitId] or PALETTES.Starter
-	if character then
-		local bodyColors = character:FindFirstChildOfClass("BodyColors")
-		if bodyColors == nil then
-			bodyColors = Instance.new("BodyColors")
-			bodyColors.Parent = character
-		end
-		bodyColors.TorsoColor = BrickColor.new(palette.torso)
-		bodyColors.LeftArmColor = BrickColor.new(palette.arms)
-		bodyColors.RightArmColor = BrickColor.new(palette.arms)
-		bodyColors.LeftLegColor = BrickColor.new(palette.legs)
-		bodyColors.RightLegColor = BrickColor.new(palette.legs)
-		CharacterAppearanceBuilder.apply(character, hairId, outfitId)
-	end
+	-- v0.6.1 visual rescue: preserve the player's Roblox avatar until an
+	-- approved TinyWorld character asset can replace it through the asset pipeline.
+	-- Saved TinyWorld style IDs remain authoritative preference data, but the
+	-- server does not bolt primitive geometry onto the character as a fallback.
 	player:SetAttribute("TinyWorldHairStyle", hairId)
 	player:SetAttribute("TinyWorldActiveOutfit", outfitId)
 end
@@ -206,7 +151,7 @@ function AppearanceService:_handle(player: Player, payload: any)
 	profile.activeOutfitId = payload.outfitId
 	applyLook(player, payload.outfitId, payload.hairId)
 	self.ProfileStore.save(player)
-	self.PlayerStateService.message(player, outfit.displayName .. " saved as your active look.")
+	self.PlayerStateService.message(player, outfit.displayName .. " saved as your TinyWorld style.")
 	self:_sendState(player, profile)
 end
 
