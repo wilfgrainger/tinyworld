@@ -34,6 +34,17 @@ return function()
 	TestUtil.equal(ProfileStoreRules.RETRY_MAX_SECONDS, 60)
 	TestUtil.equal(ProfileStoreRules.MAX_RETRIES, 5)
 
+	local mutationOwner = nil
+	TestUtil.isTrue(ProfileStoreRules.canAcquireMutationLock(mutationOwner, "trade:txn-1"))
+	mutationOwner = ProfileStoreRules.acquireMutationLock(mutationOwner, "trade:txn-1")
+	TestUtil.equal(mutationOwner, "trade:txn-1")
+	TestUtil.isFalse(ProfileStoreRules.externalMutationAllowed(mutationOwner))
+	TestUtil.isFalse(ProfileStoreRules.canAcquireMutationLock(mutationOwner, "reward"))
+	TestUtil.equal(ProfileStoreRules.releaseMutationLock(mutationOwner, "reward"), "trade:txn-1")
+	mutationOwner = ProfileStoreRules.releaseMutationLock(mutationOwner, "trade:txn-1")
+	TestUtil.equal(mutationOwner, nil)
+	TestUtil.isTrue(ProfileStoreRules.externalMutationAllowed(mutationOwner))
+
 	local lease = { token = "session-a", expiresAt = 100 }
 	TestUtil.isTrue(ProfileStoreRules.isLeaseActive(lease, 99, "other-owner"))
 	TestUtil.isFalse(ProfileStoreRules.isLeaseActive(lease, 100, "session-a"))
