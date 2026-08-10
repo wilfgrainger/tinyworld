@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local Progression = require(shared:WaitForChild("Progression"))
 local Profession = require(shared:WaitForChild("Profession"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
+local CourierRouteRules = require(shared:WaitForChild("CourierRouteRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
@@ -20,6 +21,26 @@ local function removeParcel(player: Player)
 	end
 end
 
+local function parcelPart(model: Model, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.CFrame = cframe
+	part.Color = color
+	part.Material = material
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	part.Massless = true
+	part.Anchored = false
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part:SetAttribute("TinyWorldArtRole", "courier-parcel-detail")
+	part:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	part.Parent = model
+	return part
+end
+
 local function attachParcel(player: Player)
 	removeParcel(player)
 	local character = player.Character
@@ -27,26 +48,72 @@ local function attachParcel(player: Player)
 		return
 	end
 	local root = character:FindFirstChild("HumanoidRootPart")
-	if root == nil then
+	if root == nil or not root:IsA("BasePart") then
 		return
 	end
-	local parcel = Instance.new("Part")
-	parcel.Name = "TinyWorldCourierParcel"
-	parcel:SetAttribute("TinyWorldArtRole", "courier-parcel")
-	parcel:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
-	parcel:SetAttribute("TinyWorldRecognizableSilhouette", true)
-	parcel.Size = Vector3.new(2.5, 2.5, 2.5)
-	parcel.Color = VisualTheme.Colors.timber
-	parcel.Material = Enum.Material.Cardboard
-	parcel.CanCollide = false
-	parcel.Massless = true
-	parcel.Anchored = false
-	parcel.CFrame = root.CFrame * CFrame.new(0, 0, 2.3)
-	parcel.Parent = character
-	local weld = Instance.new("WeldConstraint")
-	weld.Part0 = root
-	weld.Part1 = parcel
-	weld.Parent = parcel
+
+	local model = Instance.new("Model")
+	model.Name = "TinyWorldCourierParcel"
+	model:SetAttribute("TinyWorldArtRole", "courier-parcel")
+	model:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
+	model:SetAttribute("TinyWorldRecognizableSilhouette", true)
+	model.Parent = character
+
+	local boxCFrame = root.CFrame * CFrame.new(0, 0, 2.3)
+	local box = parcelPart(
+		model,
+		"ParcelBox",
+		Vector3.new(2.8, 2.2, 2.4),
+		boxCFrame,
+		VisualTheme.Colors.timber,
+		Enum.Material.Cardboard
+	)
+	local tape = parcelPart(
+		model,
+		"ParcelTape",
+		Vector3.new(0.45, 2.28, 2.48),
+		boxCFrame,
+		VisualTheme.Colors.warmLight,
+		Enum.Material.Fabric
+	)
+	local seal = parcelPart(
+		model,
+		"ParcelSeal",
+		Vector3.new(1.1, 0.12, 1.1),
+		boxCFrame * CFrame.new(0.55, 1.14, 0),
+		VisualTheme.Colors.berry,
+		Enum.Material.SmoothPlastic
+	)
+
+	for _, part in { box, tape, seal } do
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = root
+		weld.Part1 = part
+		weld.Parent = part
+	end
+	model.PrimaryPart = box
+end
+
+local function deliveryPrompt(parent: Instance, destinationId: string): ProximityPrompt
+	local name = "CourierDeliveryPrompt_" .. destinationId
+	local existing = parent:FindFirstChild(name)
+	local prompt
+	if existing and existing:IsA("ProximityPrompt") then
+		prompt = existing
+	else
+		if existing then
+			existing:Destroy()
+		end
+		prompt = Instance.new("ProximityPrompt")
+		prompt.Name = name
+		prompt.Parent = parent
+	end
+	prompt.ActionText = "Deliver Parcel"
+	prompt.ObjectText = CourierRouteRules.displayName(destinationId) or destinationId
+	prompt.HoldDuration = 0.2
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	return prompt
 end
 
 function JobService.new(world, ProfileStore, PlayerStateService, RouteService)
@@ -55,14 +122,37 @@ function JobService.new(world, ProfileStore, PlayerStateService, RouteService)
 	self.PlayerStateService = PlayerStateService
 	self.RouteService = RouteService
 	self.active = {}
+	self.previousDestination = {}
+	self.routeNonce = {}
 	self.characterConnections = {}
+	self.deliveryConnections = {}
 
 	world.deliveryStartPrompt.Triggered:Connect(function(player)
 		self:_start(player)
 	end)
-	world.deliveryEndPrompt.Triggered:Connect(function(player)
-		self:_finish(player)
-	end)
+
+	local anchors = {
+		VillageShop = world.deliveryEndPrompt.Parent,
+		TownHall = world.contributionPrompt.Parent,
+		HomeStore = world.homeSupplyPrompt.Parent,
+		Workshop = world.transportPrompt.Parent,
+	}
+	for destinationId, anchor in anchors do
+		local prompt
+		if destinationId == "VillageShop" then
+			prompt = world.deliveryEndPrompt
+			prompt.ActionText = "Deliver Parcel"
+			prompt.ObjectText = CourierRouteRules.displayName(destinationId) or destinationId
+		else
+			prompt = deliveryPrompt(anchor, destinationId)
+		end
+		table.insert(
+			self.deliveryConnections,
+			prompt.Triggered:Connect(function(player)
+				self:_finish(player, destinationId)
+			end)
+		)
+	end
 	return self
 end
 
@@ -83,26 +173,44 @@ function JobService:_start(player: Player)
 		return
 	end
 	if self.active[player] then
-		self.PlayerStateService.message(player, "You already have a parcel. Deliver it to the Village Shop.")
+		local activeDestination = CourierRouteRules.displayName(self.active[player].destinationId) or "your destination"
+		self.PlayerStateService.message(player, "You already have a parcel. Take it to " .. activeDestination .. ".")
 		return
 	end
-	self.active[player] = true
+
+	local nonce = (self.routeNonce[player] or 0) + 1
+	self.routeNonce[player] = nonce
+	local destinationId = CourierRouteRules.nextDestination(self.previousDestination[player], nonce)
+	self.previousDestination[player] = destinationId
+	self.active[player] = { destinationId = destinationId }
 	player:SetAttribute("TinyWorldCarryingParcel", true)
+	player:SetAttribute("TinyWorldCourierDestination", destinationId)
 	attachParcel(player)
-	self.PlayerStateService.message(player, "Courier job started. Take the parcel to the Village Shop.")
+	self.PlayerStateService.message(
+		player,
+		"Courier round started. Take this parcel to " .. (CourierRouteRules.displayName(destinationId) or destinationId) .. "."
+	)
 end
 
-function JobService:_finish(player: Player)
-	if not self.active[player] then
+function JobService:_finish(player: Player, destinationId: string)
+	local active = self.active[player]
+	if not active then
 		self.PlayerStateService.message(player, "Pick up a parcel from the Courier Depot first.")
 		return
 	end
+	if active.destinationId ~= destinationId then
+		local expected = CourierRouteRules.displayName(active.destinationId) or active.destinationId
+		self.PlayerStateService.message(player, "This parcel is for " .. expected .. ".")
+		return
+	end
+
 	local profile = self.ProfileStore.get(player)
 	if profile == nil then
 		return
 	end
 	self.active[player] = nil
 	player:SetAttribute("TinyWorldCarryingParcel", false)
+	player:SetAttribute("TinyWorldCourierDestination", "")
 	removeParcel(player)
 	profile.coins += 150
 	Progression.addXp(profile, 75)
@@ -112,7 +220,8 @@ function JobService:_finish(player: Player)
 	self.PlayerStateService.message(
 		player,
 		string.format(
-			"Delivery complete: +150 coins, +75 XP, +100 Courier XP%s",
+			"Delivery complete at %s: +150 coins, +75 XP, +100 Courier XP%s",
+			CourierRouteRules.displayName(destinationId) or destinationId,
 			if professionLevels > 0 then " — Courier level up!" else "."
 		)
 	)
@@ -127,6 +236,8 @@ end
 
 function JobService:removePlayer(player: Player)
 	self.active[player] = nil
+	self.previousDestination[player] = nil
+	self.routeNonce[player] = nil
 	removeParcel(player)
 	local connection = self.characterConnections[player]
 	if connection then
