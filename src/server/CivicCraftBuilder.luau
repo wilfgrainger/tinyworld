@@ -109,12 +109,14 @@ local function addShopCraft(model: Model)
 	if not origin then
 		return
 	end
-	for _, name in {
-		"HomeSupplyCounter",
-		"DecoratorCatalogue",
-		"FurnishingShowroomTable",
-		"FurnishingShowroomLamp",
-	} do
+	for _, name in
+		{
+			"HomeSupplyCounter",
+			"DecoratorCatalogue",
+			"FurnishingShowroomTable",
+			"FurnishingShowroomLamp",
+		}
+	do
 		local old = model:FindFirstChild(name)
 		if old then
 			old:Destroy()
@@ -250,7 +252,7 @@ local function addMarketCraft(model: Model)
 		return
 	end
 	local origin = platform.Position
-	for _, name in { "MarketTable", "MarketAwning", "MarketAwningPost-15", "MarketAwningPost15" } do
+	for _, name in { "MarketTable", "MarketTableLeg1", "MarketTableLeg2", "MarketAwning", "MarketAwningPost1", "MarketAwningPost2" } do
 		local old = model:FindFirstChild(name)
 		if old then
 			old:Destroy()
