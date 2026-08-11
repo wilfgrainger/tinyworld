@@ -73,10 +73,16 @@ local function addPlantingIsland(parent: Instance, name: string, center: Vector3
 	model:SetAttribute("TinyWorldArtRole", "arrival-planting-island")
 	model.Parent = parent
 
-	for index, spec in {
-		{ offset = Vector3.new(0, 0, 0), size = Vector3.new(12, 0.65, 5.5), yaw = mirror * 8 },
-		{ offset = Vector3.new(mirror * 4.8, 0, 2.2), size = Vector3.new(7.5, 0.65, 4.5), yaw = mirror * 18 },
-	} do
+	for index, spec in
+		{
+			{ offset = Vector3.new(0, 0, 0), size = Vector3.new(12, 0.65, 5.5), yaw = mirror * 8 },
+			{
+				offset = Vector3.new(mirror * 4.8, 0, 2.2),
+				size = Vector3.new(7.5, 0.65, 4.5),
+				yaw = mirror * 18,
+			},
+		}
+	do
 		decoration(
 			model,
 			"StoneBed" .. index,
@@ -107,11 +113,13 @@ local function addPlantingIsland(parent: Instance, name: string, center: Vector3
 		"arrival-feature-tree-trunk"
 	)
 	treeTrunk:SetAttribute("TinyWorldDestinationCue", "village-square")
-	for index, offset in {
-		Vector3.new(-1.3, 7.2, 0),
-		Vector3.new(1.5, 7.5, 0.4),
-		Vector3.new(0, 8.7, -0.8),
-	} do
+	for index, offset in
+		{
+			Vector3.new(-1.3, 7.2, 0),
+			Vector3.new(1.5, 7.5, 0.4),
+			Vector3.new(0, 8.7, -0.8),
+		}
+	do
 		local canopy = decoration(
 			model,
 			"FeatureTreeCanopy" .. index,
@@ -124,12 +132,14 @@ local function addPlantingIsland(parent: Instance, name: string, center: Vector3
 		canopy.Shape = Enum.PartType.Ball
 	end
 
-	for index, offset in {
-		Vector3.new(-4, 1.4, -1.2),
-		Vector3.new(-2.3, 1.4, 1.5),
-		Vector3.new(2.5, 1.4, -1.4),
-		Vector3.new(4.2, 1.4, 1.2),
-	} do
+	for index, offset in
+		{
+			Vector3.new(-4, 1.4, -1.2),
+			Vector3.new(-2.3, 1.4, 1.5),
+			Vector3.new(2.5, 1.4, -1.4),
+			Vector3.new(4.2, 1.4, 1.2),
+		}
+	do
 		local flower = decoration(
 			model,
 			"Flower" .. index,
@@ -181,12 +191,14 @@ function VillageArrivalPolishBuilder.apply(root: Instance)
 	addBench(model, "ArrivalBenchWest", CFrame.new(-14, 0, -2) * CFrame.Angles(0, math.rad(25), 0))
 	addBench(model, "ArrivalBenchEast", CFrame.new(14, 0, -2) * CFrame.Angles(0, math.rad(-25), 0))
 
-	for index, position in {
-		Vector3.new(-9, 7, -5),
-		Vector3.new(9, 7, -5),
-		Vector3.new(-10, 7, 18),
-		Vector3.new(10, 7, 18),
-	} do
+	for index, position in
+		{
+			Vector3.new(-9, 7, -5),
+			Vector3.new(9, 7, -5),
+			Vector3.new(-10, 7, 18),
+			Vector3.new(10, 7, 18),
+		}
+	do
 		ArchitecturalDetailBuilder.addLantern(model, {
 			name = "ArrivalLantern" .. index,
 			role = "arrival-practical-lantern",
