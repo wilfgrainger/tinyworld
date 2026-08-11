@@ -78,17 +78,17 @@ fi
 
 PATH="$TEMP_DIR/bin:$PATH" TINYWORLD_ALLOW_DIRTY_BUILD=1 ./scripts/build.sh
 
-artifact_path="dist/TinyWorld-v0.6.2.rbxlx"
+artifact_path="dist/TinyWorld-v0.6.3.rbxlx"
 manifest_path="dist/release.json"
 
 [[ -f "$artifact_path" ]]
 [[ -f "$manifest_path" ]]
 
 jq -e '
-  .productVersion == "0.6.2" and
-  .releaseName == "Village Life & Visual Craft" and
+  .productVersion == "0.6.3" and
+  .releaseName == "Production Art & World Craft" and
   .rojoVersion == "7.7.0" and
-  .artifact == "TinyWorld-v0.6.2.rbxlx" and
+  .artifact == "TinyWorld-v0.6.3.rbxlx" and
   (.commit | test("^[0-9a-f]{40}$")) and
   (.sha256 | test("^[0-9a-f]{64}$")) and
   (.buildTimestampUtc | type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
@@ -102,4 +102,4 @@ else
 fi
 [[ "$artifact_sha256" == "$(jq -r '.sha256' "$manifest_path")" ]]
 
-echo "PASS: shell build contract matches v0.6.2 Village Life & Visual Craft"
+echo "PASS: shell build contract matches v0.6.3 Production Art & World Craft"
