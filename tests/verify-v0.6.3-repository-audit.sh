@@ -129,13 +129,30 @@ grep -Fq '## Implementation-agent execution contract' docs/product/target-state-
 if grep -RFq 'TinyWorldHairFallback' src; then fail "primitive hair fallback marker returned"; fi
 if grep -RFq 'TinyWorldShoesFallback' src; then fail "primitive shoe fallback marker returned"; fi
 
-# v0.6.3 rendered visual mechanisms are mandatory.
+# v0.6.3 ART R4 rendered visual mechanisms are mandatory.
 grep -Fq 'ProductionArtCleanup.apply(world.root)' src/server/Main.server.luau || fail "production cleanup is not active"
-grep -Fq 'CivicCraftBuilder.apply(world.root)' src/server/Main.server.luau || fail "civic craft is not active"
 grep -Fq 'VillageLandscapeBuilder.build(world.root, world.layout)' src/server/Main.server.luau || fail "production landscape is not active"
+grep -Fq 'local productionVisualService = ProductionVisualService.new()' src/server/Main.server.luau || fail "ART R4 production visual service is not active"
+grep -Fq 'ProductionVillageVisuals.apply(world, productionVisualService)' src/server/Main.server.luau || fail "ART R4 village product art is not active"
+grep -Fq 'ProductionHomeVisuals.apply(plot' src/server/HomeInteriorCraftBuilder.luau || fail "ART R4 home product art is not bound to rebuild lifecycle"
+grep -Fq 'AssetService:CreateEditableMesh()' src/server/ProductionMeshFactory.luau || fail "ART R4 DEV preview is not true custom mesh geometry"
+grep -Fq 'AssetService:CreateMeshPartAsync' src/server/ProductionMeshFactory.luau || fail "ART R4 DEV MeshPart creation is missing"
 grep -Fq 'hideSpawnPad' src/server/ProductionArtCleanup.luau || fail "visible spawn-pad correction missing"
 grep -Fq 'removePrimitiveAmbientCharacters' src/server/ProductionArtCleanup.luau || fail "legacy ambient actor cleanup missing"
 grep -Fq 'replaceLegacyPracticalLights' src/server/ProductionArtCleanup.luau || fail "legacy practical-light cleanup missing"
+
+for oldCall in \
+  'CivicCraftBuilder.apply(world.root)' \
+  'CivicHeroRebuildBuilder.apply(world.root)' \
+  'CivicFacadePolishBuilder.apply(world.root)' \
+  'VillageArrivalPolishBuilder.apply(world.root)' \
+  'HeroPortalBuilder.apply(world.root)' \
+  'HeroFountainBuilder.apply(world.root)' \
+  'OrganicNatureBuilder.apply(world.root)'; do
+  if grep -Fq "$oldCall" src/server/Main.server.luau; then
+    fail "retired R1-R3 visible hero path returned: $oldCall"
+  fi
+done
 
 if grep -Fq 'Vector3.new(width + 2, 1, depth + 2)' src/server/HomePrefabBuilder.luau; then
   fail "v0.6.2 hero-home slab roof recipe returned"
@@ -151,15 +168,15 @@ grep -Fq 'home_design = 16' src/shared/RouteRules.luau || fail "home_design rout
 grep -Fq 'ProfileSchema.VERSION = 11' src/shared/ProfileSchema.luau || fail "schema changed during art release"
 [[ -f src/server/TradeJournal.luau ]] || fail "durable trade journal missing"
 
-# Credential/publishing surface remains closed.
+# Credential/publishing surface remains closed. The explicit asset uploader is manual and credential-free in git.
 if grep -RIEq --exclude-dir=.git --exclude='verify-v0.6.3-repository-audit.sh' \
   '(\.ROBLOSECURITY|ROBLOX_COOKIE)[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+' \
   src scripts .github config assets 2>/dev/null; then
   fail "credential-shaped literal found in executable/config surfaces"
 fi
-if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
+if grep -RIEq --exclude='verify-release-contract.sh' --exclude='upload-roblox-assets.py' --exclude-dir='.git' \
   '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
-  fail "publishing automation is not approved in v0.6.3"
+  fail "place publishing automation is not approved in v0.6.3"
 fi
 
 printf 'PASS: v0.6.3 repository audit read %d tracked files, %d text files, %d text lines; %d long-line notes, %d active markers\n' \
