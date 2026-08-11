@@ -44,15 +44,8 @@ local function makeDecoration(
 end
 
 local function makeAnchor(parent: Instance, name: string, size: Vector3, position: Vector3, artRole: string): Part
-	local anchor = makeDecoration(
-		parent,
-		name,
-		size,
-		position,
-		VisualTheme.Colors.paper,
-		Enum.Material.SmoothPlastic,
-		artRole
-	)
+	local anchor =
+		makeDecoration(parent, name, size, position, VisualTheme.Colors.paper, Enum.Material.SmoothPlastic, artRole)
 	anchor.Transparency = 1
 	anchor.CanQuery = true
 	anchor:SetAttribute("TinyWorldInteractionAnchor", true)
@@ -176,7 +169,16 @@ local function addSideWindow(parent: Instance, anchor: Vector3, width: number, d
 	model:SetAttribute("TinyWorldArtRole", "home-side-window")
 end
 
-local function addTierDetails(parent: Instance, anchor: Vector3, tier: number, width: number, depth: number, height: number, wallColor: Color3, roofColor: Color3)
+local function addTierDetails(
+	parent: Instance,
+	anchor: Vector3,
+	tier: number,
+	width: number,
+	depth: number,
+	height: number,
+	wallColor: Color3,
+	roofColor: Color3
+)
 	if tier < 3 then
 		return
 	end
