@@ -112,9 +112,11 @@ Do not turn this into a general framework.
 
 Production models must be original TinyWorld-owned art.
 
-For this release, source assets will be generated from deterministic, repository-owned art specifications rather than copied Creator Store or reference-game assets.
+For this release, source assets will be built from deterministic, repository-owned art specifications rather than copied Creator Store or reference-game assets.
 
 The preferred source format is glTF 2.0 because Roblox Open Cloud accepts `.gltf`/`.glb` Model uploads and Studio supports glTF import.
+
+The generator is an offline art compiler. It is not a generic runtime geometry builder. Each asset family has explicit authored profiles, proportions, contours, material assignments and mesh rules that are reviewed as product art.
 
 ### 5.2 Source-of-truth directories
 
@@ -130,9 +132,9 @@ art/
     home-kit.json
     portal-kit.json
   generated/
-    <deterministic .gltf output>
+    README.md
   previews/
-    <optional generated reference renders or screenshots>
+    README.md
 
 tools/art/
   build_asset_pack.py
@@ -143,7 +145,11 @@ scripts/
   generate-production-asset-registry.py
 ```
 
-The art specification and generator code are authoritative source. Generated glTF may be committed when it improves reviewability and reproducibility; otherwise CI must prove deterministic regeneration.
+The committed source of truth is the art specification plus generator code.
+
+`art/generated/` is deterministic build output and is not committed apart from its explanatory README. `build_asset_pack.py` recreates the complete uploadable glTF pack locally or in CI. This prevents large generated blobs from becoming the editing surface while keeping regeneration reproducible.
+
+The uploader always invokes or verifies a fresh deterministic generation before upload. CI runs the generator and validates stable metadata, bounds, counts and hashes from the same source specification.
 
 ### 5.3 Geometry principles
 
@@ -214,48 +220,50 @@ No key or credential is ever committed.
 
 The upload tool must:
 
-1. validate the generated asset pack;
+1. generate and validate the asset pack from committed specifications;
 2. upload only explicitly selected assets;
 3. use deterministic display names such as `TinyWorld_TownHall_v1`;
 4. poll the returned operation until success/failure;
 5. capture real Roblox asset IDs only after successful creation;
 6. update `assets/manifests/assets.json` with provenance and approval state;
 7. never invent or guess an ID;
-8. preserve an audit trail of source file hash and generator version;
+8. preserve an audit trail of source specification hash, generated content hash and generator version;
 9. stop on moderation/upload failure rather than falling back silently.
 
 ### 6.3 Studio fallback upload path
 
-If Open Cloud credentials are not yet configured, Studio's importer remains a supported manual DEV path for the same generated glTF files.
+If Open Cloud credentials are not yet configured, Studio's importer remains a supported manual DEV path for the same freshly generated glTF files.
 
 Manual import is a credential gate, not an excuse to change the source art. Any returned asset IDs must still be recorded in the canonical manifest before the asset becomes release-authoritative.
 
 ## 7. Asset manifest v3
 
-Upgrade `assets/manifests/assets.json` from an empty passive list into the release authority for production visuals.
+Upgrade `assets/manifests/assets.json` to `schemaVersion: 3` and make it the release authority for production visuals.
 
-Each asset record must include at minimum:
+Every production asset record must contain:
 
-```json
-{
-  "id": "town-hall-v1",
-  "robloxAssetId": 123,
-  "owner": "TinyWorld",
-  "source": "art/generated/town-hall-v1.gltf",
-  "sourceSha256": "...",
-  "licenseOrProvenance": "Original TinyWorld asset generated from repository-owned art specification",
-  "prefabRole": "civic-town-hall",
-  "version": 1,
-  "status": "approved-production",
-  "devApproved": true,
-  "liveApproved": false,
-  "qualityTier": "hero"
-}
-```
+| Field | Requirement |
+| --- | --- |
+| `id` | stable semantic TinyWorld asset ID |
+| `robloxAssetId` | real positive ID returned by Roblox upload/import |
+| `owner` | TinyWorld owner/group identity |
+| `source` | committed art specification or generated source relationship |
+| `sourceSha256` | hash of the generated upload content |
+| `specSha256` | hash of the authoritative art specification input |
+| `licenseOrProvenance` | original TinyWorld ownership/provenance statement |
+| `prefabRole` | semantic runtime role |
+| `version` | positive asset version |
+| `status` | asset quality/approval state |
+| `devApproved` | explicit DEV approval boolean |
+| `liveApproved` | explicit LIVE approval boolean |
+| `qualityTier` | hero, interactive-supporting or background |
+| `triangleCount` | validated generated triangle count |
+| `materialCount` | validated material-slot count |
+| `expectedBounds` | expected asset bounds for runtime validation |
 
-Additional fields may record triangle count, material count, expected bounds and asset family.
+The manifest must never contain invented IDs.
 
-A generated Luau registry consumed by runtime code must be derived from this manifest and checked for drift in CI.
+A generated Luau registry consumed by runtime code is derived from this manifest and checked for drift in CI.
 
 ## 8. ART R4 hero asset set
 
@@ -274,8 +282,8 @@ P0 hero set:
 7. `TinyWorld_MarketStall_A_v1`
 8. `TinyWorld_MarketStall_B_v1`
 9. `TinyWorld_Fountain_v1`
-10. `TinyWorld_Portal_Clockwork_v1`
-11. `TinyWorld_Portal_Village_v1` modular portal family as needed
+10. `TinyWorld_Portal_Frame_v1`
+11. `TinyWorld_Portal_Clockwork_Core_v1`
 12. `TinyWorld_Tree_A_v1`
 13. `TinyWorld_Tree_B_v1`
 14. `TinyWorld_Tree_C_v1`
@@ -286,7 +294,7 @@ P0 hero set:
 19. `TinyWorld_ParcelCrateSet_v1`
 20. `TinyWorld_StarterInteriorKit_v1`
 
-The starter interior kit may be multiple assets if modularity improves reuse:
+The starter interior kit may be multiple Model assets behind one semantic kit ID if modularity improves reuse. The required visible categories are:
 
 - sofa;
 - coffee table;
@@ -373,28 +381,32 @@ Requirements:
 - wrap every load in `pcall`;
 - cache loaded templates;
 - clone templates after successful load;
-- strip/ignore unexpected scripts defensively even though uploaded TinyWorld models should contain none;
+- strip or reject unexpected scripts defensively even though uploaded TinyWorld models should contain none;
 - validate expected Model/MeshPart content and bounds before use;
 - emit a clear DEV error when a required production asset fails;
 - do not silently present a known-bad ART R1-R3 hero shell and call the candidate production-ready.
 
-A fallback may exist for engineering continuity, but a required hero fallback sets a visible `TinyWorldProductionArtDegraded=true` diagnostic and fails the visual candidate.
+A fallback may exist for engineering continuity, but a required hero fallback sets `TinyWorldProductionArtDegraded=true` on the world root and fails the ART R4 visual candidate.
 
 ## 13. Retiring ART R1-R3 layering
 
 Once a production asset family replaces a hero visual, the corresponding runtime craft pass must stop producing visible competing geometry.
 
-The goal is to simplify `Main.server.luau`, not add ART R4 as another thirteenth post-processing step.
+The goal is to simplify `Main.server.luau`, not add ART R4 as another post-processing step.
 
-Target direction:
+Target startup order:
 
 ```text
-WorldBuilder.build()
-Gameplay semantic roots and safe physical baseline
-ProductionVisualService.apply(world)
-ImpossibleWorldBuilder / mechanics where still separate
-Services
+1. WorldBuilder.build() creates semantic roots, anchors and safe physical baseline.
+2. ProductionVisualService.preload() loads/caches approved village production templates.
+3. ProductionVisualService.applyVillage(world) installs home/civic/landscape hero visuals and hides replaced legacy visuals.
+4. ImpossibleWorldBuilder.extend(world) creates existing impossible-world semantic/runtime content.
+5. PortalMechanicBuilder.extend(world) creates existing portal mechanic anchors.
+6. ProductionVisualService.applyPortals(world) installs the approved village-side portal visual family around those anchors.
+7. Runtime services start.
 ```
+
+ART R4 must reduce the visible builder stack. A hero asset may not be overlaid on top of still-visible ART R1-R3 hero geometry.
 
 Legacy builders may remain temporarily only for:
 
@@ -403,7 +415,7 @@ Legacy builders may remain temporarily only for:
 - non-hero background content;
 - semantic anchor creation.
 
-The following R1-R3 modules should be reviewed for deletion, shrinking or conversion to non-visible support responsibilities:
+The following R1-R3 modules must be reviewed for deletion, shrinking or conversion to non-visible support responsibilities:
 
 - `CivicCraftBuilder`
 - `CivicHeroRebuildBuilder`
@@ -530,6 +542,7 @@ CI must prove:
 - asset manifest schema and provenance fields;
 - no invented IDs;
 - generated registry matches manifest;
+- deterministic art-pack generation/validation succeeds;
 - required P0 asset IDs exist before production-art mode can be release-ready;
 - production visual loader compiles;
 - gameplay tests remain green;
@@ -595,7 +608,7 @@ If any third-party input is ever introduced, record source, licence, owner and m
 Uploaded models are data/presentation only.
 
 - no scripts in production art assets;
-- runtime loaded model is sandboxed by Roblox by default, and TinyWorld still validates descendants;
+- runtime-loaded models are treated as untrusted data and descendants are validated before cloning into the world;
 - no asset can own economy/progression logic;
 - no API key in source, place, plugin or asset;
 - asset upload is explicit and auditable;
@@ -629,11 +642,11 @@ The implementation can create all source art, tooling, upload automation, runtim
 Creating the real Roblox-hosted Model IDs requires one of:
 
 - a local Open Cloud API key supplied outside Git;
-- or explicit Studio import/upload using the logged-in creator.
+- explicit Studio import/upload using the logged-in creator.
 
 This is the only expected external credential/manual gate in the production-asset pivot.
 
-The codebase must be ready before that gate so the manual action is narrowly: upload assets, record returned IDs, resync, play.
+The codebase must be ready before that gate so the manual action is narrowly: generate, upload, record returned IDs, resync, play.
 
 ## 25. Acceptance
 
