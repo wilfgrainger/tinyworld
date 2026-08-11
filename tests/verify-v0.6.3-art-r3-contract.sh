@@ -33,6 +33,8 @@ for activation in \
 done
 grep -Fq 'StarterHomeHeroInteriorBuilder.apply(plot)' src/server/HomeInteriorCraftBuilder.luau \
   || fail "starter-home R3 interior is not bound to every home rebuild"
+grep -Fq 'OrganicNatureBuilder.apply(plot.houseContainer)' src/server/PlotService.luau \
+  || fail "R3 nature language is not reapplied after each home rebuild"
 pass "ART R3 replacement passes are active at the correct lifecycle boundaries"
 
 # The Studio SpawnLocation star must be physically buried, not merely made transparent.
@@ -74,14 +76,14 @@ if grep -Fq 'Enum.PartType.Ball' src/server/HeroFountainBuilder.luau; then
 fi
 pass "fountain is rebuilt as the civic-square hero"
 
-# Nature must replace giant lollipop trees and ball-on-stick flowers in hero routes.
+# Nature must replace giant lollipop trees and ball-on-stick flowers in hero routes and rebuilt homes.
 grep -Fq 'replacePrimitiveTrees' src/server/OrganicNatureBuilder.luau \
   || fail "organic nature pass does not replace primitive trees"
 grep -Fq 'replacePrimitiveFlowers' src/server/OrganicNatureBuilder.luau \
   || fail "organic nature pass does not replace primitive flowers"
 grep -Fq 'TinyWorldNatureLanguage", "layered-lowpoly-r3"' src/server/OrganicNatureBuilder.luau \
   || fail "organic nature language marker missing"
-pass "hero-route nature has an explicit R3 replacement language"
+pass "hero-route and home nature have an explicit R3 replacement language"
 
 # The starter home must become a real enclosed, navigable hero environment.
 grep -Fq 'TinyWorldInteriorLanguage", "starter-home-r3"' src/server/StarterHomeHeroInteriorBuilder.luau \
