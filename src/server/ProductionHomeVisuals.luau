@@ -4,6 +4,15 @@ local function hideLegacyHomeVisuals(container: Instance)
 	for _, descendant in container:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			descendant.Transparency = 1
+			-- R3's later compatibility pass scans Part names for Foliage/Bloom/Canopy.
+			-- Retire those visual-only names so it cannot recreate primitive art after ART R4 mounts.
+			if
+				descendant:IsA("Part")
+				and descendant.Shape == Enum.PartType.Ball
+				and descendant:GetAttribute("TinyWorldInteractionAnchor") ~= true
+			then
+				descendant.Name = "RetiredR4Primitive"
+			end
 			-- Interaction and collision policy remains owned by the existing gameplay builder.
 		elseif descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
 			descendant.Enabled = false
