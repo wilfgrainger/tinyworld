@@ -14,6 +14,7 @@ local function preserveBedsideLampInteraction(container: Instance)
 	lamp:SetAttribute("TinyWorldArtRole", "home-bedside-lamp-interaction-anchor")
 	lamp:SetAttribute("TinyWorldInteractionAnchor", true)
 	lamp:SetAttribute("TinyWorldProductionVisualProxy", true)
+	lamp:SetAttribute("TinyWorldProductionVisualProxyContract", "always-invisible-r4")
 	lamp.Transparency = 1
 	lamp.Size = Vector3.new(0.05, 0.05, 0.05)
 	lamp.CanCollide = false
