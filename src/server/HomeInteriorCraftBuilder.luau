@@ -133,7 +133,12 @@ local function addLivingCluster(container: Instance, anchor: Vector3)
 			"home-living-book-stack"
 		)
 	end
-	addCeilingFixture(room, "CraftedLivingCeilingLight", CFrame.new(anchor + Vector3.new(-2.5, 7.6, 4.7)), VisualTheme.Colors.warmLight)
+	addCeilingFixture(
+		room,
+		"CraftedLivingCeilingLight",
+		CFrame.new(anchor + Vector3.new(-2.5, 7.6, 4.7)),
+		VisualTheme.Colors.warmLight
+	)
 end
 
 local function addKitchenCluster(container: Instance, anchor: Vector3)
@@ -161,7 +166,12 @@ local function addKitchenCluster(container: Instance, anchor: Vector3)
 			"home-kitchen-shelf"
 		)
 	end
-	addCeilingFixture(room, "CraftedKitchenCeilingLight", CFrame.new(anchor + Vector3.new(4.5, 7.6, -2.8)), VisualTheme.Colors.warmLight)
+	addCeilingFixture(
+		room,
+		"CraftedKitchenCeilingLight",
+		CFrame.new(anchor + Vector3.new(4.5, 7.6, -2.8)),
+		VisualTheme.Colors.warmLight
+	)
 end
 
 local function addBedroomCluster(container: Instance, anchor: Vector3)
