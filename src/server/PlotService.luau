@@ -7,6 +7,7 @@ local LivingWorldRules = require(shared:WaitForChild("LivingWorldRules"))
 local SocialRules = require(shared:WaitForChild("SocialRules"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local HomePrefabBuilder = require(script.Parent:WaitForChild("HomePrefabBuilder"))
+local HomeInteriorCraftBuilder = require(script.Parent:WaitForChild("HomeInteriorCraftBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
 local PortalKeepsakeDisplayBuilder = require(script.Parent:WaitForChild("PortalKeepsakeDisplayBuilder"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
@@ -233,6 +234,7 @@ function PlotService:rebuildHouse(player: Player, profile)
 	if self.HomeService then
 		self.HomeService:buildInterior(plot, profile)
 	end
+	HomeInteriorCraftBuilder.apply(plot)
 	PortalKeepsakeDisplayBuilder.refresh(plot.houseContainer, profile)
 	VillageSceneryBuilder.bindHomeAmbient(
 		self.world.ambientLife,
