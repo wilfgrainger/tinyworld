@@ -1,4 +1,5 @@
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
+local StarterHomeHeroInteriorBuilder = require(script.Parent:WaitForChild("StarterHomeHeroInteriorBuilder"))
 
 local HomeInteriorCraftBuilder = {}
 
@@ -202,7 +203,8 @@ function HomeInteriorCraftBuilder.apply(plot)
 	addBedroomCluster(container, anchor)
 	addKitchenCluster(container, anchor)
 	addLivingCluster(container, anchor)
-	container:SetAttribute("TinyWorldInteriorCraft", "v0.6.3")
+	StarterHomeHeroInteriorBuilder.apply(plot)
+	container:SetAttribute("TinyWorldInteriorCraft", "v0.6.3-r3")
 end
 
 return HomeInteriorCraftBuilder
