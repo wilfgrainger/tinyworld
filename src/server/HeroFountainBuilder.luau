@@ -160,7 +160,7 @@ local function rebuild(model: Model, anchor: BasePart)
 		Enum.Material.Marble,
 		"fountain-outer-basin"
 	)
-	uprightDisc(
+	local outerWater = uprightDisc(
 		model,
 		"FountainWaterSurface",
 		12.7,
@@ -169,7 +169,8 @@ local function rebuild(model: Model, anchor: BasePart)
 		VisualTheme.Colors.water,
 		Enum.Material.Glass,
 		"fountain-water-surface"
-	).Transparency = 0.2
+	)
+	outerWater.Transparency = 0.2
 	addRimBlocks(model, origin, 6.6, 1.7, 10, "FountainOuterRim")
 
 	decoration(
@@ -210,7 +211,7 @@ local function rebuild(model: Model, anchor: BasePart)
 		Enum.Material.Marble,
 		"fountain-upper-bowl"
 	)
-	uprightDisc(
+	local upperWater = uprightDisc(
 		model,
 		"FountainUpperWater",
 		4.9,
@@ -219,7 +220,8 @@ local function rebuild(model: Model, anchor: BasePart)
 		VisualTheme.Colors.waterHighlight,
 		Enum.Material.Glass,
 		"fountain-upper-water"
-	).Transparency = 0.22
+	)
+	upperWater.Transparency = 0.22
 	addRimBlocks(model, origin, 2.7, 6.55, 6, "FountainUpperRim")
 
 	decoration(
