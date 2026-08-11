@@ -47,6 +47,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 	model.Name = spec.name or "PitchedRoof"
 	model:SetAttribute("TinyWorldArtRole", spec.role or "architectural-pitched-roof")
 	model:SetAttribute("TinyWorldVisualState", "authored-native")
+	model:SetAttribute("TinyWorldRoofGeometry", "gable-correct-v2")
 	model.Parent = parent
 
 	local width = spec.width
@@ -64,41 +65,56 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 	local horizontalCenter = halfRun / 2
 	local role = spec.role or "architectural-roof"
 
+	-- Left plane rises from the left eave toward the centre ridge.
 	decorative(
 		model,
 		"RoofLeft",
 		Vector3.new(slopeLength, thickness, depth + (eave * 2)),
-		CFrame.new(center + Vector3.new(-horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, -angle),
+		CFrame.new(center + Vector3.new(-horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, angle),
 		color,
 		material,
 		role .. "-plane"
 	)
+
+	-- Right plane mirrors the left and falls from the centre ridge to the right eave.
 	decorative(
 		model,
 		"RoofRight",
 		Vector3.new(slopeLength, thickness, depth + (eave * 2)),
-		CFrame.new(center + Vector3.new(horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, angle),
+		CFrame.new(center + Vector3.new(horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, -angle),
 		color,
 		material,
 		role .. "-plane"
 	)
+
 	decorative(
 		model,
 		"RoofRidge",
-		Vector3.new(0.8, 0.65, depth + (eave * 2) + 0.4),
-		CFrame.new(center + Vector3.new(0, rise + 0.2, 0)),
+		Vector3.new(0.7, 0.55, depth + (eave * 2) + 0.25),
+		CFrame.new(center + Vector3.new(0, rise + 0.12, 0)),
 		spec.ridgeColor or VisualTheme.Colors.roofLight,
 		material,
 		role .. "-ridge"
 	)
 
+	-- Trace the actual roof pitch at the front and rear gables. Do not use a floating horizontal bar.
 	if spec.gableTrimColor then
 		for _, z in { -(depth / 2 + eave + 0.08), depth / 2 + eave + 0.08 } do
+			local suffix = if z < 0 then "Back" else "Front"
 			decorative(
 				model,
-				if z < 0 then "GableTrimBack" else "GableTrimFront",
-				Vector3.new(width + (eave * 2), 0.35, 0.35),
-				CFrame.new(center + Vector3.new(0, rise * 0.18, z)),
+				"GableTrimLeft" .. suffix,
+				Vector3.new(slopeLength, 0.26, 0.28),
+				CFrame.new(center + Vector3.new(-horizontalCenter, verticalCenter, z)) * CFrame.Angles(0, 0, angle),
+				spec.gableTrimColor,
+				Enum.Material.Wood,
+				role .. "-gable-trim"
+			)
+			decorative(
+				model,
+				"GableTrimRight" .. suffix,
+				Vector3.new(slopeLength, 0.26, 0.28),
+				CFrame.new(center + Vector3.new(horizontalCenter, verticalCenter, z)) * CFrame.Angles(0, 0, -angle),
 				spec.gableTrimColor,
 				Enum.Material.Wood,
 				role .. "-gable-trim"
@@ -264,11 +280,13 @@ function ArchitecturalDetailBuilder.addPorch(parent: Instance, spec)
 	local model = Instance.new("Model")
 	model.Name = spec.name or "Porch"
 	model:SetAttribute("TinyWorldArtRole", spec.role or "architectural-porch")
+	model:SetAttribute("TinyWorldVisualState", "authored-native")
 	model.Parent = parent
 	local base = spec.cframe
 	local width = spec.width or 10
 	local depth = spec.depth or 5
 	local role = spec.role or "architectural-porch"
+
 	part(
 		model,
 		"Deck",
@@ -298,14 +316,26 @@ function ArchitecturalDetailBuilder.addPorch(parent: Instance, spec)
 			role .. "-post"
 		)
 	end
-	decorative(
+
+	-- Shed-style canopy: high at the wall, lower toward the outer edge.
+	local canopy = decorative(
 		model,
 		"Canopy",
-		Vector3.new(width + 1.4, 0.55, depth * 0.72),
-		base * CFrame.new(0, 5.25, depth * 0.12) * CFrame.Angles(0, 0, math.rad(-4)),
+		Vector3.new(width + 1.2, 0.5, depth * 0.76),
+		base * CFrame.new(0, 5.15, depth * 0.08) * CFrame.Angles(math.rad(8), 0, 0),
 		spec.canopyColor or VisualTheme.Colors.roof,
 		Enum.Material.Slate,
 		role .. "-canopy"
+	)
+	canopy:SetAttribute("TinyWorldRoofGeometry", "shed-correct-v2")
+	decorative(
+		model,
+		"CanopyFascia",
+		Vector3.new(width + 1.35, 0.38, 0.32),
+		base * CFrame.new(0, 4.9, depth * 0.43),
+		VisualTheme.Colors.woodLight,
+		Enum.Material.Wood,
+		role .. "-fascia"
 	)
 	return model
 end
