@@ -35,9 +35,9 @@ jobs:
       - name: Upload release evidence
         uses: actions/upload-artifact@v4
         with:
-          name: tinyworld-v0.6.2-${{ github.sha }}
+          name: tinyworld-v0.6.3-${{ github.sha }}
           path: |
-            dist/TinyWorld-v0.6.2.rbxlx
+            dist/TinyWorld-v0.6.3.rbxlx
             dist/release.json
           if-no-files-found: error
           retention-days: 14
