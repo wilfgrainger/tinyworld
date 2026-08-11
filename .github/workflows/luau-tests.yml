@@ -44,8 +44,13 @@ jobs:
       - name: Run unit tests
         run: luau tests/run.luau
 
-      - name: Analyze shared Luau
-        run: luau-analyze src/shared/*.luau tests/*.luau
+      - name: Analyze deterministic shared Luau
+        run: |
+          set -euo pipefail
+          find src/shared -maxdepth 1 -type f -name '*.luau' ! -name 'ProductionArtSpec.luau' -print0 | xargs -0 luau-analyze
+          luau-analyze tests/*.luau
+          # ProductionArtSpec intentionally contains Roblox Color3 presentation data and is syntax-compiled instead.
+          luau-compile src/shared/ProductionArtSpec.luau >/dev/null
 
       - name: Check formatting
         run: stylua --check src tests
