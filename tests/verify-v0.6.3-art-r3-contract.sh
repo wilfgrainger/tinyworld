@@ -10,6 +10,7 @@ pass() { echo "PASS: $1"; }
 for path in \
   src/server/SpawnPresentationBuilder.luau \
   src/server/HeroPortalBuilder.luau \
+  src/server/HeroFountainBuilder.luau \
   src/server/OrganicNatureBuilder.luau \
   src/server/StarterHomeHeroInteriorBuilder.luau; do
   [[ -f "$path" ]] || fail "ART R3 replacement module missing: $path"
@@ -25,6 +26,7 @@ pass "ART R3 screenshots are revision-identifiable"
 for activation in \
   'SpawnPresentationBuilder.apply(world.root)' \
   'HeroPortalBuilder.apply(world.root)' \
+  'HeroFountainBuilder.apply(world.root)' \
   'OrganicNatureBuilder.apply(world.root)'; do
   grep -Fq "$activation" src/server/Main.server.luau \
     || fail "ART R3 static replacement pass is not active: $activation"
@@ -55,6 +57,22 @@ grep -Fq 'PortalThreshold' src/server/HeroPortalBuilder.luau \
 grep -Fq 'clearLegacyPortalGeometry' src/server/HeroPortalBuilder.luau \
   || fail "hero portal pass does not clear conflicting legacy portal geometry"
 pass "portal language is rebuilt as an authored landmark"
+
+# The fountain is the civic hero: preserve the reward prompt, replace toy-stack geometry, and use real water arcs.
+grep -Fq 'TinyWorldFountainLanguage", "civic-hero-r3"' src/server/HeroFountainBuilder.luau \
+  || fail "hero fountain language marker missing"
+grep -Fq 'clearLegacyFountainGeometry' src/server/HeroFountainBuilder.luau \
+  || fail "hero fountain does not clear conflicting legacy geometry"
+grep -Fq 'FountainOuterBasin' src/server/HeroFountainBuilder.luau \
+  || fail "hero fountain outer basin missing"
+grep -Fq 'FountainWaterSurface' src/server/HeroFountainBuilder.luau \
+  || fail "hero fountain water surface missing"
+grep -Fq 'Beam' src/server/HeroFountainBuilder.luau \
+  || fail "hero fountain lacks curved water-arc beams"
+if grep -Fq 'Enum.PartType.Ball' src/server/HeroFountainBuilder.luau; then
+  fail "hero fountain must not use a ball finial"
+fi
+pass "fountain is rebuilt as the civic-square hero"
 
 # Nature must replace giant lollipop trees and ball-on-stick flowers in hero routes.
 grep -Fq 'replacePrimitiveTrees' src/server/OrganicNatureBuilder.luau \
