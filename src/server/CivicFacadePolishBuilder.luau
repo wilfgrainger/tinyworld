@@ -177,11 +177,13 @@ local function polishCourier(model: Model)
 	end
 	addStoneBaseCourse(model, origin + Vector3.new(0, 0, -1), 24, 18, "Courier")
 	addSideWindows(model, origin + Vector3.new(0, 0, -1), 24, 18, 6, "Courier", VisualTheme.Colors.inkGlass)
-	for index, offset in {
-		Vector3.new(6.5, 1.1, 11.5),
-		Vector3.new(8.8, 1.4, 10.7),
-		Vector3.new(7.6, 2.7, 10.9),
-	} do
+	for index, offset in
+		{
+			Vector3.new(6.5, 1.1, 11.5),
+			Vector3.new(8.8, 1.4, 10.7),
+			Vector3.new(7.6, 2.7, 10.9),
+		}
+	do
 		local parcel = decoration(
 			model,
 			"CourierParcelStack" .. index,
