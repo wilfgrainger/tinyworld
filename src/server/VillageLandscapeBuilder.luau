@@ -87,7 +87,6 @@ local function flowerBed(parent: Instance, name: string, position: Vector3, leng
 			Enum.Material.Grass,
 			"village-flower-stem"
 		)
-		stem.CanCollide = false
 		local bloom = decoration(
 			model,
 			"FlowerBloom" .. index,
@@ -116,11 +115,12 @@ local function tree(parent: Instance, name: string, position: Vector3, scale: nu
 		Enum.Material.Wood,
 		"village-tree-trunk"
 	)
-	for index, offset in {
+	local canopyOffsets = {
 		Vector3.new(0, 7.3, 0),
 		Vector3.new(-2.2, 6.6, 0.5),
 		Vector3.new(2, 6.8, -0.7),
-	} do
+	}
+	for index, offset in canopyOffsets do
 		local canopy = decoration(
 			model,
 			"Canopy" .. index,
@@ -140,7 +140,8 @@ local function rockCluster(parent: Instance, name: string, position: Vector3)
 	model.Name = name
 	model:SetAttribute("TinyWorldArtRole", "village-rock-cluster")
 	model.Parent = parent
-	for index, offset in { Vector3.new(-1.6, 0, 0), Vector3.new(0.4, 0, 0.8), Vector3.new(2, 0, -0.5) } do
+	local offsets = { Vector3.new(-1.6, 0, 0), Vector3.new(0.4, 0, 0.8), Vector3.new(2, 0, -0.5) }
+	for index, offset in offsets do
 		local rock = decoration(
 			model,
 			"Rock" .. index,
@@ -259,11 +260,12 @@ local function crateCluster(parent: Instance, name: string, position: Vector3)
 	model.Name = name
 	model:SetAttribute("TinyWorldArtRole", "village-crate-cluster")
 	model.Parent = parent
-	for index, offset in {
+	local offsets = {
 		Vector3.new(-1.4, 0.8, 0),
 		Vector3.new(1.4, 0.8, 0.3),
 		Vector3.new(0.2, 2.3, -0.2),
-	} do
+	}
+	for index, offset in offsets do
 		decoration(
 			model,
 			"Crate" .. index,
@@ -283,21 +285,23 @@ local function buildCivic(parent: Instance)
 	model:SetAttribute("TinyWorldArtRole", "production-civic-landscape")
 	model.Parent = parent
 
-	for index, segment in {
+	local approaches = {
 		{ Vector3.new(-9, 0, -8), Vector3.new(-34, 0, -2) },
 		{ Vector3.new(9, 0, -8), Vector3.new(0, 0, -33) },
 		{ Vector3.new(9, 0, 8), Vector3.new(34, 0, 2) },
 		{ Vector3.new(-9, 0, 8), Vector3.new(0, 0, 34) },
-	} do
+	}
+	for index, segment in approaches do
 		pathSegment(model, "CivicApproach" .. index, segment[1], segment[2], 6.5)
 	end
 
-	for index, position in {
+	local flowerPositions = {
 		Vector3.new(-17, 0, 13),
 		Vector3.new(17, 0, 13),
 		Vector3.new(-17, 0, 27),
 		Vector3.new(17, 0, 27),
-	} do
+	}
+	for index, position in flowerPositions do
 		flowerBed(
 			model,
 			"FountainPlazaBed" .. index,
@@ -309,12 +313,13 @@ local function buildCivic(parent: Instance)
 
 	bench(model, "CivicBenchWest", Vector3.new(-19, 0, 3), 90)
 	bench(model, "CivicBenchEast", Vector3.new(19, 0, 3), -90)
-	for index, position in {
+	local lampPositions = {
 		Vector3.new(-23, 0, -15),
 		Vector3.new(23, 0, -15),
 		Vector3.new(-23, 0, 32),
 		Vector3.new(23, 0, 32),
-	} do
+	}
+	for index, position in lampPositions do
 		ArchitecturalDetailBuilder.addLantern(model, {
 			name = "CivicLantern" .. index,
 			role = "civic-practical-lantern",
@@ -366,11 +371,12 @@ local function buildHarbourRow(parent: Instance)
 		)
 	end
 	crateCluster(model, "HarbourDockCrates", Vector3.new(66, 0, -76))
-	for index, position in {
+	local coastalPositions = {
 		Vector3.new(53, 0, -72),
 		Vector3.new(59, 0, -77),
 		Vector3.new(73, 0, -54),
-	} do
+	}
+	for index, position in coastalPositions do
 		local grass = decoration(
 			model,
 			"CoastalGrass" .. index,
@@ -409,11 +415,12 @@ local function buildOrchardEnd(parent: Instance)
 	model.Parent = parent
 	pathSegment(model, "OrchardApproachA", Vector3.new(48, 0, 47), Vector3.new(62, 0, 61), 5.2)
 	pathSegment(model, "OrchardApproachB", Vector3.new(62, 0, 61), Vector3.new(76, 0, 74), 5.2)
-	for index, position in {
+	local orchardPositions = {
 		Vector3.new(53, 0, 71),
 		Vector3.new(64, 0, 77),
 		Vector3.new(76, 0, 61),
-	} do
+	}
+	for index, position in orchardPositions do
 		tree(model, "OrchardTree" .. index, position, 0.72, VisualTheme.Colors.leafLight)
 		for fruit = 1, 3 do
 			local apple = decoration(
