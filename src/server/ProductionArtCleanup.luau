@@ -54,13 +54,26 @@ local function replaceLegacyPracticalLights(root: Instance)
 end
 
 local function hideSpawnPad(root: Instance)
-	local spawn = root:FindFirstChild("VillageSpawn")
-	if spawn and spawn:IsA("SpawnLocation") then
-		spawn.Transparency = 1
-		spawn.CanCollide = false
-		spawn.CanTouch = true
-		spawn.CastShadow = false
-		spawn:SetAttribute("TinyWorldArtRole", "invisible-spawn-anchor")
+	local spawn = root:FindFirstChild("VillageSpawn", true)
+	if not spawn or not spawn:IsA("SpawnLocation") then
+		return
+	end
+
+	spawn.Transparency = 1
+	spawn.CanCollide = false
+	spawn.CanTouch = false
+	spawn.CastShadow = false
+	spawn.Duration = 0
+	spawn.AllowTeamChangeOnTouch = false
+	spawn:SetAttribute("TinyWorldArtRole", "invisible-spawn-anchor")
+	spawn:SetAttribute("TinyWorldVisualState", "hidden-runtime-anchor")
+
+	-- SpawnLocation can carry a visible top-face texture/decal independently of the base Part.
+	-- Hide any present or future child presentation so Studio screenshots never show a dev spawn starburst.
+	for _, descendant in spawn:GetDescendants() do
+		if descendant:IsA("Decal") or descendant:IsA("Texture") then
+			descendant.Transparency = 1
+		end
 	end
 end
 
