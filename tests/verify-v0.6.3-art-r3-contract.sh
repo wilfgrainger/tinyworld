@@ -83,7 +83,12 @@ grep -Fq 'replacePrimitiveFlowers' src/server/OrganicNatureBuilder.luau \
   || fail "organic nature pass does not replace primitive flowers"
 grep -Fq 'TinyWorldNatureLanguage", "layered-lowpoly-r3"' src/server/OrganicNatureBuilder.luau \
   || fail "organic nature language marker missing"
-pass "hero-route and home nature have an explicit R3 replacement language"
+if grep -Fq 'descendant:IsA("BasePart") and descendant.Shape == Enum.PartType.Ball' src/server/OrganicNatureBuilder.luau; then
+  fail "organic nature reads Part.Shape through BasePart and will crash on WedgePart terrain"
+fi
+[[ $(grep -Fc 'descendant:IsA("Part") and descendant.Shape == Enum.PartType.Ball' src/server/OrganicNatureBuilder.luau) -eq 2 ]] \
+  || fail "tree and flower replacement must guard Shape access with Part, not BasePart"
+pass "hero-route and home nature have an explicit R3 replacement language with safe Part.Shape guards"
 
 # The starter home must become a real enclosed, navigable hero environment.
 grep -Fq 'TinyWorldInteriorLanguage", "starter-home-r3"' src/server/StarterHomeHeroInteriorBuilder.luau \
