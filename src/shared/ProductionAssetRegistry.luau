@@ -1,7 +1,6 @@
 local ProductionAssetRegistry = {}
 
-local assets = {
-}
+local assets = {}
 
 ProductionAssetRegistry.specVersion = "art-r4-v1"
 
