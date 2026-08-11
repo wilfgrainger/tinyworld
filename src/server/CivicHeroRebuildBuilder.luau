@@ -344,22 +344,8 @@ local function rebuildMarket(model: Model)
 		statusSign.Position = origin + Vector3.new(0, 5.4, -9)
 	end
 
-	addMarketStall(
-		model,
-		origin,
-		"MarketFinalStallWest",
-		-7.8,
-		VisualTheme.Colors.warmLight,
-		VisualTheme.Colors.cream
-	)
-	addMarketStall(
-		model,
-		origin,
-		"MarketFinalStallEast",
-		7.8,
-		VisualTheme.Colors.flower,
-		VisualTheme.Colors.paper
-	)
+	addMarketStall(model, origin, "MarketFinalStallWest", -7.8, VisualTheme.Colors.warmLight, VisualTheme.Colors.cream)
+	addMarketStall(model, origin, "MarketFinalStallEast", 7.8, VisualTheme.Colors.flower, VisualTheme.Colors.paper)
 	model:SetAttribute("TinyWorldFinalCivicCraft", "v0.6.3-studio-correction")
 end
 
