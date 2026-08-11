@@ -17,12 +17,16 @@ def lua_bool(value: bool) -> str:
 
 
 def generate(manifest: dict) -> str:
+    records = sorted(manifest.get("assets", []), key=lambda item: item.get("prefabRole", item.get("id", "")))
     lines = [
         "local ProductionAssetRegistry = {}",
         "",
-        "local assets = {",
     ]
-    records = sorted(manifest.get("assets", []), key=lambda item: item.get("prefabRole", item.get("id", "")))
+    if records:
+        lines.append("local assets = {")
+    else:
+        lines.append("local assets = {}")
+
     for record in records:
         role = record["prefabRole"]
         asset_id = record.get("robloxAssetId")
@@ -45,9 +49,10 @@ def generate(manifest: dict) -> str:
                 "\t},",
             ]
         )
+    if records:
+        lines.append("}")
     lines.extend(
         [
-            "}",
             "",
             f"ProductionAssetRegistry.specVersion = {q(manifest.get('specVersion', ''))}",
             "",
