@@ -81,7 +81,10 @@ local function findAccent(model: Model, anchor: BasePart?): Color3
 		return anchor.Color
 	end
 	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") and (descendant.Material == Enum.Material.Neon or descendant.Material == Enum.Material.Glass) then
+		if
+			descendant:IsA("BasePart")
+			and (descendant.Material == Enum.Material.Neon or descendant.Material == Enum.Material.Glass)
+		then
 			return descendant.Color
 		end
 	end
@@ -236,7 +239,8 @@ local function buildLandmark(model: Model, origin: Vector3, anchor: BasePart?, a
 			model,
 			"PortalEnergyRibbon" .. index,
 			Vector3.new(6.4 - (index * 0.45), 0.18, 0.25),
-			CFrame.new(origin + Vector3.new(0, y, -0.15)) * CFrame.Angles(0, 0, math.rad(if index % 2 == 0 then -8 else 8)),
+			CFrame.new(origin + Vector3.new(0, y, -0.15))
+				* CFrame.Angles(0, 0, math.rad(if index % 2 == 0 then -8 else 8)),
 			accent,
 			Enum.Material.Neon,
 			"portal-energy-ribbon"
