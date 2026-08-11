@@ -191,7 +191,7 @@ local function addTableSample(parent: Instance, origin: Vector3)
 		Vector3.new(1.1, 1.5, 1.1),
 		origin + Vector3.new(7, 4.35, 5.7),
 		VisualTheme.Colors.berry,
-		Enum.Material.CeramicTiles,
+		Enum.Material.SmoothPlastic,
 		"home-store-homeware-sample"
 	)
 end
@@ -243,10 +243,12 @@ local function build(parent: Instance, origin: Vector3)
 			"home-store-wall"
 		)
 	end
-	for index, values in {
-		{ x = -10.5, width = 9 },
-		{ x = 10.5, width = 9 },
-	} do
+	for index, values in
+		{
+			{ x = -10.5, width = 9 },
+			{ x = 10.5, width = 9 },
+		}
+	do
 		makePart(
 			model,
 			"HomeStoreFrontWall" .. index,
@@ -328,7 +330,12 @@ local function build(parent: Instance, origin: Vector3)
 	addSofaSample(model, origin)
 	addTableSample(model, origin)
 	addPlanter(model, "HomeStorePlanterLeft", origin + Vector3.new(-12, 1.2, 14), VisualTheme.Colors.flower)
-	addPlanter(model, "HomeStorePlanterRight", origin + Vector3.new(12, 1.2, 14), VisualTheme.Colors.warmLight)
+	addPlanter(
+		model,
+		"HomeStorePlanterRight",
+		origin + Vector3.new(12, 1.2, 14),
+		VisualTheme.Colors.warmLight
+	)
 
 	local supplyCounter = makeAnchor(
 		model,
