@@ -11,13 +11,54 @@ local MANIFEST = {
 				stream = true,
 				bridge = true,
 				grassBanks = true,
+				cottageGarden = true,
+				flowerMeadow = true,
 				elevation = true,
 				dressing = true,
 			},
 		},
-		{ name = "HarbourRow", features = { curvedPath = true, elevation = true, dressing = true } },
-		{ name = "WoodlandRise", features = { curvedPath = true, elevation = true, dressing = true } },
-		{ name = "OrchardEnd", features = { curvedPath = true, elevation = true, dressing = true } },
+		{
+			name = "HarbourRow",
+			features = {
+				curvedPath = true,
+				retainingWall = true,
+				dockClutter = true,
+				coastalPlanting = true,
+				elevation = true,
+				dressing = true,
+			},
+		},
+		{
+			name = "WoodlandRise",
+			features = {
+				curvedPath = true,
+				canopy = true,
+				rockClusters = true,
+				narrowPath = true,
+				woodlandFence = true,
+				elevation = true,
+				dressing = true,
+			},
+		},
+		{
+			name = "OrchardEnd",
+			features = {
+				curvedPath = true,
+				orchard = true,
+				vegetableBeds = true,
+				nursery = true,
+				terrace = true,
+				elevation = true,
+				dressing = true,
+			},
+		},
+	},
+	civic = {
+		fountainPlaza = true,
+		plantedEdges = true,
+		seating = true,
+		lamps = true,
+		framedApproaches = true,
 	},
 	terrain = { bandCount = 4, minimumHeight = 4, maximumHeight = 8 },
 	dressing = { canCollide = false, canTouch = false, canQuery = false },
@@ -58,6 +99,14 @@ function VillageCompositionRules.validate(value: any): boolean
 			if actual.features[feature] ~= required then
 				return false
 			end
+		end
+	end
+	if type(value.civic) ~= "table" then
+		return false
+	end
+	for feature, required in MANIFEST.civic do
+		if value.civic[feature] ~= required then
+			return false
 		end
 	end
 	if type(value.dressing) ~= "table" or type(value.returnFields) ~= "table" then
