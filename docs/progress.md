@@ -2,59 +2,71 @@
 
 ## Current repository release
 
-**v0.6.2 Village Life & Visual Craft** is the active release on `release/v0.6.2-village-life-visual-craft` / PR #7.
+**v0.6.3 Production Art & World Craft** is the active corrective release on `release/v0.6.3-production-art-world-craft` / PR #8.
 
-It builds on merged v0.6.1 Visual Rescue and profile schema 11. It absorbs the previously planned v0.7.0 Village Life scope plus the remaining Claude visual-craft recommendations.
+It builds on merged v0.6.2 and profile schema 11. Gameplay scope is frozen while the ordinary village receives a production-art/world-craft pass driven by the 11 August 2026 Studio screenshots.
 
-v0.7.0 is reserved for the family/girls review and intentionally has no delivery scope yet.
+v0.7.0 remains reserved for the family/girls review and intentionally has no delivery scope yet.
 
-## Implemented source slices
+## Why v0.6.3 exists
 
-| Area | Source status | Player-facing evidence |
+Post-merge v0.6.2 Studio evidence confirmed that the compact HUD and player-avatar correction worked, but the world still showed clear prototype/test-map qualities:
+
+- slab-dominated hero roofs;
+- bright flat cyan windows;
+- naked glowing practical-light spheres;
+- large empty green/paved areas;
+- repeated/grid-like plot reading;
+- primitive civic/home architecture.
+
+Those are now explicit release blockers rather than aesthetic suggestions.
+
+## Current work
+
+| Area | Status | Evidence |
 | --- | --- | --- |
-| v0.6.2 design/plan/roadmap/acceptance | Implemented | documentation/source only |
-| Canonical activities | Implemented: Courier, Gardener, Designer, Village Explorer | Studio route still required |
-| Courier route variety | Implemented: four server-selected destinations | Studio parcel/destination route NOT RUN |
-| Gardener presentation | Implemented over persisted Farmer compatibility | Studio grow/harvest route NOT RUN |
-| Village Explorer presentation | Implemented over existing server-observed trail | Studio trail NOT RUN |
-| Designer route progress | Implemented on successful new placement only | Studio Home Store/place route NOT RUN |
-| Primitive ambient character fallback | Removed | no replacement creature accepted without assets/evidence |
-| Release/build authority 0.6.2 / schema 11 | In progress | CI final exact-head evidence pending |
-| Hero-home/golden route | Contract in progress | Studio/rejoin evidence NOT RUN |
-| Claude visual-craft hero destination review | Source contract in progress | labels-off Studio evidence NOT RUN |
+| Docs-first repository review | Complete | `docs/audits/v0.6.3-documentation-review.md` |
+| Approved v0.6.3 design | Complete | production-art/world-craft spec committed |
+| Superpowers implementation plan | Complete | task-by-task plan committed |
+| v0.6.3 release/source guards | RED by design | waiting on art implementation |
+| Release/build metadata | Moving to 0.6.3 | schema remains 11 |
+| Architectural detail helper | Not yet implemented | source contract requires it |
+| Hero-home exterior | Not yet implemented | v0.6.2 screenshot is before FAIL |
+| Civic destination craft | Not yet implemented | source + Studio evidence required |
+| Village landscape recomposition | Not yet implemented | source + Studio evidence required |
+| Remaining primitive ambient actors | Known defect | `VillageSceneryBuilder` birds/butterflies to be removed |
+| Hero-home interior | Not yet implemented | Studio evidence required |
+| Exact-candidate build/PR evidence | Not yet frozen | CI required |
 
 ## Preserved foundation
 
-v0.6.2 deliberately preserves:
+v0.6.3 must preserve:
 
 - profile schema v11 and fail-closed migrations;
-- deterministic sixteen-home village cap;
-- generic item/furniture/content definitions;
-- authoritative Home Store and furniture placement;
+- deterministic sixteen-home cap;
+- v0.6.2 Courier/Gardener/Designer/Village Explorer loops;
+- authoritative Home Store/furniture placement;
 - RemoteGuard;
 - DEV/LIVE persistence separation;
 - durable trade journal/mutation locks;
 - four impossible-world foundations;
 - analytics adapter;
+- compact world-first HUD;
+- normal Roblox avatar presentation;
 - credential-free Rojo build and exact-artifact evidence model.
 
-Any regression in those areas blocks the release.
-
-## Current release links
+## Current links
 
 - [Canonical documentation index](README.md)
 - [v1 target state](product/target-state-v1.md)
-- [v0.6.2 roadmap](roadmap/v0.6.2-village-life-visual-craft.md)
-- [v0.6.2 acceptance record](releases/v0.6.2/acceptance.md)
-- [v0.6.2 Superpowers design](superpowers/specs/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft-design.md)
-- [v0.6.2 implementation plan](superpowers/plans/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft.md)
+- [v0.6.3 roadmap](roadmap/v0.6.3-production-art-world-craft.md)
+- [v0.6.3 acceptance](releases/v0.6.3/acceptance.md)
+- [v0.6.3 design](superpowers/specs/2026-08-11-tinyworld-v0.6.3-production-art-world-craft-design.md)
+- [v0.6.3 plan](superpowers/plans/2026-08-11-tinyworld-v0.6.3-production-art-world-craft.md)
+- [v0.6.3 Studio route](v0.6.3-production-art-world-craft-test.md)
 
 ## Evidence rule
 
-Automated source/build evidence, one-player Studio, multi-client Studio, real-device, published DEV and LIVE promotion remain separate gates.
+Automated source/build, Studio single-client, Studio multi-client, real-device, published DEV and LIVE promotion remain separate evidence classes.
 
-For v0.6.2, the requested execution stops at a pushed PR with required automated checks green. That does not convert unobserved Studio/device rows to PASS. Those remain explicit follow-on release evidence.
-
-## Historical baseline
-
-v0.6.1 Visual Rescue is the merged presentation baseline. v0.6.0 Target-State Consolidation remains the underlying technical/product foundation. Earlier release records remain historical evidence, not current authority.
+The generated concept board is target/reference intent only. The user-supplied v0.6.2 Studio screenshots are the observed before baseline. v0.6.3 visual success requires new comparable screenshots from the exact candidate.
