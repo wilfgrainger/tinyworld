@@ -330,12 +330,7 @@ local function build(parent: Instance, origin: Vector3)
 	addSofaSample(model, origin)
 	addTableSample(model, origin)
 	addPlanter(model, "HomeStorePlanterLeft", origin + Vector3.new(-12, 1.2, 14), VisualTheme.Colors.flower)
-	addPlanter(
-		model,
-		"HomeStorePlanterRight",
-		origin + Vector3.new(12, 1.2, 14),
-		VisualTheme.Colors.warmLight
-	)
+	addPlanter(model, "HomeStorePlanterRight", origin + Vector3.new(12, 1.2, 14), VisualTheme.Colors.warmLight)
 
 	local supplyCounter = makeAnchor(
 		model,
