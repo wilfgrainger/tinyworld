@@ -45,11 +45,56 @@ local function addDistrict(
 	model:SetAttribute("TinyWorldNeighbourhood", name)
 	model.Parent = parent
 
-	patch(model, "FieldA", center + Vector3.new(-13, 0, -8), Vector2.new(58, 46), -8, primary, Enum.Material.Grass, "district-lawn")
-	patch(model, "FieldB", center + Vector3.new(16, 0, 11), Vector2.new(48, 36), 11, secondary, Enum.Material.Grass, "district-lawn-secondary")
-	patch(model, "FieldC", center + Vector3.new(-2, 0, 29), Vector2.new(35, 19), -15, primary, accentMaterial, "district-ground-accent")
-	patch(model, "GardenEdgeA", center + Vector3.new(-29, 0, 13), Vector2.new(23, 8), 18, VisualTheme.Colors.timberDark, Enum.Material.Ground, "district-garden-soil")
-	patch(model, "GardenEdgeB", center + Vector3.new(29, 0, -16), Vector2.new(19, 7), -12, VisualTheme.Colors.timberDark, Enum.Material.Ground, "district-garden-soil")
+	patch(
+		model,
+		"FieldA",
+		center + Vector3.new(-13, 0, -8),
+		Vector2.new(58, 46),
+		-8,
+		primary,
+		Enum.Material.Grass,
+		"district-lawn"
+	)
+	patch(
+		model,
+		"FieldB",
+		center + Vector3.new(16, 0, 11),
+		Vector2.new(48, 36),
+		11,
+		secondary,
+		Enum.Material.Grass,
+		"district-lawn-secondary"
+	)
+	patch(
+		model,
+		"FieldC",
+		center + Vector3.new(-2, 0, 29),
+		Vector2.new(35, 19),
+		-15,
+		primary,
+		accentMaterial,
+		"district-ground-accent"
+	)
+	patch(
+		model,
+		"GardenEdgeA",
+		center + Vector3.new(-29, 0, 13),
+		Vector2.new(23, 8),
+		18,
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Ground,
+		"district-garden-soil"
+	)
+	patch(
+		model,
+		"GardenEdgeB",
+		center + Vector3.new(29, 0, -16),
+		Vector2.new(19, 7),
+		-12,
+		VisualTheme.Colors.timberDark,
+		Enum.Material.Ground,
+		"district-garden-soil"
+	)
 end
 
 local function addCivicGround(parent: Instance)
@@ -58,12 +103,66 @@ local function addCivicGround(parent: Instance)
 	model:SetAttribute("TinyWorldArtRole", "civic-ground-composition")
 	model.Parent = parent
 
-	patch(model, "CivicGreenWest", Vector3.new(-28, 0, 2), Vector2.new(32, 24), -8, VisualTheme.Colors.meadowDeep, Enum.Material.Grass, "civic-pocket-green")
-	patch(model, "CivicGreenEast", Vector3.new(28, 0, 2), Vector2.new(32, 24), 8, VisualTheme.Colors.leafLight, Enum.Material.Grass, "civic-pocket-green")
-	patch(model, "CivicGardenNorth", Vector3.new(0, 0, -28), Vector2.new(45, 13), 0, VisualTheme.Colors.meadowDeep, Enum.Material.Grass, "civic-planted-verge")
-	patch(model, "CivicGardenSouth", Vector3.new(0, 0, 30), Vector2.new(46, 14), 0, VisualTheme.Colors.leaf, Enum.Material.Grass, "civic-planted-verge")
-	patch(model, "CivicStoneWest", Vector3.new(-17, 0, 16), Vector2.new(17, 11), -12, VisualTheme.Colors.pathLight, Enum.Material.Cobblestone, "civic-forecourt")
-	patch(model, "CivicStoneEast", Vector3.new(17, 0, 16), Vector2.new(17, 11), 12, VisualTheme.Colors.pathLight, Enum.Material.Cobblestone, "civic-forecourt")
+	patch(
+		model,
+		"CivicGreenWest",
+		Vector3.new(-28, 0, 2),
+		Vector2.new(32, 24),
+		-8,
+		VisualTheme.Colors.meadowDeep,
+		Enum.Material.Grass,
+		"civic-pocket-green"
+	)
+	patch(
+		model,
+		"CivicGreenEast",
+		Vector3.new(28, 0, 2),
+		Vector2.new(32, 24),
+		8,
+		VisualTheme.Colors.leafLight,
+		Enum.Material.Grass,
+		"civic-pocket-green"
+	)
+	patch(
+		model,
+		"CivicGardenNorth",
+		Vector3.new(0, 0, -28),
+		Vector2.new(45, 13),
+		0,
+		VisualTheme.Colors.meadowDeep,
+		Enum.Material.Grass,
+		"civic-planted-verge"
+	)
+	patch(
+		model,
+		"CivicGardenSouth",
+		Vector3.new(0, 0, 30),
+		Vector2.new(46, 14),
+		0,
+		VisualTheme.Colors.leaf,
+		Enum.Material.Grass,
+		"civic-planted-verge"
+	)
+	patch(
+		model,
+		"CivicStoneWest",
+		Vector3.new(-17, 0, 16),
+		Vector2.new(17, 11),
+		-12,
+		VisualTheme.Colors.pathLight,
+		Enum.Material.Cobblestone,
+		"civic-forecourt"
+	)
+	patch(
+		model,
+		"CivicStoneEast",
+		Vector3.new(17, 0, 16),
+		Vector2.new(17, 11),
+		12,
+		VisualTheme.Colors.pathLight,
+		Enum.Material.Cobblestone,
+		"civic-forecourt"
+	)
 end
 
 local function addRouteVerges(parent: Instance)
