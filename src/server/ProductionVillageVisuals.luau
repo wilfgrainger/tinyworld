@@ -82,7 +82,7 @@ local function replaceUngroupedTrees(root: Instance, productionVisualService)
 			local parent = descendant.Parent
 			if parent and not parent:IsA("Model") then
 				continue
-		end
+			end
 			local prefix = string.gsub(descendant.Name, "CanopyHighlight$", "")
 			prefix = string.gsub(prefix, "Canopy$", "")
 			local trunk = if parent then parent:FindFirstChild(prefix .. "Trunk") else nil
@@ -112,7 +112,11 @@ local function replaceUngroupedTrees(root: Instance, productionVisualService)
 		local holder = Instance.new("Model")
 		holder.Name = "ART_R4_Tree_" .. prefix
 		holder.Parent = parent
-		productionVisualService:mount(({ "tree-a", "tree-b", "tree-c" })[((index - 1) % 3) + 1], holder, CFrame.new(base))
+		productionVisualService:mount(
+			({ "tree-a", "tree-b", "tree-c" })[((index - 1) % 3) + 1],
+			holder,
+			CFrame.new(base)
+		)
 	end
 end
 
