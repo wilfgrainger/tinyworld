@@ -4,57 +4,63 @@ TinyWorld is a persistent Roblox life sandbox where players build a home, belong
 
 **Build your life. Explore impossible worlds. Discover the secrets of TinyWorld.**
 
-## Current release: v0.6.2 Village Life & Visual Craft
+## Current release: v0.6.3 Production Art & World Craft
 
-v0.6.2 absorbs the previously planned v0.7.0 Village Life scope and the remaining Claude visual-craft recommendations into one consolidation release on top of merged v0.6.1 Visual Rescue.
+v0.6.3 is a focused visual-production correction after post-merge Studio screenshots showed that v0.6.2's gameplay and UI foundations were materially stronger than its rendered world art.
 
-The release deepens ordinary life without replacing the architecture:
+Gameplay scope is intentionally frozen. This release concentrates on:
 
-- four canonical activities: Courier, Gardener, Designer and Village Explorer;
-- varied server-selected Courier destinations with a visible parcel;
-- Gardener and Village Trail loops that reuse persisted schema-11 state safely;
-- legitimate new home placement contributes to Designer route progress without becoming an XP farm;
-- deeper physical destination identity for Town Hall, Village Shop, Home Store, Courier Depot, Workshop and Market/Trading Post;
-- removal of unfinished primitive ambient cats/birds rather than presenting block animals as finished content;
-- compact world-first HUD and v0.6.1 visual-rescue rules remain mandatory;
-- one hero-home/golden route must be observed in Studio before visual acceptance;
-- real exact-candidate Studio/device evidence remains separate from CI/source evidence.
+- authored home and civic architecture rather than slab-dominated boxes;
+- framed/recessed windows, believable entrances, porches, foundations and roof hierarchy;
+- proper practical lantern fixtures instead of naked glowing spheres;
+- denser but bounded landscaping, planted path edges, fences, hedges and prop clusters;
+- four visually distinct neighbourhoods;
+- stronger Town Hall/fountain/shop/courier/workshop/market arrival views;
+- a more crafted starter-home interior;
+- preservation of the compact HUD, normal Roblox avatar and v0.6.2 gameplay/server-authority contracts;
+- exact-candidate Studio screenshots as the final visual authority.
 
-The previous v0.7.0 Village Life milestone has been vacated. v0.7.0 is reserved for the family/girls review and will receive a new delivery scope only after that detailed review is supplied.
+The visual shorthand remains **Brookhaven-level readability + Toca-style tactile warmth + Ready Player One-style wonder**, expressed as original TinyWorld design rather than copied IP.
+
+The previously generated concept board is an aspirational reference only, never release evidence.
 
 Start here:
 
 - [Canonical documentation index](docs/README.md)
 - [v1 target state](docs/product/target-state-v1.md)
-- [v0.6.2 roadmap](docs/roadmap/v0.6.2-village-life-visual-craft.md)
-- [v0.6.2 acceptance](docs/releases/v0.6.2/acceptance.md)
-- [v0.6.2 approved design](docs/superpowers/specs/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft-design.md)
-- [v0.6.2 implementation plan](docs/superpowers/plans/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft.md)
-- [Current progress/evidence state](docs/progress.md)
+- [v0.6.3 roadmap](docs/roadmap/v0.6.3-production-art-world-craft.md)
+- [v0.6.3 acceptance](docs/releases/v0.6.3/acceptance.md)
+- [v0.6.3 approved design](docs/superpowers/specs/2026-08-11-tinyworld-v0.6.3-production-art-world-craft-design.md)
+- [v0.6.3 implementation plan](docs/superpowers/plans/2026-08-11-tinyworld-v0.6.3-production-art-world-craft.md)
+- [v0.6.3 Studio comparison route](docs/v0.6.3-production-art-world-craft-test.md)
+- [Documentation audit](docs/audits/v0.6.3-documentation-review.md)
+- [Current progress](docs/progress.md)
 
 ## Visual identity
 
-TinyWorld's normal village should be readable, warm and tactile. A player should recognise a house, shop, fountain, jobs board, parcel, bike or cooker from the world itself rather than a floating paragraph.
+TinyWorld's ordinary village must be readable, warm, tactile and architecturally intentional. A player should want to walk through it before they know what rewards exist there.
 
 Hard rules:
 
 - no anonymous finished interaction geometry;
-- no primitive character blocks masquerading as hair or shoes;
-- no primitive Part-built ambient animals masquerading as finished characters;
+- no primitive character or ambient-creature fallback masquerading as finished art;
 - no large ordinary-world BillboardGui information walls;
-- no full-screen telemetry/dashboard language in normal play;
+- no telemetry/dashboard presentation dominating normal play;
+- no oversized flat/slab roof as the dominant hero-building silhouette;
+- no bright flat cyan pane treatment as the only window language;
+- no naked Neon sphere as an ordinary practical lamp;
 - labels clarify proper names/details but do not rescue weak 3D objects;
-- hero objects have a higher craft bar than background fallback dressing;
-- production assets require provenance and approval;
+- hero objects have a higher craft bar than background dressing;
+- production assets require provenance/approval;
 - unobserved visual quality remains unfinished.
 
 ## Evidence model
 
 Repository/CI evidence, one-player Studio evidence, multi-client Studio evidence, real-device evidence, published DEV evidence and LIVE promotion are separate gates.
 
-A green CI run proves source/build properties only. It does **not** prove recognisability, visual craft, FPS, memory, controller/touch quality, multiplayer behaviour or published-place correctness.
+A green CI run proves source/build properties only. It does **not** prove visual craft, recognisability, FPS, memory, controller/touch quality, multiplayer behaviour or published-place correctness.
 
-See [v0.6.2 acceptance](docs/releases/v0.6.2/acceptance.md).
+See [v0.6.3 acceptance](docs/releases/v0.6.3/acceptance.md).
 
 ## Local verification
 
@@ -67,26 +73,25 @@ stylua --check src tests
 find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
 find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
 bash tests/verify-release-authority.sh
-bash tests/verify-v0.6.2-source-contract.sh
+bash tests/verify-v0.6.3-source-contract.sh
+bash tests/verify-v0.6.3-repository-audit.sh
 ./scripts/verify-release-contract.sh
 ./tests/build-contract.sh
 ./scripts/build.sh
 git diff --check
 ```
 
-The build creates the ignored `dist/TinyWorld-v0.6.2.rbxlx` candidate and `dist/release.json` traceability manifest. DEV/LIVE publishing remains explicitly unconfigured and human-gated.
+The build creates the ignored `dist/TinyWorld-v0.6.3.rbxlx` candidate and `dist/release.json` traceability manifest. DEV/LIVE publishing remains explicitly unconfigured and human-gated.
 
 ## Studio setup
 
-Run `rojo serve`, connect the Rojo Studio plugin to a private DEV test experience, enable Studio Access to API Services for that test experience, and press Play. Studio defaults to the `TinyWorld_DEV_PlayerProfile_v11` namespace. Profile loading intentionally fails closed when saved data cannot be read or safely migrated.
-
-Do not point Studio testing at LIVE player data.
+Run `rojo serve`, connect the Rojo Studio plugin to a private DEV test experience, enable Studio Access to API Services for that test experience, and press Play. Studio defaults to the `TinyWorld_DEV_PlayerProfile_v11` namespace. Never point Studio testing at LIVE player data.
 
 ## Source layout
 
 ```text
 src/shared/   deterministic rules, definitions and validation
-src/server/   authoritative services, persistence, security and world builders
+src/server/   authoritative services plus deterministic visual/world builders
 src/client/   presentation and input intent only
 tests/        pure Luau tests and fail-closed source/build guards
 docs/         canonical product, engineering, quality, roadmap and release records
@@ -96,4 +101,4 @@ config/       release/environment contracts without credentials
 
 ## Product guardrails
 
-TinyWorld is not an idle clicker, combat-first game, portal lobby, menu-only house decorator or pay-to-win simulator. Major world objects must be recognisable without explanatory labels, the village must remain satisfying without portals, and impossible worlds must feed ordinary life back home.
+TinyWorld is not an idle clicker, combat-first game, portal lobby, menu-only house decorator or pay-to-win simulator. The village must remain satisfying without portals, and impossible worlds must feel more extraordinary because ordinary life is grounded and believable.
