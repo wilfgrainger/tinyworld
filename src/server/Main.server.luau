@@ -9,6 +9,8 @@ local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateServic
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
 local HomeStoreDestinationBuilder = require(script.Parent:WaitForChild("HomeStoreDestinationBuilder"))
+local CivicCraftBuilder = require(script.Parent:WaitForChild("CivicCraftBuilder"))
+local ProductionArtCleanup = require(script.Parent:WaitForChild("ProductionArtCleanup"))
 local VillageLandscapeBuilder = require(script.Parent:WaitForChild("VillageLandscapeBuilder"))
 local ImpossibleWorldBuilder = require(script.Parent:WaitForChild("ImpossibleWorldBuilder"))
 local PortalMechanicBuilder = require(script.Parent:WaitForChild("PortalMechanicBuilder"))
@@ -36,7 +38,9 @@ local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsServic
 local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
+ProductionArtCleanup.apply(world.root)
 HomeStoreDestinationBuilder.extend(world)
+CivicCraftBuilder.apply(world.root)
 local _productionLandscape = VillageLandscapeBuilder.build(world.root, world.layout)
 ImpossibleWorldBuilder.extend(world)
 PortalMechanicBuilder.extend(world)
