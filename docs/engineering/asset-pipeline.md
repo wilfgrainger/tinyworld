@@ -217,6 +217,16 @@ Any future third-party input requires explicit legal source/licence review befor
 
 A code/source PASS does not satisfy Studio/device visual evidence.
 
+## Exact ART R4 implementation evidence
+
+The exact candidate source head `e26fa610fd4b150f01700b8adef2976248fe4ecd` passed:
+
+- Luau tests run 633, including 36 specs, formatting and recursive runtime compile;
+- Release Authority run 404, including the ART R4 19-role/142-component production-art contract;
+- Rojo build run 504, including the manifest-v3 release contract.
+
+These gates prove source/build integrity only. They do not claim that ART R4 looks good in Studio.
+
 ## Evidence
 
 Production-art evidence includes:
