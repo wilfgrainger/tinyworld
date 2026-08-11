@@ -2,117 +2,235 @@
 
 ## Principle
 
-Native-part authored prefabs are a valid production medium and fallback **only when the resulting object meets its visual tier**. They are not a permanent excuse to avoid production art for hero objects, and they are not permission to attach obviously inferior geometry to the player.
+TinyWorld gameplay authority and TinyWorld product art are separate systems.
 
-Production Roblox-hosted assets are introduced only through `assets/manifests/assets.json`.
+Semantic roots, invisible/simple collision, interaction anchors, persistence and server validation remain ordinary Roblox/Luau contracts. Hero presentation is replaceable production art mounted behind those contracts.
+
+Native `Part` geometry is still useful for collision foundations, interaction anchors, simple background dressing and deliberately simple supporting objects. It is **not** the default finished-art strategy for hero content.
+
+ART R4 exists because repeated v0.6.3 Studio evidence proved that layering visible runtime `Part` builders could not meet the hero visual tier reliably.
+
+## ART R4 source of truth
+
+Original TinyWorld production art is defined under:
+
+```text
+art/
+  README.md
+  specs/
+    palette.json
+    village-product-art.json
+```
+
+`art/specs/village-product-art.json` is canonical for ART R4 geometry/composition. The checked-in `src/shared/ProductionArtSpec.luau` is the Roblox runtime mirror used by Studio/DEV MeshPart generation.
+
+Generated glTF under `dist/art-r4/` is a build output, not the art authority.
+
+## One specification, two consumers
+
+### Studio/DEV product-art preview
+
+`ProductionMeshFactory` uses `AssetService:CreateEditableMesh()` and explicit polygon vertices/triangles. The resulting `EditableMesh` is converted to a `MeshPart` with `AssetService:CreateMeshPartAsync(Content.fromObject(...))`.
+
+This is not a return to the ART R1-R3 approach. Hero visuals are custom mesh geometry, not arrangements of visible Roblox block Parts.
+
+`EditableMeshPreviewFactory` composes those custom MeshParts into the same semantic product-art roles that later permanent assets use.
+
+This path lets the owner judge actual product-art geometry in Studio before permanent Roblox asset IDs exist.
+
+### Permanent Roblox-hosted production asset
+
+`tools/art/build_asset_pack.py` compiles the same ART R4 specification deterministically to glTF 2.0.
+
+The generated glTF can be imported in Studio or uploaded through the credential-safe Open Cloud uploader. A successful Roblox upload returns the only acceptable source of `robloxAssetId`.
+
+`ProductionVisualService` prefers a real approved manifest asset. If none exists in Studio/DEV, it uses the same-spec MeshPart preview.
+
+The semantic gameplay role does not change when the visual switches from DEV preview to permanent hosted Model.
 
 ## Visual state vocabulary
 
-v0.6.2 uses three explicit visual states:
+1. **fallback/prototype**: interaction scaffolding or temporary presentation that is not accepted as finished player-facing art.
+2. **authored-native**: deliberately composed Roblox-native presentation. Acceptable for supporting/background content only when Studio evidence meets its tier.
+3. **production-preview-r4**: original TinyWorld custom MeshPart art produced from the canonical ART R4 specification for Studio/DEV evaluation.
+4. **uploaded-candidate**: a real Roblox-hosted Model exists and is recorded in the manifest but has not yet passed DEV visual acceptance.
+5. **approved-production**: the exact production asset/version has required provenance and observed acceptance evidence.
 
-1. **fallback/prototype** — interaction scaffolding or temporary native presentation that is not accepted as finished player-facing art;
-2. **authored-native** — deliberately constructed Roblox-native geometry that may be production-acceptable only if it passes the relevant visual tier in Studio;
-3. **approved-production** — authored-native or Roblox-hosted art with required provenance/approval and exact-candidate visual evidence.
+Metadata describes state. It never proves quality by itself.
 
-`TinyWorldArtRole`, `TinyWorldRecognizableSilhouette` or similar metadata describes intent. It never upgrades an object from one state to another and never counts as observed evidence.
+## Manifest v3
 
-## Safe fallback rule
+`assets/manifests/assets.json` is the authority for permanent Roblox-hosted product art.
 
-When an approved asset is unavailable, choose the best safe existing presentation in this order:
-
-1. preserve the Roblox-native/default presentation if it is already coherent;
-2. use an existing TinyWorld authored prefab that passes its quality tier;
-3. build a bounded native-part replacement only when it is visibly better and still passes the tier;
-4. leave the feature visually deferred rather than shipping obvious placeholder geometry.
-
-For player characters specifically, preserving the player's normal Roblox avatar is preferable to rectangular Part hair/shoes.
-
-For ambient characters, no creature is preferable to a block/ball animal that would be mistaken for finished content.
-
-No fallback is automatically acceptable because it has `TinyWorldArtRole` metadata.
-
-## Manifest requirements
-
-Every production entry requires:
+Schema v3 requires:
 
 - semantic `id`;
 - real positive `robloxAssetId`;
 - owner;
-- source;
+- original source path;
+- source SHA-256;
 - licence/provenance statement;
 - intended prefab role;
 - version;
 - status;
+- quality tier;
 - DEV approval boolean;
 - LIVE approval boolean.
 
-Invented/placeholder Roblox IDs are forbidden. Empty manifests are valid and mean TinyWorld is using approved native/default presentation rather than fabricating asset identities.
+Invented, guessed and placeholder Roblox IDs are forbidden.
 
-## Replacement contract
+An empty `assets` array is valid during ART R4 Studio development. It means permanent hosted assets have not yet been truthfully published/approved. It does **not** mean Studio is using the old primitive fallback: Studio/DEV can render `production-preview-r4` custom MeshParts from the canonical art spec.
 
-A production model/mesh may replace a fallback only if it preserves:
+Once an asset record exists, its Roblox ID must be a real positive integer returned by Roblox.
 
-- builder return contract;
-- semantic art role;
+## Runtime replacement contract
+
+`ProductionVisualService` mounts product art behind semantic roots.
+
+A visual replacement must preserve:
+
+- server-owned gameplay authority;
+- builder/service-facing semantic role;
 - interaction anchors;
-- ownership/gameplay authority;
+- ownership and persistence behavior;
 - collision/touch/query policy;
+- scale/pivot convention;
 - recognisability without explanatory labels;
 - performance budget;
 - mobile readability.
 
-Visual replacement may not move economic or interaction authority into an asset script.
+Imported/uploaded Models contain no trusted executable behavior. Runtime strips unexpected executable descendants defensively before using a loaded production Model.
 
-## Asset quality tiers
+Visual code never owns price, reward, route completion, trade, ownership or persistence decisions.
 
-### Hero
+## ART R4 mesh vocabulary
 
-Player character presentation, homes, vehicles, key furniture, civic buildings, fountain/jobs board, portal landmarks and signature keepsakes.
+Current canonical shapes include:
 
-Hero assets receive the highest silhouette, material, animation/audio and observed-evidence attention. A hero fallback that still reads as primitive placeholder geometry fails even if it is functional.
+- chamfered/bevelled solids;
+- gable roof solids;
+- hip roof solids;
+- tapered frustums;
+- faceted cylinders;
+- faceted ellipsoids;
+- extruded arch segments;
+- framed-window meshes;
+- curved fountain-water tubes.
 
-### Interactive supporting
+The point is not high polygon count. The point is intentional silhouette.
 
-Ordinary furniture, activity equipment, parcels, gardening tools and portal traversal props. Must remain immediately recognisable and tactile.
+A player should identify `house`, `shop`, `fountain`, `portal`, `tree`, `bench` or `market stall` before noticing the underlying modelling primitive.
 
-### Background
+## Hero quality tier
 
-Scenery and ambient dressing. Lower detail is acceptable but shape/material language must remain coherent and budgets strict.
+Hero content includes:
 
-## World text and asset replacement
+- starter/Cosy home exterior and interior;
+- Town Hall;
+- Village Shop;
+- Home Store;
+- Courier Depot;
+- Workshop;
+- Market/Trading Post;
+- daily fountain;
+- portal landmarks;
+- primary vehicles;
+- key furniture and signature keepsakes.
 
-Replacing a model with production art must not reintroduce floating explanation panels. Proper names may use small diegetic signs integrated into the asset. Interactions remain contextual prompts or intentional UI.
+Hero content receives the highest silhouette, material, scale, lighting and observed-evidence attention.
 
-Large always-on-top ordinary-world BillboardGui information walls are not an asset fallback.
+A functional hero fallback that still looks like test geometry fails the release.
 
-## Provenance
+## Interactive supporting tier
 
-Before a third-party asset enters the manifest, record the legal source/licence and ownership. Do not copy external skill, marketplace or reference-game assets because they are convenient.
+Furniture, parcels, gardening equipment, street furniture, trees/planters and activity props may use simpler assets than heroes, but must still read immediately from normal play distance.
 
-The visual direction may use broad qualities such as Roblox life-sandbox readability, tactile warmth and fantastical contrast, but production assets must remain original TinyWorld expression.
+ART R4 uses a small reusable supporting mesh kit rather than scattering anonymous primitive geometry.
 
-## DEV/LIVE progression
+## Background tier
 
-1. native/default presentation proves the gameplay contract without visibly degrading the experience;
-2. candidate asset receives provenance review;
-3. manifest entry created with real ID where a Roblox-hosted asset is used;
-4. DEV visual/performance evidence recorded;
-5. entry or authored-native equivalent is accepted for the DEV candidate;
-6. launch/release review grants LIVE approval where applicable;
-7. exact approved build is promoted.
+Terrain foundations, distant scenery, low fences, collision shells and other low-attention surfaces may remain native where they are coherent and performant.
 
-For a player-facing release, source presence does not satisfy visual approval. Required Studio/device evidence must be observed before merge-ready status where the active acceptance record requires it.
+Background simplicity may not visually overwhelm the hero layer or make the whole village read as a baseplate.
+
+## Production asset publication
+
+`scripts/upload-roblox-assets.py` is manual and dry-run by default.
+
+Real execution requires runtime environment variables:
+
+```text
+ROBLOX_OPEN_CLOUD_API_KEY
+TINY_WORLD_ASSET_CREATOR_ID
+TINY_WORLD_ASSET_CREATOR_TYPE=user|group
+```
+
+No credential is committed.
+
+The uploader:
+
+1. validates a generated source asset;
+2. hashes it;
+3. uploads only explicitly selected roles;
+4. waits for Roblox operation completion;
+5. accepts only a real positive returned asset ID;
+6. writes an `uploaded-candidate` manifest record with original TinyWorld provenance;
+7. leaves `devApproved=false` and `liveApproved=false` until observed approval occurs.
+
+A failed upload/moderation operation stops. It does not fabricate an ID or silently substitute known-bad hero art.
+
+## Safe fallback rule
+
+For player characters, preserving the normal Roblox avatar is better than an inferior TinyWorld fallback.
+
+For ambient creatures, no creature is better than block/ball pseudo-character art.
+
+For ART R4 required hero roles, missing production art is a degraded state. It must be reported as degraded and cannot satisfy visual acceptance merely because gameplay anchors still work.
+
+## World text
+
+Production art must not reintroduce floating explanation walls.
+
+Proper names may use small diegetic signs integrated into the asset. Actions remain local prompts or intentional UI.
+
+If a large label is required to explain what a hero object is, the object has failed its visual tier.
+
+## Provenance and originality
+
+ART R4 source art is original TinyWorld expression generated from repository-owned specifications.
+
+Do not copy Creator Store models, marketplace assets or identifiable geometry from Brookhaven, Toca Boca, Ready Player One, Disney Dreamlight Valley or another reference merely because the visual direction mentions broad qualities from them.
+
+Any future third-party input requires explicit legal source/licence review before entering the manifest.
+
+## DEV to LIVE progression
+
+1. canonical art spec exists in Git;
+2. deterministic DEV MeshPart preview is reviewed in Studio;
+3. source is compiled to deterministic upload format;
+4. asset is uploaded and a real Roblox ID is captured;
+5. manifest receives an `uploaded-candidate` record;
+6. exact DEV asset receives visual/collision/performance evidence;
+7. `devApproved` becomes true only after that evidence;
+8. release review grants LIVE approval separately;
+9. exact tested asset/build is promoted.
+
+A code/source PASS does not satisfy Studio/device visual evidence.
 
 ## Evidence
 
-Production asset evidence includes:
+Production-art evidence includes:
 
+- exact candidate/revision stamp;
 - labels-off recognisability;
-- character fit/appearance where applicable;
-- interaction anchors;
-- collision behaviour;
+- scale beside the Roblox avatar;
+- interaction-anchor preservation;
+- collision/traversal behavior;
+- camera safety;
 - mobile/device contrast;
+- visual hierarchy;
 - performance impact;
-- exact candidate/build identity.
+- source/asset provenance;
+- exact asset/build identity where a permanent Roblox Model is used.
 
-Static manifest presence is not visual approval.
+Static source or manifest presence never marks a hero object visually accepted.
