@@ -179,7 +179,8 @@ local function addArchSegment(mesh: EditableMesh, size: Vector3, segments: numbe
 	local depth = size.Z
 	local outerRadius = width / 2
 	local innerRadius = math.max(1, outerRadius - thickness)
-	local legHeight = math.max(0, height - outerRadius)
+	local legHeight = math.max(0.5, height - outerRadius)
+	local springY = -height / 2 + legHeight
 	local hz = depth / 2
 	local frontOuter = {}
 	local frontInner = {}
@@ -187,8 +188,16 @@ local function addArchSegment(mesh: EditableMesh, size: Vector3, segments: numbe
 	local backInner = {}
 	for segment = 0, segments do
 		local angle = math.pi * segment / segments
-		local outer = Vector3.new(math.cos(angle) * outerRadius, legHeight + math.sin(angle) * outerRadius, hz)
-		local inner = Vector3.new(math.cos(angle) * innerRadius, legHeight + math.sin(angle) * innerRadius, hz)
+		local outer = Vector3.new(
+			math.cos(angle) * outerRadius,
+			springY + math.sin(angle) * outerRadius,
+			hz
+		)
+		local inner = Vector3.new(
+			math.cos(angle) * innerRadius,
+			springY + math.sin(angle) * innerRadius,
+			hz
+		)
 		frontOuter[segment + 1] = mesh:AddVertex(outer)
 		frontInner[segment + 1] = mesh:AddVertex(inner)
 		backOuter[segment + 1] = mesh:AddVertex(Vector3.new(outer.X, outer.Y, -hz))
@@ -203,16 +212,9 @@ local function addArchSegment(mesh: EditableMesh, size: Vector3, segments: numbe
 	end
 	local legWidth = thickness
 	local legCenterX = outerRadius - thickness / 2
-	local legY = legHeight / 2
-	addCuboidGeometry(mesh, Vector3.new(legWidth, legHeight, depth), Vector3.new(-legCenterX, legY - height / 2, 0))
-	addCuboidGeometry(mesh, Vector3.new(legWidth, legHeight, depth), Vector3.new(legCenterX, legY - height / 2, 0))
-	-- Shift the curved crown so the model is vertically centred around its specified pivot.
-	for _, vertexId in mesh:GetVertices() do
-		local position = mesh:GetPosition(vertexId)
-		if position.Y > legY - height / 2 + legHeight then
-			mesh:SetPosition(vertexId, position - Vector3.new(0, height / 2, 0))
-		end
-	end
+	local legCenterY = -height / 2 + legHeight / 2
+	addCuboidGeometry(mesh, Vector3.new(legWidth, legHeight, depth), Vector3.new(-legCenterX, legCenterY, 0))
+	addCuboidGeometry(mesh, Vector3.new(legWidth, legHeight, depth), Vector3.new(legCenterX, legCenterY, 0))
 end
 
 local function addWaterArc(mesh: EditableMesh, size: Vector3, segments: number)
