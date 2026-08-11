@@ -2,7 +2,15 @@ local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local ArchitecturalDetailBuilder = {}
 
-local function part(parent: Instance, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material, role: string): Part
+local function part(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	material: Enum.Material,
+	role: string
+): Part
 	local item = Instance.new("Part")
 	item.Name = name
 	item.Anchored = true
@@ -18,7 +26,15 @@ local function part(parent: Instance, name: string, size: Vector3, cframe: CFram
 	return item
 end
 
-local function decorative(parent: Instance, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material, role: string): Part
+local function decorative(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	cframe: CFrame,
+	color: Color3,
+	material: Enum.Material,
+	role: string
+): Part
 	local item = part(parent, name, size, cframe, color, material, role)
 	item.CanCollide = false
 	item.CanTouch = false
@@ -46,6 +62,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 	local angle = math.atan2(rise, halfRun)
 	local verticalCenter = rise / 2
 	local horizontalCenter = halfRun / 2
+	local role = spec.role or "architectural-roof"
 
 	decorative(
 		model,
@@ -54,7 +71,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 		CFrame.new(center + Vector3.new(-horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, -angle),
 		color,
 		material,
-		(spec.role or "architectural-roof") .. "-plane"
+		role .. "-plane"
 	)
 	decorative(
 		model,
@@ -63,7 +80,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 		CFrame.new(center + Vector3.new(horizontalCenter, verticalCenter, 0)) * CFrame.Angles(0, 0, angle),
 		color,
 		material,
-		(spec.role or "architectural-roof") .. "-plane"
+		role .. "-plane"
 	)
 	decorative(
 		model,
@@ -72,7 +89,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 		CFrame.new(center + Vector3.new(0, rise + 0.2, 0)),
 		spec.ridgeColor or VisualTheme.Colors.roofLight,
 		material,
-		(spec.role or "architectural-roof") .. "-ridge"
+		role .. "-ridge"
 	)
 
 	if spec.gableTrimColor then
@@ -84,7 +101,7 @@ function ArchitecturalDetailBuilder.addPitchedRoof(parent: Instance, spec)
 				CFrame.new(center + Vector3.new(0, rise * 0.18, z)),
 				spec.gableTrimColor,
 				Enum.Material.Wood,
-				(spec.role or "architectural-roof") .. "-gable-trim"
+				role .. "-gable-trim"
 			)
 		end
 	end
@@ -120,13 +137,22 @@ function ArchitecturalDetailBuilder.addWindow(parent: Instance, spec)
 	glass.Transparency = spec.transparency or 0.32
 	glass.Reflectance = 0.04
 
-	for name, offset, size in {
-		Top = { Vector3.new(0, (height / 2) - (frame / 2), 0.08), Vector3.new(width, frame, depth + 0.12) },
-		Bottom = { Vector3.new(0, -(height / 2) + (frame / 2), 0.08), Vector3.new(width, frame, depth + 0.12) },
-		Left = { Vector3.new(-(width / 2) + (frame / 2), 0, 0.08), Vector3.new(frame, height, depth + 0.12) },
-		Right = { Vector3.new((width / 2) - (frame / 2), 0, 0.08), Vector3.new(frame, height, depth + 0.12) },
-	} do
-		decorative(model, "Frame" .. name, size[2], base * CFrame.new(size[1]), frameColor, Enum.Material.Wood, role .. "-frame")
+	local framePieces = {
+		Top = { offset = Vector3.new(0, (height / 2) - (frame / 2), 0.08), size = Vector3.new(width, frame, depth + 0.12) },
+		Bottom = { offset = Vector3.new(0, -(height / 2) + (frame / 2), 0.08), size = Vector3.new(width, frame, depth + 0.12) },
+		Left = { offset = Vector3.new(-(width / 2) + (frame / 2), 0, 0.08), size = Vector3.new(frame, height, depth + 0.12) },
+		Right = { offset = Vector3.new((width / 2) - (frame / 2), 0, 0.08), size = Vector3.new(frame, height, depth + 0.12) },
+	}
+	for name, values in framePieces do
+		decorative(
+			model,
+			"Frame" .. name,
+			values.size,
+			base * CFrame.new(values.offset),
+			frameColor,
+			Enum.Material.Wood,
+			role .. "-frame"
+		)
 	end
 
 	decorative(
@@ -189,11 +215,35 @@ function ArchitecturalDetailBuilder.addDoor(parent: Instance, spec)
 		Enum.Material.Wood,
 		role .. "-leaf"
 	)
-	decorative(model, "Header", Vector3.new(width + 1, 0.45, 0.65), base * CFrame.new(0, height / 2 + 0.18, 0), frameColor, Enum.Material.Wood, role .. "-frame")
+	decorative(
+		model,
+		"Header",
+		Vector3.new(width + 1, 0.45, 0.65),
+		base * CFrame.new(0, height / 2 + 0.18, 0),
+		frameColor,
+		Enum.Material.Wood,
+		role .. "-frame"
+	)
 	for _, side in { -1, 1 } do
-		decorative(model, if side < 0 then "FrameLeft" else "FrameRight", Vector3.new(0.45, height + 0.5, 0.65), base * CFrame.new(side * (width / 2 + 0.22), 0, 0), frameColor, Enum.Material.Wood, role .. "-frame")
+		decorative(
+			model,
+			if side < 0 then "FrameLeft" else "FrameRight",
+			Vector3.new(0.45, height + 0.5, 0.65),
+			base * CFrame.new(side * (width / 2 + 0.22), 0, 0),
+			frameColor,
+			Enum.Material.Wood,
+			role .. "-frame"
+		)
 	end
-	local handle = decorative(model, "Handle", Vector3.new(0.32, 0.55, 0.32), base * CFrame.new(width * 0.28, 0, 0.38), VisualTheme.Colors.gold, Enum.Material.Metal, role .. "-handle")
+	local handle = decorative(
+		model,
+		"Handle",
+		Vector3.new(0.32, 0.55, 0.32),
+		base * CFrame.new(width * 0.28, 0, 0.38),
+		VisualTheme.Colors.gold,
+		Enum.Material.Metal,
+		role .. "-handle"
+	)
 	handle.Shape = Enum.PartType.Cylinder
 	return model, door
 end
@@ -207,12 +257,44 @@ function ArchitecturalDetailBuilder.addPorch(parent: Instance, spec)
 	local width = spec.width or 10
 	local depth = spec.depth or 5
 	local role = spec.role or "architectural-porch"
-	part(model, "Deck", Vector3.new(width, 0.55, depth), base, spec.deckColor or VisualTheme.Colors.timber, Enum.Material.WoodPlanks, role .. "-deck")
-	part(model, "Step", Vector3.new(width * 0.78, 0.45, 1.6), base * CFrame.new(0, -0.45, depth / 2 + 0.8), VisualTheme.Colors.pathEdge, Enum.Material.Cobblestone, role .. "-step")
+	part(
+		model,
+		"Deck",
+		Vector3.new(width, 0.55, depth),
+		base,
+		spec.deckColor or VisualTheme.Colors.timber,
+		Enum.Material.WoodPlanks,
+		role .. "-deck"
+	)
+	part(
+		model,
+		"Step",
+		Vector3.new(width * 0.78, 0.45, 1.6),
+		base * CFrame.new(0, -0.45, depth / 2 + 0.8),
+		VisualTheme.Colors.pathEdge,
+		Enum.Material.Cobblestone,
+		role .. "-step"
+	)
 	for _, side in { -1, 1 } do
-		decorative(model, if side < 0 then "PostLeft" else "PostRight", Vector3.new(0.55, 5.5, 0.55), base * CFrame.new(side * (width * 0.38), 2.7, depth * 0.24), VisualTheme.Colors.woodLight, Enum.Material.Wood, role .. "-post")
+		decorative(
+			model,
+			if side < 0 then "PostLeft" else "PostRight",
+			Vector3.new(0.55, 5.5, 0.55),
+			base * CFrame.new(side * (width * 0.38), 2.7, depth * 0.24),
+			VisualTheme.Colors.woodLight,
+			Enum.Material.Wood,
+			role .. "-post"
+		)
 	end
-	decorative(model, "Canopy", Vector3.new(width + 1.4, 0.55, depth * 0.72), base * CFrame.new(0, 5.25, depth * 0.12) * CFrame.Angles(0, 0, math.rad(-4)), spec.canopyColor or VisualTheme.Colors.roof, Enum.Material.Slate, role .. "-canopy")
+	decorative(
+		model,
+		"Canopy",
+		Vector3.new(width + 1.4, 0.55, depth * 0.72),
+		base * CFrame.new(0, 5.25, depth * 0.12) * CFrame.Angles(0, 0, math.rad(-4)),
+		spec.canopyColor or VisualTheme.Colors.roof,
+		Enum.Material.Slate,
+		role .. "-canopy"
+	)
 	return model
 end
 
@@ -224,8 +306,24 @@ function ArchitecturalDetailBuilder.addChimney(parent: Instance, spec)
 	local base = spec.cframe
 	local height = spec.height or 5
 	local role = spec.role or "architectural-chimney"
-	part(model, "Stack", Vector3.new(2.2, height, 2.2), base, spec.color or VisualTheme.Colors.path, Enum.Material.Brick, role .. "-stack")
-	decorative(model, "Cap", Vector3.new(2.8, 0.45, 2.8), base * CFrame.new(0, height / 2 + 0.2, 0), VisualTheme.Colors.inkSoft, Enum.Material.Slate, role .. "-cap")
+	part(
+		model,
+		"Stack",
+		Vector3.new(2.2, height, 2.2),
+		base,
+		spec.color or VisualTheme.Colors.path,
+		Enum.Material.Brick,
+		role .. "-stack"
+	)
+	decorative(
+		model,
+		"Cap",
+		Vector3.new(2.8, 0.45, 2.8),
+		base * CFrame.new(0, height / 2 + 0.2, 0),
+		VisualTheme.Colors.inkSoft,
+		Enum.Material.Slate,
+		role .. "-cap"
+	)
 	return model
 end
 
@@ -240,20 +338,60 @@ function ArchitecturalDetailBuilder.addLantern(parent: Instance, spec)
 	local metal = spec.metalColor or VisualTheme.Colors.inkSoft
 
 	if spec.postHeight then
-		decorative(model, "Post", Vector3.new(0.48, spec.postHeight, 0.48), base * CFrame.new(0, -(spec.postHeight / 2) - 0.65, 0), metal, Enum.Material.Metal, role .. "-post")
+		decorative(
+			model,
+			"Post",
+			Vector3.new(0.48, spec.postHeight, 0.48),
+			base * CFrame.new(0, -(spec.postHeight / 2) - 0.65, 0),
+			metal,
+			Enum.Material.Metal,
+			role .. "-post"
+		)
 	else
-		decorative(model, "WallBracket", Vector3.new(1.4, 0.28, 0.28), base * CFrame.new(0, 0.7, -0.65), metal, Enum.Material.Metal, role .. "-bracket")
+		decorative(
+			model,
+			"WallBracket",
+			Vector3.new(1.4, 0.28, 0.28),
+			base * CFrame.new(0, 0.7, -0.65),
+			metal,
+			Enum.Material.Metal,
+			role .. "-bracket"
+		)
 	end
 	decorative(model, "Cap", Vector3.new(1.5, 0.25, 1.5), base * CFrame.new(0, 0.75, 0), metal, Enum.Material.Metal, role .. "-cap")
 	decorative(model, "Base", Vector3.new(1.35, 0.25, 1.35), base * CFrame.new(0, -0.75, 0), metal, Enum.Material.Metal, role .. "-base")
 	for _, x in { -0.58, 0.58 } do
 		for _, z in { -0.58, 0.58 } do
-			decorative(model, "Frame" .. tostring(x) .. tostring(z), Vector3.new(0.12, 1.35, 0.12), base * CFrame.new(x, 0, z), metal, Enum.Material.Metal, role .. "-frame")
+			decorative(
+				model,
+				"Frame" .. tostring(x) .. tostring(z),
+				Vector3.new(0.12, 1.35, 0.12),
+				base * CFrame.new(x, 0, z),
+				metal,
+				Enum.Material.Metal,
+				role .. "-frame"
+			)
 		end
 	end
-	local glass = decorative(model, "WarmGlass", Vector3.new(1.05, 1.25, 1.05), base, VisualTheme.Colors.warmLight, Enum.Material.Glass, role .. "-glass")
+	local glass = decorative(
+		model,
+		"WarmGlass",
+		Vector3.new(1.05, 1.25, 1.05),
+		base,
+		VisualTheme.Colors.warmLight,
+		Enum.Material.Glass,
+		role .. "-glass"
+	)
 	glass.Transparency = 0.18
-	local core = decorative(model, "LightCore", Vector3.new(0.45, 0.75, 0.45), base, VisualTheme.Colors.warmLight, Enum.Material.Neon, role .. "-emissive-core")
+	local core = decorative(
+		model,
+		"LightCore",
+		Vector3.new(0.45, 0.75, 0.45),
+		base,
+		VisualTheme.Colors.warmLight,
+		Enum.Material.Neon,
+		role .. "-emissive-core"
+	)
 	local light = Instance.new("PointLight")
 	light.Name = "PracticalLight"
 	light.Brightness = spec.brightness or 0.65
