@@ -10,140 +10,81 @@ pass() { echo "PASS: $1"; }
 [[ -f docs/roadmap/v0.6.3-production-art-world-craft.md ]] || fail "v0.6.3 roadmap missing"
 [[ -f docs/releases/v0.6.3/acceptance.md ]] || fail "v0.6.3 acceptance missing"
 for path in \
-  src/server/ArchitecturalDetailBuilder.luau \
-  src/server/VillageLandscapeBuilder.luau \
-  src/server/CivicCraftBuilder.luau \
-  src/server/CivicHeroRebuildBuilder.luau \
-  src/server/CivicFacadePolishBuilder.luau \
-  src/server/VillageGroundRebuildBuilder.luau \
-  src/server/VillageArrivalPolishBuilder.luau \
   src/server/ProductionArtCleanup.luau \
+  src/server/VillageLandscapeBuilder.luau \
+  src/server/VillageGroundRebuildBuilder.luau \
+  src/server/SpawnPresentationBuilder.luau \
+  src/server/ProductionVisualService.luau \
+  src/server/ProductionVillageVisuals.luau \
+  src/server/ProductionHomeVisuals.luau \
+  src/server/ProductionMeshFactory.luau \
+  src/shared/ProductionArtSpec.luau \
+  src/shared/ProductionAssetRegistry.luau \
   src/shared/ReleaseInfo.luau \
   src/client/BuildStamp.client.luau; do
-  [[ -f "$path" ]] || fail "visual/candidate helper missing: $path"
+  [[ -f "$path" ]] || fail "current visual/candidate helper missing: $path"
 done
-pass "v0.6.3 release, visual correction and candidate identity files exist"
+pass "v0.6.3 ART R4 source surface exists"
 
 jq -e '.productVersion == "0.6.3" and .releaseName == "Production Art & World Craft" and .profileSchema == 11 and .artifactFile == "TinyWorld-v0.6.3.rbxlx"' config/release.json >/dev/null \
   || fail "release metadata is not v0.6.3 Production Art & World Craft / schema 11"
 pass "v0.6.3 release metadata is exact"
 
-for path in src/server/HomePrefabBuilder.luau src/server/HomeStoreDestinationBuilder.luau; do
-  grep -Fq 'ArchitecturalDetailBuilder' "$path" || fail "$path does not use ArchitecturalDetailBuilder"
-done
 grep -Fq 'ProductionArtCleanup.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply legacy ordinary-world visual cleanup"
-grep -Fq 'CivicCraftBuilder.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply civic craft"
-grep -Fq 'CivicHeroRebuildBuilder.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply final civic hero replacement pass"
-grep -Fq 'CivicFacadePolishBuilder.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply player-height civic facade polish"
+  || fail "server composition root does not apply legacy ordinary-world cleanup"
 grep -Fq 'VillageLandscapeBuilder.build(world.root, world.layout)' src/server/Main.server.luau \
-  || fail "server composition root does not activate VillageLandscapeBuilder"
+  || fail "server composition root does not retain deterministic neighbourhood landscape"
 grep -Fq 'VillageGroundRebuildBuilder.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply final ground composition pass"
-grep -Fq 'VillageArrivalPolishBuilder.apply(world.root)' src/server/Main.server.luau \
-  || fail "server composition root does not apply first-frame arrival polish"
-pass "hero architecture, civic correction, cleanup, landscape, ground and arrival composition are active"
+  || fail "server composition root does not retain district ground composition"
+grep -Fq 'SpawnPresentationBuilder.apply(world.root)' src/server/Main.server.luau \
+  || fail "server composition root does not retain safe hidden spawn presentation"
+grep -Fq 'local productionVisualService = ProductionVisualService.new()' src/server/Main.server.luau \
+  || fail "server composition root does not initialise ART R4 production visuals"
+grep -Fq 'ProductionVillageVisuals.apply(world, productionVisualService)' src/server/Main.server.luau \
+  || fail "server composition root does not mount ART R4 village visuals"
+pass "semantic world foundation and ART R4 production visual boundary are active"
 
-for legacyRoof in TownHallRoofLeft TownHallRoofRight VillageShopRoofLeft VillageShopRoofRight CourierDepotRoof WorkshopRoof; do
-  grep -Fq "\"${legacyRoof}\"" src/server/CivicHeroRebuildBuilder.luau \
-    || fail "final civic rebuild does not explicitly retire legacy roof ${legacyRoof}"
+# Current hero rendering must not reactivate the screenshot-failed additive chain.
+for oldCall in \
+  'CivicCraftBuilder.apply(world.root)' \
+  'CivicHeroRebuildBuilder.apply(world.root)' \
+  'CivicFacadePolishBuilder.apply(world.root)' \
+  'VillageArrivalPolishBuilder.apply(world.root)' \
+  'HeroPortalBuilder.apply(world.root)' \
+  'HeroFountainBuilder.apply(world.root)' \
+  'OrganicNatureBuilder.apply(world.root)'; do
+  if grep -Fq "$oldCall" src/server/Main.server.luau; then
+    fail "retired R1-R3 visible hero layer is active: $oldCall"
+  fi
 done
-for finalRoof in TownHallFinalRoof VillageShopFinalRoof CourierDepotFinalRoof WorkshopFinalRoof; do
-  grep -Fq "$finalRoof" src/server/CivicHeroRebuildBuilder.luau \
-    || fail "final civic rebuild missing coherent roof ${finalRoof}"
-done
-grep -Fq 'MarketStatusSign' src/server/CivicHeroRebuildBuilder.luau \
-  || fail "market status sign is not resized/recomposed after Studio review"
-grep -Fq 'MarketFinalStallWest' src/server/CivicHeroRebuildBuilder.luau \
-  || fail "market final supported stall composition missing"
-pass "observed crossed-roof and slab-market failures have explicit replacement logic"
+pass "R1-R3 additive hero layering is retired from Main"
 
-# The 11 August Studio screenshot exposed an inverted shared roof primitive.
-# Lock the corrected gable geometry at the helper boundary so all hero roofs inherit the fix.
-grep -Fq 'TinyWorldRoofGeometry", "gable-correct-v2"' src/server/ArchitecturalDetailBuilder.luau \
-  || fail "pitched-roof helper is not marked as corrected gable geometry"
-grep -Fq 'CFrame.Angles(0, 0, angle)' src/server/ArchitecturalDetailBuilder.luau \
-  || fail "left roof plane does not rise toward the centre ridge"
-grep -Fq 'CFrame.Angles(0, 0, -angle)' src/server/ArchitecturalDetailBuilder.luau \
-  || fail "right roof plane does not mirror toward the centre ridge"
-grep -Fq 'TinyWorldRoofGeometry", "shed-correct-v2"' src/server/ArchitecturalDetailBuilder.luau \
-  || fail "porch canopy is not marked as corrected shed geometry"
-pass "shared roof and canopy geometry encode the Studio-derived correction"
-
-if grep -Fq '"PorchLamp",' src/server/HomePrefabBuilder.luau || grep -Fq '"HomeLantern",' src/server/HomePrefabBuilder.luau; then
-  fail "old naked home practical-light recipe survived"
-fi
-if grep -Fq 'Enum.PartType.Ball' src/server/ArchitecturalDetailBuilder.luau; then
-  fail "architectural lantern helper must not use ball geometry"
-fi
 grep -Fq 'replaceLegacyPracticalLights' src/server/ProductionArtCleanup.luau \
-  || fail "legacy practical lights are not cleaned from the rendered ordinary village"
+  || fail "legacy practical-light cleanup missing"
 grep -Fq 'hideSpawnPad' src/server/ProductionArtCleanup.luau \
-  || fail "visible development spawn pad cleanup missing"
-grep -Fq 'descendant:IsA("Decal") or descendant:IsA("Texture")' src/server/ProductionArtCleanup.luau \
-  || fail "spawn cleanup does not hide SpawnLocation decal/texture presentation"
-pass "ordinary practical lighting and full spawn presentation address screenshot failures"
-
+  || fail "legacy development spawn cleanup missing"
 grep -Fq 'removePrimitiveAmbientCharacters' src/server/ProductionArtCleanup.luau \
-  || fail "rendered primitive ambient character cleanup missing"
-for actor in BirdAmbient ButterflyAmbient; do
-  grep -Fq "$actor" src/server/ProductionArtCleanup.luau \
-    || fail "cleanup does not cover $actor"
-done
-pass "surviving legacy Part-built ambient actors are removed before play"
-
-if grep -Fq 'Vector3.new(width + 2, 1, depth + 2)' src/server/HomePrefabBuilder.luau; then
-  fail "hero home still contains the v0.6.2 full-footprint slab roof"
-fi
-if grep -Fq '"HomeStoreRoof"' src/server/HomeStoreDestinationBuilder.luau && \
-   ! grep -Fq 'addPitchedRoof' src/server/HomeStoreDestinationBuilder.luau; then
-  fail "Home Store still uses slab-dominated roof recipe"
-fi
-pass "known hero slab-roof recipes are absent"
-
-for requirement in addPitchedRoof addWindow addDoor addPorch addChimney addLantern; do
-  grep -Fq "function ArchitecturalDetailBuilder.${requirement}" src/server/ArchitecturalDetailBuilder.luau \
-    || fail "ArchitecturalDetailBuilder missing ${requirement}"
-done
-pass "architectural craft primitives are explicit"
-
-grep -Fq 'PointLight' src/server/ArchitecturalDetailBuilder.luau || fail "architectural lantern lacks bounded PointLight"
-grep -Fq 'light.Range' src/server/ArchitecturalDetailBuilder.luau || fail "architectural lantern lacks explicit light range"
-grep -Fq 'light.Brightness' src/server/ArchitecturalDetailBuilder.luau || fail "architectural lantern lacks explicit brightness"
-pass "practical-light implementation has bounded lighting"
+  || fail "primitive ambient-character cleanup missing"
+pass "known legacy presentation hazards remain fail-closed"
 
 for feature in cottageGarden flowerMeadow retainingWall dockClutter coastalPlanting canopy rockClusters narrowPath woodlandFence orchard vegetableBeds nursery terrace fountainPlaza plantedEdges seating framedApproaches; do
   grep -Fq "$feature" src/shared/VillageCompositionRules.luau || fail "composition manifest missing $feature"
 done
 for neighbourhood in MeadowLane HarbourRow WoodlandRise OrchardEnd; do
-  grep -Fq "$neighbourhood" src/server/VillageLandscapeBuilder.luau || fail "production landscape missing $neighbourhood"
-  grep -Fq "$neighbourhood" src/server/VillageGroundRebuildBuilder.luau || fail "final ground composition missing $neighbourhood"
+  grep -Fq "$neighbourhood" src/server/VillageLandscapeBuilder.luau || fail "landscape missing $neighbourhood"
+  grep -Fq "$neighbourhood" src/server/VillageGroundRebuildBuilder.luau || fail "ground composition missing $neighbourhood"
 done
 grep -Fq 'fallback-ground-only' src/server/VillageGroundRebuildBuilder.luau \
   || fail "VillageGround is not explicitly demoted to fallback visual role"
-pass "neighbourhood/civic composition and green-board correction are explicit"
-
-for destination in TownHall Courier VillageShop Workshop Market; do
-  grep -Fq "$destination" src/server/CivicCraftBuilder.luau || fail "civic craft missing $destination"
-done
-grep -Fq 'HomeStorePitchedRoof' src/server/HomeStoreDestinationBuilder.luau || fail "crafted Home Store roof missing"
-grep -Fq 'TinyWorldPlayerHeightFacadePolish' src/server/CivicFacadePolishBuilder.luau \
-  || fail "player-height civic facade polish marker missing"
-grep -Fq 'TinyWorldFirstFramePolish' src/server/VillageArrivalPolishBuilder.luau \
-  || fail "village first-frame arrival polish marker missing"
-grep -Fq 'FountainApproach' src/server/VillageArrivalPolishBuilder.luau \
-  || fail "arrival composition does not frame the fountain approach"
-pass "civic destinations and the first player camera route receive final visual polish"
+pass "neighbourhood composition and green-board correction remain active"
 
 grep -Fq 'productVersion = "0.6.3"' src/shared/ReleaseInfo.luau || fail "runtime release identity is stale"
 grep -Fq 'channel = "DEV"' src/shared/ReleaseInfo.luau || fail "runtime release channel is not DEV"
 grep -Fq 'candidate = "PR #8"' src/shared/ReleaseInfo.luau || fail "runtime candidate identity is not PR #8"
+grep -Fq 'artRevision = "ART R4"' src/shared/ReleaseInfo.luau || fail "runtime art revision is not ART R4"
 grep -Fq 'ReleaseInfo' src/client/BuildStamp.client.luau || fail "candidate stamp is not sourced from ReleaseInfo"
 grep -Fq 'UDim2.fromOffset(12, 120)' src/client/BuildStamp.client.luau || fail "candidate stamp does not reserve space below the normal HUD"
-pass "Studio/DEV screenshots have an explicit v0.6.3 PR #8 candidate stamp"
+pass "Studio/DEV screenshots identify v0.6.3 PR #8 ART R4"
 
 grep -Fq 'v0.6.3' README.md || fail "README does not identify v0.6.3"
 grep -Fq 'v0.6.3' AGENTS.md || fail "AGENTS does not identify v0.6.3"
@@ -155,4 +96,4 @@ grep -Fq 'tinyworld-v0.6.3-${{ github.sha }}' .github/workflows/rojo-build.yml |
 grep -Fq 'dist/TinyWorld-v0.6.3.rbxlx' .github/workflows/rojo-build.yml || fail "Rojo artifact path is stale"
 pass "build workflow targets v0.6.3"
 
-echo "PASS: TinyWorld v0.6.3 Production Art & World Craft source contract"
+echo "PASS: TinyWorld v0.6.3 Production Art & World Craft source contract (ART R4 authority)"
