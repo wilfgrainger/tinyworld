@@ -3,6 +3,6 @@ return {
 	productVersion = "0.6.3",
 	channel = "DEV",
 	candidate = "PR #8",
-	artRevision = "ART R2",
+	artRevision = "ART R3",
 	releaseName = "Production Art & World Craft",
 }
