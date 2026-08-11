@@ -25,12 +25,13 @@ pass "ART R3 screenshots are revision-identifiable"
 for activation in \
   'SpawnPresentationBuilder.apply(world.root)' \
   'HeroPortalBuilder.apply(world.root)' \
-  'OrganicNatureBuilder.apply(world.root)' \
-  'StarterHomeHeroInteriorBuilder.apply(world.root)'; do
+  'OrganicNatureBuilder.apply(world.root)'; do
   grep -Fq "$activation" src/server/Main.server.luau \
-    || fail "ART R3 replacement pass is not active: $activation"
+    || fail "ART R3 static replacement pass is not active: $activation"
 done
-pass "ART R3 post-build replacement passes are active"
+grep -Fq 'StarterHomeHeroInteriorBuilder.apply(plot)' src/server/HomeInteriorCraftBuilder.luau \
+  || fail "starter-home R3 interior is not bound to every home rebuild"
+pass "ART R3 replacement passes are active at the correct lifecycle boundaries"
 
 # The Studio SpawnLocation star must be physically buried, not merely made transparent.
 grep -Fq 'spawn.Position = Vector3.new(spawn.Position.X, -3, spawn.Position.Z)' src/server/SpawnPresentationBuilder.luau \
