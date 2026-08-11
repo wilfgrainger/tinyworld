@@ -14,7 +14,9 @@ for path in \
   src/server/VillageLandscapeBuilder.luau \
   src/server/CivicCraftBuilder.luau \
   src/server/CivicHeroRebuildBuilder.luau \
+  src/server/CivicFacadePolishBuilder.luau \
   src/server/VillageGroundRebuildBuilder.luau \
+  src/server/VillageArrivalPolishBuilder.luau \
   src/server/ProductionArtCleanup.luau \
   src/shared/ReleaseInfo.luau \
   src/client/BuildStamp.client.luau; do
@@ -35,11 +37,15 @@ grep -Fq 'CivicCraftBuilder.apply(world.root)' src/server/Main.server.luau \
   || fail "server composition root does not apply civic craft"
 grep -Fq 'CivicHeroRebuildBuilder.apply(world.root)' src/server/Main.server.luau \
   || fail "server composition root does not apply final civic hero replacement pass"
+grep -Fq 'CivicFacadePolishBuilder.apply(world.root)' src/server/Main.server.luau \
+  || fail "server composition root does not apply player-height civic facade polish"
 grep -Fq 'VillageLandscapeBuilder.build(world.root, world.layout)' src/server/Main.server.luau \
   || fail "server composition root does not activate VillageLandscapeBuilder"
 grep -Fq 'VillageGroundRebuildBuilder.apply(world.root)' src/server/Main.server.luau \
   || fail "server composition root does not apply final ground composition pass"
-pass "hero architecture, civic correction, cleanup, landscape and ground composition are active"
+grep -Fq 'VillageArrivalPolishBuilder.apply(world.root)' src/server/Main.server.luau \
+  || fail "server composition root does not apply first-frame arrival polish"
+pass "hero architecture, civic correction, cleanup, landscape, ground and arrival composition are active"
 
 for legacyRoof in TownHallRoofLeft TownHallRoofRight VillageShopRoofLeft VillageShopRoofRight CourierDepotRoof WorkshopRoof; do
   grep -Fq "\"${legacyRoof}\"" src/server/CivicHeroRebuildBuilder.luau \
@@ -55,6 +61,18 @@ grep -Fq 'MarketFinalStallWest' src/server/CivicHeroRebuildBuilder.luau \
   || fail "market final supported stall composition missing"
 pass "observed crossed-roof and slab-market failures have explicit replacement logic"
 
+# The 11 August Studio screenshot exposed an inverted shared roof primitive.
+# Lock the corrected gable geometry at the helper boundary so all hero roofs inherit the fix.
+grep -Fq 'TinyWorldRoofGeometry", "gable-correct-v2"' src/server/ArchitecturalDetailBuilder.luau \
+  || fail "pitched-roof helper is not marked as corrected gable geometry"
+grep -Fq 'CFrame.Angles(0, 0, angle)' src/server/ArchitecturalDetailBuilder.luau \
+  || fail "left roof plane does not rise toward the centre ridge"
+grep -Fq 'CFrame.Angles(0, 0, -angle)' src/server/ArchitecturalDetailBuilder.luau \
+  || fail "right roof plane does not mirror toward the centre ridge"
+grep -Fq 'TinyWorldRoofGeometry", "shed-correct-v2"' src/server/ArchitecturalDetailBuilder.luau \
+  || fail "porch canopy is not marked as corrected shed geometry"
+pass "shared roof and canopy geometry encode the Studio-derived correction"
+
 if grep -Fq '"PorchLamp",' src/server/HomePrefabBuilder.luau || grep -Fq '"HomeLantern",' src/server/HomePrefabBuilder.luau; then
   fail "old naked home practical-light recipe survived"
 fi
@@ -65,7 +83,9 @@ grep -Fq 'replaceLegacyPracticalLights' src/server/ProductionArtCleanup.luau \
   || fail "legacy practical lights are not cleaned from the rendered ordinary village"
 grep -Fq 'hideSpawnPad' src/server/ProductionArtCleanup.luau \
   || fail "visible development spawn pad cleanup missing"
-pass "ordinary practical lighting and spawn presentation address v0.6.2 failures"
+grep -Fq 'descendant:IsA("Decal") or descendant:IsA("Texture")' src/server/ProductionArtCleanup.luau \
+  || fail "spawn cleanup does not hide SpawnLocation decal/texture presentation"
+pass "ordinary practical lighting and full spawn presentation address screenshot failures"
 
 grep -Fq 'removePrimitiveAmbientCharacters' src/server/ProductionArtCleanup.luau \
   || fail "rendered primitive ambient character cleanup missing"
@@ -110,7 +130,13 @@ for destination in TownHall Courier VillageShop Workshop Market; do
   grep -Fq "$destination" src/server/CivicCraftBuilder.luau || fail "civic craft missing $destination"
 done
 grep -Fq 'HomeStorePitchedRoof' src/server/HomeStoreDestinationBuilder.luau || fail "crafted Home Store roof missing"
-pass "civic destinations receive production craft before the final replacement pass"
+grep -Fq 'TinyWorldPlayerHeightFacadePolish' src/server/CivicFacadePolishBuilder.luau \
+  || fail "player-height civic facade polish marker missing"
+grep -Fq 'TinyWorldFirstFramePolish' src/server/VillageArrivalPolishBuilder.luau \
+  || fail "village first-frame arrival polish marker missing"
+grep -Fq 'FountainApproach' src/server/VillageArrivalPolishBuilder.luau \
+  || fail "arrival composition does not frame the fountain approach"
+pass "civic destinations and the first player camera route receive final visual polish"
 
 grep -Fq 'productVersion = "0.6.3"' src/shared/ReleaseInfo.luau || fail "runtime release identity is stale"
 grep -Fq 'channel = "DEV"' src/shared/ReleaseInfo.luau || fail "runtime release channel is not DEV"
