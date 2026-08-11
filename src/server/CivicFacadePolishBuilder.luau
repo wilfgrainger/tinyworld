@@ -158,6 +158,18 @@ local function polishVillageShop(model: Model)
 	model:SetAttribute("TinyWorldPlayerHeightFacadePolish", true)
 end
 
+local function polishHomeStore(model: Model)
+	local origin = originFrom(model, "HomeStoreFoundation", 0.25)
+	if not origin then
+		return
+	end
+	addStoneBaseCourse(model, origin, 30, 24, "HomeStore")
+	addSideWindows(model, origin, 30, 24, 5.8, "HomeStore", VisualTheme.Colors.inkGlass)
+	addPlanter(model, "HomeStoreSidePlanterLeft", origin + Vector3.new(-16, 1.2, 5), VisualTheme.Colors.flower)
+	addPlanter(model, "HomeStoreSidePlanterRight", origin + Vector3.new(16, 1.2, -5), VisualTheme.Colors.warmLight)
+	model:SetAttribute("TinyWorldPlayerHeightFacadePolish", true)
+end
+
 local function polishCourier(model: Model)
 	local origin = originFrom(model, "CourierDepotFloor", 0.5)
 	if not origin then
@@ -192,7 +204,6 @@ local function polishWorkshop(model: Model)
 	addStoneBaseCourse(model, origin, 26, 20, "Workshop")
 	addSideWindows(model, origin, 26, 20, 6.1, "Workshop", VisualTheme.Colors.inkGlass)
 
-	-- Readable workshop clutter: tyre stack and a timber workbench, not anonymous coloured cubes.
 	for index = 1, 3 do
 		local tyre = decoration(
 			model,
@@ -228,12 +239,73 @@ local function polishWorkshop(model: Model)
 	model:SetAttribute("TinyWorldPlayerHeightFacadePolish", true)
 end
 
+local function addMarketStock(stall: Model, warm: boolean)
+	local counter = stall:FindFirstChild("Counter")
+	if not counter or not counter:IsA("BasePart") then
+		return
+	end
+	local palette = if warm
+		then { VisualTheme.Colors.gold, VisualTheme.Colors.berry, VisualTheme.Colors.warmLight }
+		else { VisualTheme.Colors.leafLight, VisualTheme.Colors.flower, VisualTheme.Colors.creamDeep }
+
+	for index, x in { -2.3, 0, 2.3 } do
+		for row = 1, 2 do
+			local stock = decoration(
+				stall,
+				"MarketProduce" .. index .. row,
+				Vector3.new(0.9, 0.9, 0.9),
+				counter.CFrame * CFrame.new(x + ((row - 1) * 0.35), 1.45, -0.65 + (row * 1.05)),
+				palette[index],
+				Enum.Material.SmoothPlastic,
+				"market-visible-produce"
+			)
+			stock.Shape = Enum.PartType.Ball
+			stock:SetAttribute("TinyWorldDestinationCue", "market-stock")
+		end
+	end
+end
+
+local function polishMarket(model: Model)
+	local west = model:FindFirstChild("MarketFinalStallWest")
+	local east = model:FindFirstChild("MarketFinalStallEast")
+	if west and west:IsA("Model") then
+		addMarketStock(west, true)
+	end
+	if east and east:IsA("Model") then
+		addMarketStock(east, false)
+	end
+
+	local platform = model:FindFirstChild("MarketPlatform")
+	if platform and platform:IsA("BasePart") then
+		local origin = platform.Position
+		ArchitecturalDetailBuilder.addLantern(model, {
+			name = "MarketEntryLanternLeft",
+			role = "market-entry-lantern",
+			cframe = CFrame.new(origin + Vector3.new(-14, 7.2, -8.5)),
+			postHeight = 5.6,
+			brightness = 0.46,
+			range = 9,
+		})
+		ArchitecturalDetailBuilder.addLantern(model, {
+			name = "MarketEntryLanternRight",
+			role = "market-entry-lantern",
+			cframe = CFrame.new(origin + Vector3.new(14, 7.2, -8.5)),
+			postHeight = 5.6,
+			brightness = 0.46,
+			range = 9,
+		})
+	end
+	model:SetAttribute("TinyWorldPlayerHeightFacadePolish", true)
+end
+
 function CivicFacadePolishBuilder.apply(root: Instance)
 	local mappings = {
 		TownHallPrefab = polishTownHall,
 		VillageShopPrefab = polishVillageShop,
+		HomeStoreDestination = polishHomeStore,
 		CourierDepotPrefab = polishCourier,
 		TransportWorkshopPrefab = polishWorkshop,
+		VillageMarketPrefab = polishMarket,
 	}
 	for name, polish in mappings do
 		local model = root:FindFirstChild(name)
