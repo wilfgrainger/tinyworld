@@ -1,0 +1,3 @@
+# Canonical source is art/specs/village-product-art.json.
+# This checked-in Luau mirror is generated presentation data, not hand-authored Luau.
+src/shared/ProductionArtSpec.luau
