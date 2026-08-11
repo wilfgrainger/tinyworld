@@ -168,7 +168,7 @@ Raw attributes may appear only in a separate Studio-only opt-in drawer. The debu
 
 ## Evidence
 
-The active v0.6.1 acceptance route checks:
+The current release acceptance route must check:
 
 - normal HUD leaves the world visually dominant;
 - no permanent system-dashboard/website-header treatment;
@@ -182,4 +182,4 @@ The active v0.6.1 acceptance route checks:
 - no clipped journal tabs/copy;
 - no hover-only core feature.
 
-For v0.6.1 player-facing UI work, source structure cannot mark device/visual usability PASS and required observed rows block merge-ready status.
+For player-facing UI work, source structure cannot mark device/visual usability PASS. Required observed rows in the active release acceptance record remain authoritative.
