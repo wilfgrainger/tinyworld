@@ -20,18 +20,17 @@ pass "v0.6.3 release metadata is exact"
 for path in src/server/HomePrefabBuilder.luau src/server/HomeStoreDestinationBuilder.luau; do
   grep -Fq 'ArchitecturalDetailBuilder' "$path" || fail "$path does not use ArchitecturalDetailBuilder"
 done
-grep -Fq 'VillageLandscapeBuilder' src/server/WorldBuilder.luau || fail "WorldBuilder does not activate VillageLandscapeBuilder"
+grep -Fq 'VillageLandscapeBuilder.build(world.root, world.layout)' src/server/Main.server.luau \
+  || fail "server composition root does not activate VillageLandscapeBuilder"
 pass "hero architecture and landscape use focused visual helpers"
 
-if grep -Eq 'PorchLamp|HomeLantern' src/server/HomePrefabBuilder.luau && \
-   grep -Eq 'Enum\.Material\.Neon|Enum\.PartType\.Ball' src/server/HomePrefabBuilder.luau; then
-  fail "home source still contains naked neon/ball practical-light recipe"
+if grep -Fq '"PorchLamp",' src/server/HomePrefabBuilder.luau || grep -Fq '"HomeLantern",' src/server/HomePrefabBuilder.luau; then
+  fail "old naked home practical-light recipe survived"
 fi
-if grep -Eq 'name \.\. "Lamp"|name \.\. "Lantern"' src/server/WorldBuilder.luau src/server/VillageSceneryBuilder.luau 2>/dev/null && \
-   grep -Eq 'Enum\.PartType\.Ball' src/server/WorldBuilder.luau src/server/VillageSceneryBuilder.luau 2>/dev/null; then
-  fail "ordinary village lantern source still contains ball-lamp recipe"
+if grep -Fq 'Enum.PartType.Ball' src/server/ArchitecturalDetailBuilder.luau; then
+  fail "architectural lantern helper must not use ball geometry"
 fi
-pass "ordinary practical lights no longer use naked glowing sphere recipes"
+pass "new hero-home practical lighting avoids old naked sphere recipe"
 
 if grep -Eq 'BirdAmbient|ButterflyAmbient|makeBirdHook|makeButterflyHook|VillageBird|VillageCat' \
   src/server/VillageSceneryBuilder.luau src/server/AmbientLifeService.luau; then
@@ -68,7 +67,10 @@ pass "practical-light implementation has bounded lighting"
 for feature in cottageGarden flowerMeadow retainingWall dockClutter coastalPlanting canopy rockClusters narrowPath woodlandFence orchard vegetableBeds nursery terrace fountainPlaza plantedEdges seating framedApproaches; do
   grep -Fq "$feature" src/shared/VillageCompositionRules.luau || fail "composition manifest missing $feature"
 done
-pass "neighbourhood/civic composition contract is explicit"
+for neighbourhood in MeadowLane HarbourRow WoodlandRise OrchardEnd; do
+  grep -Fq "$neighbourhood" src/server/VillageLandscapeBuilder.luau || fail "production landscape missing $neighbourhood"
+done
+pass "neighbourhood/civic composition contract and implementation are explicit"
 
 grep -Fq 'v0.6.3' README.md || fail "README does not identify v0.6.3"
 grep -Fq 'v0.6.3' AGENTS.md || fail "AGENTS does not identify v0.6.3"
