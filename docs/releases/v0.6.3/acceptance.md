@@ -97,28 +97,28 @@ The manual uploader is credential-free in Git. Credentials come only from runtim
 
 ART R4 Studio testing does **not** wait for permanent upload. The DEV preview uses true custom MeshParts generated from the same canonical product-art specification. Once an uploaded Model is approved, the semantic role switches to the hosted asset without changing gameplay authority.
 
-## Current automated evidence
+## Automated evidence
 
-First fully green ART R4 implementation head before evidence-only documentation updates:
+Final green branch tip before Studio observation:
 
-`873f061dcf017218516424164bfb27845d6811fc`
+`b11c15714f27d84bba63af5ee5b64f17953a7f02`
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| Pure Luau specs | PASS | 36 specs |
-| Deterministic shared analysis | PASS | Luau analyser gate |
-| ART R4 runtime-art spec syntax | PASS | `luau-compile` |
-| StyLua | PASS | current source, with only canonical generated art-data mirror ignored via `.styluaignore` |
-| Recursive runtime compile | PASS | server/client syntax compilation |
-| Release authority | PASS | run 400 on implementation head |
-| v0.6.3 source contract | PASS | ART R4 is current visual authority |
-| ART R4 production asset contract | PASS | 19 roles / 142 components |
-| ART R4 deterministic glTF generation | PASS | repeated builds produce identical tree digest |
-| Production registry drift check | PASS | generated registry matches manifest |
-| Repository/current-authority audit | PASS | ART R4 visual path required, R1-R3 active path forbidden |
-| Shell build contract | PASS | v0.6.3 Rojo candidate contract |
-| Release contract | PASS | manifest schema v3 and credential boundary |
-| Rojo candidate build | PASS | run 500 on implementation head |
+| Pure Luau specs | PASS | 36 specs, run 634 |
+| Deterministic shared analysis | PASS | run 634 |
+| ART R4 runtime-art spec syntax | PASS | run 634 |
+| StyLua | PASS | run 634; only canonical generated art-data mirror is ignored via `.styluaignore` |
+| Recursive runtime compile | PASS | run 634 |
+| Release authority | PASS | run 405 |
+| v0.6.3 source contract | PASS | run 405 |
+| ART R4 production asset contract | PASS | 19 roles / 142 components, run 405 |
+| ART R4 deterministic glTF generation | PASS | repeated builds have identical digest, run 405 |
+| Production registry drift check | PASS | run 405 |
+| Repository/current-authority audit | PASS | run 405 |
+| Shell build contract | PASS | run 505 |
+| Release contract | PASS | manifest schema v3, run 505 |
+| Rojo candidate build | PASS | run 505 |
 
 Automated PASS never satisfies the visual rows below.
 
