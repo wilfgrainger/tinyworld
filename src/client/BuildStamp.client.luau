@@ -22,7 +22,7 @@ gui.Parent = playerGui
 local stamp = Instance.new("TextLabel")
 stamp.Name = "CandidateStamp"
 stamp.Position = UDim2.fromOffset(12, 120)
-stamp.Size = UDim2.fromOffset(248, 24)
+stamp.Size = UDim2.fromOffset(300, 24)
 stamp.BackgroundColor3 = Color3.fromRGB(30, 35, 42)
 stamp.BackgroundTransparency = 0.18
 stamp.BorderSizePixel = 0
@@ -33,11 +33,12 @@ stamp.TextSize = 12
 stamp.TextXAlignment = Enum.TextXAlignment.Center
 stamp.TextYAlignment = Enum.TextYAlignment.Center
 stamp.Text = string.format(
-	"%s %s · v%s · %s",
+	"%s %s · v%s · %s · %s",
 	ReleaseInfo.productName,
 	ReleaseInfo.channel,
 	ReleaseInfo.productVersion,
-	ReleaseInfo.candidate
+	ReleaseInfo.candidate,
+	ReleaseInfo.artRevision
 )
 stamp.Active = false
 stamp.Selectable = false
