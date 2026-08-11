@@ -188,16 +188,8 @@ local function addArchSegment(mesh: EditableMesh, size: Vector3, segments: numbe
 	local backInner = {}
 	for segment = 0, segments do
 		local angle = math.pi * segment / segments
-		local outer = Vector3.new(
-			math.cos(angle) * outerRadius,
-			springY + math.sin(angle) * outerRadius,
-			hz
-		)
-		local inner = Vector3.new(
-			math.cos(angle) * innerRadius,
-			springY + math.sin(angle) * innerRadius,
-			hz
-		)
+		local outer = Vector3.new(math.cos(angle) * outerRadius, springY + math.sin(angle) * outerRadius, hz)
+		local inner = Vector3.new(math.cos(angle) * innerRadius, springY + math.sin(angle) * innerRadius, hz)
 		frontOuter[segment + 1] = mesh:AddVertex(outer)
 		frontInner[segment + 1] = mesh:AddVertex(inner)
 		backOuter[segment + 1] = mesh:AddVertex(Vector3.new(outer.X, outer.Y, -hz))
