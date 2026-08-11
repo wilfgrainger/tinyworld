@@ -138,10 +138,22 @@ function ArchitecturalDetailBuilder.addWindow(parent: Instance, spec)
 	glass.Reflectance = 0.04
 
 	local framePieces = {
-		Top = { offset = Vector3.new(0, (height / 2) - (frame / 2), 0.08), size = Vector3.new(width, frame, depth + 0.12) },
-		Bottom = { offset = Vector3.new(0, -(height / 2) + (frame / 2), 0.08), size = Vector3.new(width, frame, depth + 0.12) },
-		Left = { offset = Vector3.new(-(width / 2) + (frame / 2), 0, 0.08), size = Vector3.new(frame, height, depth + 0.12) },
-		Right = { offset = Vector3.new((width / 2) - (frame / 2), 0, 0.08), size = Vector3.new(frame, height, depth + 0.12) },
+		Top = {
+			offset = Vector3.new(0, (height / 2) - (frame / 2), 0.08),
+			size = Vector3.new(width, frame, depth + 0.12),
+		},
+		Bottom = {
+			offset = Vector3.new(0, -(height / 2) + (frame / 2), 0.08),
+			size = Vector3.new(width, frame, depth + 0.12),
+		},
+		Left = {
+			offset = Vector3.new(-(width / 2) + (frame / 2), 0, 0.08),
+			size = Vector3.new(frame, height, depth + 0.12),
+		},
+		Right = {
+			offset = Vector3.new((width / 2) - (frame / 2), 0, 0.08),
+			size = Vector3.new(frame, height, depth + 0.12),
+		},
 	}
 	for name, values in framePieces do
 		decorative(
@@ -358,8 +370,24 @@ function ArchitecturalDetailBuilder.addLantern(parent: Instance, spec)
 			role .. "-bracket"
 		)
 	end
-	decorative(model, "Cap", Vector3.new(1.5, 0.25, 1.5), base * CFrame.new(0, 0.75, 0), metal, Enum.Material.Metal, role .. "-cap")
-	decorative(model, "Base", Vector3.new(1.35, 0.25, 1.35), base * CFrame.new(0, -0.75, 0), metal, Enum.Material.Metal, role .. "-base")
+	decorative(
+		model,
+		"Cap",
+		Vector3.new(1.5, 0.25, 1.5),
+		base * CFrame.new(0, 0.75, 0),
+		metal,
+		Enum.Material.Metal,
+		role .. "-cap"
+	)
+	decorative(
+		model,
+		"Base",
+		Vector3.new(1.35, 0.25, 1.35),
+		base * CFrame.new(0, -0.75, 0),
+		metal,
+		Enum.Material.Metal,
+		role .. "-base"
+	)
 	for _, x in { -0.58, 0.58 } do
 		for _, z in { -0.58, 0.58 } do
 			decorative(
