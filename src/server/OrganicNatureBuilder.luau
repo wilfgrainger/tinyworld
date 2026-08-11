@@ -160,7 +160,7 @@ end
 local function replacePrimitiveTrees(root: Instance)
 	local candidates = {}
 	for _, descendant in root:GetDescendants() do
-		if descendant:IsA("BasePart") and descendant.Shape == Enum.PartType.Ball then
+		if descendant:IsA("Part") and descendant.Shape == Enum.PartType.Ball then
 			local name = descendant.Name
 			if string.find(name, "Canopy", 1, true) or string.find(name, "Foliage", 1, true) then
 				table.insert(candidates, descendant)
@@ -177,7 +177,7 @@ end
 local function replacePrimitiveFlowers(root: Instance)
 	local candidates = {}
 	for _, descendant in root:GetDescendants() do
-		if descendant:IsA("BasePart") and descendant.Shape == Enum.PartType.Ball then
+		if descendant:IsA("Part") and descendant.Shape == Enum.PartType.Ball then
 			local name = descendant.Name
 			if string.find(name, "Bloom", 1, true) or string.sub(name, 1, 6) == "Flower" then
 				table.insert(candidates, descendant)
