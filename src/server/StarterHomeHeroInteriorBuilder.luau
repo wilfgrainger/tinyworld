@@ -58,9 +58,21 @@ end
 local function tuneFurniture(container: Instance, anchor: Vector3)
 	local kitchen = container:FindFirstChild("HomeRoom_Kitchen")
 	if kitchen then
-		setPart(kitchen:FindFirstChild("HomeFurniture_DiningTable"), Vector3.new(3.7, 0.6, 2.5), anchor + Vector3.new(4.8, 2.7, -0.8))
-		setPart(kitchen:FindFirstChild("HomeFurniture_DiningChairLeft"), Vector3.new(1.35, 2.1, 1.35), anchor + Vector3.new(2.4, 2.55, -0.8))
-		setPart(kitchen:FindFirstChild("HomeFurniture_DiningChairRight"), Vector3.new(1.35, 2.1, 1.35), anchor + Vector3.new(7.2, 2.55, -0.8))
+		setPart(
+			kitchen:FindFirstChild("HomeFurniture_DiningTable"),
+			Vector3.new(3.7, 0.6, 2.5),
+			anchor + Vector3.new(4.8, 2.7, -0.8)
+		)
+		setPart(
+			kitchen:FindFirstChild("HomeFurniture_DiningChairLeft"),
+			Vector3.new(1.35, 2.1, 1.35),
+			anchor + Vector3.new(2.4, 2.55, -0.8)
+		)
+		setPart(
+			kitchen:FindFirstChild("HomeFurniture_DiningChairRight"),
+			Vector3.new(1.35, 2.1, 1.35),
+			anchor + Vector3.new(7.2, 2.55, -0.8)
+		)
 		local food = kitchen:FindFirstChild("HomeFurniture_TableFood")
 		if food and food:IsA("BasePart") then
 			food.Position = anchor + Vector3.new(4.8, 3.4, -0.8)
@@ -69,9 +81,21 @@ local function tuneFurniture(container: Instance, anchor: Vector3)
 
 	local living = container:FindFirstChild("HomeRoom_Living")
 	if living then
-		setPart(living:FindFirstChild("HomeFurniture_Sofa"), Vector3.new(5.1, 2.15, 2.15), anchor + Vector3.new(-4.2, 2.9, 5.5))
-		setPart(living:FindFirstChild("HomeFurniture_SofaBack"), Vector3.new(5.1, 2.55, 0.62), anchor + Vector3.new(-4.2, 4.1, 6.15))
-		setPart(living:FindFirstChild("HomeFurniture_BookToyShelf"), Vector3.new(3.4, 3.8, 1), anchor + Vector3.new(-7.1, 3.45, 1.9))
+		setPart(
+			living:FindFirstChild("HomeFurniture_Sofa"),
+			Vector3.new(5.1, 2.15, 2.15),
+			anchor + Vector3.new(-4.2, 2.9, 5.5)
+		)
+		setPart(
+			living:FindFirstChild("HomeFurniture_SofaBack"),
+			Vector3.new(5.1, 2.55, 0.62),
+			anchor + Vector3.new(-4.2, 4.1, 6.15)
+		)
+		setPart(
+			living:FindFirstChild("HomeFurniture_BookToyShelf"),
+			Vector3.new(3.4, 3.8, 1),
+			anchor + Vector3.new(-7.1, 3.45, 1.9)
+		)
 	end
 end
 
