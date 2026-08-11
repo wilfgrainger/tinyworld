@@ -58,7 +58,14 @@ local function originFrom(model: Model, partName: string, yOffset: number): Vect
 	return nil
 end
 
-local function addFacadePilasters(model: Model, origin: Vector3, width: number, height: number, frontZ: number, role: string)
+local function addFacadePilasters(
+	model: Model,
+	origin: Vector3,
+	width: number,
+	height: number,
+	frontZ: number,
+	role: string
+)
 	for _, x in { -(width / 2) + 1, (width / 2) - 1 } do
 		decoration(
 			model,
@@ -248,7 +255,14 @@ local function rebuildWorkshop(model: Model)
 	model:SetAttribute("TinyWorldFinalCivicCraft", "v0.6.3-studio-correction")
 end
 
-local function addMarketStall(model: Model, origin: Vector3, name: string, x: number, primary: Color3, secondary: Color3)
+local function addMarketStall(
+	model: Model,
+	origin: Vector3,
+	name: string,
+	x: number,
+	primary: Color3,
+	secondary: Color3
+)
 	local stall = Instance.new("Model")
 	stall.Name = name
 	stall:SetAttribute("TinyWorldArtRole", "market-final-stall")
@@ -283,7 +297,7 @@ local function addMarketStall(model: Model, origin: Vector3, name: string, x: nu
 			stall,
 			"AwningStrip" .. index,
 			Vector3.new(3.15, 0.22, 6.3),
-			base * CFrame.new(dx, 7, 0) * CFrame.Angles(0, 0, math.rad(if index == 2 then -2 else 2)),
+			base * CFrame.new(dx, 7, 0) * CFrame.Angles(math.rad(5), 0, 0),
 			if index == 2 then secondary else primary,
 			Enum.Material.Fabric,
 			"market-final-awning-strip"
@@ -330,8 +344,22 @@ local function rebuildMarket(model: Model)
 		statusSign.Position = origin + Vector3.new(0, 5.4, -9)
 	end
 
-	addMarketStall(model, origin, "MarketFinalStallWest", -7.8, VisualTheme.Colors.warmLight, VisualTheme.Colors.cream)
-	addMarketStall(model, origin, "MarketFinalStallEast", 7.8, VisualTheme.Colors.flower, VisualTheme.Colors.paper)
+	addMarketStall(
+		model,
+		origin,
+		"MarketFinalStallWest",
+		-7.8,
+		VisualTheme.Colors.warmLight,
+		VisualTheme.Colors.cream
+	)
+	addMarketStall(
+		model,
+		origin,
+		"MarketFinalStallEast",
+		7.8,
+		VisualTheme.Colors.flower,
+		VisualTheme.Colors.paper
+	)
 	model:SetAttribute("TinyWorldFinalCivicCraft", "v0.6.3-studio-correction")
 end
 
