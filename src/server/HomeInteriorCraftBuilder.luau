@@ -15,6 +15,7 @@ local function preserveBedsideLampInteraction(container: Instance)
 	lamp:SetAttribute("TinyWorldInteractionAnchor", true)
 	lamp:SetAttribute("TinyWorldProductionVisualProxy", true)
 	lamp.Transparency = 1
+	lamp.Size = Vector3.new(0.05, 0.05, 0.05)
 	lamp.CanCollide = false
 	lamp.CanTouch = false
 	lamp.CanQuery = true
@@ -32,7 +33,17 @@ local function preserveBedsideLampInteraction(container: Instance)
 	light.Range = 8
 	light.Color = VisualTheme.Colors.warmLight
 	light.Shadows = true
-	light.Enabled = false
+
+	local function syncProxyState()
+		light.Enabled = lamp:GetAttribute("TinyWorldAmbientActive") == true
+		lamp.Transparency = 1
+	end
+	syncProxyState()
+	lamp:GetAttributeChangedSignal("TinyWorldAmbientActive"):Connect(function()
+		-- HomeService still updates the legacy target's material/transparency for backwards compatibility.
+		-- Run after that handler and force the ART R4 semantic proxy back to invisible while the real light changes.
+		task.defer(syncProxyState)
+	end)
 end
 
 function HomeInteriorCraftBuilder.apply(plot)
