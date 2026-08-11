@@ -252,7 +252,9 @@ local function addMarketCraft(model: Model)
 		return
 	end
 	local origin = platform.Position
-	for _, name in { "MarketTable", "MarketTableLeg1", "MarketTableLeg2", "MarketAwning", "MarketAwningPost1", "MarketAwningPost2" } do
+	for _, name in
+		{ "MarketTable", "MarketTableLeg1", "MarketTableLeg2", "MarketAwning", "MarketAwningPost1", "MarketAwningPost2" }
+	do
 		local old = model:FindFirstChild(name)
 		if old then
 			old:Destroy()
