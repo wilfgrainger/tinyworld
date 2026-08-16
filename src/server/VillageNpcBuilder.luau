@@ -581,14 +581,8 @@ function VillageNpcBuilder.build(parent: Instance, definition, origin: CFrame, a
 		Enum.Material.Fabric,
 		"npc-waist"
 	)
-	local head = ball(
-		npc,
-		"Head",
-		origin * CFrame.new(0, 6.22, 0),
-		Vector3.new(2.05, 2.12, 1.95),
-		COLORS.skin,
-		"npc-head"
-	)
+	local head =
+		ball(npc, "Head", origin * CFrame.new(0, 6.22, 0), Vector3.new(2.05, 2.12, 1.95), COLORS.skin, "npc-head")
 
 	addArms(npc, origin, style)
 	addLegs(npc, origin, style)
