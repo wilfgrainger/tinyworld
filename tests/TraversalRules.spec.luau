@@ -43,6 +43,11 @@ return function()
 	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(135.9, 100, 36), Zone.ShoreSwim)
 	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(136.1, 100, 36), Zone.OuterSeaBoat)
 
+	TestUtil.isTrue(TraversalRules.isWithinCoastalBounds(100, 100, 180))
+	TestUtil.isTrue(TraversalRules.isWithinCoastalBounds(280, 100, 180))
+	TestUtil.isFalse(TraversalRules.isWithinCoastalBounds(281, 100, 180))
+	TestUtil.isFalse(TraversalRules.isWithinCoastalBounds(1000, 100, 180))
+
 	local walker = ProfileSchema.new()
 	local allowedWalk, walkReason = TraversalRules.canOccupyZone(walker, Zone.OuterSeaBoat)
 	TestUtil.isFalse(allowedWalk)
