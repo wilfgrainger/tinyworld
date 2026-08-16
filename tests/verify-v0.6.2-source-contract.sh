@@ -101,8 +101,15 @@ grep -Fq 'authored-native' docs/engineering/asset-pipeline.md || fail "authored-
 grep -Fq 'approved-production' docs/engineering/asset-pipeline.md || fail "approved-production visual state missing"
 pass "Claude visual-craft asset states are durable"
 
-grep -Fq 'tinyworld-v0.6.2-${{ github.sha }}' .github/workflows/rojo-build.yml || fail "Rojo artifact name is stale"
-grep -Fq 'dist/TinyWorld-v0.6.2.rbxlx' .github/workflows/rojo-build.yml || fail "Rojo artifact path is stale"
-pass "build workflow targets v0.6.2"
+workflow=.github/workflows/rojo-build.yml
+grep -Fq 'run: ./scripts/build.sh' "$workflow" || fail "Rojo workflow no longer builds v0.6.2"
+grep -Fq 'name: Publish TinyWorld DEV' "$workflow" || fail "main-only DEV publish step missing"
+grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$workflow" || fail "DEV publish is not main-only"
+grep -Fq 'ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}' "$workflow" || fail "DEV publisher secret binding missing"
+grep -Fq 'run: bash ./scripts/publish-dev.sh' "$workflow" || fail "DEV publisher script is not invoked"
+if grep -Eq 'actions/(upload-artifact|cache)@' "$workflow"; then
+  fail "Rojo workflow still uses persistent Actions storage"
+fi
+pass "build workflow is free-only and targets direct main-to-DEV publishing"
 
 echo "PASS: TinyWorld v0.6.2 source contract"

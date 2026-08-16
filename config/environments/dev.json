@@ -1,8 +1,8 @@
 {
   "name": "TinyWorld DEV",
   "releaseChannel": "dev",
-  "configured": false,
-  "universeId": null,
-  "placeId": null,
-  "publishing": "deferred"
+  "configured": true,
+  "universeId": "10654114907",
+  "placeId": "76129528245924",
+  "publishing": "open-cloud"
 }
