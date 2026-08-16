@@ -54,12 +54,31 @@ local function buildMermaid(parent: Instance, origin: CFrame, index: number)
 	model.Parent = parent
 	ProductionMeshFactory.createComponent(
 		model,
-		spec("Tail", "frustum", { 2.5, 4.8, 2.5 }, { 0, 2.4, 0 }, if index % 2 == 0 then "purple" else "aqua", "fabric", "mermaid-tail", { topScale = 0.55 }),
+		spec(
+			"Tail",
+			"frustum",
+			{ 2.5, 4.8, 2.5 },
+			{ 0, 2.4, 0 },
+			if index % 2 == 0 then "purple" else "aqua",
+			"fabric",
+			"mermaid-tail",
+			{ topScale = 0.55 }
+		),
 		origin,
 		PALETTE
 	)
-	ProductionMeshFactory.createComponent(model, spec("Torso", "beveledBox", { 2.6, 2.8, 1.6 }, { 0, 5.8, 0 }, "pearl", "fabric", "mermaid-torso"), origin, PALETTE)
-	ProductionMeshFactory.createComponent(model, spec("Head", "ellipsoid", { 2.1, 2.3, 2.0 }, { 0, 8.0, 0 }, "skin", "fabric", "mermaid-head"), origin, PALETTE)
+	ProductionMeshFactory.createComponent(
+		model,
+		spec("Torso", "beveledBox", { 2.6, 2.8, 1.6 }, { 0, 5.8, 0 }, "pearl", "fabric", "mermaid-torso"),
+		origin,
+		PALETTE
+	)
+	ProductionMeshFactory.createComponent(
+		model,
+		spec("Head", "ellipsoid", { 2.1, 2.3, 2.0 }, { 0, 8.0, 0 }, "skin", "fabric", "mermaid-head"),
+		origin,
+		PALETTE
+	)
 end
 
 function MermaidLandBuilder.build(world)
@@ -77,7 +96,16 @@ function MermaidLandBuilder.build(world)
 	whirlpoolModel.Parent = folder
 	local whirlpool = ProductionMeshFactory.createComponent(
 		whirlpoolModel,
-		spec("Whirlpool", "cylinder", { 18, 0.7, 18 }, { 0, 0, 0 }, "deepAqua", "water", "hidden-whirlpool", { segments = 24, transparency = 0.28 }),
+		spec(
+			"Whirlpool",
+			"cylinder",
+			{ 18, 0.7, 18 },
+			{ 0, 0, 0 },
+			"deepAqua",
+			"water",
+			"hidden-whirlpool",
+			{ segments = 24, transparency = 0.28 }
+		),
 		whirlpoolOrigin,
 		PALETTE
 	)
@@ -88,13 +116,31 @@ function MermaidLandBuilder.build(world)
 	island.Parent = folder
 	ProductionMeshFactory.createComponent(
 		island,
-		spec("Island", "ellipsoid", { 100, 10, 80 }, { 0, -3, 0 }, "sand", "ground", "mermaid-land-island", { segments = 20, rings = 8 }),
+		spec(
+			"Island",
+			"ellipsoid",
+			{ 100, 10, 80 },
+			{ 0, -3, 0 },
+			"sand",
+			"ground",
+			"mermaid-land-island",
+			{ segments = 20, rings = 8 }
+		),
 		entryCFrame,
 		PALETTE
 	)
 	ProductionMeshFactory.createComponent(
 		island,
-		spec("CoralArch", "archSegment", { 18, 18, 4 }, { 0, 8, -22 }, "coral", "stone", "mermaid-land-arch", { segments = 16, thickness = 2.2 }),
+		spec(
+			"CoralArch",
+			"archSegment",
+			{ 18, 18, 4 },
+			{ 0, 8, -22 },
+			"coral",
+			"stone",
+			"mermaid-land-arch",
+			{ segments = 16, thickness = 2.2 }
+		),
 		entryCFrame,
 		PALETTE
 	)
@@ -109,7 +155,15 @@ function MermaidLandBuilder.build(world)
 		local angle = (index - 1) * (math.pi * 2 / #questIds)
 		local pedestal = ProductionMeshFactory.createComponent(
 			island,
-			spec("Quest_" .. questId, "beveledBox", { 4, 2.2, 4 }, { math.cos(angle) * 25, 1.2, math.sin(angle) * 20 }, "pearl", "stone", "mermaid-quest-pedestal"),
+			spec(
+				"Quest_" .. questId,
+				"beveledBox",
+				{ 4, 2.2, 4 },
+				{ math.cos(angle) * 25, 1.2, math.sin(angle) * 20 },
+				"pearl",
+				"stone",
+				"mermaid-quest-pedestal"
+			),
 			entryCFrame,
 			PALETTE
 		)
