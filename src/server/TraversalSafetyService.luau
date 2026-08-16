@@ -58,6 +58,16 @@ function TraversalSafetyService:_checkPlayers()
 			end
 
 			local distance = math.max(math.abs(root.Position.X), math.abs(root.Position.Z))
+			if
+				not TraversalRules.isWithinCoastalBounds(
+					distance,
+					self.world.boundary.shorelineDistance,
+					self.world.coast.waterBelt
+				)
+			then
+				continue
+			end
+
 			local zone = TraversalRules.classifyDistanceFromVillage(
 				distance,
 				self.world.boundary.shorelineDistance,
