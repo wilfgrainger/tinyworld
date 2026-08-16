@@ -1,0 +1,57 @@
+name: Work item
+description: Track an independently testable TinyWorld feature, visual workstream, refactor or bug fix.
+title: "[Work] "
+body:
+  - type: markdown
+    attributes:
+      value: "Create this issue before implementation. Do not include credentials, tokens or secret values."
+  - type: input
+    id: parent
+    attributes:
+      label: Parent issue
+      description: Release epic or feature issue, if applicable.
+      placeholder: "#123"
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: One independently testable outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Exact scope
+      description: State what changes and what must remain unchanged.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Relevant files/components
+      description: Known implementation surfaces and architectural boundaries.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Preceding issues/workstreams or system assumptions.
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Implementation checklist
+      value: |
+        - [ ] Failing test/source contract added where practical
+        - [ ] Intended implementation completed
+        - [ ] Existing behaviour/regression checks pass
+        - [ ] Exact-head CI evidence recorded
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Observable conditions that must be true before this issue is complete.
+    validations:
+      required: true
