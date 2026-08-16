@@ -57,7 +57,13 @@ local function mountFixed(root: Instance, productionVisualService, modelName: st
 	return mountThenHideLegacy(productionVisualService, role, model, pivot)
 end
 
-local function mountSupporting(parent: Instance, productionVisualService, role: string, name: string, pivot: CFrame): Model?
+local function mountSupporting(
+	parent: Instance,
+	productionVisualService,
+	role: string,
+	name: string,
+	pivot: CFrame
+): Model?
 	local container = Instance.new("Model")
 	container.Name = name
 	container:SetAttribute("TinyWorldArtRole", "art-r5-supporting")
@@ -83,12 +89,7 @@ local function replaceLandscapeTrees(root: Instance, productionVisualService)
 		local trunk = treeModel:FindFirstChild("Trunk")
 		if trunk and trunk:IsA("BasePart") then
 			local base = trunk.Position - Vector3.new(0, trunk.Size.Y / 2, 0)
-			mountThenHideLegacy(
-				productionVisualService,
-				roles[((index - 1) % #roles) + 1],
-				treeModel,
-				CFrame.new(base)
-			)
+			mountThenHideLegacy(productionVisualService, roles[((index - 1) % #roles) + 1], treeModel, CFrame.new(base))
 		end
 	end
 end
@@ -149,11 +150,8 @@ local function replaceFlowerBeds(root: Instance, productionVisualService)
 	for index, bed in flowerBeds do
 		local soil = bed:FindFirstChild("Soil")
 		if soil and soil:IsA("BasePart") and index % 2 == 1 then
-			local replacement = productionVisualService:mount(
-				"planter",
-				bed,
-				CFrame.new(soil.Position + Vector3.new(0, 0.2, 0))
-			)
+			local replacement =
+				productionVisualService:mount("planter", bed, CFrame.new(soil.Position + Vector3.new(0, 0.2, 0)))
 			if replacement then
 				for _, child in bed:GetDescendants() do
 					if child:IsA("BasePart") and child ~= soil and not isReplacementDescendant(child, bed) then
@@ -178,13 +176,8 @@ local function replaceHedges(root: Instance, productionVisualService)
 	for index, hedge in hedges do
 		local parent = hedge.Parent
 		if parent and index <= 28 then
-			local holder = mountSupporting(
-				parent,
-				productionVisualService,
-				"hedge",
-				"ART_R5_Hedge_" .. index,
-				hedge.CFrame
-			)
+			local holder =
+				mountSupporting(parent, productionVisualService, "hedge", "ART_R5_Hedge_" .. index, hedge.CFrame)
 			if holder then
 				hedge.Transparency = 1
 				hedge.CanCollide = false
@@ -260,13 +253,7 @@ function ProductionVillageVisuals.apply(world, productionVisualService)
 
 	local courier = findModel(root, "CourierDepotPrefab")
 	if courier then
-		mountSupporting(
-			courier,
-			productionVisualService,
-			"parcel-crates",
-			"ART_R5_ParcelCrates",
-			CFrame.new(8, 0, -31)
-		)
+		mountSupporting(courier, productionVisualService, "parcel-crates", "ART_R5_ParcelCrates", CFrame.new(8, 0, -31))
 	end
 
 	replaceWorldPortals(root, productionVisualService)
