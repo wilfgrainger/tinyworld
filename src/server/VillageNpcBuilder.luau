@@ -6,8 +6,6 @@ local COLORS = {
 	skin = Color3.fromRGB(231, 187, 153),
 	skinWarm = Color3.fromRGB(241, 199, 166),
 	dark = VisualTheme.Colors.ink,
-	cream = VisualTheme.Colors.cream,
-	white = VisualTheme.Colors.paper,
 	denim = Color3.fromRGB(79, 106, 148),
 	boot = Color3.fromRGB(72, 54, 51),
 	hairBrown = Color3.fromRGB(104, 70, 52),
@@ -19,31 +17,41 @@ local ROLE_STYLE = {
 		primary = VisualTheme.Colors.pink,
 		secondary = VisualTheme.Colors.plum,
 		accent = VisualTheme.Colors.lemon,
+		pants = VisualTheme.Colors.plum,
 		hair = COLORS.hairDark,
+		headwear = nil,
 	},
 	Gardener = {
 		primary = VisualTheme.Colors.mintDeep,
 		secondary = VisualTheme.Colors.seafoam,
 		accent = VisualTheme.Colors.lemon,
+		pants = COLORS.denim,
 		hair = COLORS.hairBrown,
+		headwear = "sun",
 	},
 	Fisherman = {
 		primary = VisualTheme.Colors.aquaDeep,
 		secondary = VisualTheme.Colors.sky,
 		accent = VisualTheme.Colors.creamDeep,
+		pants = COLORS.denim,
 		hair = COLORS.hairBrown,
+		headwear = "cap",
 	},
 	BoatKeeper = {
 		primary = VisualTheme.Colors.coral,
 		secondary = VisualTheme.Colors.aqua,
 		accent = VisualTheme.Colors.cream,
+		pants = VisualTheme.Colors.plum,
 		hair = COLORS.hairDark,
+		headwear = "cap",
 	},
 	Builder = {
 		primary = VisualTheme.Colors.peach,
 		secondary = VisualTheme.Colors.timber,
 		accent = VisualTheme.Colors.lemon,
+		pants = VisualTheme.Colors.timberDark,
 		hair = COLORS.hairBrown,
+		headwear = "hardhat",
 	},
 }
 
@@ -54,7 +62,7 @@ local function makePart(
 	cframe: CFrame,
 	color: Color3,
 	material: Enum.Material,
-	role: string,
+	artRole: string,
 	shape: Enum.PartType?
 ): Part
 	local item = Instance.new("Part")
@@ -72,7 +80,7 @@ local function makePart(
 	if shape then
 		item.Shape = shape
 	end
-	item:SetAttribute("TinyWorldArtRole", role)
+	item:SetAttribute("TinyWorldArtRole", artRole)
 	item:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	item:SetAttribute("TinyWorldVisualState", "character-grade-native-r7")
 	item.Parent = parent
@@ -85,7 +93,7 @@ local function ball(
 	cframe: CFrame,
 	size: Vector3,
 	color: Color3,
-	role: string,
+	artRole: string,
 	material: Enum.Material?
 ): Part
 	return makePart(
@@ -95,7 +103,7 @@ local function ball(
 		cframe,
 		color,
 		material or Enum.Material.SmoothPlastic,
-		role,
+		artRole,
 		Enum.PartType.Ball
 	)
 end
@@ -108,7 +116,7 @@ local function verticalCylinder(
 	diameter: number,
 	color: Color3,
 	material: Enum.Material,
-	role: string
+	artRole: string
 ): Part
 	return makePart(
 		parent,
@@ -117,22 +125,22 @@ local function verticalCylinder(
 		cframe * CFrame.Angles(0, 0, math.rad(90)),
 		color,
 		material,
-		role,
+		artRole,
 		Enum.PartType.Cylinder
 	)
 end
 
-local function model(parent: Instance, name: string, role: string): Model
-	local item = Instance.new("Model")
-	item.Name = name
-	item:SetAttribute("TinyWorldArtRole", role)
-	item:SetAttribute("TinyWorldVisualState", "character-grade-native-r7")
-	item.Parent = parent
-	return item
+local function makeGroup(parent: Instance, name: string, artRole: string): Model
+	local group = Instance.new("Model")
+	group.Name = name
+	group:SetAttribute("TinyWorldArtRole", artRole)
+	group:SetAttribute("TinyWorldVisualState", "character-grade-native-r7")
+	group.Parent = parent
+	return group
 end
 
 local function addFace(parent: Model, origin: CFrame)
-	local face = model(parent, "Face", "npc-face-r7")
+	local face = makeGroup(parent, "Face", "npc-face-r7")
 	for index, x in { -0.36, 0.36 } do
 		ball(
 			face,
@@ -151,6 +159,14 @@ local function addFace(parent: Model, origin: CFrame)
 			"npc-face-eye-highlight"
 		)
 	end
+	ball(
+		face,
+		"Nose",
+		origin * CFrame.new(0, 6.05, -1.1),
+		Vector3.new(0.16, 0.2, 0.14),
+		COLORS.skinWarm,
+		"npc-face-nose"
+	)
 	makePart(
 		face,
 		"Smile",
@@ -160,31 +176,19 @@ local function addFace(parent: Model, origin: CFrame)
 		Enum.Material.SmoothPlastic,
 		"npc-face-smile"
 	)
-	ball(
-		face,
-		"Nose",
-		origin * CFrame.new(0, 6.05, -1.1),
-		Vector3.new(0.16, 0.2, 0.14),
-		COLORS.skinWarm,
-		"npc-face-nose"
-	)
 end
 
-local function addHair(parent: Model, origin: CFrame, color: Color3, style: string)
-	local hair = model(parent, "Hair", "npc-hair-r7")
-	local offsets = if style == "short"
-		then {
-			Vector3.new(0, 7.15, 0.12),
-			Vector3.new(-0.62, 6.95, 0.18),
-			Vector3.new(0.62, 6.95, 0.18),
-		}
-		else {
-			Vector3.new(0, 7.16, 0.16),
-			Vector3.new(-0.68, 6.93, 0.2),
-			Vector3.new(0.68, 6.93, 0.2),
-			Vector3.new(-0.72, 6.45, 0.45),
-			Vector3.new(0.72, 6.45, 0.45),
-		}
+local function addHair(parent: Model, origin: CFrame, color: Color3, longStyle: boolean)
+	local hair = makeGroup(parent, "Hair", "npc-hair-r7")
+	local offsets = {
+		Vector3.new(0, 7.15, 0.12),
+		Vector3.new(-0.62, 6.95, 0.18),
+		Vector3.new(0.62, 6.95, 0.18),
+	}
+	if longStyle then
+		table.insert(offsets, Vector3.new(-0.72, 6.45, 0.45))
+		table.insert(offsets, Vector3.new(0.72, 6.45, 0.45))
+	end
 	for index, offset in offsets do
 		ball(
 			hair,
@@ -199,10 +203,10 @@ local function addHair(parent: Model, origin: CFrame, color: Color3, style: stri
 end
 
 local function addHat(parent: Model, origin: CFrame, color: Color3, style: string)
-	local props = model(parent, "Headwear", "npc-headwear-r7")
+	local headwear = makeGroup(parent, "Headwear", "npc-headwear-r7")
 	local brimDiameter = if style == "sun" then 3.0 elseif style == "hardhat" then 2.55 else 2.45
 	local brim = verticalCylinder(
-		props,
+		headwear,
 		"HatBrim",
 		origin * CFrame.new(0, 7.18, 0),
 		0.28,
@@ -212,9 +216,10 @@ local function addHat(parent: Model, origin: CFrame, color: Color3, style: strin
 		"npc-headwear"
 	)
 	brim.CFrame *= CFrame.Angles(0, math.rad(4), 0)
+
 	local crownHeight = if style == "sun" then 0.82 elseif style == "hardhat" then 0.68 else 0.62
 	verticalCylinder(
-		props,
+		headwear,
 		"HatCrown",
 		origin * CFrame.new(0, 7.55, 0),
 		crownHeight,
@@ -225,7 +230,7 @@ local function addHat(parent: Model, origin: CFrame, color: Color3, style: strin
 	)
 	if style == "hardhat" then
 		makePart(
-			props,
+			headwear,
 			"HardHatRidge",
 			Vector3.new(0.22, 0.72, 1.65),
 			origin * CFrame.new(0, 7.9, -0.05),
@@ -237,7 +242,7 @@ local function addHat(parent: Model, origin: CFrame, color: Color3, style: strin
 end
 
 local function addClothing(parent: Model, origin: CFrame, role: string, style)
-	local clothing = model(parent, "Clothing", "npc-clothing-r7")
+	local clothing = makeGroup(parent, "Clothing", "npc-clothing-r7")
 	makePart(
 		clothing,
 		"ShirtLayer",
@@ -247,24 +252,22 @@ local function addClothing(parent: Model, origin: CFrame, role: string, style)
 		Enum.Material.Fabric,
 		"npc-clothing-shirt"
 	)
-	makePart(
-		clothing,
-		"CollarLeft",
-		Vector3.new(0.88, 0.38, 0.18),
-		origin * CFrame.new(-0.55, 5.1, -0.82) * CFrame.Angles(0, 0, math.rad(-18)),
-		style.secondary,
-		Enum.Material.Fabric,
-		"npc-clothing-collar"
-	)
-	makePart(
-		clothing,
-		"CollarRight",
-		Vector3.new(0.88, 0.38, 0.18),
-		origin * CFrame.new(0.55, 5.1, -0.82) * CFrame.Angles(0, 0, math.rad(18)),
-		style.secondary,
-		Enum.Material.Fabric,
-		"npc-clothing-collar"
-	)
+	for _, side in
+		{
+			{ name = "Left", x = -0.55, angle = -18 },
+			{ name = "Right", x = 0.55, angle = 18 },
+		}
+	do
+		makePart(
+			clothing,
+			"Collar" .. side.name,
+			Vector3.new(0.88, 0.38, 0.18),
+			origin * CFrame.new(side.x, 5.1, -0.82) * CFrame.Angles(0, 0, math.rad(side.angle)),
+			style.secondary,
+			Enum.Material.Fabric,
+			"npc-clothing-collar"
+		)
+	end
 	if role == "Trader" or role == "Gardener" then
 		makePart(
 			clothing,
@@ -301,10 +304,12 @@ local function addClothing(parent: Model, origin: CFrame, role: string, style)
 end
 
 local function addArms(parent: Model, origin: CFrame, style)
-	for _, side in {
-		{ name = "Left", x = -1.72, tilt = 8 },
-		{ name = "Right", x = 1.72, tilt = -8 },
-	} do
+	for _, side in
+		{
+			{ name = "Left", x = -1.72, tilt = 8 },
+			{ name = "Right", x = 1.72, tilt = -8 },
+		}
+	do
 		verticalCylinder(
 			parent,
 			side.name .. "UpperArm",
@@ -324,11 +329,13 @@ local function addArms(parent: Model, origin: CFrame, style)
 			"npc-elbow",
 			Enum.Material.Fabric
 		)
+		local lowerArmCFrame = origin
+			* CFrame.new(side.x + (side.tilt > 0 and 0.15 or -0.15), 2.96, -0.04)
+			* CFrame.Angles(0, 0, math.rad(-side.tilt * 0.55))
 		verticalCylinder(
 			parent,
 			side.name .. "LowerArm",
-			origin * CFrame.new(side.x + (side.tilt > 0 and 0.15 or -0.15), 2.96, -0.04)
-				* CFrame.Angles(0, 0, math.rad(-side.tilt * 0.55)),
+			lowerArmCFrame,
 			1.35,
 			0.62,
 			COLORS.skin,
@@ -354,7 +361,7 @@ local function addLegs(parent: Model, origin: CFrame, style)
 			origin * CFrame.new(side.x, 2.15, 0),
 			1.55,
 			0.88,
-			if style.primary == VisualTheme.Colors.peach then style.secondary else COLORS.denim,
+			style.pants,
 			Enum.Material.Fabric,
 			"npc-upper-leg"
 		)
@@ -363,7 +370,7 @@ local function addLegs(parent: Model, origin: CFrame, style)
 			side.name .. "Knee",
 			origin * CFrame.new(side.x, 1.35, 0),
 			Vector3.new(0.84, 0.78, 0.84),
-			COLORS.denim,
+			style.pants,
 			"npc-knee",
 			Enum.Material.Fabric
 		)
@@ -373,7 +380,7 @@ local function addLegs(parent: Model, origin: CFrame, style)
 			origin * CFrame.new(side.x, 0.83, 0),
 			1.05,
 			0.78,
-			COLORS.denim,
+			style.pants,
 			Enum.Material.Fabric,
 			"npc-lower-leg"
 		)
@@ -390,7 +397,7 @@ local function addLegs(parent: Model, origin: CFrame, style)
 end
 
 local function addRoleProp(parent: Model, origin: CFrame, role: string, style)
-	local props = model(parent, "RoleProp", "npc-role-prop-r7")
+	local props = makeGroup(parent, "RoleProp", "npc-role-prop-r7")
 	props:SetAttribute("TinyWorldNpcRole", role)
 	if role == "Trader" then
 		makePart(
@@ -411,7 +418,6 @@ local function addRoleProp(parent: Model, origin: CFrame, role: string, style)
 			"npc-role-prop-trader"
 		)
 	elseif role == "Gardener" then
-		addHat(parent, origin, VisualTheme.Colors.lemon, "sun")
 		local can = verticalCylinder(
 			props,
 			"GardenerWateringCan",
@@ -441,7 +447,6 @@ local function addRoleProp(parent: Model, origin: CFrame, role: string, style)
 			"npc-role-prop-gardener"
 		)
 	elseif role == "Fisherman" then
-		addHat(parent, origin, VisualTheme.Colors.aquaDeep, "cap")
 		makePart(
 			props,
 			"FishermanRod",
@@ -461,7 +466,6 @@ local function addRoleProp(parent: Model, origin: CFrame, role: string, style)
 			"npc-role-prop-fisherman"
 		)
 	elseif role == "BoatKeeper" then
-		addHat(parent, origin, VisualTheme.Colors.plum, "cap")
 		makePart(
 			props,
 			"BoatKeeperScarf",
@@ -491,7 +495,6 @@ local function addRoleProp(parent: Model, origin: CFrame, role: string, style)
 			"npc-role-prop-boatkeeper"
 		)
 	else
-		addHat(parent, origin, VisualTheme.Colors.lemon, "hardhat")
 		makePart(
 			props,
 			"BuilderToolBelt",
@@ -591,10 +594,9 @@ function VillageNpcBuilder.build(parent: Instance, definition, origin: CFrame, a
 	addLegs(npc, origin, style)
 	addClothing(npc, origin, definition.id, style)
 	addFace(npc, origin)
-	if definition.id == "Trader" or definition.id == "BoatKeeper" then
-		addHair(npc, origin, style.hair, "long")
-	else
-		addHair(npc, origin, style.hair, "short")
+	addHair(npc, origin, style.hair, definition.id == "Trader" or definition.id == "BoatKeeper")
+	if style.headwear then
+		addHat(npc, origin, style.accent, style.headwear)
 	end
 	addRoleProp(npc, origin, definition.id, style)
 	addNameplate(npc, head, definition.displayName)
