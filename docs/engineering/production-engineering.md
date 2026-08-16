@@ -48,6 +48,25 @@ dist/release.json
 
 The manifest records source commit/branch, build timestamp, tool/project/profile versions, artifact filename and SHA-256. The artifact is a candidate until the active runtime/device evidence passes.
 
+## Free-only CI and DEV deployment
+
+TinyWorld's normal CI/CD path has a zero-paid-infrastructure constraint.
+
+- Active CI jobs use standard `ubuntu-latest` GitHub-hosted runners in the public repository.
+- Active workflows must not use `actions/upload-artifact` or `actions/cache`.
+- PR builds are fully ephemeral: tests, release checks and the Rojo build run, then the runner filesystem is discarded.
+- A `main` build is also ephemeral. After the build and release contracts pass, the workflow invokes `scripts/publish-dev.sh`.
+- `scripts/publish-dev.sh` reads `config/environments/dev.json`. While `configured` is `false`, it exits successfully with `DEV publishing deferred` and never contacts Roblox.
+- When DEV is deliberately configured, `universeId` and `placeId` must be numeric, `publishing` must be `open-cloud`, and the workflow must receive `ROBLOX_DEV_API_KEY` from GitHub Actions secrets. Missing or malformed configured values fail closed.
+- PR workflows never run the publisher step and therefore never consume the DEV publishing secret.
+- LIVE publishing is not automated by this pipeline.
+
+The direct DEV publisher sends the exact in-runner `.rbxlx` selected by `dist/release.json` to Roblox Open Cloud Place Publishing and requires a numeric `versionNumber` response before reporting success.
+
+This route deliberately avoids GitHub Actions artifact/cache storage. If an approved build later needs durable retention for LIVE promotion, use a separately approved release packaging mechanism such as a normal versioned GitHub Release asset rather than reintroducing Actions artifact storage. Routine `main` builds are not treated as durable LIVE-promotion packages.
+
+Roblox Place Publishing has platform limitations for some serialized instance types. A release that depends on an unsupported serialized instance must use an approved alternate publishing route rather than claiming that a green source build proves a correct DEV publish.
+
 ## Visual evidence as a release gate
 
 v0.6.1 corrects a process weakness exposed by the first observed v0.6.0 screenshots: source/build completion cannot stand in for rendered quality.
@@ -88,7 +107,7 @@ commit
   -> promote the exact approved artifact to LIVE
 ```
 
-Do not rebuild different source for LIVE after DEV approval.
+Do not rebuild different source for LIVE after DEV approval. The routine free-only `main` pipeline discards its runner after DEV deployment, so it is not itself the durable LIVE promotion store. Before LIVE automation is enabled, an approved versioned release-package path must preserve the exact binary and SHA without returning to Actions artifact storage.
 
 ## Rollback contract
 
