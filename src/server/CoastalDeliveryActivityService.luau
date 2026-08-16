@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local VillageActivityRules = require(shared:WaitForChild("VillageActivityRules"))
+local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local CoastalDeliveryActivityService = {}
@@ -30,8 +31,13 @@ local function attachParcel(player: Player): boolean
 		return false
 	end
 
+	local model = Instance.new("Model")
+	model.Name = PARCEL_NAME
+	model:SetAttribute("TinyWorldActivityRole", "CoastalDelivery")
+	model.Parent = character
+
 	local parcel = Instance.new("Part")
-	parcel.Name = PARCEL_NAME
+	parcel.Name = "ParcelBox"
 	parcel.Size = Vector3.new(2.4, 1.8, 1.8)
 	parcel.CFrame = root.CFrame * CFrame.new(0, 0.2, 2.0)
 	parcel.Color = VisualTheme.Colors.timber
@@ -42,7 +48,7 @@ local function attachParcel(player: Player): boolean
 	parcel.Massless = true
 	parcel.Anchored = false
 	parcel:SetAttribute("TinyWorldActivityRole", "CoastalDelivery")
-	parcel.Parent = character
+	parcel.Parent = model
 
 	local band = Instance.new("Part")
 	band.Name = "ParcelBand"
@@ -55,7 +61,7 @@ local function attachParcel(player: Player): boolean
 	band.CanQuery = false
 	band.Massless = true
 	band.Anchored = false
-	band.Parent = character
+	band.Parent = model
 
 	for _, part in { parcel, band } do
 		local weld = Instance.new("WeldConstraint")
@@ -63,6 +69,7 @@ local function attachParcel(player: Player): boolean
 		weld.Part1 = part
 		weld.Parent = part
 	end
+	model.PrimaryPart = parcel
 	return true
 end
 
@@ -73,13 +80,13 @@ function CoastalDeliveryActivityService.new(world, hooks)
 	self.model.Name = "R6CoastalDeliveryActivity"
 	self.model.Parent = world.root
 
-	local shoreline = if world.coast then world.coast.shorelineDistance else 120
+	local buoyCFrame = VillageActivityLocations.coastalDeliveryBuoy(world)
 	local destination = Instance.new("Part")
 	destination.Name = "OuterCoastDeliveryBuoy"
 	destination.Anchored = true
 	destination.CanCollide = false
 	destination.Size = Vector3.new(4, 7, 4)
-	destination.CFrame = CFrame.new(shoreline + 65, 3.5, -20)
+	destination.CFrame = buoyCFrame
 	destination.Color = Color3.fromRGB(235, 132, 62)
 	destination.Material = Enum.Material.SmoothPlastic
 	destination.Shape = Enum.PartType.Cylinder
@@ -92,8 +99,10 @@ function CoastalDeliveryActivityService.new(world, hooks)
 	beacon.Name = "BuoyBeacon"
 	beacon.Anchored = true
 	beacon.CanCollide = false
+	beacon.CanTouch = false
+	beacon.CanQuery = false
 	beacon.Size = Vector3.new(1.7, 1.7, 1.7)
-	beacon.CFrame = CFrame.new(shoreline + 65, 7.5, -20)
+	beacon.CFrame = buoyCFrame * CFrame.new(0, 4, 0)
 	beacon.Color = VisualTheme.Colors.gold
 	beacon.Material = Enum.Material.Neon
 	beacon.Shape = Enum.PartType.Ball
@@ -114,6 +123,13 @@ function CoastalDeliveryActivityService.new(world, hooks)
 end
 
 function CoastalDeliveryActivityService:start(player: Player, state): (boolean, string?)
+	local profile = self.hooks.profile(player)
+	if profile == nil then
+		return false, "Your saved TinyWorld profile is not ready yet. Try Skye again in a moment."
+	end
+	if profile.ownsTinyBoat ~= true then
+		return false, "Skye only sends parcels beyond swimming range once you own the Tiny Boat. Unlock it at the Boat Dock first."
+	end
 	if not attachParcel(player) then
 		return false, "Your character is not ready for a parcel yet. Try Skye again in a moment."
 	end
