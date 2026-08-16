@@ -114,4 +114,6 @@ while IFS= read -r runner; do
   fi
 done < <(sed -nE 's/^[[:space:]]*runs-on:[[:space:]]*([^[:space:]#]+).*/\1/p' .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null || true)
 
+bash ./tests/publish-dev-contract.sh
+
 echo "PASS: shell build contract matches v0.6.2 and enforces free-only CI storage policy"
