@@ -95,7 +95,10 @@ function BuilderRepairActivityService:start(player: Player, state): (boolean, st
 	state.repairProgress = 0
 	state.startedAt = os.clock()
 	self:_showDamaged()
-	self.hooks.message(player, "Milo needs three boards secured at the repair frame. Use the repair prompt three times.")
+	self.hooks.message(
+		player,
+		"Milo needs three boards secured at the repair frame. Use the repair prompt three times."
+	)
 	return true, nil
 end
 
