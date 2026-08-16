@@ -8,7 +8,7 @@ local QUALITY_MULTIPLIER = {
 
 function VillageActivityRules.coinReward(baseCoins: number, quality: string): number
 	local multiplier = QUALITY_MULTIPLIER[quality] or QUALITY_MULTIPLIER.normal
-	return math.floor(baseCoins * multiplier)
+	return math.floor((baseCoins * multiplier) + 1e-6)
 end
 
 function VillageActivityRules.gradeTiming(elapsed: number, goodMax: number, perfectMax: number): string
