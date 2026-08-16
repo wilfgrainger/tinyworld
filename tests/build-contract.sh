@@ -102,4 +102,16 @@ else
 fi
 [[ "$artifact_sha256" == "$(jq -r '.sha256' "$manifest_path")" ]]
 
+workflow_path=".github/workflows/rojo-build.yml"
+
+if ! grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$workflow_path"; then
+  echo "ERROR: Rojo workflow must only upload release evidence from main pushes" >&2
+  exit 1
+fi
+
+if ! grep -Fq "retention-days: 1" "$workflow_path"; then
+  echo "ERROR: Rojo workflow artifacts must expire after 1 day" >&2
+  exit 1
+fi
+
 echo "PASS: shell build contract matches v0.6.2 Village Life & Visual Craft"
