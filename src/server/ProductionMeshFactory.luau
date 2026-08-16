@@ -1,4 +1,6 @@
 local AssetService = game:GetService("AssetService")
+local RunService = game:GetService("RunService")
+local PublishedFallbackFactory = require(script.Parent:WaitForChild("PublishedFallbackFactory"))
 
 local ProductionMeshFactory = {}
 
@@ -272,10 +274,14 @@ local function componentCFrame(component): CFrame
 		* CFrame.Angles(math.rad(rotation[1]), math.rad(rotation[2]), math.rad(rotation[3]))
 end
 
-function ProductionMeshFactory.createComponent(parent: Instance, component, rootCFrame: CFrame, palette): MeshPart?
+function ProductionMeshFactory.createComponent(parent: Instance, component, rootCFrame: CFrame, palette): BasePart?
+	if not RunService:IsStudio() then
+		return PublishedFallbackFactory.createComponent(parent, component, rootCFrame, palette)
+	end
+
 	local editableMesh = AssetService:CreateEditableMesh()
 	if editableMesh == nil then
-		warn("[TinyWorld ART R4] EditableMesh allocation failed for", component.name)
+		warn("[TinyWorld ART R5] EditableMesh allocation failed for", component.name)
 		return nil
 	end
 
@@ -283,7 +289,7 @@ function ProductionMeshFactory.createComponent(parent: Instance, component, root
 		addGeometry(editableMesh, component)
 	end)
 	if not ok then
-		warn("[TinyWorld ART R4] mesh geometry failed for", component.name, geometryError)
+		warn("[TinyWorld ART R5] mesh geometry failed for", component.name, geometryError)
 		editableMesh:Destroy()
 		return nil
 	end
@@ -295,7 +301,7 @@ function ProductionMeshFactory.createComponent(parent: Instance, component, root
 		})
 	end)
 	if not created or meshPart == nil then
-		warn("[TinyWorld ART R4] MeshPart creation failed for", component.name, createError)
+		warn("[TinyWorld ART R5] MeshPart creation failed for", component.name, createError)
 		editableMesh:Destroy()
 		return nil
 	end
@@ -311,13 +317,13 @@ function ProductionMeshFactory.createComponent(parent: Instance, component, root
 	meshPart.Transparency = component.transparency or 0
 	meshPart.CastShadow = component.role ~= "fountain-water-arc" and component.role ~= "fountain-water"
 	meshPart:SetAttribute("TinyWorldArtRole", component.role or "production-mesh")
-	meshPart:SetAttribute("TinyWorldVisualState", "production-preview-r4")
+	meshPart:SetAttribute("TinyWorldVisualState", "studio-preview-r5")
 	meshPart:SetAttribute("TinyWorldProductionMesh", true)
 	meshPart.Parent = parent
 
 	if component.role == "lantern-glass" then
 		local light = Instance.new("PointLight")
-		light.Name = "ART_R4_PracticalLight"
+		light.Name = "ART_R5_PracticalLight"
 		light.Brightness = 0.48
 		light.Range = 10
 		light.Color = palette.colors.warmLight or Color3.fromRGB(255, 224, 155)
