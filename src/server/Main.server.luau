@@ -8,6 +8,8 @@ local ProfileStore = require(script.Parent:WaitForChild("ProfileStore"))
 local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateService"))
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
+local CoastBuilder = require(script.Parent:WaitForChild("CoastBuilder"))
+local TraversalSafetyService = require(script.Parent:WaitForChild("TraversalSafetyService"))
 local HomeStoreDestinationBuilder = require(script.Parent:WaitForChild("HomeStoreDestinationBuilder"))
 local ProductionArtCleanup = require(script.Parent:WaitForChild("ProductionArtCleanup"))
 local VillageLandscapeBuilder = require(script.Parent:WaitForChild("VillageLandscapeBuilder"))
@@ -41,6 +43,12 @@ local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsServic
 local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
+world.coast = CoastBuilder.build(world.root, world.layout)
+world.boundary.shorelineDistance = world.coast.shorelineDistance
+world.boundary.swimDistance = world.coast.swimDistance
+world.boundary.safeShoreCFrame = world.coast.safeShoreCFrame
+world.boundary.worldRecoveryCFrame = world.coast.worldRecoveryCFrame
+
 ProductionArtCleanup.apply(world.root)
 HomeStoreDestinationBuilder.extend(world)
 local _productionLandscape = VillageLandscapeBuilder.build(world.root, world.layout)
@@ -77,6 +85,7 @@ local _explorationService = ExplorationService.new(world, ProfileStore, PlayerSt
 local _livingWorldService = LivingWorldService.new(world, ProfileStore, PlayerStateService)
 local _professionService = ProfessionService.new(world, ProfileStore, PlayerStateService)
 local boatService = BoatService.new(world, ProfileStore, PlayerStateService)
+local traversalSafetyService = TraversalSafetyService.new(world, ProfileStore, PlayerStateService)
 
 local function rejectOverflowPlayer(player: Player)
 	player:Kick("This TinyWorld village already has all sixteen resident homes. Please rejoin to find another village.")
@@ -122,6 +131,7 @@ local function onPlayerAdded(player: Player)
 	transportService:apply(player, profile)
 	boatService:trackPlayer(player)
 	boatService:apply(player, profile)
+	traversalSafetyService:trackPlayer(player)
 	portalService:setupPlayer(player)
 	player:SetAttribute("TinyWorldCarryingParcel", false)
 	player:SetAttribute("TinyWorldCourierDestination", "")
@@ -139,6 +149,7 @@ local function onPlayerRemoving(player: Player)
 	jobService:removePlayer(player)
 	transportService:removePlayer(player)
 	boatService:removePlayer(player)
+	traversalSafetyService:removePlayer(player)
 	appearanceService:removePlayer(player)
 	furniturePlacementService:removePlayer(player)
 	homeStoreService:removePlayer(player)
@@ -158,6 +169,7 @@ end
 
 game:BindToClose(function()
 	ambientLifeService:stop()
+	traversalSafetyService:stop()
 	alphaOpsService:stop()
 	ProfileStore.shutdown(25)
 end)
