@@ -36,4 +36,24 @@ return function()
 	local returnedAgain, returnedAgainReason = TraversalRules.returnTinyBoat(profile)
 	TestUtil.isFalse(returnedAgain)
 	TestUtil.equal(returnedAgainReason, "already_parked")
+
+	local Zone = TraversalRules.Zone
+	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(10, 100, 36), Zone.VillageLand)
+	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(100, 100, 36), Zone.ShoreSwim)
+	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(135.9, 100, 36), Zone.ShoreSwim)
+	TestUtil.equal(TraversalRules.classifyDistanceFromVillage(136.1, 100, 36), Zone.OuterSeaBoat)
+
+	local walker = ProfileSchema.new()
+	local allowedWalk, walkReason = TraversalRules.canOccupyZone(walker, Zone.OuterSeaBoat)
+	TestUtil.isFalse(allowedWalk)
+	TestUtil.equal(walkReason, "tiny_boat_required")
+
+	walker.ownsTinyBoat = true
+	walker.boatActive = true
+	local allowedBoat, boatReason = TraversalRules.canOccupyZone(walker, Zone.OuterSeaBoat)
+	TestUtil.isTrue(allowedBoat)
+	TestUtil.equal(boatReason, "allowed")
+
+	local allowedSwim = TraversalRules.canOccupyZone(ProfileSchema.new(), Zone.ShoreSwim)
+	TestUtil.isTrue(allowedSwim)
 end
