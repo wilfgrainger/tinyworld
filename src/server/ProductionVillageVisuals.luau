@@ -1,13 +1,24 @@
 local ProductionVillageVisuals = {}
 
+local function isReplacementDescendant(instance: Instance, root: Instance): boolean
+	local current = instance
+	while current and current ~= root do
+		if current.Name == "ART_R4_VisualRoot" then
+			return true
+		end
+		current = current.Parent
+	end
+	return false
+end
+
 local function hideLegacyVisuals(root: Instance)
 	for _, descendant in root:GetDescendants() do
-		if descendant.Name == "ART_R4_VisualRoot" then
+		if isReplacementDescendant(descendant, root) then
 			continue
 		end
 		if descendant:IsA("BasePart") then
 			descendant.Transparency = 1
-			-- Preserve gameplay collision/query exactly as authored. ART R4 is presentation only.
+			-- Preserve gameplay collision/query exactly as authored. ART R5 is presentation only.
 		elseif descendant:IsA("SurfaceGui") or descendant:IsA("BillboardGui") then
 			descendant.Enabled = false
 		elseif descendant:IsA("Light") then
@@ -27,33 +38,36 @@ local function findModel(root: Instance, name: string): Model?
 	return nil
 end
 
+local function mountThenHideLegacy(productionVisualService, role: string, model: Model, pivot: CFrame): Model?
+	local replacement = productionVisualService:mount(role, model, pivot)
+	if replacement then
+		hideLegacyVisuals(model)
+		return replacement
+	end
+	model:SetAttribute("TinyWorldLegacyVisualsHidden", false)
+	return nil
+end
+
 local function mountFixed(root: Instance, productionVisualService, modelName: string, role: string, pivot: CFrame)
 	local model = findModel(root, modelName)
 	if not model then
-		warn("[TinyWorld ART R4] semantic model not found", modelName, role)
+		warn("[TinyWorld ART R5] semantic model not found", modelName, role)
 		return nil
 	end
-	hideLegacyVisuals(model)
-	return productionVisualService:mount(role, model, pivot)
+	return mountThenHideLegacy(productionVisualService, role, model, pivot)
 end
 
-local function mountSupporting(root: Instance, productionVisualService, role: string, name: string, pivot: CFrame)
+local function mountSupporting(parent: Instance, productionVisualService, role: string, name: string, pivot: CFrame): Model?
 	local container = Instance.new("Model")
 	container.Name = name
-	container:SetAttribute("TinyWorldArtRole", "art-r4-supporting")
-	container.Parent = root
-	return productionVisualService:mount(role, container, pivot)
-end
-
-local function hideLandscapeTree(model: Model)
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			descendant.Transparency = 1
-			descendant.CanCollide = false
-			descendant.CanTouch = false
-			descendant.CanQuery = false
-		end
+	container:SetAttribute("TinyWorldArtRole", "art-r5-supporting")
+	container.Parent = parent
+	local replacement = productionVisualService:mount(role, container, pivot)
+	if not replacement then
+		container:Destroy()
+		return nil
 	end
+	return container
 end
 
 local function replaceLandscapeTrees(root: Instance, productionVisualService)
@@ -69,8 +83,12 @@ local function replaceLandscapeTrees(root: Instance, productionVisualService)
 		local trunk = treeModel:FindFirstChild("Trunk")
 		if trunk and trunk:IsA("BasePart") then
 			local base = trunk.Position - Vector3.new(0, trunk.Size.Y / 2, 0)
-			hideLandscapeTree(treeModel)
-			productionVisualService:mount(roles[((index - 1) % #roles) + 1], treeModel, CFrame.new(base))
+			mountThenHideLegacy(
+				productionVisualService,
+				roles[((index - 1) % #roles) + 1],
+				treeModel,
+				CFrame.new(base)
+			)
 		end
 	end
 end
@@ -100,23 +118,24 @@ local function replaceUngroupedTrees(root: Instance, productionVisualService)
 			continue
 		end
 		local prefix = string.gsub(trunk.Name, "Trunk$", "")
-		for _, child in parent:GetChildren() do
-			if child:IsA("BasePart") and string.sub(child.Name, 1, #prefix) == prefix then
-				child.Transparency = 1
-				child.CanCollide = false
-				child.CanTouch = false
-				child.CanQuery = false
-			end
-		end
 		local base = trunk.Position - Vector3.new(0, trunk.Size.Y / 2, 0)
-		local holder = Instance.new("Model")
-		holder.Name = "ART_R4_Tree_" .. prefix
-		holder.Parent = parent
-		productionVisualService:mount(
+		local holder = mountSupporting(
+			parent,
+			productionVisualService,
 			({ "tree-a", "tree-b", "tree-c" })[((index - 1) % 3) + 1],
-			holder,
+			"ART_R5_Tree_" .. prefix,
 			CFrame.new(base)
 		)
+		if holder then
+			for _, child in parent:GetChildren() do
+				if child:IsA("BasePart") and string.sub(child.Name, 1, #prefix) == prefix then
+					child.Transparency = 1
+					child.CanCollide = false
+					child.CanTouch = false
+					child.CanQuery = false
+				end
+			end
+		end
 	end
 end
 
@@ -129,18 +148,21 @@ local function replaceFlowerBeds(root: Instance, productionVisualService)
 	end
 	for index, bed in flowerBeds do
 		local soil = bed:FindFirstChild("Soil")
-		if soil and soil:IsA("BasePart") then
-			for _, child in bed:GetDescendants() do
-				if child:IsA("BasePart") and child ~= soil then
-					child.Transparency = 1
-					child.CanCollide = false
-					child.CanTouch = false
-					child.CanQuery = false
+		if soil and soil:IsA("BasePart") and index % 2 == 1 then
+			local replacement = productionVisualService:mount(
+				"planter",
+				bed,
+				CFrame.new(soil.Position + Vector3.new(0, 0.2, 0))
+			)
+			if replacement then
+				for _, child in bed:GetDescendants() do
+					if child:IsA("BasePart") and child ~= soil and not isReplacementDescendant(child, bed) then
+						child.Transparency = 1
+						child.CanCollide = false
+						child.CanTouch = false
+						child.CanQuery = false
+					end
 				end
-			end
-			-- A few larger authored planters read better than a carpet of ball-on-stick flowers.
-			if index % 2 == 1 then
-				productionVisualService:mount("planter", bed, CFrame.new(soil.Position + Vector3.new(0, 0.2, 0)))
 			end
 		end
 	end
@@ -154,17 +176,21 @@ local function replaceHedges(root: Instance, productionVisualService)
 		end
 	end
 	for index, hedge in hedges do
-		local pivot = hedge.CFrame
 		local parent = hedge.Parent
-		hedge.Transparency = 1
-		hedge.CanCollide = false
-		hedge.CanTouch = false
-		hedge.CanQuery = false
 		if parent and index <= 28 then
-			local holder = Instance.new("Model")
-			holder.Name = "ART_R4_Hedge_" .. index
-			holder.Parent = parent
-			productionVisualService:mount("hedge", holder, pivot)
+			local holder = mountSupporting(
+				parent,
+				productionVisualService,
+				"hedge",
+				"ART_R5_Hedge_" .. index,
+				hedge.CFrame
+			)
+			if holder then
+				hedge.Transparency = 1
+				hedge.CanCollide = false
+				hedge.CanTouch = false
+				hedge.CanQuery = false
+			end
 		end
 	end
 end
@@ -184,22 +210,21 @@ local function replaceWorldPortals(root: Instance, productionVisualService)
 		local anchor = if prompt and prompt.Parent and prompt.Parent:IsA("BasePart") then prompt.Parent else nil
 		if anchor then
 			local pivot = CFrame.new(anchor.Position.X, math.max(0, anchor.Position.Y - 6), anchor.Position.Z)
-			hideLegacyVisuals(portal)
-			productionVisualService:mount("portal-clockwork", portal, pivot)
+			mountThenHideLegacy(productionVisualService, "portal-clockwork", portal, pivot)
 		end
 	end
 end
 
 local function addCivicSupportingArt(root: Instance, productionVisualService)
 	local placements = {
-		{ role = "lantern", name = "ART_R4_LanternNW", cf = CFrame.new(-13, 0, 7) },
-		{ role = "lantern", name = "ART_R4_LanternNE", cf = CFrame.new(13, 0, 7) },
-		{ role = "lantern", name = "ART_R4_LanternSW", cf = CFrame.new(-13, 0, 26) },
-		{ role = "lantern", name = "ART_R4_LanternSE", cf = CFrame.new(13, 0, 26) },
-		{ role = "bench", name = "ART_R4_BenchWest", cf = CFrame.new(-17, 0, 17) * CFrame.Angles(0, math.rad(90), 0) },
-		{ role = "bench", name = "ART_R4_BenchEast", cf = CFrame.new(17, 0, 17) * CFrame.Angles(0, math.rad(-90), 0) },
-		{ role = "planter", name = "ART_R4_PlanterNW", cf = CFrame.new(-10, 0, 10) },
-		{ role = "planter", name = "ART_R4_PlanterNE", cf = CFrame.new(10, 0, 10) },
+		{ role = "lantern", name = "ART_R5_LanternNW", cf = CFrame.new(-13, 0, 7) },
+		{ role = "lantern", name = "ART_R5_LanternNE", cf = CFrame.new(13, 0, 7) },
+		{ role = "lantern", name = "ART_R5_LanternSW", cf = CFrame.new(-13, 0, 26) },
+		{ role = "lantern", name = "ART_R5_LanternSE", cf = CFrame.new(13, 0, 26) },
+		{ role = "bench", name = "ART_R5_BenchWest", cf = CFrame.new(-17, 0, 17) * CFrame.Angles(0, math.rad(90), 0) },
+		{ role = "bench", name = "ART_R5_BenchEast", cf = CFrame.new(17, 0, 17) * CFrame.Angles(0, math.rad(-90), 0) },
+		{ role = "planter", name = "ART_R5_PlanterNW", cf = CFrame.new(-10, 0, 10) },
+		{ role = "planter", name = "ART_R5_PlanterNE", cf = CFrame.new(10, 0, 10) },
 	}
 	for _, placement in placements do
 		mountSupporting(root, productionVisualService, placement.role, placement.name, placement.cf)
@@ -218,20 +243,30 @@ function ProductionVillageVisuals.apply(world, productionVisualService)
 
 	local market = findModel(root, "VillageMarketPrefab")
 	if market then
-		hideLegacyVisuals(market)
-		productionVisualService:mount("market-stall-a", market, CFrame.new(-7, 0.5, 44))
-		local stallB = Instance.new("Model")
-		stallB.Name = "ART_R4_MarketStallB"
-		stallB.Parent = market
-		productionVisualService:mount("market-stall-b", stallB, CFrame.new(7, 0.5, 44))
+		local firstStall = productionVisualService:mount("market-stall-a", market, CFrame.new(-7, 0.5, 44))
+		if firstStall then
+			hideLegacyVisuals(market)
+			mountSupporting(
+				market,
+				productionVisualService,
+				"market-stall-b",
+				"ART_R5_MarketStallB",
+				CFrame.new(7, 0.5, 44)
+			)
+		else
+			market:SetAttribute("TinyWorldLegacyVisualsHidden", false)
+		end
 	end
 
 	local courier = findModel(root, "CourierDepotPrefab")
 	if courier then
-		local crates = Instance.new("Model")
-		crates.Name = "ART_R4_ParcelCrates"
-		crates.Parent = courier
-		productionVisualService:mount("parcel-crates", crates, CFrame.new(8, 0, -31))
+		mountSupporting(
+			courier,
+			productionVisualService,
+			"parcel-crates",
+			"ART_R5_ParcelCrates",
+			CFrame.new(8, 0, -31)
+		)
 	end
 
 	replaceWorldPortals(root, productionVisualService)
@@ -241,8 +276,8 @@ function ProductionVillageVisuals.apply(world, productionVisualService)
 	replaceHedges(root, productionVisualService)
 	addCivicSupportingArt(root, productionVisualService)
 
-	root:SetAttribute("TinyWorldProductionArtRevision", "ART R4")
-	root:SetAttribute("TinyWorldProductionVisualArchitecture", "semantic-roots-plus-mesh-assets")
+	root:SetAttribute("TinyWorldProductionArtRevision", "ART R5")
+	root:SetAttribute("TinyWorldProductionVisualArchitecture", "published-safe-legacy-fallback")
 end
 
 return ProductionVillageVisuals
