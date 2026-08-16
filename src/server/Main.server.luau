@@ -8,6 +8,7 @@ local ProfileStore = require(script.Parent:WaitForChild("ProfileStore"))
 local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateService"))
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
+local CoastBuilder = require(script.Parent:WaitForChild("CoastBuilder"))
 local HomeStoreDestinationBuilder = require(script.Parent:WaitForChild("HomeStoreDestinationBuilder"))
 local ImpossibleWorldBuilder = require(script.Parent:WaitForChild("ImpossibleWorldBuilder"))
 local PortalMechanicBuilder = require(script.Parent:WaitForChild("PortalMechanicBuilder"))
@@ -35,6 +36,11 @@ local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsServic
 local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeService"))
 
 local world = WorldBuilder.build(Players.MaxPlayers)
+world.coast = CoastBuilder.build(world.root, world.layout)
+world.boundary.shorelineDistance = world.coast.shorelineDistance
+world.boundary.swimDistance = world.coast.swimDistance
+world.boundary.safeShoreCFrame = world.coast.safeShoreCFrame
+world.boundary.worldRecoveryCFrame = world.coast.worldRecoveryCFrame
 HomeStoreDestinationBuilder.extend(world)
 ImpossibleWorldBuilder.extend(world)
 PortalMechanicBuilder.extend(world)
