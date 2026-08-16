@@ -3,19 +3,60 @@ local WorldLayoutRules = require("../src/shared/WorldLayoutRules")
 local VisualBudgetRules = require("../src/shared/VisualBudgetRules")
 local VillageCompositionRules = require("../src/shared/VillageCompositionRules")
 
+local function requireFeatures(neighbourhood, expected)
+	for _, feature in expected do
+		TestUtil.isTrue(neighbourhood.features[feature], neighbourhood.name .. " missing " .. feature)
+	end
+end
+
 return function()
 	local manifest = VillageCompositionRules.getManifest()
 	TestUtil.isTrue(VillageCompositionRules.validate(manifest), "composition manifest validates")
 	TestUtil.equal(#manifest.neighbourhoods, 4)
 	TestUtil.equal(manifest.neighbourhoods[1].name, "MeadowLane")
-	TestUtil.isTrue(manifest.neighbourhoods[1].features.stream, "Meadow Lane stream")
-	TestUtil.isTrue(manifest.neighbourhoods[1].features.bridge, "Meadow Lane bridge")
-	TestUtil.isTrue(manifest.neighbourhoods[1].features.grassBanks, "Meadow Lane grass banks")
+	requireFeatures(manifest.neighbourhoods[1], {
+		"curvedPath",
+		"stream",
+		"bridge",
+		"grassBanks",
+		"cottageGarden",
+		"flowerMeadow",
+	})
+	TestUtil.equal(manifest.neighbourhoods[2].name, "HarbourRow")
+	requireFeatures(manifest.neighbourhoods[2], {
+		"curvedPath",
+		"retainingWall",
+		"dockClutter",
+		"coastalPlanting",
+	})
+	TestUtil.equal(manifest.neighbourhoods[3].name, "WoodlandRise")
+	requireFeatures(manifest.neighbourhoods[3], {
+		"curvedPath",
+		"canopy",
+		"rockClusters",
+		"narrowPath",
+		"woodlandFence",
+	})
+	TestUtil.equal(manifest.neighbourhoods[4].name, "OrchardEnd")
+	requireFeatures(manifest.neighbourhoods[4], {
+		"curvedPath",
+		"orchard",
+		"vegetableBeds",
+		"nursery",
+		"terrace",
+	})
 
 	for _, neighbourhood in manifest.neighbourhoods do
-		TestUtil.isTrue(neighbourhood.features.curvedPath, neighbourhood.name .. " curved path")
+		TestUtil.isTrue(neighbourhood.features.elevation, neighbourhood.name .. " elevation")
 		TestUtil.isTrue(neighbourhood.features.dressing, neighbourhood.name .. " dressing")
 	end
+
+	TestUtil.isTrue(manifest.civic.fountainPlaza, "civic fountain plaza")
+	TestUtil.isTrue(manifest.civic.plantedEdges, "civic planted edges")
+	TestUtil.isTrue(manifest.civic.seating, "civic seating")
+	TestUtil.isTrue(manifest.civic.lamps, "civic lamps")
+	TestUtil.isTrue(manifest.civic.framedApproaches, "civic framed approaches")
+
 	TestUtil.equal(manifest.dressing.canCollide, false)
 	TestUtil.equal(manifest.dressing.canTouch, false)
 	TestUtil.equal(manifest.dressing.canQuery, false)

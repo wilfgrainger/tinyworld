@@ -2,7 +2,7 @@
 
 ## Active pinned tools
 
-v0.6.1 uses the smallest toolchain that provides distinct value:
+TinyWorld uses the smallest toolchain that provides distinct value:
 
 - **Rojo 7.7.0**: Git-to-Roblox project assembly and reproducible candidate build.
 - **StyLua 2.5.2**: deterministic Luau formatting.
@@ -11,7 +11,7 @@ v0.6.1 uses the smallest toolchain that provides distinct value:
 
 Versions are declared in repository configuration and checked by the release contract.
 
-v0.6.1 does not introduce a new UI framework, package manager, rendering library or external runtime dependency. The visual rescue is implemented inside existing TinyWorld builder/UI boundaries.
+TinyWorld does not introduce a new UI framework, package manager, rendering library or external runtime dependency without a measured need and approved design. Presentation work stays inside focused existing builder/UI boundaries or small purpose-built helper modules.
 
 ## Selene evaluation
 
@@ -20,8 +20,8 @@ Selene remains **not adopted**.
 Reason:
 
 1. the existing Luau analyser is already an active release gate;
-2. v0.6.1 is a focused presentation correction and should not add a second diagnostics surface unrelated to the proven visual failures;
-3. overlapping/noisy lint rules reduce trust in CI rather than improve it.
+2. overlapping/noisy lint rules reduce trust in CI rather than improve it;
+3. tool additions should solve a proven problem rather than accompany unrelated feature/art work.
 
 A later branch may trial Selene with Roblox std configuration. It should be adopted only if the trial demonstrates useful non-duplicative findings with a low false-positive/noise rate. The trial itself must not weaken `luau-analyze`.
 
@@ -42,17 +42,20 @@ Do not add Wally because a generic Roblox checklist mentions it.
 
 ## Visual source guards
 
-v0.6.1 adds narrow fail-closed source guards for defects that were directly observed:
+TinyWorld keeps narrow fail-closed source guards for visual defects that have been directly observed or explicitly prohibited by the active release contract. Examples include:
 
 - primitive Part character hair/shoe fallback;
+- Part-built ambient characters presented as finished art;
 - large always-on-top ordinary-world information walls;
 - known prototype system-label copy;
 - oversized permanent HUD structure;
-- wrong release authority/version.
+- slab-dominated hero-building recipes;
+- naked sphere practical-light recipes;
+- stale release authority/version.
 
 These checks do **not** claim to score aesthetics. They prevent known bad mechanisms from silently returning while Studio/device evidence judges the actual rendered result.
 
-Do not build a generic visual-lint framework merely to increase coverage. Add a source rule only when it protects a concrete current requirement.
+Do not build a generic visual-lint framework merely to increase coverage. Add a source rule only when it protects a concrete product requirement.
 
 ## Studio automation
 
@@ -69,7 +72,7 @@ Recognisability, tactile feel, phone ergonomics and visual craft still require o
 
 ## External delivery/review methods
 
-v0.6.1 uses external methods as process guidance without vendoring their source into the game:
+TinyWorld may use external methods as process guidance without vendoring their source into the game:
 
 - **Superpowers:** design, TDD, planning, debugging and verification discipline;
 - **Graphite Mountain:** full lifecycle, product/architecture/engineering/platform/adversarial/customer review and evidence gates;
@@ -82,4 +85,4 @@ These methods do not become runtime dependencies, package requirements or proof 
 
 TinyWorld's active implementation contracts are tool-neutral. ChatGPT, Codex or another authorised implementation agent may work on the repository if it follows the same authority, evidence and safety rules.
 
-Historical documents may truthfully name the agent/tool that performed historical work. Current product architecture must not require Codex merely because an earlier release used it.
+Historical documents may truthfully name the agent/tool that performed historical work. Current product architecture must not require one implementation agent merely because an earlier release used it.

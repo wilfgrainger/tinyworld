@@ -2,11 +2,11 @@
 
 ## Authority
 
-`ProfileSchema.luau` defines the current normalized profile. `ProfileMigrations.luau` owns version transitions. ProfileStore must migrate before normalization.
+`ProfileSchema.luau` defines the normalized player profile. `ProfileMigrations.luau` owns version transitions. `ProfileStore` must migrate before normalization.
 
 Current schema: **v11**.
 
-v0.6.1 Visual Rescue does not introduce a profile migration.
+Presentation-only releases do not require a profile migration unless they introduce durable player state that cannot be represented safely by the existing schema.
 
 ## v11 compatibility bridge
 
@@ -40,9 +40,9 @@ Coordinates are canonical home-local coordinates decided by the server. Placemen
 
 `savedOutfits[outfitId] = { hair, top, bottom, shoes, accessory }`
 
-`activeOutfitId` selects the player's current **TinyWorld style preference**.
+`activeOutfitId` selects the player's TinyWorld style preference.
 
-That persisted preference is not a guarantee that every field has a currently approved rendered asset. v0.6.1 deliberately preserves the player's Roblox avatar instead of rendering primitive Part hair/shoes while approved TinyWorld character assets are absent. Future approved assets may consume the saved preference without a schema change.
+That persisted preference is not a guarantee that every field has a currently approved rendered asset. TinyWorld preserves the player's Roblox avatar rather than rendering primitive Part hair/shoes when approved character assets are absent. Future approved assets may consume the saved preference without a schema change.
 
 Production Roblox assets are manifest-driven and are not embedded in profile data.
 
@@ -65,7 +65,7 @@ Generic Inventory dual-writes the legacy five stack fields during v11. Remove le
 
 ## Migration rules
 
-- Current version: 11.
+- Current schema version: 11.
 - Unknown future version: fail closed.
 - v10 -> v11: deterministic, idempotent, copies rather than deletes legacy state.
 - v1-v9: normalized to the last supported legacy shape, then migrated to v11.
@@ -74,7 +74,7 @@ Generic Inventory dual-writes the legacy five stack fields during v11. Remove le
 
 ## Persistence envelope
 
-ProfileStore persists a profile plus an expiring session lease while owned by a server. Saves use `UpdateAsync`. Load/save/heartbeat/release all verify the lease and migration safety.
+`ProfileStore` persists a profile plus an expiring session lease while owned by a server. Saves use `UpdateAsync`. Load/save/heartbeat/release all verify lease ownership and migration safety.
 
 DEV and LIVE use different namespaces:
 
@@ -87,4 +87,4 @@ Studio defaults to DEV. LIVE selection must be explicit.
 
 Client presentation attributes are mirrors, not authority. A client may never author coins, XP, price, reward, ownership, trade contents or final placement state.
 
-Visual rescue may change how a saved preference is presented without changing profile authority or silently rewriting saved data.
+Visual releases may change how saved preferences or owned content are presented without changing profile authority or silently rewriting saved data.

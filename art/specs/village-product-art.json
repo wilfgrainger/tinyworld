@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "name": "TinyWorld v0.6.3 ART R4 Product Art",
+  "coordinateSystem": "Y_UP_FRONT_POSITIVE_Z",
+  "units": "studs",
+  "assets": {
+    "town-hall": {
+      "displayName": "TinyWorld_TownHall_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [36, 23, 34],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[34,1.2,28],"position":[0,0.6,0],"bevel":0.55,"color":"stone","material":"stone","role":"civic-foundation"},
+        {"name":"MainBody","shape":"beveledBox","size":[30,9.5,24],"position":[0,5.35,0],"bevel":0.85,"color":"cream","material":"plaster","role":"civic-body"},
+        {"name":"MainRoof","shape":"hipRoof","size":[34,5.2,28],"position":[0,10.1,0],"color":"slate","material":"slate","role":"civic-roof"},
+        {"name":"ClockTower","shape":"beveledBox","size":[9,9,9],"position":[0,14.4,-1.5],"bevel":0.65,"color":"creamDeep","material":"stone","role":"civic-clock-tower"},
+        {"name":"ClockTowerRoof","shape":"hipRoof","size":[11,4,11],"position":[0,18.9,-1.5],"color":"slateLight","material":"slate","role":"civic-clock-roof"},
+        {"name":"ClockFace","shape":"cylinder","size":[5.2,0.55,5.2],"position":[0,15.1,3.1],"rotation":[90,0,0],"segments":20,"color":"paper","material":"paint","role":"civic-clock-face"},
+        {"name":"ClockHub","shape":"cylinder","size":[0.7,0.8,0.7],"position":[0,15.1,3.45],"rotation":[90,0,0],"segments":12,"color":"gold","material":"metal","role":"civic-clock-hub"},
+        {"name":"PorticoRoof","shape":"gableRoof","size":[16,3.3,8],"position":[0,9,13.2],"color":"slateLight","material":"slate","role":"civic-portico-roof"},
+        {"name":"PorticoColumnL","shape":"frustum","size":[1.45,7.4,1.45],"position":[-5.2,4.6,14.1],"segments":8,"topScale":0.76,"color":"stone","material":"stone","role":"civic-portico-column"},
+        {"name":"PorticoColumnR","shape":"frustum","size":[1.45,7.4,1.45],"position":[5.2,4.6,14.1],"segments":8,"topScale":0.76,"color":"stone","material":"stone","role":"civic-portico-column"},
+        {"name":"FrontDoor","shape":"panel","size":[5.2,6.6,0.55],"position":[0,4.25,12.35],"bevel":0.22,"color":"timberDark","material":"wood","role":"civic-entry"},
+        {"name":"WindowFrameL","shape":"windowSet","size":[5.5,4.2,0.45],"position":[-8.2,5.5,12.45],"color":"timberDark","material":"wood","role":"civic-window-frame"},
+        {"name":"WindowGlassL","shape":"panel","size":[4.55,3.25,0.16],"position":[-8.2,5.5,12.3],"color":"glass","material":"glass","transparency":0.32,"role":"civic-window-glass"},
+        {"name":"WindowFrameR","shape":"windowSet","size":[5.5,4.2,0.45],"position":[8.2,5.5,12.45],"color":"timberDark","material":"wood","role":"civic-window-frame"},
+        {"name":"WindowGlassR","shape":"panel","size":[4.55,3.25,0.16],"position":[8.2,5.5,12.3],"color":"glass","material":"glass","transparency":0.32,"role":"civic-window-glass"}
+      ]
+    },
+    "starter-home": {
+      "displayName": "TinyWorld_StarterHome_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [34, 17, 34],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[31.5,1.2,25.5],"position":[0,0.6,0],"bevel":0.55,"color":"stone","material":"stone","role":"home-foundation"},
+        {"name":"Floor","shape":"beveledBox","size":[30,0.65,24],"position":[0,1.15,0],"bevel":0.2,"color":"timber","material":"woodPlanks","role":"home-floor"},
+        {"name":"BackWall","shape":"beveledBox","size":[30,9,0.8],"position":[0,5.6,-11.6],"bevel":0.3,"color":"cream","material":"plaster","role":"home-wall"},
+        {"name":"LeftWall","shape":"beveledBox","size":[0.8,9,24],"position":[-14.6,5.6,0],"bevel":0.3,"color":"cream","material":"plaster","role":"home-wall"},
+        {"name":"RightWall","shape":"beveledBox","size":[0.8,9,24],"position":[14.6,5.6,0],"bevel":0.3,"color":"cream","material":"plaster","role":"home-wall"},
+        {"name":"FrontWallL","shape":"beveledBox","size":[11.5,9,0.8],"position":[-9.2,5.6,11.6],"bevel":0.3,"color":"cream","material":"plaster","role":"home-front-wall"},
+        {"name":"FrontWallR","shape":"beveledBox","size":[11.5,9,0.8],"position":[9.2,5.6,11.6],"bevel":0.3,"color":"cream","material":"plaster","role":"home-front-wall"},
+        {"name":"MainRoof","shape":"gableRoof","size":[33,5.2,27],"position":[0,10.1,0],"color":"slate","material":"slate","role":"home-roof"},
+        {"name":"Chimney","shape":"beveledBox","size":[2.6,5.5,2.6],"position":[8.4,12,-3.2],"bevel":0.28,"color":"stoneDark","material":"brick","role":"home-chimney"},
+        {"name":"PorchDeck","shape":"beveledBox","size":[13,0.55,6],"position":[0,1.5,14.2],"bevel":0.3,"color":"timber","material":"woodPlanks","role":"home-porch"},
+        {"name":"PorchRoof","shape":"gableRoof","size":[14.5,2.6,7],"position":[0,7.7,14.1],"color":"slateLight","material":"slate","role":"home-porch-roof"},
+        {"name":"PorchPostL","shape":"frustum","size":[0.85,5.7,0.85],"position":[-5,4.5,15.5],"segments":8,"topScale":0.78,"color":"timberLight","material":"wood","role":"home-porch-post"},
+        {"name":"PorchPostR","shape":"frustum","size":[0.85,5.7,0.85],"position":[5,4.5,15.5],"segments":8,"topScale":0.78,"color":"timberLight","material":"wood","role":"home-porch-post"},
+        {"name":"FrontDoor","shape":"panel","size":[4.8,6.5,0.55],"position":[0,4.55,12.15],"bevel":0.24,"color":"timberDark","material":"wood","role":"home-front-door"},
+        {"name":"WindowFrameL","shape":"windowSet","size":[5.2,4,0.4],"position":[-8.5,5.6,12.25],"color":"timberDark","material":"wood","role":"home-window-frame"},
+        {"name":"WindowGlassL","shape":"panel","size":[4.3,3.15,0.14],"position":[-8.5,5.6,12.1],"color":"glass","material":"glass","transparency":0.34,"role":"home-window-glass"},
+        {"name":"WindowFrameR","shape":"windowSet","size":[5.2,4,0.4],"position":[8.5,5.6,12.25],"color":"timberDark","material":"wood","role":"home-window-frame"},
+        {"name":"WindowGlassR","shape":"panel","size":[4.3,3.15,0.14],"position":[8.5,5.6,12.1],"color":"glass","material":"glass","transparency":0.34,"role":"home-window-glass"},
+        {"name":"SideWindowFrame","shape":"windowSet","size":[4.6,3.6,0.4],"position":[14.95,5.4,-2.8],"rotation":[0,90,0],"color":"timberDark","material":"wood","role":"home-side-window-frame"},
+        {"name":"SideWindowGlass","shape":"panel","size":[3.75,2.8,0.14],"position":[14.8,5.4,-2.8],"rotation":[0,90,0],"color":"glass","material":"glass","transparency":0.34,"role":"home-side-window-glass"}
+      ]
+    },
+    "village-shop": {
+      "displayName": "TinyWorld_VillageShop_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [34, 16, 32],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[32,1.1,26],"position":[0,0.55,0],"bevel":0.5,"color":"stone","material":"stone","role":"shop-foundation"},
+        {"name":"Body","shape":"beveledBox","size":[30,9.5,24],"position":[0,5.3,0],"bevel":0.75,"color":"cream","material":"plaster","role":"shop-body"},
+        {"name":"Roof","shape":"gableRoof","size":[34,5,28],"position":[0,10,0],"color":"slate","material":"slate","role":"shop-roof"},
+        {"name":"Awning","shape":"panel","size":[18,0.45,5.5],"position":[0,7.5,13.2],"rotation":[7,0,0],"bevel":0.18,"color":"blue","material":"fabric","role":"shop-awning"},
+        {"name":"Door","shape":"panel","size":[4.5,6.5,0.5],"position":[0,4.3,12.25],"bevel":0.22,"color":"timberDark","material":"wood","role":"shop-door"},
+        {"name":"WindowFrameL","shape":"windowSet","size":[6.5,4.8,0.4],"position":[-8.5,5.5,12.35],"color":"timberDark","material":"wood","role":"shop-window-frame"},
+        {"name":"WindowGlassL","shape":"panel","size":[5.45,3.8,0.14],"position":[-8.5,5.5,12.2],"color":"glass","material":"glass","transparency":0.3,"role":"shop-window-glass"},
+        {"name":"WindowFrameR","shape":"windowSet","size":[6.5,4.8,0.4],"position":[8.5,5.5,12.35],"color":"timberDark","material":"wood","role":"shop-window-frame"},
+        {"name":"WindowGlassR","shape":"panel","size":[5.45,3.8,0.14],"position":[8.5,5.5,12.2],"color":"glass","material":"glass","transparency":0.3,"role":"shop-window-glass"},
+        {"name":"Sign","shape":"panel","size":[10,2,0.45],"position":[0,9.2,12.7],"bevel":0.3,"color":"blueDark","material":"wood","role":"shop-sign"}
+      ]
+    },
+    "home-store": {
+      "displayName": "TinyWorld_HomeStore_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [35, 17, 33],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[33,1.2,27],"position":[0,0.6,0],"bevel":0.55,"color":"stone","material":"stone","role":"home-store-foundation"},
+        {"name":"Body","shape":"beveledBox","size":[31,10,25],"position":[0,5.6,0],"bevel":0.8,"color":"cream","material":"plaster","role":"home-store-body"},
+        {"name":"Roof","shape":"gableRoof","size":[35,5.4,29],"position":[0,10.5,0],"color":"rose","material":"slate","role":"home-store-roof"},
+        {"name":"EntryAwning","shape":"panel","size":[13,0.5,5.5],"position":[0,7.7,13.8],"rotation":[8,0,0],"bevel":0.2,"color":"canvas","material":"fabric","role":"home-store-awning"},
+        {"name":"Door","shape":"panel","size":[4.8,6.7,0.5],"position":[0,4.5,12.75],"bevel":0.22,"color":"timberDark","material":"wood","role":"home-store-door"},
+        {"name":"WindowFrameL","shape":"windowSet","size":[7,5.2,0.4],"position":[-9.2,5.6,12.85],"color":"timberDark","material":"wood","role":"home-store-window-frame"},
+        {"name":"WindowGlassL","shape":"panel","size":[5.9,4.2,0.14],"position":[-9.2,5.6,12.7],"color":"glass","material":"glass","transparency":0.28,"role":"home-store-window-glass"},
+        {"name":"WindowFrameR","shape":"windowSet","size":[7,5.2,0.4],"position":[9.2,5.6,12.85],"color":"timberDark","material":"wood","role":"home-store-window-frame"},
+        {"name":"WindowGlassR","shape":"panel","size":[5.9,4.2,0.14],"position":[9.2,5.6,12.7],"color":"glass","material":"glass","transparency":0.28,"role":"home-store-window-glass"},
+        {"name":"Sign","shape":"panel","size":[12,2.2,0.45],"position":[0,9.5,13.15],"bevel":0.3,"color":"rose","material":"wood","role":"home-store-sign"}
+      ]
+    },
+    "courier-depot": {
+      "displayName": "TinyWorld_CourierDepot_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [32, 15, 30],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[30,1.1,24],"position":[0,0.55,0],"bevel":0.5,"color":"stone","material":"stone","role":"courier-foundation"},
+        {"name":"Body","shape":"beveledBox","size":[28,9,22],"position":[0,5.05,0],"bevel":0.7,"color":"creamDeep","material":"plaster","role":"courier-body"},
+        {"name":"Roof","shape":"gableRoof","size":[32,4.8,26],"position":[0,9.55,0],"color":"blueDark","material":"slate","role":"courier-roof"},
+        {"name":"LoadingAwning","shape":"panel","size":[14,0.48,6],"position":[0,7.1,12.7],"rotation":[8,0,0],"bevel":0.2,"color":"blue","material":"fabric","role":"courier-loading-awning"},
+        {"name":"LoadingDoor","shape":"panel","size":[8,6.5,0.5],"position":[0,4.25,11.25],"bevel":0.25,"color":"timberDark","material":"wood","role":"courier-loading-door"},
+        {"name":"SideWindow","shape":"windowSet","size":[5,3.8,0.4],"position":[14.15,5.2,-2],"rotation":[0,90,0],"color":"timberDark","material":"wood","role":"courier-window-frame"},
+        {"name":"SideGlass","shape":"panel","size":[4.1,2.95,0.14],"position":[14,5.2,-2],"rotation":[0,90,0],"color":"glass","material":"glass","transparency":0.34,"role":"courier-window-glass"},
+        {"name":"RouteBoard","shape":"panel","size":[5.5,4,0.45],"position":[-9,4.8,11.6],"bevel":0.25,"color":"blueDark","material":"wood","role":"courier-route-board"}
+      ]
+    },
+    "workshop": {
+      "displayName": "TinyWorld_Workshop_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [34, 15, 30],
+      "components": [
+        {"name":"Foundation","shape":"beveledBox","size":[32,1.1,25],"position":[0,0.55,0],"bevel":0.5,"color":"stoneDark","material":"stone","role":"workshop-foundation"},
+        {"name":"Body","shape":"beveledBox","size":[30,9,23],"position":[0,5.05,0],"bevel":0.7,"color":"blueDark","material":"paint","role":"workshop-body"},
+        {"name":"Roof","shape":"gableRoof","size":[34,4.5,27],"position":[0,9.55,0],"color":"slate","material":"slate","role":"workshop-roof"},
+        {"name":"GarageDoor","shape":"panel","size":[11,7,0.55],"position":[4.5,4.45,11.8],"bevel":0.25,"color":"metal","material":"metal","role":"workshop-garage-door"},
+        {"name":"EntryDoor","shape":"panel","size":[4.5,6.4,0.5],"position":[-8.5,4.2,11.8],"bevel":0.22,"color":"timber","material":"wood","role":"workshop-entry"},
+        {"name":"WindowFrame","shape":"windowSet","size":[5,3.8,0.4],"position":[-14.95,5.4,-2],"rotation":[0,90,0],"color":"timberLight","material":"wood","role":"workshop-window-frame"},
+        {"name":"WindowGlass","shape":"panel","size":[4.1,2.95,0.14],"position":[-14.8,5.4,-2],"rotation":[0,90,0],"color":"glass","material":"glass","transparency":0.36,"role":"workshop-window-glass"},
+        {"name":"Workbench","shape":"beveledBox","size":[8,1,3],"position":[-8,3,8.5],"bevel":0.3,"color":"timber","material":"woodPlanks","role":"workshop-bench"}
+      ]
+    },
+    "market-stall-a": {
+      "displayName": "TinyWorld_MarketStall_A_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [14, 11, 10],
+      "components": [
+        {"name":"Counter","shape":"beveledBox","size":[11,1.2,4.5],"position":[0,3.2,0],"bevel":0.35,"color":"timber","material":"woodPlanks","role":"market-counter"},
+        {"name":"BaseL","shape":"frustum","size":[0.8,5.5,0.8],"position":[-4.7,3.1,-1.5],"segments":8,"topScale":0.82,"color":"timberDark","material":"wood","role":"market-post"},
+        {"name":"BaseR","shape":"frustum","size":[0.8,5.5,0.8],"position":[4.7,3.1,-1.5],"segments":8,"topScale":0.82,"color":"timberDark","material":"wood","role":"market-post"},
+        {"name":"Canopy","shape":"gableRoof","size":[13,2.5,8],"position":[0,7.1,0],"color":"marketRed","material":"fabric","role":"market-canopy"},
+        {"name":"ProduceCrateL","shape":"beveledBox","size":[3,1.5,3],"position":[-3,4.5,0],"bevel":0.28,"color":"timberLight","material":"wood","role":"market-stock"},
+        {"name":"ProduceCrateR","shape":"beveledBox","size":[3,1.5,3],"position":[3,4.5,0],"bevel":0.28,"color":"timberLight","material":"wood","role":"market-stock"}
+      ]
+    },
+    "market-stall-b": {
+      "displayName": "TinyWorld_MarketStall_B_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [14, 11, 10],
+      "components": [
+        {"name":"Counter","shape":"beveledBox","size":[11,1.2,4.5],"position":[0,3.2,0],"bevel":0.35,"color":"timber","material":"woodPlanks","role":"market-counter"},
+        {"name":"BaseL","shape":"frustum","size":[0.8,5.5,0.8],"position":[-4.7,3.1,-1.5],"segments":8,"topScale":0.82,"color":"timberDark","material":"wood","role":"market-post"},
+        {"name":"BaseR","shape":"frustum","size":[0.8,5.5,0.8],"position":[4.7,3.1,-1.5],"segments":8,"topScale":0.82,"color":"timberDark","material":"wood","role":"market-post"},
+        {"name":"Canopy","shape":"gableRoof","size":[13,2.5,8],"position":[0,7.1,0],"color":"marketGold","material":"fabric","role":"market-canopy"},
+        {"name":"HomewareCrateL","shape":"beveledBox","size":[3,1.5,3],"position":[-3,4.5,0],"bevel":0.28,"color":"blue","material":"wood","role":"market-stock"},
+        {"name":"HomewareCrateR","shape":"beveledBox","size":[3,1.5,3],"position":[3,4.5,0],"bevel":0.28,"color":"rose","material":"wood","role":"market-stock"}
+      ]
+    },
+    "fountain": {
+      "displayName": "TinyWorld_Fountain_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [20, 12, 20],
+      "components": [
+        {"name":"OuterBasin","shape":"cylinder","size":[18,1.5,18],"position":[0,0.75,0],"segments":24,"color":"stone","material":"marble","role":"fountain-basin"},
+        {"name":"InnerWater","shape":"cylinder","size":[15.5,0.35,15.5],"position":[0,1.45,0],"segments":24,"color":"water","material":"water","transparency":0.18,"role":"fountain-water"},
+        {"name":"Pedestal","shape":"frustum","size":[4.2,5.2,4.2],"position":[0,4,0],"segments":12,"topScale":0.62,"color":"stoneDark","material":"marble","role":"fountain-pedestal"},
+        {"name":"UpperBowl","shape":"cylinder","size":[7.5,0.8,7.5],"position":[0,6.7,0],"segments":20,"color":"stone","material":"marble","role":"fountain-upper-bowl"},
+        {"name":"Spout","shape":"frustum","size":[1.8,3.8,1.8],"position":[0,8.6,0],"segments":12,"topScale":0.45,"color":"stoneDark","material":"marble","role":"fountain-spout"},
+        {"name":"WaterArcN","shape":"waterArc","size":[7,3.7,0.28],"position":[0,7.7,0],"rotation":[0,0,0],"segments":12,"color":"water","material":"water","transparency":0.12,"role":"fountain-water-arc"},
+        {"name":"WaterArcE","shape":"waterArc","size":[7,3.7,0.28],"position":[0,7.7,0],"rotation":[0,90,0],"segments":12,"color":"water","material":"water","transparency":0.12,"role":"fountain-water-arc"}
+      ]
+    },
+    "portal-clockwork": {
+      "displayName": "TinyWorld_Portal_Clockwork_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [24, 23, 10],
+      "components": [
+        {"name":"Platform","shape":"beveledBox","size":[22,0.8,10],"position":[0,0.4,0],"bevel":0.55,"color":"stoneDark","material":"stone","role":"portal-platform"},
+        {"name":"Arch","shape":"archSegment","size":[20,19,4],"position":[0,9.8,0],"segments":14,"thickness":2.2,"color":"lavender","material":"stone","role":"portal-arch"},
+        {"name":"Threshold","shape":"panel","size":[12.5,13,0.35],"position":[0,7.5,0.25],"bevel":0.25,"color":"glass","material":"glass","transparency":0.45,"role":"portal-threshold"},
+        {"name":"ClockworkRing","shape":"cylinder","size":[6.2,0.65,6.2],"position":[0,16.5,2.15],"rotation":[90,0,0],"segments":16,"color":"gold","material":"metal","role":"portal-clockwork-emblem"},
+        {"name":"ClockworkHub","shape":"cylinder","size":[1.6,0.85,1.6],"position":[0,16.5,2.55],"rotation":[90,0,0],"segments":12,"color":"metal","material":"metal","role":"portal-clockwork-hub"}
+      ]
+    },
+    "tree-a": {
+      "displayName": "TinyWorld_Tree_A_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [10, 16, 10],
+      "components": [
+        {"name":"Trunk","shape":"frustum","size":[2.2,8,2.2],"position":[0,4,0],"segments":8,"topScale":0.58,"color":"timberDark","material":"wood","role":"tree-trunk"},
+        {"name":"CrownMain","shape":"ellipsoid","size":[9.5,8,8.5],"position":[0,10.5,0],"segments":10,"rings":5,"color":"green","material":"foliage","role":"tree-crown"},
+        {"name":"CrownSide","shape":"ellipsoid","size":[6,5.5,6],"position":[2.8,12.2,-1.2],"segments":9,"rings":4,"color":"greenLight","material":"foliage","role":"tree-crown-highlight"}
+      ]
+    },
+    "tree-b": {
+      "displayName": "TinyWorld_Tree_B_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [12, 18, 11],
+      "components": [
+        {"name":"Trunk","shape":"frustum","size":[2.3,9,2.3],"position":[0,4.5,0],"segments":8,"topScale":0.52,"color":"timberDark","material":"wood","role":"tree-trunk"},
+        {"name":"CrownLow","shape":"ellipsoid","size":[10.5,6.5,9],"position":[-1.2,10.5,0],"segments":10,"rings":5,"color":"greenDark","material":"foliage","role":"tree-crown"},
+        {"name":"CrownHigh","shape":"ellipsoid","size":[8,7,7],"position":[2.2,13.8,-0.8],"segments":10,"rings":5,"color":"green","material":"foliage","role":"tree-crown"}
+      ]
+    },
+    "tree-c": {
+      "displayName": "TinyWorld_Tree_C_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [9, 14, 9],
+      "components": [
+        {"name":"Trunk","shape":"frustum","size":[1.8,7,1.8],"position":[0,3.5,0],"segments":7,"topScale":0.56,"color":"timber","material":"wood","role":"tree-trunk"},
+        {"name":"CrownA","shape":"ellipsoid","size":[7.5,6,7],"position":[0,9,0],"segments":9,"rings":4,"color":"sage","material":"foliage","role":"tree-crown"},
+        {"name":"CrownB","shape":"ellipsoid","size":[5.5,5,5.5],"position":[-2,11,1.2],"segments":9,"rings":4,"color":"greenLight","material":"foliage","role":"tree-crown-highlight"}
+      ]
+    },
+    "lantern": {
+      "displayName": "TinyWorld_Lantern_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [3, 8, 3],
+      "components": [
+        {"name":"Post","shape":"frustum","size":[0.55,6.2,0.55],"position":[0,3.1,0],"segments":8,"topScale":0.75,"color":"metal","material":"metal","role":"lantern-post"},
+        {"name":"Housing","shape":"beveledBox","size":[1.8,1.9,1.8],"position":[0,6.6,0],"bevel":0.22,"color":"metal","material":"metal","role":"lantern-housing"},
+        {"name":"Glow","shape":"beveledBox","size":[1.2,1.25,1.2],"position":[0,6.6,0],"bevel":0.16,"color":"warmLight","material":"glass","transparency":0.18,"role":"lantern-glass"},
+        {"name":"Cap","shape":"hipRoof","size":[2.3,1.1,2.3],"position":[0,7.65,0],"color":"metal","material":"metal","role":"lantern-cap"}
+      ]
+    },
+    "bench": {
+      "displayName": "TinyWorld_Bench_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [8, 4, 4],
+      "components": [
+        {"name":"Seat","shape":"beveledBox","size":[7,0.65,2.2],"position":[0,2.1,0],"bevel":0.28,"color":"timber","material":"woodPlanks","role":"bench-seat"},
+        {"name":"Back","shape":"panel","size":[7,2.5,0.55],"position":[0,3.25,-0.85],"rotation":[-8,0,0],"bevel":0.25,"color":"timberLight","material":"woodPlanks","role":"bench-back"},
+        {"name":"LegL","shape":"frustum","size":[0.65,2,0.65],"position":[-2.5,1,0],"segments":8,"topScale":0.8,"color":"metal","material":"metal","role":"bench-leg"},
+        {"name":"LegR","shape":"frustum","size":[0.65,2,0.65],"position":[2.5,1,0],"segments":8,"topScale":0.8,"color":"metal","material":"metal","role":"bench-leg"}
+      ]
+    },
+    "planter": {
+      "displayName": "TinyWorld_Planter_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [4, 5, 4],
+      "components": [
+        {"name":"Pot","shape":"frustum","size":[3.5,2.4,3.5],"position":[0,1.2,0],"segments":10,"topScale":1.16,"color":"timber","material":"wood","role":"planter-pot"},
+        {"name":"FoliageA","shape":"ellipsoid","size":[3.2,3,3.2],"position":[0,3.2,0],"segments":8,"rings":4,"color":"green","material":"foliage","role":"planter-foliage"},
+        {"name":"FoliageB","shape":"ellipsoid","size":[2.2,2.5,2.2],"position":[1.1,3.8,-0.4],"segments":8,"rings":4,"color":"greenLight","material":"foliage","role":"planter-foliage"}
+      ]
+    },
+    "hedge": {
+      "displayName": "TinyWorld_HedgeSegment_v1",
+      "qualityTier": "background",
+      "expectedBounds": [10, 4, 4],
+      "components": [
+        {"name":"HedgeA","shape":"ellipsoid","size":[6,3.4,3.2],"position":[-2,1.7,0],"segments":8,"rings":4,"color":"greenDark","material":"foliage","role":"hedge-foliage"},
+        {"name":"HedgeB","shape":"ellipsoid","size":[6,3.6,3.2],"position":[2,1.8,0],"segments":8,"rings":4,"color":"green","material":"foliage","role":"hedge-foliage"}
+      ]
+    },
+    "parcel-crates": {
+      "displayName": "TinyWorld_ParcelCrateSet_v1",
+      "qualityTier": "supporting",
+      "expectedBounds": [8, 5, 6],
+      "components": [
+        {"name":"CrateA","shape":"beveledBox","size":[3,2.6,3],"position":[-2,1.3,0],"bevel":0.28,"color":"timber","material":"woodPlanks","role":"parcel-crate"},
+        {"name":"CrateB","shape":"beveledBox","size":[2.6,2.2,2.6],"position":[1.5,1.1,0.8],"bevel":0.25,"color":"timberLight","material":"woodPlanks","role":"parcel-crate"},
+        {"name":"Parcel","shape":"beveledBox","size":[2.5,1.6,2],"position":[1.2,3.1,-0.5],"bevel":0.22,"color":"canvas","material":"fabric","role":"courier-parcel"}
+      ]
+    },
+    "starter-interior-kit": {
+      "displayName": "TinyWorld_StarterInteriorKit_v1",
+      "qualityTier": "hero",
+      "expectedBounds": [28, 9, 22],
+      "components": [
+        {"name":"Ceiling","shape":"panel","size":[28,0.45,22],"position":[0,9.1,0],"bevel":0.18,"color":"creamDeep","material":"wood","role":"home-ceiling"},
+        {"name":"LivingRug","shape":"panel","size":[9,0.15,6],"position":[-6,1.55,4],"bevel":0.3,"color":"blue","material":"fabric","role":"home-rug"},
+        {"name":"SofaSeat","shape":"beveledBox","size":[7.5,1.3,3.2],"position":[-7,2.3,6],"bevel":0.55,"color":"blue","material":"fabric","role":"home-sofa"},
+        {"name":"SofaBack","shape":"beveledBox","size":[7.5,3,1.1],"position":[-7,3.7,4.9],"bevel":0.45,"color":"blueDark","material":"fabric","role":"home-sofa"},
+        {"name":"SofaArmL","shape":"beveledBox","size":[1,2.2,3.2],"position":[-10.3,2.9,6],"bevel":0.4,"color":"blueDark","material":"fabric","role":"home-sofa"},
+        {"name":"SofaArmR","shape":"beveledBox","size":[1,2.2,3.2],"position":[-3.7,2.9,6],"bevel":0.4,"color":"blueDark","material":"fabric","role":"home-sofa"},
+        {"name":"CoffeeTable","shape":"beveledBox","size":[5,0.65,3],"position":[-6,2.25,1.5],"bevel":0.3,"color":"timber","material":"woodPlanks","role":"home-coffee-table"},
+        {"name":"BedBase","shape":"beveledBox","size":[7.5,1.2,5],"position":[-8,2,-6],"bevel":0.42,"color":"timberDark","material":"wood","role":"home-bed"},
+        {"name":"BedMattress","shape":"beveledBox","size":[7,1,4.6],"position":[-8,2.9,-5.8],"bevel":0.55,"color":"paper","material":"fabric","role":"home-bed"},
+        {"name":"BedBlanket","shape":"panel","size":[7.1,0.3,2.6],"position":[-8,3.45,-5],"bevel":0.28,"color":"rose","material":"fabric","role":"home-bed-blanket"},
+        {"name":"Wardrobe","shape":"beveledBox","size":[4.5,7,2],"position":[-12,5,-1.5],"bevel":0.35,"color":"timber","material":"wood","role":"home-wardrobe"},
+        {"name":"KitchenCounter","shape":"beveledBox","size":[9,3.2,2.4],"position":[7.5,3.1,-8.5],"bevel":0.38,"color":"creamDeep","material":"wood","role":"home-kitchen-counter"},
+        {"name":"KitchenTop","shape":"beveledBox","size":[9.4,0.5,2.7],"position":[7.5,4.95,-8.5],"bevel":0.25,"color":"stoneDark","material":"stone","role":"home-kitchen-worktop"},
+        {"name":"CookerFront","shape":"panel","size":[3.2,2.7,0.4],"position":[6.5,3,-7.1],"bevel":0.22,"color":"metal","material":"metal","role":"home-cooker"},
+        {"name":"DiningTop","shape":"beveledBox","size":[6,0.65,4],"position":[6,3.7,2],"bevel":0.32,"color":"timber","material":"woodPlanks","role":"home-dining-table"},
+        {"name":"DiningLeg","shape":"frustum","size":[1.1,3.2,1.1],"position":[6,2,2],"segments":8,"topScale":0.75,"color":"timberDark","material":"wood","role":"home-dining-table"},
+        {"name":"ChairA","shape":"beveledBox","size":[2.3,0.55,2.3],"position":[2.3,2.5,2],"bevel":0.28,"color":"timberLight","material":"wood","role":"home-chair"},
+        {"name":"ChairB","shape":"beveledBox","size":[2.3,0.55,2.3],"position":[9.7,2.5,2],"bevel":0.28,"color":"timberLight","material":"wood","role":"home-chair"},
+        {"name":"Bath","shape":"beveledBox","size":[6,2.4,3.5],"position":[8,2.8,7.3],"bevel":0.7,"color":"paper","material":"marble","role":"home-bath"},
+        {"name":"StorageShelf","shape":"beveledBox","size":[4,6.5,1.6],"position":[12,4.6,-1.5],"bevel":0.3,"color":"timber","material":"wood","role":"home-storage"},
+        {"name":"CurtainL","shape":"panel","size":[1.4,4.2,0.25],"position":[-10.8,5.5,11.2],"bevel":0.18,"color":"rose","material":"fabric","role":"home-curtain"},
+        {"name":"CurtainR","shape":"panel","size":[1.4,4.2,0.25],"position":[10.8,5.5,11.2],"bevel":0.18,"color":"rose","material":"fabric","role":"home-curtain"}
+      ]
+    }
+  }
+}
