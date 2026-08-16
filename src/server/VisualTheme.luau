@@ -37,34 +37,40 @@ local function getOrCreate(className: string, name: string)
 end
 
 function VisualTheme.configureLighting()
+	Lighting:SetAttribute("TinyWorldArtRevision", "ART R7")
+	Lighting:SetAttribute("TinyWorldLightingStyle", "bright-premium-toy-world")
 	Lighting.GlobalShadows = true
-	Lighting.Brightness = 2.1
-	Lighting.ClockTime = 14.4
-	Lighting.Ambient = VisualTheme.Colors.inkSoft
+	Lighting.Brightness = 2.35
+	Lighting.ClockTime = 14.1
+	Lighting.Ambient = Color3.fromRGB(132, 142, 157)
 	Lighting.OutdoorAmbient = VisualTheme.Colors.sky
-	Lighting.ColorShift_Top = VisualTheme.Colors.warmLight
-	Lighting.ColorShift_Bottom = VisualTheme.Colors.meadow
-	Lighting.EnvironmentDiffuseScale = 0.35
-	Lighting.EnvironmentSpecularScale = 0.2
+	Lighting.ColorShift_Top = Color3.fromRGB(255, 242, 213)
+	Lighting.ColorShift_Bottom = Color3.fromRGB(197, 229, 178)
+	Lighting.EnvironmentDiffuseScale = 0.42
+	Lighting.EnvironmentSpecularScale = 0.28
 
 	local atmosphere = getOrCreate("Atmosphere", "TinyWorldAtmosphere")
-	atmosphere.Density = 0.14
-	atmosphere.Offset = 0.25
-	atmosphere.Color = VisualTheme.Colors.sky
-	atmosphere.Decay = VisualTheme.Colors.inkSoft
-	atmosphere.Glare = 0.04
-	atmosphere.Haze = 0.55
+	atmosphere.Density = 0.11
+	atmosphere.Offset = 0.3
+	atmosphere.Color = Color3.fromRGB(205, 239, 250)
+	atmosphere.Decay = Color3.fromRGB(129, 151, 175)
+	atmosphere.Glare = 0.05
+	atmosphere.Haze = 0.38
 
 	local correction = getOrCreate("ColorCorrectionEffect", "TinyWorldColorGrade")
-	correction.Brightness = 0.03
-	correction.Contrast = 0.08
-	correction.Saturation = 0.1
-	correction.TintColor = VisualTheme.Colors.paper
+	correction.Brightness = 0.055
+	correction.Contrast = 0.055
+	correction.Saturation = 0.16
+	correction.TintColor = Color3.fromRGB(255, 250, 238)
 
 	local bloom = getOrCreate("BloomEffect", "TinyWorldBloom")
-	bloom.Intensity = 0.06
-	bloom.Size = 24
-	bloom.Threshold = 1.2
+	bloom.Intensity = 0.075
+	bloom.Size = 20
+	bloom.Threshold = 1.35
+
+	local sunRays = getOrCreate("SunRaysEffect", "TinyWorldSunRays")
+	sunRays.Intensity = 0.025
+	sunRays.Spread = 0.72
 end
 
 return VisualTheme
