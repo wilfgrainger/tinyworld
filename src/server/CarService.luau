@@ -39,7 +39,10 @@ function CarService:_ensure(player: Player)
 	if car.prompt then
 		car.prompt.Triggered:Connect(function(triggeringPlayer)
 			if triggeringPlayer ~= player then
-				self.PlayerStateService.message(triggeringPlayer, "That Tiny Car belongs to another resident's session.")
+				self.PlayerStateService.message(
+					triggeringPlayer,
+					"That Tiny Car belongs to another resident's session."
+				)
 				return
 			end
 			self:_toggle(player)
