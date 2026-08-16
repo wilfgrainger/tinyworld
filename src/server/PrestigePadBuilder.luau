@@ -51,34 +51,69 @@ function PrestigePadBuilder.build(world)
 	)
 	ProductionMeshFactory.createComponent(
 		model,
-		component("InnerBeacon", "cylinder", { 14, 0.35, 14 }, { 0, 0.8, 0 }, "glow", "neon", "future-spaceship-beacon", {
-			segments = 24,
-			transparency = 0.18,
-		}),
+		component(
+			"InnerBeacon",
+			"cylinder",
+			{ 14, 0.35, 14 },
+			{ 0, 0.8, 0 },
+			"glow",
+			"neon",
+			"future-spaceship-beacon",
+			{
+				segments = 24,
+				transparency = 0.18,
+			}
+		),
 		origin,
 		PALETTE
 	)
 	ProductionMeshFactory.createComponent(
 		model,
-		component("PrestigeArch", "archSegment", { 14, 12, 2.2 }, { 0, 5.4, 6.5 }, "metal", "metal", "future-spaceship-arch", {
-			segments = 18,
-			thickness = 1.4,
-		}),
+		component(
+			"PrestigeArch",
+			"archSegment",
+			{ 14, 12, 2.2 },
+			{ 0, 5.4, 6.5 },
+			"metal",
+			"metal",
+			"future-spaceship-arch",
+			{
+				segments = 18,
+				thickness = 1.4,
+			}
+		),
 		origin,
 		PALETTE
 	)
 	for _, x in { -8, 8 } do
 		ProductionMeshFactory.createComponent(
 			model,
-			component("BeaconPillar", "frustum", { 2.1, 6, 2.1 }, { x, 3, 2 }, "dark", "metal", "future-spaceship-pillar", {
-				topScale = 0.6,
-			}),
+			component(
+				"BeaconPillar",
+				"frustum",
+				{ 2.1, 6, 2.1 },
+				{ x, 3, 2 },
+				"dark",
+				"metal",
+				"future-spaceship-pillar",
+				{
+					topScale = 0.6,
+				}
+			),
 			origin,
 			PALETTE
 		)
 		ProductionMeshFactory.createComponent(
 			model,
-			component("BeaconCap", "ellipsoid", { 2.4, 2.4, 2.4 }, { x, 6.5, 2 }, "gold", "neon", "future-spaceship-cap"),
+			component(
+				"BeaconCap",
+				"ellipsoid",
+				{ 2.4, 2.4, 2.4 },
+				{ x, 6.5, 2 },
+				"gold",
+				"neon",
+				"future-spaceship-cap"
+			),
 			origin,
 			PALETTE
 		)
