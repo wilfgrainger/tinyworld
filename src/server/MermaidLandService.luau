@@ -70,7 +70,10 @@ function MermaidLandService:_enter(player: Player)
 		character:PivotTo(self.land.entryCFrame)
 		profile.discoveredWorlds.MermaidLand = true
 		self.PlayerStateService.sync(player, profile)
-		self.PlayerStateService.message(player, "You found Mermaid Land. Five reef promises are waiting, and the whirlpool remains your secret.")
+		self.PlayerStateService.message(
+			player,
+			"You found Mermaid Land. Five reef promises are waiting, and the whirlpool remains your secret."
+		)
 		self.ProfileStore.save(player)
 	end
 end
@@ -98,7 +101,10 @@ function MermaidLandService:_return(player: Player)
 	local character = player.Character
 	if character then
 		character:PivotTo(self.land.returnCFrame)
-		self.PlayerStateService.message(player, "Back on the TinyWorld shore. Mermaid Land stays hidden until you return by boat.")
+		self.PlayerStateService.message(
+			player,
+			"Back on the TinyWorld shore. Mermaid Land stays hidden until you return by boat."
+		)
 	end
 end
 
