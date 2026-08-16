@@ -62,8 +62,8 @@ jobs:
           find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
           find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
 
-      - name: Verify ART R5 published safety
-        run: bash ./tests/verify-v0.7.1-art-r5-source-contract.sh
+      - name: Verify ART R6 full game experience
+        run: bash ./tests/verify-v0.7.2-art-r6-source-contract.sh
 
       - name: Verify release contract
         run: bash ./scripts/verify-release-contract.sh
