@@ -22,22 +22,21 @@ gui.Parent = playerGui
 local stamp = Instance.new("TextLabel")
 stamp.Name = "CandidateStamp"
 stamp.Position = UDim2.fromOffset(12, 120)
-stamp.Size = UDim2.fromOffset(320, 24)
+stamp.Size = UDim2.fromOffset(250, 22)
 stamp.BackgroundColor3 = Color3.fromRGB(30, 35, 42)
-stamp.BackgroundTransparency = 0.18
+stamp.BackgroundTransparency = 0.24
 stamp.BorderSizePixel = 0
 stamp.TextColor3 = Color3.fromRGB(255, 255, 255)
 stamp.TextTransparency = 0.04
 stamp.Font = Enum.Font.GothamMedium
-stamp.TextSize = 12
+stamp.TextSize = 11
 stamp.TextXAlignment = Enum.TextXAlignment.Center
 stamp.TextYAlignment = Enum.TextYAlignment.Center
 stamp.Text = string.format(
-	"%s %s · v%s · %s · %s",
+	"%s %s · v%s · %s",
 	ReleaseInfo.productName,
 	ReleaseInfo.channel,
 	ReleaseInfo.productVersion,
-	ReleaseInfo.candidate,
 	ReleaseInfo.artRevision
 )
 stamp.Active = false
@@ -50,6 +49,6 @@ corner.Parent = stamp
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(255, 255, 255)
-stroke.Transparency = 0.84
+stroke.Transparency = 0.86
 stroke.Thickness = 1
 stroke.Parent = stamp

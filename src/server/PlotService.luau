@@ -11,6 +11,7 @@ local HomeInteriorCraftBuilder = require(script.Parent:WaitForChild("HomeInterio
 local OrganicNatureBuilder = require(script.Parent:WaitForChild("OrganicNatureBuilder"))
 local VillageSceneryBuilder = require(script.Parent:WaitForChild("VillageSceneryBuilder"))
 local PortalKeepsakeDisplayBuilder = require(script.Parent:WaitForChild("PortalKeepsakeDisplayBuilder"))
+local R7BuildingPolishBuilder = require(script.Parent:WaitForChild("R7BuildingPolishBuilder"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 
 local PlotService = {}
@@ -232,6 +233,7 @@ function PlotService:rebuildHouse(player: Player, profile)
 	plot.houseContainer:PivotTo(CFrame.new(plot.houseAnchor))
 	local house = HouseCatalog.get(profile.houseTier)
 	HomePrefabBuilder.buildShell(plot.houseContainer, plot.houseAnchor, profile, house)
+	R7BuildingPolishBuilder.decorateHomeShell(plot.houseContainer)
 	if self.HomeService then
 		self.HomeService:buildInterior(plot, profile)
 	end
