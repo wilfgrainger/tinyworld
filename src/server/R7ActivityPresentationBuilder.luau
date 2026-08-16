@@ -116,12 +116,14 @@ local function addCompactSign(parent: Instance, base: CFrame, text: string, acce
 end
 
 local function addCanopy(parent: Instance, base: CFrame, accent: Color3)
-	for _, data in {
-		{ -3.3, accent },
-		{ -1.1, VisualTheme.Colors.cream },
-		{ 1.1, accent },
-		{ 3.3, VisualTheme.Colors.cream },
-	} do
+	for _, data in
+		{
+			{ -3.3, accent },
+			{ -1.1, VisualTheme.Colors.cream },
+			{ 1.1, accent },
+			{ 3.3, VisualTheme.Colors.cream },
+		}
+	do
 		part(
 			parent,
 			"CanopyStripe" .. tostring(data[1]),
@@ -174,7 +176,10 @@ local function addMara(parent: Instance, world)
 				"MarketGood" .. index .. "_" .. fruitIndex,
 				base * CFrame.new(x + offset, 2.95 + math.abs(offset) * 0.2, -0.72),
 				0.68,
-				if index == 1 then VisualTheme.Colors.coral elseif index == 2 then VisualTheme.Colors.lemon else VisualTheme.Colors.mint,
+				if index == 1
+					then VisualTheme.Colors.coral
+					elseif index == 2 then VisualTheme.Colors.lemon
+					else VisualTheme.Colors.mint,
 				"market-display"
 			)
 		end
@@ -352,12 +357,14 @@ local function addSkye(parent: Instance, world)
 			"harbour-launch"
 		)
 	end
-	for index, offset in {
-		Vector3.new(-2.2, 0.8, 2.8),
-		Vector3.new(0, 0.8, 2.8),
-		Vector3.new(2.2, 0.8, 2.8),
-		Vector3.new(0, 2.1, 2.8),
-	} do
+	for index, offset in
+		{
+			Vector3.new(-2.2, 0.8, 2.8),
+			Vector3.new(0, 0.8, 2.8),
+			Vector3.new(2.2, 0.8, 2.8),
+			Vector3.new(0, 2.1, 2.8),
+		}
+	do
 		part(
 			model,
 			"DeliveryParcel" .. index,
