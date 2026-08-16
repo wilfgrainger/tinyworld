@@ -111,7 +111,7 @@ local function addRoleAccessory(model: Model, role: string, origin: CFrame, role
 			Vector3.new(1.25, 1.5, 0.65),
 			origin * CFrame.new(2.05, 2.55, 0.1),
 			COLORS.dark,
-			Enum.Material.Leather
+			Enum.Material.Fabric
 		)
 	elseif role == "Gardener" then
 		addHat(model, origin, Color3.fromRGB(214, 183, 103), true)
