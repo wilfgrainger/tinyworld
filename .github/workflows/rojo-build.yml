@@ -32,3 +32,8 @@ jobs:
         run: ./scripts/verify-release-contract.sh
       - name: Build release candidate
         run: ./scripts/build.sh
+      - name: Publish TinyWorld DEV
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}
+        run: bash ./scripts/publish-dev.sh
