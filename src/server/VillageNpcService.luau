@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local VillageNpcDefinitions = require(shared:WaitForChild("VillageNpcDefinitions"))
+local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VillageNpcBuilder = require(script.Parent:WaitForChild("VillageNpcBuilder"))
 
 local VillageNpcService = {}
@@ -15,15 +16,6 @@ local ACTION_TEXT = {
 	Builder = "Take repair job",
 }
 
-local function anchorCFrame(world, anchorName: string, index: number): CFrame
-	local found = world.root:FindFirstChild(anchorName, true)
-	if found and found:IsA("BasePart") then
-		return found.CFrame * CFrame.new(0, 2.8, -5)
-	end
-	local angle = (index - 1) * (math.pi * 2 / 5)
-	return CFrame.new(math.cos(angle) * 36, 3, math.sin(angle) * 36)
-end
-
 function VillageNpcService.new(world, PlayerStateService, VillageActivityService)
 	local self = setmetatable({}, VillageNpcService)
 	self.world = world
@@ -33,11 +25,11 @@ function VillageNpcService.new(world, PlayerStateService, VillageActivityService
 	self.folder.Name = "TinyWorldVillageNPCs"
 	self.folder.Parent = world.root
 
-	for index, definition in VillageNpcDefinitions.all() do
+	for _, definition in VillageNpcDefinitions.all() do
 		VillageNpcBuilder.build(
 			self.folder,
 			definition,
-			anchorCFrame(world, definition.anchor, index),
+			VillageActivityLocations.npc(world, definition.id),
 			ACTION_TEXT[definition.id] or "Talk",
 			function(player)
 				self.VillageActivityService:startForRole(player, definition.id)
