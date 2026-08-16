@@ -22,6 +22,8 @@ local specs = {
 	require("./TraversalRules.spec"),
 	require("./CompanionRules.spec"),
 	require("./VillageNpcDefinitions.spec"),
+	require("./VillageActivityDefinitions.spec"),
+	require("./VillageActivityRules.spec"),
 	require("./MermaidQuestRules.spec"),
 	require("./PortalRules.spec"),
 	require("./PortalJournalRules.spec"),

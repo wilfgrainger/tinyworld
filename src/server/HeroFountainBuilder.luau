@@ -148,7 +148,7 @@ local function rebuild(model: Model, anchor: BasePart)
 	anchor.CanCollide = false
 	anchor.CanTouch = false
 	anchor.CanQuery = true
-	anchor:SetAttribute("TinyWorldArtRole", "fountain-reward-anchor-r3")
+	anchor:SetAttribute("TinyWorldArtRole", "fountain-reward-anchor-r6")
 
 	uprightDisc(
 		model,
@@ -248,8 +248,8 @@ local function rebuild(model: Model, anchor: BasePart)
 		addWaterArc(model, origin, index, ((index - 1) / 4) * math.pi * 2)
 	end
 
-	model:SetAttribute("TinyWorldFountainLanguage", "civic-hero-r3")
-	model:SetAttribute("TinyWorldVisualState", "authored-native-r3")
+	model:SetAttribute("TinyWorldFountainLanguage", "civic-hero-r6")
+	model:SetAttribute("TinyWorldVisualState", "authored-native-r6")
 end
 
 function HeroFountainBuilder.apply(root: Instance)
