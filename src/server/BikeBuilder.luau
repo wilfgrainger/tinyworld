@@ -59,8 +59,30 @@ function BikeBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 		return part
 	end
 
-	local rearWheel = add(component("BikeWheelBack", "cylinder", { 4.4, 0.72, 4.4 }, { 0, 2.2, -3 }, "ink", "metal", "bike-wheel", { 0, 0, 90 }))
-	local frontWheel = add(component("BikeWheelFront", "cylinder", { 4.4, 0.72, 4.4 }, { 0, 2.2, 3 }, "ink", "metal", "bike-wheel", { 0, 0, 90 }))
+	local rearWheel = add(
+		component(
+			"BikeWheelBack",
+			"cylinder",
+			{ 4.4, 0.72, 4.4 },
+			{ 0, 2.2, -3 },
+			"ink",
+			"metal",
+			"bike-wheel",
+			{ 0, 0, 90 }
+		)
+	)
+	local frontWheel = add(
+		component(
+			"BikeWheelFront",
+			"cylinder",
+			{ 4.4, 0.72, 4.4 },
+			{ 0, 2.2, 3 },
+			"ink",
+			"metal",
+			"bike-wheel",
+			{ 0, 0, 90 }
+		)
+	)
 	if rearWheel then
 		rearWheel:SetAttribute("TinyWorldMotionRole", "wheel-spin")
 	end
@@ -69,13 +91,58 @@ function BikeBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 	end
 
 	add(component("BikeFrameTop", "beveledBox", { 0.72, 0.72, 5.4 }, { 0, 3.1, 0 }, "accent", "metal", "bike-frame"))
-	add(component("BikeFrameDown", "beveledBox", { 0.62, 0.62, 3.5 }, { 0, 2.7, -0.05 }, "accent", "metal", "bike-frame", { 16, 0, 0 }))
-	add(component("BikeSeatPost", "beveledBox", { 0.42, 2.0, 0.42 }, { 0, 4.05, -1 }, "metal", "metal", "bike-seat-post"))
+	add(
+		component(
+			"BikeFrameDown",
+			"beveledBox",
+			{ 0.62, 0.62, 3.5 },
+			{ 0, 2.7, -0.05 },
+			"accent",
+			"metal",
+			"bike-frame",
+			{ 16, 0, 0 }
+		)
+	)
+	add(
+		component(
+			"BikeSeatPost",
+			"beveledBox",
+			{ 0.42, 2.0, 0.42 },
+			{ 0, 4.05, -1 },
+			"metal",
+			"metal",
+			"bike-seat-post"
+		)
+	)
 	add(component("BikeSeatVisual", "ellipsoid", { 2.4, 0.6, 1.35 }, { 0, 5.05, -1 }, "leather", "fabric", "bike-seat"))
-	add(component("BikeHandlePost", "beveledBox", { 0.42, 2.4, 0.42 }, { 0, 4.15, 1.65 }, "metal", "metal", "bike-handle-post", { -12, 0, 0 }))
-	add(component("BikeHandlebar", "cylinder", { 0.42, 3.4, 0.42 }, { 0, 5.15, 2.1 }, "accent", "metal", "bike-handlebar", { 0, 0, 90 }))
+	add(
+		component(
+			"BikeHandlePost",
+			"beveledBox",
+			{ 0.42, 2.4, 0.42 },
+			{ 0, 4.15, 1.65 },
+			"metal",
+			"metal",
+			"bike-handle-post",
+			{ -12, 0, 0 }
+		)
+	)
+	add(
+		component(
+			"BikeHandlebar",
+			"cylinder",
+			{ 0.42, 3.4, 0.42 },
+			{ 0, 5.15, 2.1 },
+			"accent",
+			"metal",
+			"bike-handlebar",
+			{ 0, 0, 90 }
+		)
+	)
 	add(component("BikeBasket", "beveledBox", { 2.5, 1.4, 1.9 }, { 0, 4.25, 2.9 }, "basket", "wood", "bike-basket"))
-	local flag = add(component("BikeFlag", "beveledBox", { 1.8, 1.05, 0.24 }, { 0.8, 6.4, 2.75 }, "flower", "fabric", "bike-flag"))
+	local flag = add(
+		component("BikeFlag", "beveledBox", { 1.8, 1.05, 0.24 }, { 0.8, 6.4, 2.75 }, "flower", "fabric", "bike-flag")
+	)
 	if flag then
 		flag:SetAttribute("TinyWorldMotionRole", "flag-flutter")
 	end
