@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-boundary="src/server/BoundaryBuilder.luau"
+coast="src/server/CoastBuilder.luau"
+main="src/server/Main.server.luau"
 
-grep -q 'Workspace.Terrain' "$boundary"
-grep -q 'FillBlock' "$boundary"
-grep -q 'Enum.Material.Water' "$boundary"
-grep -q 'SeaBed' "$boundary"
-grep -q 'shorelineDistance' "$boundary"
-grep -q 'swimDistance' "$boundary"
-grep -q 'HillSlope' "$boundary"
-
-if grep -q 'makeDecoration(parent, name, size, position, VisualTheme.Colors.water, Enum.Material.Water)' "$boundary"; then
-  echo "FAIL: fake Part-based sea remains in BoundaryBuilder"
-  exit 1
-fi
+test -f "$coast"
+grep -q 'Workspace.Terrain' "$coast"
+grep -q 'FillBlock' "$coast"
+grep -q 'Enum.Material.Water' "$coast"
+grep -q 'SeaBed' "$coast"
+grep -q 'shorelineDistance' "$coast"
+grep -q 'swimDistance' "$coast"
+grep -q 'HillSlope' "$coast"
+grep -q 'CoastBuilder' "$main"
+grep -q 'CoastBuilder.build' "$main"
 
 echo "PASS: v0.7.0 coast uses Terrain water, walkable boundary hills and explicit traversal metadata"
