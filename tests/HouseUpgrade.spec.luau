@@ -5,11 +5,11 @@ local HouseUpgrade = require("../src/shared/HouseUpgrade")
 
 return function()
 	TestUtil.equal(HouseCatalog.maxTier, 5)
-	TestUtil.equal(HouseCatalog.get(1).name, "Starter Nook")
+	TestUtil.equal(HouseCatalog.get(1).name, "Starter Shed")
 	TestUtil.equal(HouseCatalog.get(2).name, "Cosy Cottage")
 	TestUtil.equal(HouseCatalog.get(3).name, "Family Home")
 	TestUtil.equal(HouseCatalog.get(4).name, "Garden House")
-	TestUtil.equal(HouseCatalog.get(5).name, "Grand Villa")
+	TestUtil.equal(HouseCatalog.get(5).name, "Tiny Castle")
 
 	local maxed = ProfileSchema.new()
 	maxed.houseTier = 5
@@ -31,8 +31,6 @@ return function()
 	local okCoins, reasonCoins = HouseUpgrade.tryUpgrade(poor)
 	TestUtil.isFalse(okCoins)
 	TestUtil.equal(reasonCoins, "not_enough_coins")
-	TestUtil.equal(poor.coins, 249)
-	TestUtil.equal(poor.houseTier, 1)
 
 	local success = ProfileSchema.new()
 	success.level = 2

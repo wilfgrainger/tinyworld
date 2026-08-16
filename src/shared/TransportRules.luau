@@ -9,6 +9,7 @@ local TransportRules = {}
 local tinyBikePrice = ShopDefinitions.priceFor("Workshop", "TinyBike")
 assert(type(tinyBikePrice) == "number", "Tiny Bike must have a canonical Workshop price")
 TransportRules.TINY_BIKE_PRICE = tinyBikePrice
+TransportRules.TINY_CAR_LEVEL = 8
 
 function TransportRules.buyTinyBike(profile: any): (boolean, string)
 	if profile.ownsTinyBike then
@@ -39,6 +40,10 @@ function TransportRules.dismountTinyBike(profile: any): (boolean, string)
 	end
 	profile.bikeActive = false
 	return true, "parked"
+end
+
+function TransportRules.canUseTinyCar(profile: any): boolean
+	return profile.level >= TransportRules.TINY_CAR_LEVEL
 end
 
 function TransportRules.movementSpeed(profile: any): number
