@@ -128,7 +128,8 @@ function CoastalDeliveryActivityService:start(player: Player, state): (boolean, 
 		return false, "Your saved TinyWorld profile is not ready yet. Try Skye again in a moment."
 	end
 	if profile.ownsTinyBoat ~= true then
-		return false, "Skye only sends parcels beyond swimming range once you own the Tiny Boat. Unlock it at the Boat Dock first."
+		return false,
+			"Skye only sends parcels beyond swimming range once you own the Tiny Boat. Unlock it at the Boat Dock first."
 	end
 	if not attachParcel(player) then
 		return false, "Your character is not ready for a parcel yet. Try Skye again in a moment."
