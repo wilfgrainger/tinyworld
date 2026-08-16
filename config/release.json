@@ -1,11 +1,11 @@
 {
-  "productVersion": "0.7.0",
-  "releaseName": "Family World & Production Art",
+  "productVersion": "0.7.1",
+  "releaseName": "Published DEV Recovery",
   "profileSchema": 11,
   "rojoVersion": "7.7.0",
   "styluaVersion": "2.5.2",
   "rokitVersion": "1.2.0",
   "rokitInstallerCommit": "2f2618428ef31279e2fc80b0b1d73485bc929ddd",
   "projectFile": "default.project.json",
-  "artifactFile": "TinyWorld-v0.7.0.rbxlx"
+  "artifactFile": "TinyWorld-v0.7.1.rbxlx"
 }
