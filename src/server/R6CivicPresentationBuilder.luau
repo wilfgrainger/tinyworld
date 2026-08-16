@@ -137,7 +137,8 @@ end
 
 local function addFishermanStation(parent: Instance, root: Instance)
 	local origin = anchorCFrame(root, "Harbor", CFrame.new(68, 0, -70)) * CFrame.new(-8, 0, 7)
-	local model = addStationBase(parent, "FinnFishermanStation", origin, "fisherman-station", VisualTheme.Colors.skyDeep)
+	local model =
+		addStationBase(parent, "FinnFishermanStation", origin, "fisherman-station", VisualTheme.Colors.skyDeep)
 	local bucket = decoration(
 		model,
 		"FishBucket",
@@ -180,7 +181,8 @@ local function addBoatKeeperStation(parent: Instance, root: Instance)
 		Color3.fromRGB(181, 151, 104),
 		Enum.Material.Fabric,
 		"boatkeeper-station-rope"
-	).Shape = Enum.PartType.Cylinder
+	).Shape =
+		Enum.PartType.Cylinder
 end
 
 local function addBuilderStation(parent: Instance, root: Instance)
