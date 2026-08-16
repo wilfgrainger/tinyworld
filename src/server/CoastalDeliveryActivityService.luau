@@ -128,7 +128,10 @@ function CoastalDeliveryActivityService:start(player: Player, state): (boolean, 
 end
 
 function CoastalDeliveryActivityService:interact(player: Player, _state)
-	self.hooks.message(player, "Your coastal parcel is for the orange outer-coast buoy. The Tiny Boat is the safe way there.")
+	self.hooks.message(
+		player,
+		"Your coastal parcel is for the orange outer-coast buoy. The Tiny Boat is the safe way there."
+	)
 end
 
 function CoastalDeliveryActivityService:_deliver(player: Player)
