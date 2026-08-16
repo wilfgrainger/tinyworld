@@ -41,6 +41,7 @@ local PhysicalItemService = require(script.Parent:WaitForChild("PhysicalItemServ
 local ProfessionService = require(script.Parent:WaitForChild("ProfessionService"))
 local BoatService = require(script.Parent:WaitForChild("BoatService"))
 local CompanionService = require(script.Parent:WaitForChild("CompanionService"))
+local VillageActivityService = require(script.Parent:WaitForChild("VillageActivityService"))
 local VillageNpcService = require(script.Parent:WaitForChild("VillageNpcService"))
 local CarService = require(script.Parent:WaitForChild("CarService"))
 local MermaidLandService = require(script.Parent:WaitForChild("MermaidLandService"))
@@ -67,8 +68,9 @@ ProductionVillageVisuals.apply(world, productionVisualService)
 local _futureSpaceshipPad = PrestigePadBuilder.build(world)
 
 local ambientLifeService = AmbientLifeService.new(world)
-local villageNpcService = VillageNpcService.new(world, PlayerStateService)
 local routeService = RouteService.new(ProfileStore, PlayerStateService)
+local villageActivityService = VillageActivityService.new(world, ProfileStore, PlayerStateService, routeService)
+local villageNpcService = VillageNpcService.new(world, PlayerStateService, villageActivityService)
 local socialService = SocialService.new(world, ProfileStore, PlayerStateService)
 local homeService = HomeService.new(world, ProfileStore, PlayerStateService)
 local homeStoreService = HomeStoreService.new(ProfileStore, PlayerStateService)
@@ -149,6 +151,8 @@ local function onPlayerAdded(player: Player)
 	portalService:setupPlayer(player)
 	player:SetAttribute("TinyWorldCarryingParcel", false)
 	player:SetAttribute("TinyWorldCourierDestination", "")
+	player:SetAttribute("TinyWorldVillageActivity", "")
+	player:SetAttribute("TinyWorldCoastalDelivery", false)
 	if profile.onboardingComplete then
 		PlayerStateService.message(player, "Welcome back to TinyWorld, " .. profile.displayName .. ".")
 	else
@@ -160,6 +164,7 @@ local function onPlayerAdded(player: Player)
 end
 
 local function onPlayerRemoving(player: Player)
+	villageActivityService:removePlayer(player)
 	tradeService:removePlayer(player)
 	socialService:removePlayer(player)
 	portalService:removePlayer(player)
@@ -188,6 +193,7 @@ end
 
 game:BindToClose(function()
 	mermaidLandService:stop()
+	villageActivityService:stop()
 	companionService:stop()
 	carService:stop()
 	villageNpcService:stop()
