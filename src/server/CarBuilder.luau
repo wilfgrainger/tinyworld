@@ -54,7 +54,16 @@ function CarBuilder.build(parent: Instance, name: string, origin: CFrame)
 		for _, z in { -3.4, 3.4 } do
 			ProductionMeshFactory.createComponent(
 				model,
-				spec("Wheel", "cylinder", { 1.6, 0.9, 1.6 }, { x, 1.0, z }, "wheel", "metal", "tiny-car-wheel", { 0, 0, 90 }),
+				spec(
+					"Wheel",
+					"cylinder",
+					{ 1.6, 0.9, 1.6 },
+					{ x, 1.0, z },
+					"wheel",
+					"metal",
+					"tiny-car-wheel",
+					{ 0, 0, 90 }
+				),
 				origin,
 				PALETTE
 			)
