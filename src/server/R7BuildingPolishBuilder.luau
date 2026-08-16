@@ -63,7 +63,7 @@ local function addFlowerPot(parent: Instance, base: CFrame, name: string, accent
 end
 
 local function addFramedWindow(parent: Instance, base: CFrame, name: string, accent: Color3)
-	decoration(
+	local glass = decoration(
 		parent,
 		name .. "Glass",
 		Vector3.new(4.1, 3.5, 0.18),
@@ -71,14 +71,17 @@ local function addFramedWindow(parent: Instance, base: CFrame, name: string, acc
 		VisualTheme.Colors.sky,
 		Enum.Material.Glass,
 		"framed-window"
-	).Transparency = 0.24
-	for _, data in {
-		{ Vector3.new(4.7, 0.32, 0.32), Vector3.new(0, 1.92, -0.02) },
-		{ Vector3.new(4.7, 0.32, 0.32), Vector3.new(0, -1.92, -0.02) },
-		{ Vector3.new(0.32, 4.15, 0.32), Vector3.new(-2.22, 0, -0.02) },
-		{ Vector3.new(0.32, 4.15, 0.32), Vector3.new(2.22, 0, -0.02) },
-		{ Vector3.new(0.26, 3.55, 0.3), Vector3.new(0, 0, -0.04) },
-	} do
+	)
+	glass.Transparency = 0.24
+	for _, data in
+		{
+			{ Vector3.new(4.7, 0.32, 0.32), Vector3.new(0, 1.92, -0.02) },
+			{ Vector3.new(4.7, 0.32, 0.32), Vector3.new(0, -1.92, -0.02) },
+			{ Vector3.new(0.32, 4.15, 0.32), Vector3.new(-2.22, 0, -0.02) },
+			{ Vector3.new(0.32, 4.15, 0.32), Vector3.new(2.22, 0, -0.02) },
+			{ Vector3.new(0.26, 3.55, 0.3), Vector3.new(0, 0, -0.04) },
+		}
+	do
 		decoration(
 			parent,
 			name .. "Frame",
@@ -101,9 +104,7 @@ local function addRoof(parent: Instance, base: CFrame, width: number, depth: num
 			parent,
 			"Roof" .. side,
 			Vector3.new(slopeLength + 1.6, 0.6, depth + 2.2),
-			base
-				* CFrame.new(sign * width * 0.25, 0.7, 0)
-				* CFrame.Angles(0, 0, sign * angle),
+			base * CFrame.new(sign * width * 0.25, 0.7, 0) * CFrame.Angles(0, 0, sign * angle),
 			accent,
 			Enum.Material.SmoothPlastic,
 			"roof-overhang"
