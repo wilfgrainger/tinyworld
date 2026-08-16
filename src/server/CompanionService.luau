@@ -124,7 +124,10 @@ function CompanionService:apply(player: Player, profile)
 
 	if changed then
 		self.PlayerStateService.sync(player, profile)
-		self.PlayerStateService.message(player, "Level 10 companions unlocked: Tiny Cat and Tiny Dog are waiting at home.")
+		self.PlayerStateService.message(
+			player,
+			"Level 10 companions unlocked: Tiny Cat and Tiny Dog are waiting at home."
+		)
 		self.ProfileStore.save(player)
 	end
 end
