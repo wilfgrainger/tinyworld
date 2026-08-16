@@ -20,7 +20,7 @@ required_paths=(
   "scripts/build.sh"
   "scripts/publish-dev.sh"
   ".github/workflows/tinyworld-ci.yml"
-  "tests/verify-v0.7.0-unified-source-contract.sh"
+  "tests/verify-v0.7.1-art-r5-source-contract.sh"
   "tests/build-contract.sh"
   "tests/publish-dev-contract.sh"
   "src/shared/CompanionRules.luau"
@@ -31,20 +31,22 @@ required_paths=(
   "src/server/MermaidLandService.luau"
   "src/server/CoastBuilder.luau"
   "src/server/ProductionVisualService.luau"
+  "src/server/ProductionMeshFactory.luau"
+  "src/server/PublishedFallbackFactory.luau"
 )
 for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing required path: $path"; done
 
 jq -e '
-  .productVersion == "0.7.0" and
-  .releaseName == "Family World & Production Art" and
+  .productVersion == "0.7.1" and
+  .releaseName == "Published DEV Recovery" and
   .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
   .styluaVersion == "2.5.2" and
   .rokitVersion == "1.2.0" and
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
-  .artifactFile == "TinyWorld-v0.7.0.rbxlx"
-' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.0 contract"
+  .artifactFile == "TinyWorld-v0.7.1.rbxlx"
+' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.1 contract"
 pass "release metadata is exact"
 
 for expected in \
@@ -57,7 +59,9 @@ pass "toolchain pins are exact"
 jq -e '
   .schemaVersion == 3 and
   .policy.allowInventedIds == false and
+  .policy.nativeFallbacksRemainValid == true and
   .policy.studioEditableMeshPreviewAllowed == true and
+  .policy.publishedEditableMeshPreviewAllowed == false and
   (.assets | type == "array") and
   all(.assets[]?;
     (.id | type == "string" and length > 0) and
@@ -73,8 +77,8 @@ jq -e '
     (.devApproved | type == "boolean") and
     (.liveApproved | type == "boolean")
   )
-' assets/manifests/assets.json >/dev/null || fail "production asset manifest must remain fail-closed"
-pass "asset manifest is fail-closed"
+' assets/manifests/assets.json >/dev/null || fail "production asset manifest must remain fail-closed with published-safe fallback"
+pass "asset manifest is fail-closed and published-safe"
 
 grep -Fq 'ProfileSchema.VERSION = 11' src/shared/ProfileSchema.luau || fail "ProfileSchema.VERSION must remain 11"
 grep -Fq 'TinyWorld_DEV_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "DEV DataStore namespace missing"
@@ -92,7 +96,7 @@ grep -Fq 'name: TinyWorld CI' "$WORKFLOW" || fail "canonical workflow name missi
 grep -Fq 'runs-on: ubuntu-latest' "$WORKFLOW" || fail "standard free runner missing"
 grep -Fq 'luau tests/run.luau' "$WORKFLOW" || fail "unit test gate missing"
 grep -Fq 'stylua --check src tests' "$WORKFLOW" || fail "format gate missing"
-grep -Fq 'bash ./tests/verify-v0.7.0-unified-source-contract.sh' "$WORKFLOW" || fail "v0.7 source gate missing"
+grep -Fq 'bash ./tests/verify-v0.7.1-art-r5-source-contract.sh' "$WORKFLOW" || fail "ART R5 source gate missing"
 grep -Fq 'bash ./scripts/build.sh' "$WORKFLOW" || fail "build step missing"
 grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$WORKFLOW" || fail "DEV publishing must be main-only"
 grep -Fq 'ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}' "$WORKFLOW" || fail "DEV secret binding missing"
@@ -109,4 +113,4 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude='publish-dev-cont
 fi
 pass "repository contains no Roblox credential literal"
 
-echo "PASS: TinyWorld v0.7.0 Family World & Production Art release contract is valid"
+echo "PASS: TinyWorld v0.7.1 Published DEV Recovery release contract is valid"
