@@ -1,4 +1,5 @@
 local HeroFountainBuilder = require(script.Parent:WaitForChild("HeroFountainBuilder"))
+local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local R6CivicPresentationBuilder = {}
@@ -28,14 +29,6 @@ local function decoration(
 	part:SetAttribute("TinyWorldPhysicalAffordance", "world-object")
 	part.Parent = parent
 	return part
-end
-
-local function anchorCFrame(root: Instance, name: string, fallback: CFrame): CFrame
-	local found = root:FindFirstChild(name, true)
-	if found and found:IsA("BasePart") then
-		return found.CFrame
-	end
-	return fallback
 end
 
 local function addStationBase(parent: Instance, name: string, cframe: CFrame, role: string, accent: Color3): Model
@@ -84,8 +77,8 @@ local function addStationBase(parent: Instance, name: string, cframe: CFrame, ro
 	return model
 end
 
-local function addTraderStation(parent: Instance, root: Instance)
-	local origin = anchorCFrame(root, "VillageShop", CFrame.new(44, 0, -44)) * CFrame.new(-12, 0, 8)
+local function addTraderStation(parent: Instance, world)
+	local origin = VillageActivityLocations.station(world, "Trader")
 	local model = addStationBase(parent, "MaraTraderStation", origin, "trader-station", VisualTheme.Colors.berry)
 	for index, offset in { Vector3.new(-2.3, 1.0, -1.4), Vector3.new(0, 1.0, -1.4), Vector3.new(2.3, 1.0, -1.4) } do
 		decoration(
@@ -109,8 +102,8 @@ local function addTraderStation(parent: Instance, root: Instance)
 	)
 end
 
-local function addGardenerStation(parent: Instance, root: Instance)
-	local origin = anchorCFrame(root, "Garden", CFrame.new(-30, 0, 30)) * CFrame.new(-9, 0, -7)
+local function addGardenerStation(parent: Instance, world)
+	local origin = VillageActivityLocations.station(world, "Gardener")
 	local model = addStationBase(parent, "PipGardenerStation", origin, "gardener-station", VisualTheme.Colors.leaf)
 	decoration(
 		model,
@@ -135,8 +128,8 @@ local function addGardenerStation(parent: Instance, root: Instance)
 	end
 end
 
-local function addFishermanStation(parent: Instance, root: Instance)
-	local origin = anchorCFrame(root, "Harbor", CFrame.new(68, 0, -70)) * CFrame.new(-8, 0, 7)
+local function addFishermanStation(parent: Instance, world)
+	local origin = VillageActivityLocations.station(world, "Fisherman")
 	local model =
 		addStationBase(parent, "FinnFishermanStation", origin, "fisherman-station", VisualTheme.Colors.skyDeep)
 	local bucket = decoration(
@@ -160,8 +153,8 @@ local function addFishermanStation(parent: Instance, root: Instance)
 	)
 end
 
-local function addBoatKeeperStation(parent: Instance, root: Instance)
-	local origin = anchorCFrame(root, "Harbor", CFrame.new(68, 0, -70)) * CFrame.new(8, 0, 7)
+local function addBoatKeeperStation(parent: Instance, world)
+	local origin = VillageActivityLocations.station(world, "BoatKeeper")
 	local model = addStationBase(parent, "SkyeBoatKeeperStation", origin, "boatkeeper-station", VisualTheme.Colors.sky)
 	local ring = decoration(
 		model,
@@ -185,8 +178,8 @@ local function addBoatKeeperStation(parent: Instance, root: Instance)
 		Enum.PartType.Cylinder
 end
 
-local function addBuilderStation(parent: Instance, root: Instance)
-	local origin = anchorCFrame(root, "Workshop", CFrame.new(44, 0, 0)) * CFrame.new(10, 0, 9)
+local function addBuilderStation(parent: Instance, world)
+	local origin = VillageActivityLocations.station(world, "Builder")
 	local model = addStationBase(parent, "MiloBuilderStation", origin, "builder-station", VisualTheme.Colors.gold)
 	for index, y in { 0.8, 1.8, 2.8 } do
 		decoration(
@@ -232,7 +225,8 @@ local function tameMarketSign(root: Instance)
 	end
 end
 
-function R6CivicPresentationBuilder.apply(root: Instance)
+function R6CivicPresentationBuilder.apply(world)
+	local root = world.root
 	HeroFountainBuilder.apply(root)
 	tameMarketSign(root)
 
@@ -246,11 +240,11 @@ function R6CivicPresentationBuilder.apply(root: Instance)
 	stations:SetAttribute("TinyWorldVisualState", "authored-native-r6")
 	stations.Parent = root
 
-	addTraderStation(stations, root)
-	addGardenerStation(stations, root)
-	addFishermanStation(stations, root)
-	addBoatKeeperStation(stations, root)
-	addBuilderStation(stations, root)
+	addTraderStation(stations, world)
+	addGardenerStation(stations, world)
+	addFishermanStation(stations, world)
+	addBoatKeeperStation(stations, world)
+	addBuilderStation(stations, world)
 end
 
 return R6CivicPresentationBuilder
