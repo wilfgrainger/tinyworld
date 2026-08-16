@@ -93,9 +93,9 @@ grep -Fq 'TinyWorld_DEV_PlayerProfile_v11' src/server/EnvironmentConfig.luau || 
 grep -Fq 'TinyWorld_LIVE_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "LIVE DataStore namespace missing"
 pass "profile v11 and environment separation are explicit"
 
-jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/dev.json >/dev/null || fail "DEV publishing must remain unconfigured until real IDs are supplied"
+jq -e '.configured == true and (.universeId | tostring) == "10654114907" and (.placeId | tostring) == "76129528245924" and .publishing == "open-cloud"' config/environments/dev.json >/dev/null || fail "DEV publishing must target the approved TinyWorld DEV experience"
 jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/live.json >/dev/null || fail "LIVE publishing must remain unconfigured"
-pass "DEV is safely deferred and LIVE remains human-gated"
+pass "DEV target is explicit and LIVE remains human-gated"
 
 grep -Eq '^name:[[:space:]]+Rojo build[[:space:]]*$' "$WORKFLOW" || fail "Rojo workflow name changed unexpectedly"
 grep -Fq 'actions/checkout@v6' "$WORKFLOW" || fail "checkout action pin missing"
