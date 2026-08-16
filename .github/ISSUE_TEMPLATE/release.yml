@@ -1,0 +1,75 @@
+name: Release epic
+description: Track a TinyWorld release from approved design through DEV publication and human acceptance.
+title: "[Release] "
+body:
+  - type: markdown
+    attributes:
+      value: "GitHub Issues are the operational source of truth. Do not include credentials, tokens or secret values."
+  - type: input
+    id: identity
+    attributes:
+      label: Release identity
+      description: Exact version, art/release revision and release name.
+      placeholder: "v0.x.y · ART Rx · Release Name"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What player/product outcome must this release achieve?
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Approved design direction
+      description: Summarise approved product, visual and technical decisions and link any committed spec.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and ordered workstreams
+      description: List required work in implementation order, including child issue links when available.
+    validations:
+      required: true
+  - type: textarea
+    id: nongoals
+    attributes:
+      label: Non-goals
+      description: Explicitly state what this release must not expand into.
+    validations:
+      required: true
+  - type: textarea
+    id: engineering
+    attributes:
+      label: Engineering acceptance
+      description: Checklist for tests, contracts, exact-head CI, build, merge and DEV publication.
+      value: |
+        - [ ] Unit/spec tests pass
+        - [ ] Analysis/format/compile pass
+        - [ ] Release/source/build contracts pass
+        - [ ] Exact final PR head is green
+        - [ ] Retained Actions artifacts recorded
+        - [ ] Merged main SHA recorded
+        - [ ] Roblox DEV place version recorded
+    validations:
+      required: true
+  - type: textarea
+    id: human
+    attributes:
+      label: Human/player acceptance
+      description: Define real-client gameplay or screenshot evidence required before the release issue can close.
+      value: |
+        - [ ] Required real-client evidence captured
+        - [ ] Human/player verdict recorded
+    validations:
+      required: true
+  - type: textarea
+    id: authorization
+    attributes:
+      label: Merge/release authorization
+      description: Record whether merge is separately gated or release-wide authorization has already been granted.
+    validations:
+      required: true
