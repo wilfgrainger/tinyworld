@@ -108,12 +108,14 @@ local function planter(parent: Instance, name: string, position: Vector3, accent
 	)
 	shrub.CastShadow = true
 
-	for index, offset in {
-		Vector3.new(-1.35, 3.0, 0),
-		Vector3.new(1.3, 3.2, 0.2),
-		Vector3.new(0, 3.35, -1.1),
-		Vector3.new(0.3, 3.0, 1.2),
-	} do
+	for index, offset in
+		{
+			Vector3.new(-1.35, 3.0, 0),
+			Vector3.new(1.3, 3.2, 0.2),
+			Vector3.new(0, 3.35, -1.1),
+			Vector3.new(0.3, 3.0, 1.2),
+		}
+	do
 		ball(
 			model,
 			"Bloom" .. index,
@@ -291,21 +293,25 @@ local function buildPlaza(parent: Instance)
 	local plaza = districtMarker(parent, "plaza")
 	plaza:SetAttribute("TinyWorldArtRole", "r7-hero-plaza")
 
-	for index, entry in {
-		{ Vector3.new(-18, 0, -18), VisualTheme.Colors.pink },
-		{ Vector3.new(18, 0, -18), VisualTheme.Colors.aqua },
-		{ Vector3.new(-18, 0, 18), VisualTheme.Colors.lavender },
-		{ Vector3.new(18, 0, 18), VisualTheme.Colors.peach },
-	} do
+	for index, entry in
+		{
+			{ Vector3.new(-18, 0, -18), VisualTheme.Colors.pink },
+			{ Vector3.new(18, 0, -18), VisualTheme.Colors.aqua },
+			{ Vector3.new(-18, 0, 18), VisualTheme.Colors.lavender },
+			{ Vector3.new(18, 0, 18), VisualTheme.Colors.peach },
+		}
+	do
 		planter(plaza, "HeroPlanter" .. index, entry[1], entry[2], 1.0)
 	end
 
-	for index, entry in {
-		{ Vector3.new(-25, 0, -7), VisualTheme.Colors.mint },
-		{ Vector3.new(25, 0, -7), VisualTheme.Colors.aqua },
-		{ Vector3.new(-25, 0, 25), VisualTheme.Colors.lavender },
-		{ Vector3.new(25, 0, 25), VisualTheme.Colors.peach },
-	} do
+	for index, entry in
+		{
+			{ Vector3.new(-25, 0, -7), VisualTheme.Colors.mint },
+			{ Vector3.new(25, 0, -7), VisualTheme.Colors.aqua },
+			{ Vector3.new(-25, 0, 25), VisualTheme.Colors.lavender },
+			{ Vector3.new(25, 0, 25), VisualTheme.Colors.peach },
+		}
+	do
 		lamp(plaza, "HeroLamp" .. index, entry[1], entry[2])
 	end
 
@@ -317,13 +323,15 @@ end
 
 local function buildHomes(parent: Instance)
 	local homes = districtMarker(parent, "homes")
-	for index, position in {
-		Vector3.new(-54, 0, -52),
-		Vector3.new(-76, 0, -50),
-		Vector3.new(-54, 0, 55),
-		Vector3.new(-76, 0, 58),
-		Vector3.new(52, 0, 60),
-	} do
+	for index, position in
+		{
+			Vector3.new(-54, 0, -52),
+			Vector3.new(-76, 0, -50),
+			Vector3.new(-54, 0, 55),
+			Vector3.new(-76, 0, 58),
+			Vector3.new(52, 0, 60),
+		}
+	do
 		treeCluster(
 			homes,
 			"HomeTreeCluster" .. index,
