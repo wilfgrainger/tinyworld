@@ -56,8 +56,10 @@ done
 pass "all known direct ART users depend on the central published-safe factory"
 
 grep -Fq 'mountThenHideLegacy' src/server/ProductionVillageVisuals.luau || fail "transactional mount-before-hide helper missing"
-if grep -Fq $'hideLegacyVisuals(model)\n\treturn productionVisualService:mount' src/server/ProductionVillageVisuals.luau; then
-  fail "fixed village visuals still hide legacy before mounting replacement"
+mount_fixed_block="$(sed -n '/local function mountFixed/,/^end$/p' src/server/ProductionVillageVisuals.luau)"
+grep -Fq 'return mountThenHideLegacy' <<< "$mount_fixed_block" || fail "fixed village visuals do not delegate to transactional replacement"
+if grep -Fq 'hideLegacyVisuals' <<< "$mount_fixed_block"; then
+  fail "fixed village visuals still hide legacy directly"
 fi
 grep -Fq 'published-safe-legacy-fallback' src/server/ProductionVillageVisuals.luau || fail "ART R5 village architecture marker missing"
 pass "village replacement is fail-safe and legacy-first"
