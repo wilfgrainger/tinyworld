@@ -32,13 +32,3 @@ jobs:
         run: ./scripts/verify-release-contract.sh
       - name: Build release candidate
         run: ./scripts/build.sh
-      - name: Upload release evidence
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: tinyworld-v0.6.2-${{ github.sha }}
-          path: |
-            dist/TinyWorld-v0.6.2.rbxlx
-            dist/release.json
-          if-no-files-found: error
-          retention-days: 1
