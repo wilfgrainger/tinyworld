@@ -53,6 +53,10 @@ function TraversalRules.classifyDistanceFromVillage(
 	return TraversalRules.Zone.OuterSeaBoat
 end
 
+function TraversalRules.isWithinCoastalBounds(distance: number, shorelineDistance: number, waterBelt: number): boolean
+	return distance <= shorelineDistance + waterBelt
+end
+
 function TraversalRules.canOccupyZone(profile: any, zone: string): (boolean, string)
 	if zone ~= TraversalRules.Zone.OuterSeaBoat then
 		return true, "allowed"
