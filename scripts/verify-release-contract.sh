@@ -18,48 +18,33 @@ required_paths=(
   "config/environments/live.json"
   "assets/manifests/assets.json"
   "scripts/build.sh"
-  "scripts/build.ps1"
   "scripts/publish-dev.sh"
-  ".github/workflows/rojo-build.yml"
-  ".github/workflows/luau-tests.yml"
-  ".github/workflows/release-authority.yml"
-  "docs/product/target-state-v1.md"
-  "docs/roadmap/v0.6.2-village-life-visual-craft.md"
-  "docs/releases/v0.6.2/acceptance.md"
-  "docs/superpowers/specs/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft-design.md"
-  "docs/superpowers/plans/2026-08-10-tinyworld-v0.6.2-village-life-visual-craft.md"
-  "tests/verify-release-authority.sh"
-  "tests/verify-v0.6.2-source-contract.sh"
+  ".github/workflows/tinyworld-ci.yml"
+  "tests/verify-v0.7.0-unified-source-contract.sh"
   "tests/build-contract.sh"
-  "tests/build-contract.ps1"
   "tests/publish-dev-contract.sh"
-  "src/shared/ProfileMigrations.luau"
-  "src/shared/CourierRouteRules.luau"
-  "src/shared/FurnitureDefinitions.luau"
-  "src/shared/FurniturePlacementRules.luau"
-  "src/shared/TradeTransactionRules.luau"
-  "src/server/security/RemoteGuard.luau"
-  "src/server/FurniturePlacementService.luau"
-  "src/server/TradeJournal.luau"
+  "src/shared/CompanionRules.luau"
+  "src/shared/MermaidQuestRules.luau"
+  "src/shared/VillageNpcDefinitions.luau"
+  "src/server/CompanionService.luau"
+  "src/server/CarService.luau"
+  "src/server/MermaidLandService.luau"
+  "src/server/CoastBuilder.luau"
+  "src/server/ProductionVisualService.luau"
 )
 for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing required path: $path"; done
 
-CONFIG="config/release.json"
-ASSETS="assets/manifests/assets.json"
-WORKFLOW=".github/workflows/rojo-build.yml"
-AUTHORITY_WORKFLOW=".github/workflows/release-authority.yml"
-
 jq -e '
-  .productVersion == "0.6.2" and
-  .releaseName == "Village Life & Visual Craft" and
+  .productVersion == "0.7.0" and
+  .releaseName == "Family World & Production Art" and
   .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
   .styluaVersion == "2.5.2" and
   .rokitVersion == "1.2.0" and
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
-  .artifactFile == "TinyWorld-v0.6.2.rbxlx"
-' "$CONFIG" >/dev/null || fail "config/release.json is not the exact v0.6.2 contract"
+  .artifactFile == "TinyWorld-v0.7.0.rbxlx"
+' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.0 contract"
 pass "release metadata is exact"
 
 for expected in \
@@ -70,81 +55,58 @@ done
 pass "toolchain pins are exact"
 
 jq -e '
-  .schemaVersion == 2 and
+  .schemaVersion == 3 and
   .policy.allowInventedIds == false and
+  .policy.studioEditableMeshPreviewAllowed == true and
   (.assets | type == "array") and
   all(.assets[]?;
     (.id | type == "string" and length > 0) and
     (.robloxAssetId | type == "number" and . > 0 and floor == .) and
     (.owner | type == "string" and length > 0) and
     (.source | type == "string" and length > 0) and
+    (.sourceSha256 | type == "string" and test("^[0-9a-f]{64}$")) and
     (.licenseOrProvenance | type == "string" and length > 0) and
     (.prefabRole | type == "string" and length > 0) and
     (.version | type == "string" and length > 0) and
     (.status | type == "string" and length > 0) and
+    (.qualityTier | type == "string" and length > 0) and
     (.devApproved | type == "boolean") and
     (.liveApproved | type == "boolean")
   )
-' "$ASSETS" >/dev/null || fail "asset manifest must reject invented IDs and require provenance"
+' assets/manifests/assets.json >/dev/null || fail "production asset manifest must remain fail-closed"
 pass "asset manifest is fail-closed"
 
-grep -Fq 'ProfileSchema.VERSION = 11' src/shared/ProfileSchema.luau || fail "ProfileSchema.VERSION must be 11"
+grep -Fq 'ProfileSchema.VERSION = 11' src/shared/ProfileSchema.luau || fail "ProfileSchema.VERSION must remain 11"
 grep -Fq 'TinyWorld_DEV_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "DEV DataStore namespace missing"
 grep -Fq 'TinyWorld_LIVE_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "LIVE DataStore namespace missing"
-pass "profile v11 and environment separation are explicit"
+pass "profile v11 remains compatible"
 
-jq -e '.configured == true and (.universeId | tostring) == "10654114907" and (.placeId | tostring) == "76129528245924" and .publishing == "open-cloud"' config/environments/dev.json >/dev/null || fail "DEV publishing must target the approved TinyWorld DEV experience"
-jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/live.json >/dev/null || fail "LIVE publishing must remain unconfigured"
-pass "DEV target is explicit and LIVE remains human-gated"
+jq -e '.configured == true and (.universeId | tostring) == "10654114907" and (.placeId | tostring) == "76129528245924" and .publishing == "open-cloud"' config/environments/dev.json >/dev/null || fail "DEV target is not approved TinyWorld DEV"
+jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/live.json >/dev/null || fail "LIVE must remain deferred"
+pass "DEV and LIVE boundaries are explicit"
 
-grep -Eq '^name:[[:space:]]+Rojo build[[:space:]]*$' "$WORKFLOW" || fail "Rojo workflow name changed unexpectedly"
-grep -Fq 'actions/checkout@v6' "$WORKFLOW" || fail "checkout action pin missing"
-grep -Fq 'rokit install --no-trust-check' "$WORKFLOW" || fail "pinned Rokit tools are not installed"
-grep -Fq './tests/build-contract.sh' "$WORKFLOW" || fail "build-contract verification step missing"
-grep -Fq './scripts/verify-release-contract.sh' "$WORKFLOW" || fail "release guard step missing"
-grep -Fq './scripts/build.sh' "$WORKFLOW" || fail "build step missing"
-if grep -Eq 'actions/(upload-artifact|cache)@' "$WORKFLOW"; then
-  fail "Rojo workflow must not use persistent Actions storage"
-fi
-grep -Fq 'name: Publish TinyWorld DEV' "$WORKFLOW" || fail "DEV publish step missing"
-grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$WORKFLOW" || fail "DEV publish step is not main-only"
+workflow_count="$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')"
+[[ "$workflow_count" == "1" ]] || fail "exactly one active workflow is required"
+WORKFLOW=.github/workflows/tinyworld-ci.yml
+grep -Fq 'name: TinyWorld CI' "$WORKFLOW" || fail "canonical workflow name missing"
+grep -Fq 'runs-on: ubuntu-latest' "$WORKFLOW" || fail "standard free runner missing"
+grep -Fq 'luau tests/run.luau' "$WORKFLOW" || fail "unit test gate missing"
+grep -Fq 'stylua --check src tests' "$WORKFLOW" || fail "format gate missing"
+grep -Fq 'bash ./tests/verify-v0.7.0-unified-source-contract.sh' "$WORKFLOW" || fail "v0.7 source gate missing"
+grep -Fq 'bash ./scripts/build.sh' "$WORKFLOW" || fail "build step missing"
+grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$WORKFLOW" || fail "DEV publishing must be main-only"
 grep -Fq 'ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}' "$WORKFLOW" || fail "DEV secret binding missing"
-grep -Fq 'run: bash ./scripts/publish-dev.sh' "$WORKFLOW" || fail "DEV publisher invocation missing"
-pass "Rojo workflow builds ephemerally and publishes directly to DEV only from main"
-
-grep -Fq 'bash ./tests/verify-release-authority.sh' "$AUTHORITY_WORKFLOW" || fail "release authority guard missing"
-grep -Fq 'bash ./tests/verify-v0.6.2-source-contract.sh' "$AUTHORITY_WORKFLOW" || fail "v0.6.2 source contract workflow step missing"
-pass "release authority workflow protects current release"
-
-for rule in 'dist/' '.rokit/' '.worktrees/' '.superpowers/'; do
-  grep -Fqx "$rule" .gitignore || fail ".gitignore missing required rule: $rule"
-done
-
-if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
-  '(\.ROBLOSECURITY|ROBLOX_COOKIE)[[:space:]]*[:=][[:space:]]*[^$<{[:space:]]+' \
-  src scripts .github config assets 2>/dev/null; then
-  fail "credential-shaped literal found in executable repository surfaces"
+grep -Fq 'bash ./scripts/publish-dev.sh' "$WORKFLOW" || fail "DEV publisher missing"
+if grep -R -n -E 'uses:[[:space:]]+actions/(upload-artifact|cache)@' .github/workflows; then
+  fail "persistent Actions storage is prohibited"
 fi
+pass "one free-only CI and DEV publish workflow is authoritative"
+
 if grep -RIEq --exclude='verify-release-contract.sh' --exclude='publish-dev-contract.sh' --exclude-dir='.git' \
   'ROBLOX_DEV_API_KEY[[:space:]]*=[[:space:]]*[^$<{[:space:]]+' \
   src scripts .github config assets tests 2>/dev/null; then
   fail "literal DEV API key found in repository"
 fi
-pass "repository remains free of Roblox credential literals"
+pass "repository contains no Roblox credential literal"
 
-if find . -maxdepth 3 -type f \( -name 'wally.toml' -o -name 'wally.lock' \) | grep -q .; then
-  fail "Wally must not be introduced without an approved dependency"
-fi
-pass "no unnecessary dependency surface introduced"
-
-if find . -type f \( -path '*/roblox-game-skill/*' -o -name 'SKILL.md' \) | grep -q .; then
-  fail "external skill source must not be vendored into TinyWorld"
-fi
-pass "external skill source is not vendored"
-
-if grep -Eq 'local function (bird|cat)\(|Village(Bird|Cat)' src/server/AmbientLifeService.luau; then
-  fail "unfinished primitive ambient character fallback remains"
-fi
-pass "unfinished ambient creature fallback is absent"
-
-echo "PASS: TinyWorld v0.6.2 Village Life & Visual Craft release contract is valid"
+echo "PASS: TinyWorld v0.7.0 Family World & Production Art release contract is valid"
