@@ -4,7 +4,6 @@ local RunService = game:GetService("RunService")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local ProductionAssetRegistry = require(shared:WaitForChild("ProductionAssetRegistry"))
-local ReleaseInfo = require(shared:WaitForChild("ReleaseInfo"))
 local EditableMeshPreviewFactory = require(script.Parent:WaitForChild("EditableMeshPreviewFactory"))
 
 local ProductionVisualService = {}
@@ -34,6 +33,15 @@ local function prepareVisualModel(model: Model, role: string)
 	model:SetAttribute("TinyWorldProductionArtDegraded", false)
 end
 
+local function hasVisiblePresentation(root: Instance): boolean
+	for _, descendant in root:GetDescendants() do
+		if descendant:IsA("BasePart") and descendant.Transparency < 1 then
+			return true
+		end
+	end
+	return false
+end
+
 function ProductionVisualService.new()
 	local self = setmetatable({}, ProductionVisualService)
 	self.templates = {}
@@ -41,8 +49,8 @@ function ProductionVisualService.new()
 	return self
 end
 
-function ProductionVisualService:_canUseDevPreview(): boolean
-	return RunService:IsStudio() or ReleaseInfo.channel == "DEV"
+function ProductionVisualService:_canUseStudioPreview(): boolean
+	return RunService:IsStudio()
 end
 
 function ProductionVisualService:_loadTemplate(role: string): Model?
@@ -64,28 +72,22 @@ function ProductionVisualService:_loadTemplate(role: string): Model?
 	end)
 	if not ok or loaded == nil or not loaded:IsA("Model") then
 		self.failures[role] = true
-		warn("[TinyWorld ART R4] failed to load approved production asset", role, errorMessage)
+		warn("[TinyWorld ART R5] failed to load approved production asset", role, errorMessage)
 		return nil
 	end
 
 	prepareVisualModel(loaded, role)
-	loaded.Name = "ART_R4_Template_" .. role
+	loaded.Name = "ART_R5_Template_" .. role
 	loaded.Parent = nil
 	self.templates[role] = loaded
 	return loaded
 end
 
 function ProductionVisualService:mount(role: string, parent: Instance, pivot: CFrame): Model?
-	local existing = parent:FindFirstChild("ART_R4_VisualRoot")
-	if existing then
-		existing:Destroy()
-	end
-
 	local container = Instance.new("Model")
 	container.Name = "ART_R4_VisualRoot"
 	container:SetAttribute("TinyWorldArtRole", role)
 	container:SetAttribute("TinyWorldProductionSpecVersion", ProductionAssetRegistry.specVersion)
-	container.Parent = parent
 
 	local template = self:_loadTemplate(role)
 	if template then
@@ -95,23 +97,26 @@ function ProductionVisualService:mount(role: string, parent: Instance, pivot: CF
 		clone:PivotTo(pivot)
 		container:SetAttribute("TinyWorldVisualState", "approved-production")
 		container:SetAttribute("TinyWorldProductionArtDegraded", false)
-		return container
-	end
-
-	if self:_canUseDevPreview() then
+	elseif self:_canUseStudioPreview() then
 		local preview = EditableMeshPreviewFactory.build(role, container, pivot)
 		if preview then
-			container:SetAttribute("TinyWorldVisualState", "production-preview-r4")
+			container:SetAttribute("TinyWorldVisualState", "studio-preview-r5")
 			container:SetAttribute("TinyWorldProductionArtDegraded", false)
-			return container
 		end
 	end
 
-	container:SetAttribute("TinyWorldVisualState", "missing-production-art")
-	container:SetAttribute("TinyWorldProductionArtDegraded", true)
-	parent:SetAttribute("TinyWorldProductionArtDegraded", true)
-	warn("[TinyWorld ART R4] required production art unavailable for role", role)
-	return nil
+	if not hasVisiblePresentation(container) then
+		container:Destroy()
+		warn("[TinyWorld ART R5] no safe replacement available for role", role)
+		return nil
+	end
+
+	local existing = parent:FindFirstChild("ART_R4_VisualRoot")
+	if existing then
+		existing:Destroy()
+	end
+	container.Parent = parent
+	return container
 end
 
 return ProductionVisualService
