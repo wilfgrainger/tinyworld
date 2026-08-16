@@ -17,6 +17,7 @@ local VillageGroundRebuildBuilder = require(script.Parent:WaitForChild("VillageG
 local SpawnPresentationBuilder = require(script.Parent:WaitForChild("SpawnPresentationBuilder"))
 local ProductionVisualService = require(script.Parent:WaitForChild("ProductionVisualService"))
 local ProductionVillageVisuals = require(script.Parent:WaitForChild("ProductionVillageVisuals"))
+local PrestigePadBuilder = require(script.Parent:WaitForChild("PrestigePadBuilder"))
 local ImpossibleWorldBuilder = require(script.Parent:WaitForChild("ImpossibleWorldBuilder"))
 local PortalMechanicBuilder = require(script.Parent:WaitForChild("PortalMechanicBuilder"))
 local PlotService = require(script.Parent:WaitForChild("PlotService"))
@@ -63,6 +64,7 @@ SpawnPresentationBuilder.apply(world.root)
 
 local productionVisualService = ProductionVisualService.new()
 ProductionVillageVisuals.apply(world, productionVisualService)
+local _futureSpaceshipPad = PrestigePadBuilder.build(world)
 
 local ambientLifeService = AmbientLifeService.new(world)
 local villageNpcService = VillageNpcService.new(world, PlayerStateService)
