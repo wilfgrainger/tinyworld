@@ -83,7 +83,11 @@ local function addHat(model: Model, origin: CFrame, color: Color3, tall: boolean
 		color,
 		Enum.Material.Fabric,
 		Enum.PartType.Cylinder
-	).CFrame *= CFrame.Angles(0, 0, math.rad(90))
+	).CFrame *= CFrame.Angles(
+		0,
+		0,
+		math.rad(90)
+	)
 	makePart(
 		model,
 		"HatCrown",
@@ -92,7 +96,11 @@ local function addHat(model: Model, origin: CFrame, color: Color3, tall: boolean
 		color,
 		Enum.Material.Fabric,
 		Enum.PartType.Cylinder
-	).CFrame *= CFrame.Angles(0, 0, math.rad(90))
+	).CFrame *= CFrame.Angles(
+		0,
+		0,
+		math.rad(90)
+	)
 end
 
 local function addRoleAccessory(model: Model, role: string, origin: CFrame, roleColor: Color3)
@@ -150,7 +158,11 @@ local function addRoleAccessory(model: Model, role: string, origin: CFrame, role
 			Color3.fromRGB(126, 142, 151),
 			Enum.Material.Metal,
 			Enum.PartType.Cylinder
-		).CFrame *= CFrame.Angles(0, 0, math.rad(90))
+		).CFrame *= CFrame.Angles(
+			0,
+			0,
+			math.rad(90)
+		)
 	elseif role == "BoatKeeper" then
 		addHat(model, origin, COLORS.dark, false)
 		makePart(
@@ -161,7 +173,11 @@ local function addRoleAccessory(model: Model, role: string, origin: CFrame, role
 			Color3.fromRGB(230, 117, 62),
 			Enum.Material.SmoothPlastic,
 			Enum.PartType.Cylinder
-		).CFrame *= CFrame.Angles(0, math.rad(90), 0)
+		).CFrame *= CFrame.Angles(
+			0,
+			math.rad(90),
+			0
+		)
 		makePart(
 			model,
 			"HarbourRope",
