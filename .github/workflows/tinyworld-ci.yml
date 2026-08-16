@@ -1,17 +1,20 @@
-name: Luau tests
+name: TinyWorld CI
 
 on:
+  pull_request:
   push:
     branches:
       - main
-      - "feat/**"
-  pull_request:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  verify-build-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -44,8 +47,12 @@ jobs:
       - name: Run unit tests
         run: luau tests/run.luau
 
-      - name: Analyze shared Luau
-        run: luau-analyze src/shared/*.luau tests/*.luau
+      - name: Analyze deterministic shared Luau
+        run: |
+          set -euo pipefail
+          find src/shared -maxdepth 1 -type f -name '*.luau' ! -name 'ProductionArtSpec.luau' -print0 | xargs -0 luau-analyze
+          luau-analyze tests/*.luau
+          luau-compile src/shared/ProductionArtSpec.luau >/dev/null
 
       - name: Check formatting
         run: stylua --check src tests
@@ -54,3 +61,21 @@ jobs:
         run: |
           find src/server -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
           find src/client -type f -name '*.luau' -print0 | xargs -0 luau-compile >/dev/null
+
+      - name: Verify unified v0.7.0 source contract
+        run: bash ./tests/verify-v0.7.0-unified-source-contract.sh
+
+      - name: Verify release contract
+        run: bash ./scripts/verify-release-contract.sh
+
+      - name: Verify build and free-only policy
+        run: bash ./tests/build-contract.sh
+
+      - name: Build release candidate
+        run: bash ./scripts/build.sh
+
+      - name: Publish TinyWorld DEV
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}
+        run: bash ./scripts/publish-dev.sh

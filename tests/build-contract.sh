@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMP_DIR="$(mktemp -d)"
-
 cleanup() { rm -rf "$TEMP_DIR"; }
 trap cleanup EXIT
 
@@ -27,10 +26,7 @@ while [[ $# -gt 0 ]]; do
     *) shift ;;
   esac
 done
-if [[ -z "$output_path" ]]; then
-  echo "missing rojo build output path" >&2
-  exit 1
-fi
+[[ -n "$output_path" ]] || { echo "missing rojo build output path" >&2; exit 1; }
 printf '%s\n' '<roblox version="4"><Item class="DataModel" referent="RBX0" /></roblox>' > "$output_path"
 EOF
 chmod +x "$TEMP_DIR/bin/rojo"
@@ -78,17 +74,16 @@ fi
 
 PATH="$TEMP_DIR/bin:$PATH" TINYWORLD_ALLOW_DIRTY_BUILD=1 ./scripts/build.sh
 
-artifact_path="dist/TinyWorld-v0.6.2.rbxlx"
+artifact_path="dist/TinyWorld-v0.7.0.rbxlx"
 manifest_path="dist/release.json"
-
 [[ -f "$artifact_path" ]]
 [[ -f "$manifest_path" ]]
 
 jq -e '
-  .productVersion == "0.6.2" and
-  .releaseName == "Village Life & Visual Craft" and
+  .productVersion == "0.7.0" and
+  .releaseName == "Family World & Production Art" and
   .rojoVersion == "7.7.0" and
-  .artifact == "TinyWorld-v0.6.2.rbxlx" and
+  .artifact == "TinyWorld-v0.7.0.rbxlx" and
   (.commit | test("^[0-9a-f]{40}$")) and
   (.sha256 | test("^[0-9a-f]{64}$")) and
   (.buildTimestampUtc | type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
@@ -102,18 +97,19 @@ else
 fi
 [[ "$artifact_sha256" == "$(jq -r '.sha256' "$manifest_path")" ]]
 
+workflow_count="$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')"
+[[ "$workflow_count" == "1" ]] || { echo "ERROR: expected exactly one active workflow, found $workflow_count" >&2; exit 1; }
+[[ -f .github/workflows/tinyworld-ci.yml ]] || { echo "ERROR: canonical TinyWorld workflow missing" >&2; exit 1; }
+
 if grep -R -n -E 'uses:[[:space:]]+actions/(upload-artifact|cache)@' .github/workflows --include='*.yml' --include='*.yaml'; then
   echo "ERROR: TinyWorld CI must not use persistent GitHub Actions artifact or cache storage" >&2
   exit 1
 fi
 
 while IFS= read -r runner; do
-  if [[ "$runner" != "ubuntu-latest" ]]; then
-    echo "ERROR: non-free/non-standard runner configured: $runner" >&2
-    exit 1
-  fi
+  [[ "$runner" == "ubuntu-latest" ]] || { echo "ERROR: non-standard runner configured: $runner" >&2; exit 1; }
 done < <(sed -nE 's/^[[:space:]]*runs-on:[[:space:]]*([^[:space:]#]+).*/\1/p' .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null || true)
 
 bash ./tests/publish-dev-contract.sh
 
-echo "PASS: shell build contract matches v0.6.2 and enforces free-only CI storage policy"
+echo "PASS: shell build contract matches v0.7.0 and enforces single free-only CI"

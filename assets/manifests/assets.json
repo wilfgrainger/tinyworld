@@ -1,17 +1,21 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "specVersion": "art-r4-v1",
   "policy": {
     "allowInventedIds": false,
-    "nativeFallbacksRemainValid": true,
+    "nativeFallbacksRemainValid": false,
+    "studioEditableMeshPreviewAllowed": true,
     "requiredProductionFields": [
       "id",
       "robloxAssetId",
       "owner",
       "source",
+      "sourceSha256",
       "licenseOrProvenance",
       "prefabRole",
       "version",
       "status",
+      "qualityTier",
       "devApproved",
       "liveApproved"
     ]
