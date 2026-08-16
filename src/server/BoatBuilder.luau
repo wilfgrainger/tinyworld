@@ -83,28 +83,8 @@ function BoatBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 			{ topScale = 0.72 }
 		)
 	)
-	add(
-		component(
-			"BoatKeel",
-			"beveledBox",
-			{ 1.1, 1.6, 13.4 },
-			{ 0, 0.15, 0.5 },
-			"timberDark",
-			"wood",
-			"boat-keel"
-		)
-	)
-	add(
-		component(
-			"BoatDeck",
-			"beveledBox",
-			{ 6.5, 0.42, 9.2 },
-			{ 0, 2.0, 0.5 },
-			"deck",
-			"wood",
-			"boat-deck"
-		)
-	)
+	add(component("BoatKeel", "beveledBox", { 1.1, 1.6, 13.4 }, { 0, 0.15, 0.5 }, "timberDark", "wood", "boat-keel"))
+	add(component("BoatDeck", "beveledBox", { 6.5, 0.42, 9.2 }, { 0, 2.0, 0.5 }, "deck", "wood", "boat-deck"))
 	add(
 		component(
 			"BoatBow",
@@ -171,28 +151,9 @@ function BoatBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 		)
 	end
 
-	add(
-		component(
-			"BoatMast",
-			"cylinder",
-			{ 0.42, 7.0, 0.42 },
-			{ 0, 5.0, -2.2 },
-			"timberDark",
-			"wood",
-			"boat-mast"
-		)
-	)
-	local sail = add(
-		component(
-			"BoatSail",
-			"beveledBox",
-			{ 0.24, 4.6, 4.8 },
-			{ 0, 5.25, -1.25 },
-			"paper",
-			"fabric",
-			"boat-sail"
-		)
-	)
+	add(component("BoatMast", "cylinder", { 0.42, 7.0, 0.42 }, { 0, 5.0, -2.2 }, "timberDark", "wood", "boat-mast"))
+	local sail =
+		add(component("BoatSail", "beveledBox", { 0.24, 4.6, 4.8 }, { 0, 5.25, -1.25 }, "paper", "fabric", "boat-sail"))
 	if sail then
 		sail:SetAttribute("TinyWorldMotionRole", "sail-billow")
 	end
@@ -207,17 +168,8 @@ function BoatBuilder.build(parent: Instance, name: string, origin: CFrame, accen
 			"boat-sail-stripe"
 		)
 	)
-	local flag = add(
-		component(
-			"BoatFlag",
-			"beveledBox",
-			{ 0.24, 1.45, 2.5 },
-			{ 0.2, 8.1, -2.2 },
-			"gold",
-			"fabric",
-			"boat-flag"
-		)
-	)
+	local flag =
+		add(component("BoatFlag", "beveledBox", { 0.24, 1.45, 2.5 }, { 0.2, 8.1, -2.2 }, "gold", "fabric", "boat-flag"))
 	if flag then
 		flag:SetAttribute("TinyWorldMotionRole", "flag-flutter")
 	end
