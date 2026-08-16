@@ -19,6 +19,7 @@ required_paths=(
   "assets/manifests/assets.json"
   "scripts/build.sh"
   "scripts/build.ps1"
+  "scripts/publish-dev.sh"
   ".github/workflows/rojo-build.yml"
   ".github/workflows/luau-tests.yml"
   ".github/workflows/release-authority.yml"
@@ -31,6 +32,7 @@ required_paths=(
   "tests/verify-v0.6.2-source-contract.sh"
   "tests/build-contract.sh"
   "tests/build-contract.ps1"
+  "tests/publish-dev-contract.sh"
   "src/shared/ProfileMigrations.luau"
   "src/shared/CourierRouteRules.luau"
   "src/shared/FurnitureDefinitions.luau"
@@ -91,9 +93,9 @@ grep -Fq 'TinyWorld_DEV_PlayerProfile_v11' src/server/EnvironmentConfig.luau || 
 grep -Fq 'TinyWorld_LIVE_PlayerProfile_v11' src/server/EnvironmentConfig.luau || fail "LIVE DataStore namespace missing"
 pass "profile v11 and environment separation are explicit"
 
-jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/dev.json >/dev/null || fail "DEV publishing must remain unconfigured"
+jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/dev.json >/dev/null || fail "DEV publishing must remain unconfigured until real IDs are supplied"
 jq -e '.configured == false and .universeId == null and .placeId == null and .publishing == "deferred"' config/environments/live.json >/dev/null || fail "LIVE publishing must remain unconfigured"
-pass "publishing remains credential-free and human-gated"
+pass "DEV is safely deferred and LIVE remains human-gated"
 
 grep -Eq '^name:[[:space:]]+Rojo build[[:space:]]*$' "$WORKFLOW" || fail "Rojo workflow name changed unexpectedly"
 grep -Fq 'actions/checkout@v6' "$WORKFLOW" || fail "checkout action pin missing"
@@ -101,10 +103,14 @@ grep -Fq 'rokit install --no-trust-check' "$WORKFLOW" || fail "pinned Rokit tool
 grep -Fq './tests/build-contract.sh' "$WORKFLOW" || fail "build-contract verification step missing"
 grep -Fq './scripts/verify-release-contract.sh' "$WORKFLOW" || fail "release guard step missing"
 grep -Fq './scripts/build.sh' "$WORKFLOW" || fail "build step missing"
-grep -Fq 'tinyworld-v0.6.2-${{ github.sha }}' "$WORKFLOW" || fail "v0.6.2 artifact name missing"
-grep -Fq 'dist/TinyWorld-v0.6.2.rbxlx' "$WORKFLOW" || fail "v0.6.2 artifact path missing"
-grep -Fq 'dist/release.json' "$WORKFLOW" || fail "release manifest path missing"
-pass "Rojo workflow verifies contracts and builds only traceable v0.6.2 evidence"
+if grep -Eq 'actions/(upload-artifact|cache)@' "$WORKFLOW"; then
+  fail "Rojo workflow must not use persistent Actions storage"
+fi
+grep -Fq 'name: Publish TinyWorld DEV' "$WORKFLOW" || fail "DEV publish step missing"
+grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$WORKFLOW" || fail "DEV publish step is not main-only"
+grep -Fq 'ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}' "$WORKFLOW" || fail "DEV secret binding missing"
+grep -Fq 'run: bash ./scripts/publish-dev.sh' "$WORKFLOW" || fail "DEV publisher invocation missing"
+pass "Rojo workflow builds ephemerally and publishes directly to DEV only from main"
 
 grep -Fq 'bash ./tests/verify-release-authority.sh' "$AUTHORITY_WORKFLOW" || fail "release authority guard missing"
 grep -Fq 'bash ./tests/verify-v0.6.2-source-contract.sh' "$AUTHORITY_WORKFLOW" || fail "v0.6.2 source contract workflow step missing"
@@ -119,11 +125,12 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
   src scripts .github config assets 2>/dev/null; then
   fail "credential-shaped literal found in executable repository surfaces"
 fi
-if grep -RIEq --exclude='verify-release-contract.sh' --exclude-dir='.git' \
-  '(upload-place|opencloud.*publish|publish.*opencloud)' .github scripts 2>/dev/null; then
-  fail "publishing automation is not approved in v0.6.2"
+if grep -RIEq --exclude='verify-release-contract.sh' --exclude='publish-dev-contract.sh' --exclude-dir='.git' \
+  'ROBLOX_DEV_API_KEY[[:space:]]*=[[:space:]]*[^$<{[:space:]]+' \
+  src scripts .github config assets tests 2>/dev/null; then
+  fail "literal DEV API key found in repository"
 fi
-pass "repository remains free of production publishing credentials/actions"
+pass "repository remains free of Roblox credential literals"
 
 if find . -maxdepth 3 -type f \( -name 'wally.toml' -o -name 'wally.lock' \) | grep -q .; then
   fail "Wally must not be introduced without an approved dependency"
