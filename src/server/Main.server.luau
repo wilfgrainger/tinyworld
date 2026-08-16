@@ -150,7 +150,10 @@ local function onPlayerAdded(player: Player)
 	if profile.onboardingComplete then
 		PlayerStateService.message(player, "Welcome back to TinyWorld, " .. profile.displayName .. ".")
 	else
-		PlayerStateService.message(player, "Welcome to TinyWorld. Your grass-parcel home is already reserved. Choose your name and starter preferences to begin.")
+		PlayerStateService.message(
+			player,
+			"Welcome to TinyWorld. Your grass-parcel home is already reserved. Choose your name and starter preferences to begin."
+		)
 	end
 end
 
