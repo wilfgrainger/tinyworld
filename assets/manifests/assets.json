@@ -3,8 +3,9 @@
   "specVersion": "art-r4-v1",
   "policy": {
     "allowInventedIds": false,
-    "nativeFallbacksRemainValid": false,
+    "nativeFallbacksRemainValid": true,
     "studioEditableMeshPreviewAllowed": true,
+    "publishedEditableMeshPreviewAllowed": false,
     "requiredProductionFields": [
       "id",
       "robloxAssetId",
