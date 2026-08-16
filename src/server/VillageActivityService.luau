@@ -129,7 +129,9 @@ function VillageActivityService:startForRole(player: Player, role: string)
 			local currentDefinition = VillageActivityDefinitions.get(current.id)
 			self.PlayerStateService.message(
 				player,
-				"Finish " .. (if currentDefinition then currentDefinition.displayName else "your current activity") .. " first."
+				"Finish "
+					.. (if currentDefinition then currentDefinition.displayName else "your current activity")
+					.. " first."
 			)
 		end
 		return
