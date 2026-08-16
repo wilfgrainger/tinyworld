@@ -28,8 +28,9 @@ pass "R7 composes over the complete R6 game experience"
 
 # General map contract.
 grep -Fq 'ART_R7_WorldComposition' src/server/R7WorldCompositionBuilder.luau || fail "R7 world composition root marker missing"
+grep -Fq '"district-" .. id' src/server/R7WorldCompositionBuilder.luau || fail "R7 district marker prefix construction missing"
 for district in plaza homes market garden harbour; do
-  grep -Fq "district-$district" src/server/R7WorldCompositionBuilder.luau || fail "R7 district marker missing: $district"
+  grep -Fq "districtMarker(parent, \"$district\")" src/server/R7WorldCompositionBuilder.luau || fail "R7 district construction missing: $district"
 done
 grep -Fq 'TinyWorldR7Decorative' src/server/R7WorldCompositionBuilder.luau || fail "R7 world decoration safety marker missing"
 grep -Fq 'CanCollide = false' src/server/R7WorldCompositionBuilder.luau || fail "R7 world decoration is not explicitly non-colliding"
