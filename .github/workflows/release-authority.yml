@@ -18,5 +18,7 @@ jobs:
         run: bash ./tests/verify-release-authority.sh
       - name: Verify v0.6.2 source contract
         run: bash ./tests/verify-v0.6.2-source-contract.sh
+      - name: Verify v0.7.0 coastal source contract
+        run: bash ./tests/verify-v0.7.0-source-contract.sh
       - name: Audit every tracked text line
         run: bash ./tests/verify-v0.6.2-repository-audit.sh
