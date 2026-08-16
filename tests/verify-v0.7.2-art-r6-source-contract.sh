@@ -14,6 +14,7 @@ pass "ART R6 release identity is exact"
 for path in \
   src/shared/VillageActivityDefinitions.luau \
   src/shared/VillageActivityRules.luau \
+  src/server/VillageActivityLocations.luau \
   src/server/VillageNpcBuilder.luau \
   src/server/VillageActivityService.luau \
   src/server/TraderRequestActivityService.luau \
@@ -35,13 +36,14 @@ done
 pass "five NPC roles and five activity loops are defined"
 
 grep -Fq 'VillageNpcBuilder' src/server/VillageNpcService.luau || fail "VillageNpcService does not delegate to native NPC builder"
+grep -Fq 'VillageActivityLocations' src/server/VillageNpcService.luau || fail "NPC placement is not using canonical R6 activity locations"
 if grep -Fq 'ProductionMeshFactory' src/server/VillageNpcService.luau; then
   fail "VillageNpcService still uses generic production mesh fallback"
 fi
 for token in Head Torso LeftArm RightArm LeftLeg RightLeg Humanoid; do
   grep -Fq "$token" src/server/VillageNpcBuilder.luau || fail "native NPC anatomy marker missing: $token"
 done
-pass "NPCs use dedicated native character presentation"
+pass "NPCs use dedicated native character presentation and canonical placement"
 
 for token in VillageActivityService VillageNpcService JobService GardenService TradeService MermaidLandService R6CivicPresentationBuilder; do
   grep -Fq "$token" src/server/Main.server.luau || fail "Main missing runtime composition: $token"
@@ -79,6 +81,30 @@ grep -Fq '140' src/shared/VillageActivityDefinitions.luau || fail "coastal rewar
 grep -Fq '1.15' src/shared/VillageActivityRules.luau || fail "good quality multiplier missing"
 grep -Fq '1.30' src/shared/VillageActivityRules.luau || fail "perfect quality multiplier missing"
 pass "R6 reward and quality bands are encoded"
+
+# Shared-world activity state must not present conflicting visual progress to multiple players.
+for path in src/server/VillageGardenActivityService.luau src/server/FishingActivityService.luau src/server/BuilderRepairActivityService.luau; do
+  grep -Fq 'self.owner' "$path" || fail "shared-world activity is missing single-owner arbitration: $path"
+done
+grep -Fq 'task.delay(delay' src/server/FishingActivityService.luau || fail "fishing bite has no visible delayed signal"
+grep -Fq 'TinyWorldFishingState' src/server/FishingActivityService.luau || fail "fishing bobber does not expose visible bite state"
+pass "shared-world activities arbitrate ownership and fishing has a visible bite"
+
+# Coastal parcel must be one removable model, not loose welded parts that can orphan on completion.
+grep -Fq 'model.Name = PARCEL_NAME' src/server/CoastalDeliveryActivityService.luau || fail "coastal parcel is not a single cleanup model"
+grep -Fq 'band.Parent = model' src/server/CoastalDeliveryActivityService.luau || fail "coastal parcel band can outlive parcel cleanup"
+grep -Fq 'parcel.Parent = model' src/server/CoastalDeliveryActivityService.luau || fail "coastal parcel box is not owned by cleanup model"
+pass "coastal parcel cleanup is atomic"
+
+# NPCs, their authored stations, and nearby shared activities use one location authority.
+for path in \
+  src/server/VillageNpcService.luau \
+  src/server/R6CivicPresentationBuilder.luau \
+  src/server/VillageGardenActivityService.luau \
+  src/server/BuilderRepairActivityService.luau; do
+  grep -Fq 'VillageActivityLocations' "$path" || fail "R6 location authority missing from: $path"
+done
+pass "NPC and activity placement uses one canonical location authority"
 
 # Civic R6 must actively apply the authored fountain, shrink the market status sign,
 # and add five role-readable station treatments using only safe native instances.
