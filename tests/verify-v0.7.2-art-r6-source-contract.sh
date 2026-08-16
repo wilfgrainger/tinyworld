@@ -20,10 +20,11 @@ for path in \
   src/server/VillageGardenActivityService.luau \
   src/server/FishingActivityService.luau \
   src/server/CoastalDeliveryActivityService.luau \
-  src/server/BuilderRepairActivityService.luau; do
+  src/server/BuilderRepairActivityService.luau \
+  src/server/R6CivicPresentationBuilder.luau; do
   require_file "$path"
 done
-pass "R6 activity architecture is present"
+pass "R6 activity and civic architecture is present"
 
 for role in Trader Gardener Fisherman BoatKeeper Builder; do
   grep -Fq "id = \"$role\"" src/shared/VillageNpcDefinitions.luau || fail "village NPC role missing: $role"
@@ -42,10 +43,10 @@ for token in Head Torso LeftArm RightArm LeftLeg RightLeg Humanoid; do
 done
 pass "NPCs use dedicated native character presentation"
 
-for token in VillageActivityService VillageNpcService JobService GardenService TradeService MermaidLandService; do
+for token in VillageActivityService VillageNpcService JobService GardenService TradeService MermaidLandService R6CivicPresentationBuilder; do
   grep -Fq "$token" src/server/Main.server.luau || fail "Main missing runtime composition: $token"
 done
-pass "R6 gameplay is composed without dropping existing game systems"
+pass "R6 gameplay and civic presentation are composed without dropping existing game systems"
 
 # Preserve R5 published visual safety.
 if grep -Fq 'ReleaseInfo.channel == "DEV"' src/server/ProductionVisualService.luau; then
@@ -78,6 +79,17 @@ grep -Fq '140' src/shared/VillageActivityDefinitions.luau || fail "coastal rewar
 grep -Fq '1.15' src/shared/VillageActivityRules.luau || fail "good quality multiplier missing"
 grep -Fq '1.30' src/shared/VillageActivityRules.luau || fail "perfect quality multiplier missing"
 pass "R6 reward and quality bands are encoded"
+
+# Civic R6 must actively apply the authored fountain, shrink the market status sign,
+# and add five role-readable station treatments using only safe native instances.
+grep -Fq 'HeroFountainBuilder.apply' src/server/R6CivicPresentationBuilder.luau || fail "R6 civic pass does not apply hero fountain"
+grep -Fq 'MarketStatusSign' src/server/R6CivicPresentationBuilder.luau || fail "R6 civic pass does not tame market status sign"
+grep -Fq 'Vector3.new(12, 3.5, 0.65)' src/server/R6CivicPresentationBuilder.luau || fail "market sign remains oversized"
+for marker in trader-station gardener-station fisherman-station boatkeeper-station builder-station; do
+  grep -Fq "$marker" src/server/R6CivicPresentationBuilder.luau || fail "missing R6 activity station marker: $marker"
+done
+grep -Fq 'civic-hero-r6' src/server/HeroFountainBuilder.luau || fail "hero fountain is not stamped ART R6"
+pass "R6 civic presentation is explicit and player-facing"
 
 workflow_count="$(find .github/workflows -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \) | wc -l | tr -d ' ')"
 [[ "$workflow_count" == "1" ]] || fail "exactly one Actions workflow is allowed"
