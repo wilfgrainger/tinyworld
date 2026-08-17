@@ -35,6 +35,8 @@ jobs:
           echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
 
       - name: Install pinned Rokit tools
+        env:
+          GITHUB_PAT: ${{ github.token }}
         run: |
           set -euo pipefail
           rokit_version="$(jq -er '.rokitVersion' config/release.json)"
