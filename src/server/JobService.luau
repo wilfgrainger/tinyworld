@@ -7,6 +7,7 @@ local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local CourierRouteRules = require(shared:WaitForChild("CourierRouteRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local JobService = {}
 JobService.__index = JobService
@@ -176,7 +177,7 @@ function JobService:trackPlayer(player: Player)
 end
 
 function JobService:_start(player: Player)
-	if self.ProfileStore.get(player) == nil then
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
 		return
 	end
 	if self.active[player] then
@@ -202,6 +203,13 @@ function JobService:_start(player: Player)
 end
 
 function JobService:_finish(player: Player, destinationId: string)
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self.active[player] = nil
+		player:SetAttribute("TinyWorldCarryingParcel", false)
+		player:SetAttribute("TinyWorldCourierDestination", "")
+		removeParcel(player)
+		return
+	end
 	local active = self.active[player]
 	if not active then
 		self.PlayerStateService.message(player, "Pick up a parcel from the Courier Depot first.")
