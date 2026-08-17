@@ -53,6 +53,8 @@ grep -q 'TinyWorldLegacyPresentationRetired' "$legacy_retirement" || fail "retir
 
 grep -q 'PlayerPhaseRules' "$gameplay_access" || fail "GameplayAccessService must use deterministic PlayerPhaseRules"
 grep -q 'function GameplayAccessService.requireAccess' "$gameplay_access" || fail "central gameplay access helper must expose requireAccess"
+grep -q 'function GameplayAccessService.guardedProfileStore' "$gameplay_access" || fail "central gameplay access helper must expose a fail-closed ProfileStore view"
+
 for path in \
   src/server/DailyRewardService.luau \
   src/server/VillageActivityService.luau \
@@ -60,10 +62,24 @@ for path in \
   src/server/TransportService.luau \
   src/server/BoatService.luau \
   src/server/PortalService.luau \
-  src/server/HomeStoreService.luau \
-  src/server/FurniturePlacementService.luau \
-  src/server/TradeService.luau; do
-  grep -q 'GameplayAccessService' "$path" || fail "$path must use the central server gameplay access gate"
+  src/server/HomeStoreService.luau; do
+  grep -q 'GameplayAccessService.requireAccess' "$path" || fail "$path must call the central server gameplay access gate"
+done
+
+grep -q 'local gameplayProfileStore = GameplayAccessService.guardedProfileStore(ProfileStore)' "$main" || fail "Main must construct the fail-closed gameplay ProfileStore view"
+for pattern in \
+  'HomeService.new(world, gameplayProfileStore' \
+  'FurniturePlacementService.new(gameplayProfileStore' \
+  'GardenService.new(world, plotService, gameplayProfileStore' \
+  'CarService.new(world, gameplayProfileStore' \
+  'TradeService.new(world, gameplayProfileStore' \
+  'VillageService.new(world, gameplayProfileStore' \
+  'ExplorationService.new(world, gameplayProfileStore' \
+  'LivingWorldService.new(world, gameplayProfileStore' \
+  'ProfessionService.new(world, gameplayProfileStore' \
+  'CompanionService.new(world, plotService, gameplayProfileStore' \
+  'MermaidLandService.new(world, gameplayProfileStore'; do
+  grep -q "$pattern" "$main" || fail "Main must use the guarded gameplay ProfileStore for: $pattern"
 done
 
 grep -q 'R8LegacyPresentationRetirement' "$main" || fail "Main must invoke legacy presentation retirement during R8 composition"
