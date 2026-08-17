@@ -21,7 +21,7 @@ jq -c '.models[] | select(.devApproved == true)' assets/manifests/r8-models.json
   path="$(jq -r '.path' <<<"$item")"; expected="$(jq -r '.sha256' <<<"$item")"
   test -f "$path" || fail "manifest model file missing: $path"
   actual="$(sha256sum "$path" | awk '{print $1}')"
-  test "$actual" = "$expected" || fail "manifest hash mismatch: $path"
+  test "$actual" = "$expected" || fail "manifest hash mismatch: $path expected=$expected actual=$actual"
 done
 test -f docs/ART_AUTHORING.md || fail "docs/ART_AUTHORING.md is required"
 
