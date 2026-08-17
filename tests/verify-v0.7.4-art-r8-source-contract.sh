@@ -53,6 +53,21 @@ if grep -F 'Vector3.new(size.X, 0.04, size.Y)' src/server/R8GroundBuilder.luau >
   fail "R8 ground must not reintroduce near-coplanar 0.04-stud overlays"
 fi
 
+# R8 coast must replace the slab-based CoastBuilder and share the R8 elevation authority.
+test -f src/server/R8CoastBuilder.luau || fail "src/server/R8CoastBuilder.luau is required"
+grep -F 'R8CoastBuilder.build' src/server/Main.server.luau >/dev/null \
+  || fail "Main must build the R8 coast"
+if grep -F 'CoastBuilder.build' src/server/Main.server.luau >/dev/null; then
+  fail "legacy CoastBuilder must not render alongside R8 coast"
+fi
+if grep -F 'HillSlope' src/server/R8CoastBuilder.luau >/dev/null; then
+  fail "R8 coast must not use legacy HillSlope slab geometry"
+fi
+grep -F 'layout.safeShoreCFrame' src/server/R8CoastBuilder.luau >/dev/null \
+  || fail "R8 coast safe shore must come from canonical layout"
+grep -F 'layout.worldRecoveryCFrame' src/server/R8CoastBuilder.luau >/dev/null \
+  || fail "R8 coast recovery must come from canonical layout"
+
 rojo build default.project.json --output /tmp/TinyWorld-r8-asset-validation.rbxlx >/dev/null
 
 echo "ART R8 source contract passed"
