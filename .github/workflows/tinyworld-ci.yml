@@ -71,6 +71,9 @@ jobs:
       - name: Verify ART R8.1 finish the rebuild
         run: bash ./tests/verify-v0.7.5-art-r8.1-source-contract.sh
 
+      - name: Verify ART R8.2 runtime hardening
+        run: bash ./tests/verify-v0.7.6-art-r8.2-source-contract.sh
+
       - name: Verify release contract
         run: bash ./scripts/verify-release-contract.sh
 
