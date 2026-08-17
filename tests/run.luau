@@ -21,6 +21,7 @@ local specs = {
 	require("./TransportRules.spec"),
 	require("./TraversalRules.spec"),
 	require("./TraversalSafetyRules.spec"),
+	require("./ActivityLeaseRules.spec"),
 	require("./CompanionRules.spec"),
 	require("./VillageNpcDefinitions.spec"),
 	require("./VillageActivityDefinitions.spec"),
