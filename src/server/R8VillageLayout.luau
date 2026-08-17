@@ -39,11 +39,7 @@ function R8VillageLayout.create(maxPlayers: number?)
 	compatible.shorelineDistance = raw.shorelineDistance
 	compatible.safeShoreCFrame = CFrame.new(raw.safeShore.x, raw.safeShore.y, raw.safeShore.z)
 		* CFrame.Angles(0, math.rad(raw.safeShore.yaw), 0)
-	compatible.worldRecoveryCFrame = CFrame.new(
-		raw.worldRecovery.x,
-		raw.worldRecovery.y,
-		raw.worldRecovery.z
-	)
+	compatible.worldRecoveryCFrame = CFrame.new(raw.worldRecovery.x, raw.worldRecovery.y, raw.worldRecovery.z)
 
 	return compatible
 end
