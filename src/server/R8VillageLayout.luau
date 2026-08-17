@@ -6,6 +6,10 @@ local WorldLayoutRules = require(shared:WaitForChild("WorldLayoutRules"))
 
 local R8VillageLayout = {}
 
+local function placementForSlot(slot)
+	return CFrame.new(slot.x, 0, slot.z) * CFrame.Angles(0, math.rad(slot.rotation or 0), 0)
+end
+
 function R8VillageLayout.create(maxPlayers: number?)
 	local raw = R8VillageLayoutRules.create()
 	local compatible = WorldLayoutRules.create(maxPlayers)
@@ -42,6 +46,34 @@ function R8VillageLayout.create(maxPlayers: number?)
 	)
 
 	return compatible
+end
+
+function R8VillageLayout.applyToWorld(world, layout)
+	for index, plot in world.plots do
+		local slot = layout.plotSlots[index]
+		if slot == nil then
+			break
+		end
+
+		local targetPlacement = placementForSlot(slot)
+		local currentPlacement = plot.placementCFrame or CFrame.new(plot.origin)
+		local delta = targetPlacement * currentPlacement:Inverse()
+		plot.model:PivotTo(delta * plot.model:GetPivot())
+
+		plot.origin = Vector3.new(slot.x, layout.groundY, slot.z)
+		plot.placementCFrame = targetPlacement
+		plot.houseAnchorCFrame = targetPlacement * CFrame.new(0, 1, -8)
+		plot.houseAnchor = plot.houseAnchorCFrame.Position
+		plot.insideCFrame = targetPlacement * CFrame.new(0, 4, -8)
+		plot.outsideCFrame = targetPlacement * CFrame.new(0, 4, 20)
+		plot.model:SetAttribute("TinyWorldNeighbourhood", slot.neighbourhood)
+		plot.model:SetAttribute("TinyWorldArtRevision", "ART R8")
+	end
+
+	world.layout = layout
+	world.root:SetAttribute("TinyWorldArtRevision", "ART R8")
+	world.root:SetAttribute("TinyWorldLayoutAuthority", "R8VillageLayout")
+	return world
 end
 
 return R8VillageLayout
