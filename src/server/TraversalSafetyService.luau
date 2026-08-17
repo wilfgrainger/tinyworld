@@ -3,20 +3,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local TraversalRules = require(shared:WaitForChild("TraversalRules"))
+local TraversalSafetyRules = require(shared:WaitForChild("TraversalSafetyRules"))
 
 local TraversalSafetyService = {}
 TraversalSafetyService.__index = TraversalSafetyService
 
 local CHECK_INTERVAL = 0.2
-local RECOVERY_Y = -20
-local COASTAL_RECOVERY_BUFFER = 120
 local OUTSIDE_COASTAL_BOUNDS_REASON = "outside_coastal_bounds"
+local UNDER_WORLD_REASON = "under_world"
 
-function TraversalSafetyService.new(world, ProfileStore, PlayerStateService)
+function TraversalSafetyService.new(world, ProfileStore, PlayerStateService, hasValidPortalSession)
 	local self = setmetatable({}, TraversalSafetyService)
 	self.world = world
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
+	self.hasValidPortalSession = hasValidPortalSession or function(_player)
+		return false
+	end
 	self.tracked = {}
 	self.accumulator = 0
 	self.connection = RunService.Heartbeat:Connect(function(dt)
@@ -48,45 +51,35 @@ function TraversalSafetyService:_recover(player: Player, target: CFrame, message
 	end
 end
 
-local function isInVillageTraversalSpace(player: Player): boolean
-	local portalWorld = player:GetAttribute("TinyWorldPortalWorld")
-	return type(portalWorld) ~= "string" or portalWorld == "" or portalWorld == "Village"
-end
-
 function TraversalSafetyService:_checkPlayers()
 	for player in pairs(self.tracked) do
 		local character = player.Character
 		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 		local profile = self.ProfileStore.get(player)
 		if root and root:IsA("BasePart") and profile then
-			if not isInVillageTraversalSpace(player) then
-				continue
-			end
+			local distance = math.max(math.abs(root.Position.X), math.abs(root.Position.Z))
+			local action = TraversalSafetyRules.decide({
+				distance = distance,
+				y = root.Position.Y,
+				shorelineDistance = self.world.boundary.shorelineDistance,
+				waterBelt = self.world.coast.waterBelt,
+				portalWorld = player:GetAttribute("TinyWorldPortalWorld"),
+				hasValidPortalSession = self.hasValidPortalSession(player) == true,
+			})
 
-			if root.Position.Y < RECOVERY_Y then
+			if action == TraversalSafetyRules.Action.PortalExempt then
+				continue
+			elseif action == TraversalSafetyRules.Action.RecoverWorld then
+				player:SetAttribute("TinyWorldLastTraversalRecovery", UNDER_WORLD_REASON)
 				self:_recover(player, self.world.boundary.worldRecoveryCFrame)
 				continue
-			end
-
-			local distance = math.max(math.abs(root.Position.X), math.abs(root.Position.Z))
-			if
-				not TraversalRules.isWithinCoastalBounds(
-					distance,
-					self.world.boundary.shorelineDistance,
-					self.world.coast.waterBelt
+			elseif action == TraversalSafetyRules.Action.RecoverShore then
+				player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
+				self:_recover(
+					player,
+					self.world.boundary.safeShoreCFrame,
+					"The sea gets too rough beyond TinyWorld."
 				)
-			then
-				local recoveryEdge = self.world.boundary.shorelineDistance
-					+ self.world.coast.waterBelt
-					+ COASTAL_RECOVERY_BUFFER
-				if distance <= recoveryEdge then
-					player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
-					self:_recover(
-						player,
-						self.world.boundary.safeShoreCFrame,
-						"The sea gets too rough beyond TinyWorld."
-					)
-				end
 				continue
 			end
 
