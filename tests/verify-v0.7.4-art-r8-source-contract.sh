@@ -51,4 +51,6 @@ done
 test -f docs/ART_AUTHORING.md \
   || fail "docs/ART_AUTHORING.md is required"
 
+rojo build default.project.json --output /tmp/TinyWorld-r8-asset-validation.rbxlx >/dev/null
+
 echo "ART R8 source contract passed"
