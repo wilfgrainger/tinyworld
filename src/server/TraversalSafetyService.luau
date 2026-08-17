@@ -9,6 +9,7 @@ TraversalSafetyService.__index = TraversalSafetyService
 
 local CHECK_INTERVAL = 0.2
 local RECOVERY_Y = -20
+local COASTAL_RECOVERY_BUFFER = 120
 local OUTSIDE_COASTAL_BOUNDS_REASON = "outside_coastal_bounds"
 
 function TraversalSafetyService.new(world, ProfileStore, PlayerStateService)
@@ -49,13 +50,7 @@ end
 
 local function isInVillageTraversalSpace(player: Player): boolean
 	local portalWorld = player:GetAttribute("TinyWorldPortalWorld")
-	if type(portalWorld) == "string" and portalWorld ~= "" and portalWorld ~= "Village" then
-		return false
-	end
-	if player:GetAttribute("TinyWorldInMermaidLand") == true then
-		return false
-	end
-	return true
+	return type(portalWorld) ~= "string" or portalWorld == "" or portalWorld == "Village"
 end
 
 function TraversalSafetyService:_checkPlayers()
@@ -81,8 +76,13 @@ function TraversalSafetyService:_checkPlayers()
 					self.world.coast.waterBelt
 				)
 			then
-				player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
-				self:_recover(player, self.world.boundary.safeShoreCFrame, "The sea gets too rough beyond TinyWorld.")
+				local recoveryEdge = self.world.boundary.shorelineDistance
+					+ self.world.coast.waterBelt
+					+ COASTAL_RECOVERY_BUFFER
+				if distance <= recoveryEdge then
+					player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
+					self:_recover(player, self.world.boundary.safeShoreCFrame, "The sea gets too rough beyond TinyWorld.")
+				end
 				continue
 			end
 
