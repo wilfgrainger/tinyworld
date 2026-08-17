@@ -9,6 +9,7 @@ local specs = {
 	require("./TradeTransactionRules.spec"),
 	require("./PlayerMutationLock.spec"),
 	require("./OnboardingRules.spec"),
+	require("./PlayerPhaseRules.spec"),
 	require("./GoalRules.spec"),
 	require("./Progression.spec"),
 	require("./HouseUpgrade.spec"),
