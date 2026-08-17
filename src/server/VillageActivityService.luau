@@ -10,6 +10,7 @@ local VillageGardenActivityService = require(script.Parent:WaitForChild("Village
 local FishingActivityService = require(script.Parent:WaitForChild("FishingActivityService"))
 local CoastalDeliveryActivityService = require(script.Parent:WaitForChild("CoastalDeliveryActivityService"))
 local BuilderRepairActivityService = require(script.Parent:WaitForChild("BuilderRepairActivityService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local VillageActivityService = {}
 VillageActivityService.__index = VillageActivityService
@@ -108,6 +109,10 @@ function VillageActivityService:_finish(
 	detail: string?,
 	extraCoins: number?
 )
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self:abandon(player, true)
+		return
+	end
 	local state = self.active[player]
 	if state == nil or state.id ~= activityId or not VillageActivityRules.canComplete(state.completed == true) then
 		return
@@ -152,7 +157,7 @@ function VillageActivityService:startForRole(player: Player, role: string)
 		self.PlayerStateService.message(player, "That village activity is not available yet.")
 		return
 	end
-	if self.ProfileStore.get(player) == nil then
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
 		return
 	end
 
