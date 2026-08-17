@@ -8,6 +8,12 @@
         "Shared": {
           "$path": "src/shared"
         }
+      },
+      "TinyWorldAssets": {
+        "$className": "Folder",
+        "R8": {
+          "$path": "assets/models/r8"
+        }
       }
     },
     "ServerScriptService": {
@@ -24,4 +30,3 @@
     }
   }
 }
-
