@@ -28,7 +28,9 @@ return function()
 	TestUtil.equal(decide(100, -20.1), Action.RecoverWorld)
 
 	TestUtil.equal(decide(10000, 0, "GiantKitchen", true), Action.PortalExempt)
+	TestUtil.equal(decide(10000, -100, "GiantKitchen", true), Action.PortalExempt)
 	TestUtil.equal(decide(10000, 0, "GiantKitchen", false), Action.RecoverShore)
+	TestUtil.equal(decide(10000, -100, "GiantKitchen", false), Action.RecoverWorld)
 	TestUtil.equal(decide(10000, 0, "Village", true), Action.RecoverShore)
 	TestUtil.equal(decide(10000, 0, "", true), Action.RecoverShore)
 end
