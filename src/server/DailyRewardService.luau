@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local DailyReward = require(shared:WaitForChild("DailyReward"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local DailyRewardService = {}
 DailyRewardService.__index = DailyRewardService
@@ -15,6 +16,9 @@ function DailyRewardService.new(world, ProfileStore, PlayerStateService, RouteSe
 	self.RouteService = RouteService
 
 	world.dailyPrompt.Triggered:Connect(function(player)
+		if not GameplayAccessService.requireAccess(player, ProfileStore, PlayerStateService) then
+			return
+		end
 		local profile = ProfileStore.get(player)
 		if profile == nil then
 			return
