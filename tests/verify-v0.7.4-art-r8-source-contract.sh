@@ -46,6 +46,12 @@ if grep -F 'HillSlope' src/server/R8CoastBuilder.luau >/dev/null; then fail "R8 
 grep -F 'layout.safeShoreCFrame' src/server/R8CoastBuilder.luau >/dev/null || fail "R8 coast safe shore must come from canonical layout"
 grep -F 'layout.worldRecoveryCFrame' src/server/R8CoastBuilder.luau >/dev/null || fail "R8 coast recovery must come from canonical layout"
 
+# Published recovery: the island must be physically sealed below the shoreline and the finite
+# Terrain water edge must sit beyond the gameplay boundary, with a recovery before players can reach it.
+grep -F 'SubsurfaceFoundation' src/server/R8CoastBuilder.luau >/dev/null || fail "R8 coast must seal the island with a subsurface foundation"
+grep -F 'WATER_VISUAL_BUFFER' src/server/R8CoastBuilder.luau >/dev/null || fail "R8 water visual edge must be buffered beyond the playable coastal bound"
+grep -F 'outside_coastal_bounds' src/server/TraversalSafetyService.luau >/dev/null || fail "traversal safety must recover players before the finite water edge"
+
 # Authored streetscape composition.
 test -f src/server/R8VillageCompositionBuilder.luau || fail "src/server/R8VillageCompositionBuilder.luau is required"
 grep -F 'R8VillageCompositionBuilder.apply' src/server/Main.server.luau >/dev/null || fail "Main must apply R8 authored village composition"
@@ -75,6 +81,19 @@ for id in "${civic_ids[@]}"; do
 done
 harbour_path="$(jq -r '.models[] | select(.id == "civic-harbour-hut") | .path' assets/manifests/r8-models.json)"
 grep -F '<string name="Name">BoatSpawnAnchor</string>' "$harbour_path" >/dev/null || fail "civic-harbour-hut missing BoatSpawnAnchor"
+
+# Published R8 must have exactly one visual authority for homes/civic/activity destinations.
+test -f src/server/R8CivicPrefabBuilder.luau || fail "R8CivicPrefabBuilder is required"
+grep -F 'R8CivicPrefabBuilder.apply' src/server/Main.server.luau >/dev/null || fail "Main must place authored R8 civic prefabs"
+grep -F 'R8AssetLibrary.clonePrefab' src/server/R8CivicPrefabBuilder.luau >/dev/null || fail "R8 civic builder must clone authored prefabs"
+for retired in 'VillageLandscapeBuilder.build' 'R6CivicPresentationBuilder.apply' 'R7BuildingPolishBuilder.apply' 'R7ActivityPresentationBuilder.apply'; do
+  if grep -F "$retired" src/server/Main.server.luau >/dev/null; then fail "retired visual path is still active in Main: $retired"; fi
+done
+if grep -F 'R7BuildingPolishBuilder' src/server/PlotService.luau >/dev/null; then fail "PlotService must not apply R7 home polish after R8 home migration"; fi
+grep -F 'R8AssetLibrary.clonePrefab' src/server/HomePrefabBuilder.luau >/dev/null || fail "HomePrefabBuilder must consume authored R8 home prefabs"
+for old_marker in 'makePart(' 'MainPitchedRoof' 'FrontLeft' 'FrontRight'; do
+  if grep -F "$old_marker" src/server/HomePrefabBuilder.luau >/dev/null; then fail "HomePrefabBuilder still runtime-sculpts old home geometry: $old_marker"; fi
+done
 
 rojo build default.project.json --output /tmp/TinyWorld-r8-asset-validation.rbxlx >/dev/null
 echo "ART R8 source contract passed"

@@ -42,22 +42,21 @@ required_paths=(
   "src/server/R8GroundBuilder.luau"
   "src/server/R8CoastBuilder.luau"
   "src/server/R8VillageCompositionBuilder.luau"
-  "src/server/R7BuildingPolishBuilder.luau"
-  "src/server/R7ActivityPresentationBuilder.luau"
+  "src/server/R8CivicPrefabBuilder.luau"
 )
 for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing required path: $path"; done
 
 jq -e '
-  .productVersion == "0.7.4" and
-  .releaseName == "Structural World Rebuild" and
+  .productVersion == "0.7.5" and
+  .releaseName == "ART R8.1 Published Recovery" and
   .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
   .styluaVersion == "2.5.2" and
   .rokitVersion == "1.2.0" and
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
-  .artifactFile == "TinyWorld-v0.7.4.rbxlx"
-' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.4 contract"
+  .artifactFile == "TinyWorld-v0.7.5.rbxlx"
+' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.5 contract"
 pass "release metadata is exact"
 
 for expected in \
@@ -124,4 +123,4 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude='publish-dev-cont
 fi
 pass "repository contains no Roblox credential literal"
 
-echo "PASS: TinyWorld v0.7.4 ART R8 Structural World Rebuild release contract is valid"
+echo "PASS: TinyWorld v0.7.5 ART R8.1 Published Recovery release contract is valid"

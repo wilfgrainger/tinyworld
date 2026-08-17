@@ -7,10 +7,13 @@ local SEA_DEPTH = 18
 local BANK_WIDTH = 8
 local BEACH_WIDTH = 12
 local LAND_INSET = BANK_WIDTH + BEACH_WIDTH
+local WATER_VISUAL_BUFFER = 180
+local SUBSURFACE_DEPTH = SEA_DEPTH + 4
 
 local BANK_COLOR = Color3.fromRGB(100, 148, 83)
 local BEACH_COLOR = Color3.fromRGB(238, 218, 163)
 local SEABED_COLOR = Color3.fromRGB(195, 169, 123)
+local SUBSURFACE_COLOR = Color3.fromRGB(94, 104, 82)
 
 local function makePart(
 	parent: Instance,
@@ -116,6 +119,22 @@ local function buildBands(parent: Instance, raw)
 	return landHalf
 end
 
+local function buildSubsurfaceFoundation(parent: Instance, raw)
+	local topY = raw.waterY - 0.1
+	local centerY = topY - (SUBSURFACE_DEPTH / 2)
+	local foundation = makePart(
+		parent,
+		"SubsurfaceFoundation",
+		Vector3.new(raw.shorelineDistance * 2, SUBSURFACE_DEPTH, raw.shorelineDistance * 2),
+		CFrame.new(0, centerY, 0),
+		SUBSURFACE_COLOR,
+		Enum.Material.Rock
+	)
+	foundation:SetAttribute("TinyWorldTraversalRole", "subsurface-foundation")
+	foundation:SetAttribute("TinyWorldR8VisualRole", "sealed-island-mass")
+	return foundation
+end
+
 function R8CoastBuilder.build(parent: Instance, layout)
 	local raw = layout.r8 or layout
 	local previous = parent:FindFirstChild("R8Coast")
@@ -130,15 +149,18 @@ function R8CoastBuilder.build(parent: Instance, layout)
 	coast.Parent = parent
 
 	local landHalf = buildBands(coast, raw)
-	local shore = raw.shorelineDistance
-	local waterBelt = raw.waterBelt
-	local fullWaterExtent = (shore * 2) + (waterBelt * 2)
-	local waterCenter = shore + (waterBelt / 2)
+	buildSubsurfaceFoundation(coast, raw)
 
-	fillWater(Vector3.new(fullWaterExtent, SEA_DEPTH, waterBelt), Vector3.new(0, 0, waterCenter), raw.waterY)
-	fillWater(Vector3.new(fullWaterExtent, SEA_DEPTH, waterBelt), Vector3.new(0, 0, -waterCenter), raw.waterY)
-	fillWater(Vector3.new(waterBelt, SEA_DEPTH, shore * 2), Vector3.new(waterCenter, 0, 0), raw.waterY)
-	fillWater(Vector3.new(waterBelt, SEA_DEPTH, shore * 2), Vector3.new(-waterCenter, 0, 0), raw.waterY)
+	local shore = raw.shorelineDistance
+	local gameplayWaterBelt = raw.waterBelt
+	local visualWaterBelt = gameplayWaterBelt + WATER_VISUAL_BUFFER
+	local fullWaterExtent = (shore * 2) + (visualWaterBelt * 2)
+	local waterCenter = shore + (visualWaterBelt / 2)
+
+	fillWater(Vector3.new(fullWaterExtent, SEA_DEPTH, visualWaterBelt), Vector3.new(0, 0, waterCenter), raw.waterY)
+	fillWater(Vector3.new(fullWaterExtent, SEA_DEPTH, visualWaterBelt), Vector3.new(0, 0, -waterCenter), raw.waterY)
+	fillWater(Vector3.new(visualWaterBelt, SEA_DEPTH, shore * 2), Vector3.new(waterCenter, 0, 0), raw.waterY)
+	fillWater(Vector3.new(visualWaterBelt, SEA_DEPTH, shore * 2), Vector3.new(-waterCenter, 0, 0), raw.waterY)
 
 	local seaBed = makePart(
 		coast,
@@ -156,13 +178,14 @@ function R8CoastBuilder.build(parent: Instance, layout)
 	coast:SetAttribute("TinyWorldLandHalfExtent", landHalf)
 	coast:SetAttribute("TinyWorldShorelineDistance", shore)
 	coast:SetAttribute("TinyWorldSwimDistance", raw.swimDistance)
-	coast:SetAttribute("TinyWorldWaterBelt", raw.waterBelt)
+	coast:SetAttribute("TinyWorldWaterBelt", gameplayWaterBelt)
+	coast:SetAttribute("TinyWorldWaterVisualBuffer", WATER_VISUAL_BUFFER)
 
 	return {
 		model = coast,
 		shorelineDistance = shore,
 		swimDistance = raw.swimDistance,
-		waterBelt = raw.waterBelt,
+		waterBelt = gameplayWaterBelt,
 		safeShoreCFrame = layout.safeShoreCFrame,
 		worldRecoveryCFrame = layout.worldRecoveryCFrame,
 	}
