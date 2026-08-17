@@ -9,11 +9,8 @@ fail() {
 jq -e '.tree.ReplicatedStorage.TinyWorldAssets.R8["$path"] == "assets/models/r8"' default.project.json >/dev/null \
   || fail "default.project.json must map assets/models/r8 to ReplicatedStorage.TinyWorldAssets.R8"
 
-test -f assets/manifests/r8-models.json \
-  || fail "assets/manifests/r8-models.json is required"
-
-test -f src/server/R8AssetLibrary.luau \
-  || fail "src/server/R8AssetLibrary.luau is required"
+test -f assets/manifests/r8-models.json || fail "assets/manifests/r8-models.json is required"
+test -f src/server/R8AssetLibrary.luau || fail "src/server/R8AssetLibrary.luau is required"
 
 grep -F 'function R8AssetLibrary.requirePrefab' src/server/R8AssetLibrary.luau >/dev/null \
   || fail "R8AssetLibrary.requirePrefab is required"
@@ -23,18 +20,10 @@ grep -F 'R8 required prefab missing:' src/server/R8AssetLibrary.luau >/dev/null 
   || fail "published R8 must fail loudly when a required prefab is missing"
 
 required_ids=(
-  street-bench
-  street-lamp
-  street-planter
-  street-fence-section
-  street-mailbox
-  nature-tree-small
-  nature-tree-large
-  nature-hedge-section
-  architecture-window-assembly
-  architecture-porch-assembly
+  street-bench street-lamp street-planter street-fence-section street-mailbox
+  nature-tree-small nature-tree-large nature-hedge-section
+  architecture-window-assembly architecture-porch-assembly
 )
-
 for id in "${required_ids[@]}"; do
   jq -e --arg id "$id" '.models[] | select(.id == $id and .devApproved == true)' assets/manifests/r8-models.json >/dev/null \
     || fail "missing DEV-approved authored model manifest entry: $id"
@@ -48,8 +37,21 @@ jq -c '.models[] | select(.devApproved == true)' assets/manifests/r8-models.json
   test "$actual" = "$expected" || fail "manifest hash mismatch: $path"
 done
 
-test -f docs/ART_AUTHORING.md \
-  || fail "docs/ART_AUTHORING.md is required"
+test -f docs/ART_AUTHORING.md || fail "docs/ART_AUTHORING.md is required"
+
+# R8 world authority: layout is shared, ground is single-owner, and Main must actually use it.
+test -f src/server/R8VillageLayout.luau || fail "src/server/R8VillageLayout.luau is required"
+test -f src/server/R8GroundBuilder.luau || fail "src/server/R8GroundBuilder.luau is required"
+grep -F 'R8VillageLayout.create' src/server/Main.server.luau >/dev/null \
+  || fail "Main must create the canonical R8 village layout"
+grep -F 'R8GroundBuilder.build' src/server/Main.server.luau >/dev/null \
+  || fail "Main must build the R8 ground"
+if grep -F 'VillageGroundRebuildBuilder.apply' src/server/Main.server.luau >/dev/null; then
+  fail "legacy VillageGroundRebuildBuilder must not render alongside R8 ground"
+fi
+if grep -F 'Vector3.new(size.X, 0.04, size.Y)' src/server/R8GroundBuilder.luau >/dev/null; then
+  fail "R8 ground must not reintroduce near-coplanar 0.04-stud overlays"
+fi
 
 rojo build default.project.json --output /tmp/TinyWorld-r8-asset-validation.rbxlx >/dev/null
 
