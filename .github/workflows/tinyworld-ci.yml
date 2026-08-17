@@ -25,10 +25,10 @@ jobs:
         run: |
           set -euo pipefail
           api="https://api.github.com/repos/luau-lang/luau/releases/tags/0.732"
-          asset_url="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$api" | jq -r '.assets[] | select(.name == "luau-ubuntu.zip") | .browser_download_url')"
+          asset_url="$(curl -fsSL --retry 4 --retry-all-errors -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$api" | jq -r '.assets[] | select(.name == "luau-ubuntu.zip") | .browser_download_url')"
           test -n "$asset_url"
           test "$asset_url" != "null"
-          curl -fsSL "$asset_url" -o /tmp/luau.zip
+          curl -fsSL --retry 4 --retry-all-errors "$asset_url" -o /tmp/luau.zip
           mkdir -p "$RUNNER_TEMP/luau"
           unzip -q /tmp/luau.zip -d "$RUNNER_TEMP/luau"
           chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-analyze" "$RUNNER_TEMP/luau/luau-compile"
@@ -40,8 +40,12 @@ jobs:
         run: |
           set -euo pipefail
           rokit_version="$(jq -er '.rokitVersion' config/release.json)"
-          rokit_installer_commit="$(jq -er '.rokitInstallerCommit' config/release.json)"
-          curl -sSf "https://raw.githubusercontent.com/rojo-rbx/rokit/${rokit_installer_commit}/scripts/install.sh" | bash -s -- "$rokit_version"
+          rokit_url="https://github.com/rojo-rbx/rokit/releases/download/v${rokit_version}/rokit-${rokit_version}-linux-x86_64.zip"
+          curl -fsSL --retry 4 --retry-all-errors "$rokit_url" -o /tmp/rokit.zip
+          mkdir -p "$RUNNER_TEMP/rokit-bootstrap"
+          unzip -q /tmp/rokit.zip -d "$RUNNER_TEMP/rokit-bootstrap"
+          chmod +x "$RUNNER_TEMP/rokit-bootstrap/rokit"
+          "$RUNNER_TEMP/rokit-bootstrap/rokit" self-install
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.rokit/bin:$PATH"
           rokit install --no-trust-check
