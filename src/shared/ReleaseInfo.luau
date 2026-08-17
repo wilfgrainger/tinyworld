@@ -4,5 +4,5 @@ return {
 	channel = "DEV",
 	candidate = "ART R8.1",
 	artRevision = "ART R8.1",
-	releaseName = "Published Recovery",
+	releaseName = "Finish the Rebuild",
 }

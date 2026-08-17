@@ -2,57 +2,43 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Profession = require(shared:WaitForChild("Profession"))
-local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local VillageGardenActivityService = {}
 VillageGardenActivityService.__index = VillageGardenActivityService
 
-local function makeBed(parent: Instance, index: number, cframe: CFrame): Part
-	local bed = Instance.new("Part")
-	bed.Name = "VillageGardenBed" .. index
-	bed.Anchored = true
-	bed.Size = Vector3.new(5.5, 0.7, 4.2)
-	bed.CFrame = cframe
-	bed.Color = VisualTheme.Colors.timberDark
-	bed.Material = Enum.Material.Ground
-	bed.TopSurface = Enum.SurfaceType.Smooth
-	bed.BottomSurface = Enum.SurfaceType.Smooth
-	bed:SetAttribute("TinyWorldActivityRole", "VillageGarden")
-	bed:SetAttribute("TinyWorldGardenState", "dry")
-	bed.Parent = parent
-
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "TendPrompt"
-	prompt.ActionText = "Tend garden bed"
-	prompt.ObjectText = "Pip's village garden"
-	prompt.HoldDuration = 0.15
-	prompt.MaxActivationDistance = 10
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = bed
-	return bed
-end
-
 function VillageGardenActivityService.new(world, hooks)
 	local self = setmetatable({}, VillageGardenActivityService)
 	self.hooks = hooks
 	self.owner = nil
-	self.folder = Instance.new("Model")
-	self.folder.Name = "R6VillageGardenActivity"
-	self.folder.Parent = world.root
-	self.beds = {}
+	self.prompts = {}
 
-	local anchor = VillageActivityLocations.publicGarden(world)
-	for index = 1, 3 do
-		local bed = makeBed(self.folder, index, anchor * CFrame.new((index - 2) * 6.2, 0.4, 0))
-		self.beds[index] = bed
-		local prompt = bed:FindFirstChild("TendPrompt")
-		if prompt and prompt:IsA("ProximityPrompt") then
-			prompt.Triggered:Connect(function(player)
-				self:_tend(player, index)
-			end)
-		end
+	local registry = world.r8Destinations
+	local destination = registry and registry.Gardener
+	if destination == nil or destination.gardenBeds == nil or #destination.gardenBeds ~= 3 then
+		error("R8 Gardener destination must expose exactly three authored garden beds")
 	end
+	self.beds = destination.gardenBeds
+
+	for index, bed in self.beds do
+		bed:SetAttribute("TinyWorldActivityRole", "VillageGarden")
+		bed:SetAttribute("TinyWorldGardenState", "dry")
+
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "TendPrompt"
+		prompt.ActionText = "Tend garden bed"
+		prompt.ObjectText = "Pip's village garden"
+		prompt.HoldDuration = 0.15
+		prompt.MaxActivationDistance = 10
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = bed
+		prompt.Triggered:Connect(function(player)
+			self:_tend(player, index)
+		end)
+		self.prompts[index] = prompt
+	end
+
+	self:_resetBeds()
 	return self
 end
 
@@ -144,7 +130,11 @@ end
 
 function VillageGardenActivityService:stop()
 	self.owner = nil
-	self.folder:Destroy()
+	self:_resetBeds()
+	for _, prompt in self.prompts do
+		prompt:Destroy()
+	end
+	self.prompts = {}
 end
 
 return VillageGardenActivityService

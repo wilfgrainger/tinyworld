@@ -22,6 +22,7 @@ required_paths=(
   "scripts/publish-dev.sh"
   ".github/workflows/tinyworld-ci.yml"
   "tests/verify-v0.7.4-art-r8-source-contract.sh"
+  "tests/verify-v0.7.5-art-r8.1-source-contract.sh"
   "tests/build-contract.sh"
   "tests/publish-dev-contract.sh"
   "src/shared/CompanionRules.luau"
@@ -43,12 +44,13 @@ required_paths=(
   "src/server/R8CoastBuilder.luau"
   "src/server/R8VillageCompositionBuilder.luau"
   "src/server/R8CivicPrefabBuilder.luau"
+  "src/server/R8DestinationBuilder.luau"
 )
 for path in "${required_paths[@]}"; do [[ -e "$path" ]] || fail "missing required path: $path"; done
 
 jq -e '
   .productVersion == "0.7.5" and
-  .releaseName == "ART R8.1 Published Recovery" and
+  .releaseName == "Finish the Rebuild" and
   .profileSchema == 11 and
   .rojoVersion == "7.7.0" and
   .styluaVersion == "2.5.2" and
@@ -56,7 +58,7 @@ jq -e '
   .rokitInstallerCommit == "2f2618428ef31279e2fc80b0b1d73485bc929ddd" and
   .projectFile == "default.project.json" and
   .artifactFile == "TinyWorld-v0.7.5.rbxlx"
-' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.5 contract"
+' config/release.json >/dev/null || fail "config/release.json is not the exact v0.7.5 Finish the Rebuild contract"
 pass "release metadata is exact"
 
 for expected in \
@@ -106,7 +108,7 @@ grep -Fq 'name: TinyWorld CI' "$WORKFLOW" || fail "canonical workflow name missi
 grep -Fq 'runs-on: ubuntu-latest' "$WORKFLOW" || fail "standard free runner missing"
 grep -Fq 'luau tests/run.luau' "$WORKFLOW" || fail "unit test gate missing"
 grep -Fq 'stylua --check src tests' "$WORKFLOW" || fail "format gate missing"
-grep -Fq 'bash ./tests/verify-v0.7.4-art-r8-source-contract.sh' "$WORKFLOW" || fail "ART R8 source gate missing"
+grep -Fq 'bash ./tests/verify-v0.7.5-art-r8.1-source-contract.sh' "$WORKFLOW" || fail "ART R8.1 source gate missing"
 grep -Fq 'bash ./scripts/build.sh' "$WORKFLOW" || fail "build step missing"
 grep -Fq "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" "$WORKFLOW" || fail "DEV publishing must be main-only"
 grep -Fq 'ROBLOX_DEV_API_KEY: ${{ secrets.ROBLOX_DEV_API_KEY }}' "$WORKFLOW" || fail "DEV secret binding missing"
@@ -123,4 +125,4 @@ if grep -RIEq --exclude='verify-release-contract.sh' --exclude='publish-dev-cont
 fi
 pass "repository contains no Roblox credential literal"
 
-echo "PASS: TinyWorld v0.7.5 ART R8.1 Published Recovery release contract is valid"
+echo "PASS: TinyWorld v0.7.5 ART R8.1 Finish the Rebuild release contract is valid"

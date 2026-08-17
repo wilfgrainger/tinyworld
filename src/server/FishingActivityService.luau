@@ -18,20 +18,16 @@ function FishingActivityService.new(world, hooks)
 	self.owner = nil
 	self.castNonce = 0
 
+	local registry = world.r8Destinations
+	local destination = registry and registry.Fisherman
+	if destination == nil or destination.promptAnchor == nil or destination.fishingOrigin == nil then
+		error("R8 Fisherman destination is incomplete")
+	end
+
 	local model = Instance.new("Model")
-	model.Name = "R6FishingActivity"
+	model.Name = "R8FishingActivityState"
 	model.Parent = world.root
 	self.model = model
-
-	local dock = Instance.new("Part")
-	dock.Name = "FishingDock"
-	dock.Anchored = true
-	dock.Size = Vector3.new(8, 0.7, 12)
-	dock.CFrame = VillageActivityLocations.fishingDock(world)
-	dock.Color = VisualTheme.Colors.timber
-	dock.Material = Enum.Material.WoodPlanks
-	dock:SetAttribute("TinyWorldActivityRole", "Fishing")
-	dock.Parent = model
 
 	local bobber = Instance.new("Part")
 	bobber.Name = "FishingBobber"
@@ -56,10 +52,11 @@ function FishingActivityService.new(world, hooks)
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = 12
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = dock
+	prompt.Parent = destination.promptAnchor
 	prompt.Triggered:Connect(function(player)
 		self:_pull(player)
 	end)
+	self.prompt = prompt
 	return self
 end
 
@@ -138,6 +135,9 @@ end
 
 function FishingActivityService:stop()
 	self.owner = nil
+	if self.prompt then
+		self.prompt:Destroy()
+	end
 	self.model:Destroy()
 end
 

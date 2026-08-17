@@ -1,4 +1,5 @@
 local R8AssetLibrary = require(script.Parent:WaitForChild("R8AssetLibrary"))
+local R8DestinationBuilder = require(script.Parent:WaitForChild("R8DestinationBuilder"))
 
 local R8CivicPrefabBuilder = {}
 
@@ -38,11 +39,12 @@ function R8CivicPrefabBuilder.apply(world, layout): Model
 
 	local root = Instance.new("Model")
 	root.Name = "ART_R8_CivicPrefabs"
-	root:SetAttribute("TinyWorldArtRevision", "ART R8")
+	root:SetAttribute("TinyWorldArtRevision", "ART R8.1")
 	root:SetAttribute("TinyWorldVisualState", "authored-prefabs-r8")
 	root.Parent = world.root
 
 	local raw = layout.r8 or layout
+	local placed = {}
 	for _, definition in PLACEMENTS do
 		local point = raw.destinations[definition.destination]
 		if point == nil then
@@ -51,13 +53,16 @@ function R8CivicPrefabBuilder.apply(world, layout): Model
 
 		local model = R8AssetLibrary.clonePrefab("Civic", definition.prefab)
 		model.Name = definition.name
-		model:SetAttribute("TinyWorldArtRevision", "ART R8")
+		model:SetAttribute("TinyWorldArtRevision", "ART R8.1")
 		model:SetAttribute("TinyWorldDestination", definition.destination)
 		model.Parent = root
 		model:PivotTo(placementCFrame(point))
 		prepareAnchors(model)
+		placed[definition.destination] = model
 	end
 
+	world.r8CivicPrefabs = placed
+	R8DestinationBuilder.apply(world, layout)
 	return root
 end
 
