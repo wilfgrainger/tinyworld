@@ -6,8 +6,7 @@ fail() {
   exit 1
 }
 
-jq -e '.tree.ReplicatedStorage.TinyWorldAssets.R8["$path"] == "assets/models/r8"' default.project.json >/dev/null \
-  || fail "default.project.json must map assets/models/r8 to ReplicatedStorage.TinyWorldAssets.R8"
+jq -e '.tree.ReplicatedStorage.TinyWorldAssets.R8["$path"] == "assets/models/r8"' default.project.json >/dev/null || fail "default.project.json must map assets/models/r8 to ReplicatedStorage.TinyWorldAssets.R8"
 test -f assets/manifests/r8-models.json || fail "assets/manifests/r8-models.json is required"
 test -f src/server/R8AssetLibrary.luau || fail "src/server/R8AssetLibrary.luau is required"
 grep -F 'function R8AssetLibrary.requirePrefab' src/server/R8AssetLibrary.luau >/dev/null || fail "R8AssetLibrary.requirePrefab is required"
@@ -50,6 +49,27 @@ grep -F 'R8AssetLibrary.clonePrefab' src/server/R8VillageCompositionBuilder.luau
 for marker in PlazaRing ResidentialEdges RouteLandmarks HarbourApproach; do
   grep -F "$marker" src/server/R8VillageCompositionBuilder.luau >/dev/null || fail "R8 composition missing authored placement group: $marker"
 done
+
+# Authored home and civic family must exist before runtime migration.
+home_ids=(home-tier-1 home-tier-2 home-tier-3 home-tier-4 home-tier-5)
+for id in "${home_ids[@]}"; do
+  item="$(jq -c --arg id "$id" '.models[] | select(.id == $id and .devApproved == true)' assets/manifests/r8-models.json)"
+  test -n "$item" || fail "missing DEV-approved R8 home prefab: $id"
+  path="$(jq -r '.path' <<<"$item")"
+  grep -F '<string name="Name">FrontDoorAnchor</string>' "$path" >/dev/null || fail "$id missing FrontDoorAnchor"
+  grep -F '<string name="Name">InteriorOrigin</string>' "$path" >/dev/null || fail "$id missing InteriorOrigin"
+done
+
+civic_ids=(civic-market-house civic-garden-shed civic-workshop civic-harbour-hut)
+for id in "${civic_ids[@]}"; do
+  item="$(jq -c --arg id "$id" '.models[] | select(.id == $id and .devApproved == true)' assets/manifests/r8-models.json)"
+  test -n "$item" || fail "missing DEV-approved R8 civic prefab: $id"
+  path="$(jq -r '.path' <<<"$item")"
+  grep -F '<string name="Name">NpcAnchor</string>' "$path" >/dev/null || fail "$id missing NpcAnchor"
+  grep -F '<string name="Name">PromptAnchor</string>' "$path" >/dev/null || fail "$id missing PromptAnchor"
+done
+harbour_path="$(jq -r '.models[] | select(.id == "civic-harbour-hut") | .path' assets/manifests/r8-models.json)"
+grep -F '<string name="Name">BoatSpawnAnchor</string>' "$harbour_path" >/dev/null || fail "civic-harbour-hut missing BoatSpawnAnchor"
 
 rojo build default.project.json --output /tmp/TinyWorld-r8-asset-validation.rbxlx >/dev/null
 echo "ART R8 source contract passed"
