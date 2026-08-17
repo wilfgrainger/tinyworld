@@ -1,4 +1,5 @@
 local R8AssetLibrary = require(script.Parent:WaitForChild("R8AssetLibrary"))
+local R8DestinationBuilder = require(script.Parent:WaitForChild("R8DestinationBuilder"))
 
 local R8CivicPrefabBuilder = {}
 
@@ -61,6 +62,7 @@ function R8CivicPrefabBuilder.apply(world, layout): Model
 	end
 
 	world.r8CivicPrefabs = placed
+	R8DestinationBuilder.apply(world, layout)
 	return root
 end
 
