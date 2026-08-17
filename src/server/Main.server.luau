@@ -9,11 +9,12 @@ local PlayerStateService = require(script.Parent:WaitForChild("PlayerStateServic
 local OnboardingService = require(script.Parent:WaitForChild("OnboardingService"))
 local WorldBuilder = require(script.Parent:WaitForChild("WorldBuilder"))
 local CoastBuilder = require(script.Parent:WaitForChild("CoastBuilder"))
+local R8VillageLayout = require(script.Parent:WaitForChild("R8VillageLayout"))
+local R8GroundBuilder = require(script.Parent:WaitForChild("R8GroundBuilder"))
 local TraversalSafetyService = require(script.Parent:WaitForChild("TraversalSafetyService"))
 local HomeStoreDestinationBuilder = require(script.Parent:WaitForChild("HomeStoreDestinationBuilder"))
 local ProductionArtCleanup = require(script.Parent:WaitForChild("ProductionArtCleanup"))
 local VillageLandscapeBuilder = require(script.Parent:WaitForChild("VillageLandscapeBuilder"))
-local VillageGroundRebuildBuilder = require(script.Parent:WaitForChild("VillageGroundRebuildBuilder"))
 local R6CivicPresentationBuilder = require(script.Parent:WaitForChild("R6CivicPresentationBuilder"))
 local R7WorldCompositionBuilder = require(script.Parent:WaitForChild("R7WorldCompositionBuilder"))
 local R7BuildingPolishBuilder = require(script.Parent:WaitForChild("R7BuildingPolishBuilder"))
@@ -52,8 +53,11 @@ local MermaidLandService = require(script.Parent:WaitForChild("MermaidLandServic
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
 local AmbientLifeService = require(script.Parent:WaitForChild("AmbientLifeService"))
 
+local r8Layout = R8VillageLayout.create(Players.MaxPlayers)
 local world = WorldBuilder.build(Players.MaxPlayers)
-world.coast = CoastBuilder.build(world.root, world.layout)
+R8VillageLayout.applyToWorld(world, r8Layout)
+local _r8Ground = R8GroundBuilder.build(world.root, r8Layout.r8)
+world.coast = CoastBuilder.build(world.root, r8Layout)
 world.boundary.shorelineDistance = world.coast.shorelineDistance
 world.boundary.swimDistance = world.coast.swimDistance
 world.boundary.safeShoreCFrame = world.coast.safeShoreCFrame
@@ -62,7 +66,6 @@ world.boundary.worldRecoveryCFrame = world.coast.worldRecoveryCFrame
 ProductionArtCleanup.apply(world.root)
 HomeStoreDestinationBuilder.extend(world)
 local _productionLandscape = VillageLandscapeBuilder.build(world.root, world.layout)
-VillageGroundRebuildBuilder.apply(world.root)
 R6CivicPresentationBuilder.apply(world)
 R7WorldCompositionBuilder.apply(world.root, world.layout)
 R7BuildingPolishBuilder.apply(world)
