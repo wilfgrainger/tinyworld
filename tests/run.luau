@@ -40,6 +40,7 @@ local specs = {
 	require("./HomeExpressionRules.spec"),
 	require("./AlphaOpsRules.spec"),
 	require("./VisualQualityRules.spec"),
+	require("./R8AssetRules.spec"),
 }
 
 for _, runSpec in specs do
