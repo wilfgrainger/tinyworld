@@ -22,16 +22,16 @@ Rejected approaches:
 
 ## 3. Architectural principles
 
-1. One visible authority per concern. Ground, village layout, player-home shell, each civic destination and each activity destination have one R8 visual owner.
+1. One visible authority per concern. Ground, coast, village layout, player-home shell, each civic building and each activity destination have one R8 visual owner.
 2. Preserve gameplay contracts. Profile schema remains 11 unless a genuinely unavoidable persistence change is discovered.
-3. Retire replaced visuals. R8 must not stack a new façade, roof, road or activity station over an older visual equivalent.
+3. Retire replaced visuals. R8 must not stack a new façade, roof, road, shoreline or activity station over an older visual equivalent.
 4. Gameplay anchors may be invisible. A functional anchor does not have to remain the visible object that originally hosted it.
 5. Published runtime remains native-safe. No published EditableMesh or invented asset IDs.
 6. Human evidence decides beauty. Source attributes and CI prove architecture, not visual quality.
 
 ## 4. R8 world layout authority
 
-Introduce `R8VillageLayout.luau` as the deterministic layout authority consumed by world, destination, NPC and activity presentation code.
+Introduce `R8VillageLayout.luau` as the deterministic server-side layout authority consumed by world, coast, destination, NPC and activity presentation code.
 
 It defines:
 - hero plaza and fountain centre;
@@ -41,30 +41,42 @@ It defines:
 - workshop court;
 - harbour and fishing dock;
 - road/path centre-lines and route widths;
-- shoreline edge, safe shore recovery point and walkable elevation bands;
+- authoritative walkable ground elevation;
+- shoreline edge, water level, safe shore recovery elevation and walkable shore bands;
 - destination/NPC CFrames.
 
 `VillageActivityLocations` becomes an adapter over this authority for existing R6 activity services so gameplay code does not duplicate R8 coordinates.
 
+`WorldBuilder` must use R8 layout data for plot placement rather than keeping a separate visual grid. The sixteen-home admission contract remains unchanged, but the homes are arranged as neighbourhood clusters around real lanes rather than visually isolated plots.
+
 The hub is intentionally compact. From the plaza, the player should see or reach a meaningful destination within a short walk rather than crossing a featureless field.
 
-## 5. Ground, streets and shoreline
+## 5. Ground, streets, water and shoreline
 
-Introduce `R8GroundBuilder.luau` as the sole R8 owner of the visible village ground composition.
+Introduce `R8GroundBuilder.luau` as the sole owner of visible village ground, roads, plazas and walkable land composition.
 
-It creates:
-- a collision-safe village base at one authoritative elevation;
+Introduce `R8CoastBuilder.luau` as the sole owner of water fill, seabed, shoreline transition, shore recovery CFrame and coast traversal geometry. It replaces `CoastBuilder` in `Main` rather than decorating its hill slabs.
+
+`R8GroundBuilder` creates:
+- a collision-safe village base at the authoritative layout elevation;
 - continuous roads/lanes with deliberate intersections and edges;
 - plazas/courtyards integrated into the route network;
 - small elevation changes using clearly separated solid volumes, never near-coplanar wafer overlays;
 - continuous residential garden edges;
-- a designed shoreline transition with beach/stone/grass bands and a physical dock connection.
+- clean land-side interfaces for the coast builder.
 
-The R8 contract forbids the broad 0.04-stud overlay pattern and forbids multiple large coplanar Grass surfaces.
+`R8CoastBuilder` creates:
+- Terrain water and seabed using the existing swim/water-belt gameplay intent;
+- a designed grass-to-bank-to-beach-to-water transition;
+- gentle walkable shore geometry without the old rotated 30x2 slab treatment;
+- the fishing dock and harbour shoreline attachment points;
+- `shorelineDistance`, `swimDistance`, `waterBelt`, `safeShoreCFrame` and `worldRecoveryCFrame` required by traversal services.
 
-The shoreline and recovery geometry must use the same height authority. A source contract checks that safe shore CFrame, visual shore elevation and walkable ground elevation are derived from the same constants. This addresses the published waist-deep avatar failure structurally rather than by nudging one object.
+The R8 contract forbids the broad 0.04-stud overlay pattern, forbids multiple large coplanar Grass surfaces, and forbids the legacy `*HillSlope` coast slab pattern in the active runtime path.
 
-`VillageGroundRebuildBuilder` and conflicting visible R7 map composition are retired from `Main` once R8 ground is active.
+Ground, shore visuals and traversal recovery use the same elevation constants from `R8VillageLayout`. This addresses the published waist-deep avatar failure structurally rather than by nudging one object.
+
+`VillageGroundRebuildBuilder`, `CoastBuilder` and conflicting visible R7 map composition are retired from `Main` once R8 is active.
 
 ## 6. Village composition
 
@@ -76,6 +88,8 @@ It adds:
 - small courtyards and gateways;
 - visual framing between neighbourhoods;
 - compact wayfinding using physical landmarks rather than large signs.
+
+It does not own ground, coast, complete buildings or activity props.
 
 All decorative parts are anchored, non-touch, non-query and non-colliding unless they are explicitly meant to be physical boundaries.
 
@@ -105,7 +119,11 @@ Visible form changes to:
 
 ### Civic buildings
 
-Introduce `R8CivicPrefabBuilder.luau` for market, garden shed, workshop and harbour hut/building. These are complete destination prefabs, not identity façades placed near legacy structures.
+Introduce `R8CivicPrefabBuilder.luau` for the complete visible market building/stall, garden shed, workshop and harbour hut. These are complete destination prefabs, not identity façades placed near legacy structures.
+
+`R8CivicPrefabBuilder` owns the building volume only. `R8ActivityDestinationBuilder` owns the surrounding yard, props and activity staging. This prevents two builders from creating competing versions of the same structure.
+
+The existing `HeroFountainBuilder` may be reused directly if its published-client form remains coherent, but R8 does not call `R6CivicPresentationBuilder`. The fountain is placed by the R8 layout/plaza composition, not through the R6 wrapper.
 
 Each building must be readable by silhouette and approach before signage.
 
@@ -113,12 +131,12 @@ Each building must be readable by silhouette and approach before signage.
 
 Introduce `R8ActivityDestinationBuilder.luau` and remove `R7ActivityPresentationBuilder` from the runtime composition.
 
-The builder creates complete environments around the existing activities:
-- Mara: compact market square with one coherent stall/shop frontage, goods and street edge;
+The builder creates the spaces around the complete civic prefabs:
+- Mara: compact market square/street frontage, goods display and market approach;
 - Pip: enclosed community garden with beds, shed/tool nook and connected path;
-- Finn: fishing dock physically attached to shore, tackle storage and water-facing activity position;
+- Finn: fishing dock physically attached to the R8 shore, tackle storage and water-facing activity position;
 - Skye: harbour launch/delivery yard connected to the water and Tiny Boat route;
-- Milo: workshop court with building frontage, workbench, timber/material zone and repair area.
+- Milo: workshop court with workbench, timber/material zone and repair area.
 
 Existing `VillageActivityService` handlers, rewards, ownership arbitration and player state remain unchanged unless a locator compatibility change is required.
 
@@ -153,19 +171,20 @@ No essential gameplay state is removed.
 `Main.server.luau` changes from additive visual stacking to an explicit R8 path.
 
 R8 runtime order:
-1. base world/gameplay anchors;
-2. coast/boundary data needed by services;
+1. R8 layout and base gameplay/world anchors;
+2. R8 coast/boundary data;
 3. production cleanup;
-4. R8 ground/layout;
+4. R8 ground/roads/plaza;
 5. R8 village composition;
-6. R8 civic/home-compatible prefabs;
+6. R8 civic prefabs and direct fountain placement;
 7. R8 activity destinations;
 8. portal/impossible-world/spawn systems;
 9. services.
 
-The following runtime visual layers are removed or bypassed when R8 is active:
+The active R8 runtime does not call:
+- `CoastBuilder.build`;
 - `VillageGroundRebuildBuilder.apply`;
-- `R6CivicPresentationBuilder.apply` where R8 has a complete equivalent;
+- `R6CivicPresentationBuilder.apply`;
 - `R7WorldCompositionBuilder.apply`;
 - `R7BuildingPolishBuilder.apply`;
 - `R7ActivityPresentationBuilder.apply`.
@@ -184,7 +203,7 @@ Rules:
 - spawn, home entrances, plaza, activity stations, shore recovery and boat launch have testable safe standing surfaces;
 - traversal recovery uses R8 layout-derived positions.
 
-A deterministic/source contract must fail if ground and safe-shore heights drift apart or if R7 ground/shore visual roots are active alongside R8.
+A deterministic/source contract must fail if ground and safe-shore heights drift apart, if old CoastBuilder hill-slope geometry is active, or if R7 ground/shore visual roots are active alongside R8.
 
 ## 13. Release identity and CI
 
@@ -198,7 +217,7 @@ The single free-only workflow remains authoritative.
 
 TDD order:
 1. wire the R8 source contract and release identity expectations to create a deliberate RED run;
-2. implement layout/ground until map and collision contracts pass;
+2. implement layout/ground/coast until map and collision contracts pass;
 3. rebuild houses/civic prefabs;
 4. rebuild activity destinations;
 5. integrate NPC locations;
@@ -222,11 +241,12 @@ At minimum:
 - retained artifacts = 0.
 
 R8 source-contract checks include:
-- Main composes R8 and does not apply R7 visual builders;
-- one authoritative R8 layout module is consumed by ground and activity-location adapter;
+- `Main` composes R8 and does not call the retired Coast/R6/R7 visual builders;
+- one authoritative `R8VillageLayout` is consumed by WorldBuilder integration, R8 ground/coast and the activity-location adapter;
 - no legacy coplanar grass overlay pattern;
+- no active CoastBuilder hill-slope slab pattern;
 - safe-shore/ground elevation constants share one authority;
-- player homes are rebuilt directly and PlotService no longer applies R7 home charm overlay;
+- player homes are rebuilt directly and PlotService no longer applies the R7 home charm overlay;
 - five activity destination markers exist and use canonical locations;
 - published EditableMesh remains forbidden.
 
