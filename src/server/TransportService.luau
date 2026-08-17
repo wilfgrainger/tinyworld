@@ -5,6 +5,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local TransportRules = require(shared:WaitForChild("TransportRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BikeBuilder = require(script.Parent:WaitForChild("BikeBuilder"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local TransportService = {}
 TransportService.__index = TransportService
@@ -138,9 +139,6 @@ function TransportService:_prepareRider(player: Player, seat: Seat): boolean
 	if humanoid == nil or humanoid.Health <= 0 or seat.Parent == nil then
 		return false
 	end
-	-- The bike follows the rider's HumanoidRootPart on the server. A normal
-	-- Seat would force the Humanoid into Seated and prevent movement input, so
-	-- this Seat remains a visual/prompt anchor rather than an occupant seat.
 	humanoid.Sit = false
 	if humanoid:GetState() == Enum.HumanoidStateType.Seated then
 		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
@@ -203,6 +201,9 @@ function TransportService:trackPlayer(player: Player)
 end
 
 function TransportService:_mount(player: Player)
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		return
+	end
 	local profile = self.ProfileStore.get(player)
 	local bike = self.bikes[player] or self:_ensureBike(player)
 	local character = player.Character
@@ -264,6 +265,9 @@ function TransportService:_dismount(player: Player)
 end
 
 function TransportService:_useShop(player: Player)
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		return
+	end
 	local profile = self.ProfileStore.get(player)
 	if profile == nil then
 		return
