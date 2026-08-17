@@ -75,11 +75,7 @@ function TraversalSafetyService:_checkPlayers()
 				continue
 			elseif action == TraversalSafetyRules.Action.RecoverShore then
 				player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
-				self:_recover(
-					player,
-					self.world.boundary.safeShoreCFrame,
-					"The sea gets too rough beyond TinyWorld."
-				)
+				self:_recover(player, self.world.boundary.safeShoreCFrame, "The sea gets too rough beyond TinyWorld.")
 				continue
 			end
 
