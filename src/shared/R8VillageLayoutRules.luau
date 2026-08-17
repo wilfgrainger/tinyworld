@@ -60,7 +60,7 @@ function R8VillageLayoutRules.create()
 	}
 
 	return {
-		artRevision = "ART R8.1",
+		artRevision = "ART R8",
 		groundY = GROUND_Y,
 		waterY = WATER_Y,
 		shorelineDistance = SHORELINE_DISTANCE,
