@@ -13,10 +13,11 @@ garden_service="src/server/VillageGardenActivityService.luau"
 fishing_service="src/server/FishingActivityService.luau"
 builder_service="src/server/BuilderRepairActivityService.luau"
 legacy_retirement="src/server/R8LegacyPresentationRetirement.luau"
+gameplay_access="src/server/GameplayAccessService.luau"
 main="src/server/Main.server.luau"
 runner="tests/run.luau"
 
-for path in "$traversal_service" "$portal_service" "$activity_service" "$garden_service" "$fishing_service" "$builder_service" "$main" "$runner"; do
+for path in "$traversal_service" "$portal_service" "$activity_service" "$garden_service" "$fishing_service" "$builder_service" "$main" "$runner" "$gameplay_access"; do
   test -f "$path" || fail "missing $path"
 done
 
@@ -50,7 +51,22 @@ grep -q 'CanCollide = false' "$legacy_retirement" || fail "hidden legacy boundar
 grep -q 'VillageSquare' "$legacy_retirement" || fail "legacy village square/path presentation must be explicitly retired"
 grep -q 'TinyWorldLegacyPresentationRetired' "$legacy_retirement" || fail "retirement must leave an auditable runtime marker"
 
-grep -q 'R8LegacyPresentationRetirement' "$main" || fail "Main must invoke legacy presentation retirement before R8 presentation"
+grep -q 'PlayerPhaseRules' "$gameplay_access" || fail "GameplayAccessService must use deterministic PlayerPhaseRules"
+grep -q 'function GameplayAccessService.requireAccess' "$gameplay_access" || fail "central gameplay access helper must expose requireAccess"
+for path in \
+  src/server/DailyRewardService.luau \
+  src/server/VillageActivityService.luau \
+  src/server/JobService.luau \
+  src/server/TransportService.luau \
+  src/server/BoatService.luau \
+  src/server/PortalService.luau \
+  src/server/HomeStoreService.luau \
+  src/server/FurniturePlacementService.luau \
+  src/server/TradeService.luau; do
+  grep -q 'GameplayAccessService' "$path" || fail "$path must use the central server gameplay access gate"
+done
+
+grep -q 'R8LegacyPresentationRetirement' "$main" || fail "Main must invoke legacy presentation retirement during R8 composition"
 grep -q 'R8LegacyPresentationRetirement.apply(world)' "$main" || fail "Main must retire legacy presentation explicitly"
 grep -q 'portalService:hasValidSession' "$main" || fail "Main must wire PortalService authority into traversal safety"
 grep -q 'villageActivityService:setupPlayer' "$main" || fail "Main must register village activity respawn lifecycle"
@@ -59,5 +75,6 @@ grep -q 'villageActivityService:abandon(player, true)' "$main" || fail "Main mus
 grep -q 'TraversalSafetyRules.spec' "$runner" || fail "TraversalSafetyRules regression spec is not registered"
 grep -q 'PortalSessionRules.spec' "$runner" || fail "PortalSessionRules regression spec is not registered"
 grep -q 'ActivityLeaseRules.spec' "$runner" || fail "ActivityLeaseRules regression spec is not registered"
+grep -q 'PlayerPhaseRules.spec' "$runner" || fail "PlayerPhaseRules regression spec is not registered"
 
 echo "R8.2 runtime hardening source contract passed."
