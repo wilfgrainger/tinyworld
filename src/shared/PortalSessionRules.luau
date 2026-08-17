@@ -10,6 +10,24 @@ function PortalSessionRules.new(worldId: string)
 	}
 end
 
+function PortalSessionRules.isValid(session: any, portalWorld: any): boolean
+	return type(session) == "table"
+		and session.active == true
+		and type(session.worldId) == "string"
+		and session.worldId ~= ""
+		and session.worldId ~= "Village"
+		and portalWorld == session.worldId
+end
+
+function PortalSessionRules.resetState()
+	return {
+		worldId = "Village",
+		crystals = 0,
+		mechanics = 0,
+		secretFound = false,
+	}
+end
+
 local function markedCount(values: any): number
 	local count = 0
 	if type(values) ~= "table" then
