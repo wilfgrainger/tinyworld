@@ -14,9 +14,7 @@ function ActivityLeaseRules.isExpired(lease: any, now: number): boolean
 end
 
 function ActivityLeaseRules.isOwnedBy(lease: any, ownerId: number, now: number): boolean
-	return type(lease) == "table"
-		and lease.ownerId == ownerId
-		and not ActivityLeaseRules.isExpired(lease, now)
+	return type(lease) == "table" and lease.ownerId == ownerId and not ActivityLeaseRules.isExpired(lease, now)
 end
 
 function ActivityLeaseRules.canAcquire(lease: any, requesterId: number, now: number): boolean
