@@ -1,7 +1,7 @@
 local R8VillageLayoutRules = {}
 
 local GROUND_Y = 0
-local WATER_Y = -4
+local WATER_Y = -2.5
 local SAFE_STANDING_Y = GROUND_Y + 5
 local SHORELINE_DISTANCE = 210
 
@@ -63,7 +63,7 @@ function R8VillageLayoutRules.create()
 		plaza = point(0, 0),
 		plazaRadius = 34,
 		safeShore = {
-			x = SHORELINE_DISTANCE - 18,
+			x = SHORELINE_DISTANCE - 24,
 			y = SAFE_STANDING_Y,
 			z = 0,
 			yaw = -90,
