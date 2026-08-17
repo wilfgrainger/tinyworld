@@ -16,8 +16,10 @@ legacy_retirement="src/server/R8LegacyPresentationRetirement.luau"
 gameplay_access="src/server/GameplayAccessService.luau"
 main="src/server/Main.server.luau"
 runner="tests/run.luau"
+project="default.project.json"
+performance_doc="docs/reviews/2026-08-17-v0.7.6-r8.2-dev-performance-acceptance.md"
 
-for path in "$traversal_service" "$portal_service" "$activity_service" "$garden_service" "$fishing_service" "$builder_service" "$main" "$runner" "$gameplay_access"; do
+for path in "$traversal_service" "$portal_service" "$activity_service" "$garden_service" "$fishing_service" "$builder_service" "$main" "$runner" "$gameplay_access" "$project"; do
   test -f "$path" || fail "missing $path"
 done
 
@@ -92,5 +94,21 @@ grep -q 'TraversalSafetyRules.spec' "$runner" || fail "TraversalSafetyRules regr
 grep -q 'PortalSessionRules.spec' "$runner" || fail "PortalSessionRules regression spec is not registered"
 grep -q 'ActivityLeaseRules.spec' "$runner" || fail "ActivityLeaseRules regression spec is not registered"
 grep -q 'PlayerPhaseRules.spec' "$runner" || fail "PlayerPhaseRules regression spec is not registered"
+grep -q 'PerformanceBudgetRules.spec' "$runner" || fail "PerformanceBudgetRules regression spec is not registered"
+
+jq -e '.tree.Workspace."$className" == "Workspace"' "$project" >/dev/null || fail "Workspace must be explicitly mapped in the Rojo project"
+jq -e '.tree.Workspace."$ignoreUnknownInstances" == false' "$project" >/dev/null || fail "Rojo Workspace mapping must preserve unknown Studio children"
+jq -e '.tree.Workspace."$properties".StreamingEnabled == true' "$project" >/dev/null || fail "Workspace.StreamingEnabled must be source-controlled true"
+jq -e '.tree.Workspace."$properties".StreamingMinRadius == 64' "$project" >/dev/null || fail "Workspace.StreamingMinRadius must be 64"
+jq -e '.tree.Workspace."$properties".StreamingTargetRadius == 1024' "$project" >/dev/null || fail "Workspace.StreamingTargetRadius must be 1024"
+
+test -f "$performance_doc" || fail "DEV performance acceptance document is missing"
+grep -q 'PENDING REAL DEVICE' "$performance_doc" || fail "performance evidence must remain explicitly pending until measured"
+grep -q '30 FPS' "$performance_doc" || fail "performance document must state the FPS floor"
+grep -q '500 MB' "$performance_doc" || fail "performance document must state the memory ceiling"
+grep -q '15 seconds' "$performance_doc" || fail "performance document must state the load-time ceiling"
+grep -q 'Developer Console' "$performance_doc" || fail "performance document must require Developer Console evidence"
+grep -q 'MicroProfiler' "$performance_doc" || fail "performance document must require MicroProfiler evidence"
+grep -q 'instance count' "$performance_doc" || fail "performance document must record runtime instance count"
 
 echo "R8.2 runtime hardening source contract passed."
