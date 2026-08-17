@@ -51,10 +51,12 @@ local function buildBands(parent: Instance, raw)
 	local bankY = raw.groundY - 1.1
 	local beachY = raw.groundY - 2
 
-	for _, side in {
-		{ name = "North", x = 0, z = -bankCenter },
-		{ name = "South", x = 0, z = bankCenter },
-	} do
+	for _, side in
+		{
+			{ name = "North", x = 0, z = -bankCenter },
+			{ name = "South", x = 0, z = bankCenter },
+		}
+	do
 		makePart(
 			parent,
 			side.name .. "Bank",
@@ -64,10 +66,12 @@ local function buildBands(parent: Instance, raw)
 			Enum.Material.Ground
 		)
 	end
-	for _, side in {
-		{ name = "West", x = -bankCenter, z = 0 },
-		{ name = "East", x = bankCenter, z = 0 },
-	} do
+	for _, side in
+		{
+			{ name = "West", x = -bankCenter, z = 0 },
+			{ name = "East", x = bankCenter, z = 0 },
+		}
+	do
 		makePart(
 			parent,
 			side.name .. "Bank",
@@ -78,10 +82,12 @@ local function buildBands(parent: Instance, raw)
 		)
 	end
 
-	for _, side in {
-		{ name = "North", x = 0, z = -beachCenter },
-		{ name = "South", x = 0, z = beachCenter },
-	} do
+	for _, side in
+		{
+			{ name = "North", x = 0, z = -beachCenter },
+			{ name = "South", x = 0, z = beachCenter },
+		}
+	do
 		makePart(
 			parent,
 			side.name .. "Beach",
@@ -91,10 +97,12 @@ local function buildBands(parent: Instance, raw)
 			Enum.Material.Sand
 		)
 	end
-	for _, side in {
-		{ name = "West", x = -beachCenter, z = 0 },
-		{ name = "East", x = beachCenter, z = 0 },
-	} do
+	for _, side in
+		{
+			{ name = "West", x = -beachCenter, z = 0 },
+			{ name = "East", x = beachCenter, z = 0 },
+		}
+	do
 		makePart(
 			parent,
 			side.name .. "Beach",
