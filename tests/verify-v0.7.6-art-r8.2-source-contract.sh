@@ -12,6 +12,7 @@ activity_service="src/server/VillageActivityService.luau"
 garden_service="src/server/VillageGardenActivityService.luau"
 fishing_service="src/server/FishingActivityService.luau"
 builder_service="src/server/BuilderRepairActivityService.luau"
+legacy_retirement="src/server/R8LegacyPresentationRetirement.luau"
 main="src/server/Main.server.luau"
 runner="tests/run.luau"
 
@@ -43,6 +44,14 @@ for path in "$garden_service" "$fishing_service" "$builder_service"; do
   fi
 done
 
+test -f "$legacy_retirement" || fail "R8 legacy presentation retirement helper is missing"
+grep -q 'VillageBoundary' "$legacy_retirement" || fail "legacy boundary presentation must be explicitly retired"
+grep -q 'CanCollide = false' "$legacy_retirement" || fail "hidden legacy boundary geometry must not remain as invisible collision"
+grep -q 'VillageSquare' "$legacy_retirement" || fail "legacy village square/path presentation must be explicitly retired"
+grep -q 'TinyWorldLegacyPresentationRetired' "$legacy_retirement" || fail "retirement must leave an auditable runtime marker"
+
+grep -q 'R8LegacyPresentationRetirement' "$main" || fail "Main must invoke legacy presentation retirement before R8 presentation"
+grep -q 'R8LegacyPresentationRetirement.apply(world)' "$main" || fail "Main must retire legacy presentation explicitly"
 grep -q 'portalService:hasValidSession' "$main" || fail "Main must wire PortalService authority into traversal safety"
 grep -q 'villageActivityService:setupPlayer' "$main" || fail "Main must register village activity respawn lifecycle"
 grep -q 'villageActivityService:abandon(player, true)' "$main" || fail "Main must release village activity state before portal travel"
