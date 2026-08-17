@@ -2,7 +2,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local VillageActivityRules = require(shared:WaitForChild("VillageActivityRules"))
-local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local CoastalDeliveryActivityService = {}
@@ -76,37 +75,15 @@ end
 function CoastalDeliveryActivityService.new(world, hooks)
 	local self = setmetatable({}, CoastalDeliveryActivityService)
 	self.hooks = hooks
-	self.model = Instance.new("Model")
-	self.model.Name = "R6CoastalDeliveryActivity"
-	self.model.Parent = world.root
 
-	local buoyCFrame = VillageActivityLocations.coastalDeliveryBuoy(world)
-	local destination = Instance.new("Part")
-	destination.Name = "OuterCoastDeliveryBuoy"
-	destination.Anchored = true
-	destination.CanCollide = false
-	destination.Size = Vector3.new(4, 7, 4)
-	destination.CFrame = buoyCFrame
-	destination.Color = Color3.fromRGB(235, 132, 62)
-	destination.Material = Enum.Material.SmoothPlastic
-	destination.Shape = Enum.PartType.Cylinder
-	destination:SetAttribute("TinyWorldActivityRole", "CoastalDelivery")
-	destination:SetAttribute("TinyWorldBoatRouteTarget", true)
-	destination.Parent = self.model
-	self.destination = destination
-
-	local beacon = Instance.new("Part")
-	beacon.Name = "BuoyBeacon"
-	beacon.Anchored = true
-	beacon.CanCollide = false
-	beacon.CanTouch = false
-	beacon.CanQuery = false
-	beacon.Size = Vector3.new(1.7, 1.7, 1.7)
-	beacon.CFrame = buoyCFrame * CFrame.new(0, 4, 0)
-	beacon.Color = VisualTheme.Colors.gold
-	beacon.Material = Enum.Material.Neon
-	beacon.Shape = Enum.PartType.Ball
-	beacon.Parent = self.model
+	local registry = world.r8Destinations
+	local destination = registry and registry.CoastalDelivery
+	if destination == nil or destination.model == nil or destination.promptAnchor == nil then
+		error("R8 CoastalDelivery destination is incomplete")
+	end
+	self.destination = destination.model
+	self.destination:SetAttribute("TinyWorldActivityRole", "CoastalDelivery")
+	self.destination:SetAttribute("TinyWorldBoatRouteTarget", true)
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CoastalDeliveryPrompt"
@@ -115,10 +92,11 @@ function CoastalDeliveryActivityService.new(world, hooks)
 	prompt.HoldDuration = 0.15
 	prompt.MaxActivationDistance = 14
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = destination
+	prompt.Parent = destination.promptAnchor
 	prompt.Triggered:Connect(function(player)
 		self:_deliver(player)
 	end)
+	self.prompt = prompt
 	return self
 end
 
@@ -176,7 +154,9 @@ function CoastalDeliveryActivityService:removePlayer(player: Player)
 end
 
 function CoastalDeliveryActivityService:stop()
-	self.model:Destroy()
+	if self.prompt then
+		self.prompt:Destroy()
+	end
 end
 
 return CoastalDeliveryActivityService
