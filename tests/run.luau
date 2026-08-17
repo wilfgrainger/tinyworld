@@ -27,6 +27,7 @@ local specs = {
 	require("./VillageActivityRules.spec"),
 	require("./MermaidQuestRules.spec"),
 	require("./PortalRules.spec"),
+	require("./PortalSessionRules.spec"),
 	require("./PortalJournalRules.spec"),
 	require("./TradeRules.spec"),
 	require("./WorldLayoutRules.spec"),
