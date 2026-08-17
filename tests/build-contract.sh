@@ -81,7 +81,7 @@ manifest_path="dist/release.json"
 
 jq -e '
   .productVersion == "0.7.5" and
-  .releaseName == "ART R8.1 Published Recovery" and
+  .releaseName == "Finish the Rebuild" and
   .rojoVersion == "7.7.0" and
   .artifact == "TinyWorld-v0.7.5.rbxlx" and
   (.commit | test("^[0-9a-f]{40}$")) and
@@ -110,7 +110,7 @@ while IFS= read -r runner; do
   [[ "$runner" == "ubuntu-latest" ]] || { echo "ERROR: non-standard runner configured: $runner" >&2; exit 1; }
 done < <(sed -nE 's/^[[:space:]]*runs-on:[[:space:]]*([^[:space:]#]+).*/\1/p' .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null || true)
 
-bash ./tests/verify-v0.7.4-art-r8-source-contract.sh
+bash ./tests/verify-v0.7.5-art-r8.1-source-contract.sh
 bash ./tests/publish-dev-contract.sh
 
-echo "PASS: shell build contract matches v0.7.5 ART R8.1 and enforces single free-only CI"
+echo "PASS: shell build contract matches v0.7.5 ART R8.1 Finish the Rebuild and enforces single free-only CI"
