@@ -15,4 +15,11 @@ test -f assets/manifests/r8-models.json \
 test -f src/server/R8AssetLibrary.luau \
   || fail "src/server/R8AssetLibrary.luau is required"
 
+grep -F 'function R8AssetLibrary.requirePrefab' src/server/R8AssetLibrary.luau >/dev/null \
+  || fail "R8AssetLibrary.requirePrefab is required"
+grep -F 'function R8AssetLibrary.clonePrefab' src/server/R8AssetLibrary.luau >/dev/null \
+  || fail "R8AssetLibrary.clonePrefab is required"
+grep -F 'R8 required prefab missing:' src/server/R8AssetLibrary.luau >/dev/null \
+  || fail "published R8 must fail loudly when a required prefab is missing"
+
 echo "ART R8 source contract passed"
