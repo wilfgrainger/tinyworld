@@ -81,7 +81,11 @@ function TraversalSafetyService:_checkPlayers()
 					+ COASTAL_RECOVERY_BUFFER
 				if distance <= recoveryEdge then
 					player:SetAttribute("TinyWorldLastTraversalRecovery", OUTSIDE_COASTAL_BOUNDS_REASON)
-					self:_recover(player, self.world.boundary.safeShoreCFrame, "The sea gets too rough beyond TinyWorld.")
+					self:_recover(
+						player,
+						self.world.boundary.safeShoreCFrame,
+						"The sea gets too rough beyond TinyWorld."
+					)
 				end
 				continue
 			end
