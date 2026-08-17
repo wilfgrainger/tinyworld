@@ -102,7 +102,9 @@ local _explorationService = ExplorationService.new(world, ProfileStore, PlayerSt
 local _livingWorldService = LivingWorldService.new(world, ProfileStore, PlayerStateService)
 local _professionService = ProfessionService.new(world, ProfileStore, PlayerStateService)
 local boatService = BoatService.new(world, ProfileStore, PlayerStateService)
-local traversalSafetyService = TraversalSafetyService.new(world, ProfileStore, PlayerStateService)
+local traversalSafetyService = TraversalSafetyService.new(world, ProfileStore, PlayerStateService, function(player)
+	return portalService:hasValidSession(player)
+end)
 local companionService = CompanionService.new(world, plotService, ProfileStore, PlayerStateService)
 local mermaidLandService = MermaidLandService.new(world, ProfileStore, PlayerStateService)
 
