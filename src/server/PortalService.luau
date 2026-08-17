@@ -5,6 +5,7 @@ local PortalRules = require(shared:WaitForChild("PortalRules"))
 local PortalSessionRules = require(shared:WaitForChild("PortalSessionRules"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local PortalService = {}
 PortalService.__index = PortalService
@@ -164,7 +165,7 @@ function PortalService:setupPlayer(player: Player)
 end
 
 function PortalService:_start(player: Player, worldId: string)
-	if self.ProfileStore.get(player) == nil then
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
 		return
 	end
 	local definition = PortalRules.getWorld(worldId)
@@ -287,6 +288,10 @@ function PortalService:_finish(player: Player, worldId: string)
 				area.mechanicName or "world"
 			)
 		)
+		return
+	end
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self:_resetToVillageState(player, true)
 		return
 	end
 	local profile = self.ProfileStore.get(player)
