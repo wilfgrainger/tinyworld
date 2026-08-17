@@ -2,6 +2,15 @@
   "name": "TinyWorld",
   "tree": {
     "$className": "DataModel",
+    "Workspace": {
+      "$className": "Workspace",
+      "$ignoreUnknownInstances": false,
+      "$properties": {
+        "StreamingEnabled": true,
+        "StreamingMinRadius": 64,
+        "StreamingTargetRadius": 1024
+      }
+    },
     "ReplicatedStorage": {
       "TinyWorld": {
         "$className": "Folder",

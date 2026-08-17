@@ -4,6 +4,7 @@ local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared"
 local TraversalRules = require(shared:WaitForChild("TraversalRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 local BoatBuilder = require(script.Parent:WaitForChild("BoatBuilder"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local BoatService = {}
 BoatService.__index = BoatService
@@ -200,6 +201,9 @@ function BoatService:trackPlayer(player: Player)
 end
 
 function BoatService:_mount(player: Player)
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		return
+	end
 	local profile = self.ProfileStore.get(player)
 	local boat = self.boats[player] or self:_ensureBoat(player)
 	if profile == nil or boat == nil or player.Character == nil then
@@ -255,6 +259,9 @@ function BoatService:_return(player: Player)
 end
 
 function BoatService:_useShop(player: Player)
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		return
+	end
 	local profile = self.ProfileStore.get(player)
 	if profile == nil then
 		return

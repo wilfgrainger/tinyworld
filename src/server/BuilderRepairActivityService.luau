@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local VillageActivityRules = require(shared:WaitForChild("VillageActivityRules"))
+local ActivityLeaseRules = require(shared:WaitForChild("ActivityLeaseRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local BuilderRepairActivityService = {}
@@ -10,7 +11,7 @@ BuilderRepairActivityService.__index = BuilderRepairActivityService
 function BuilderRepairActivityService.new(world, hooks)
 	local self = setmetatable({}, BuilderRepairActivityService)
 	self.hooks = hooks
-	self.owner = nil
+	self.lease = nil
 
 	local registry = world.r8Destinations
 	local destination = registry and registry.Builder
@@ -58,13 +59,18 @@ function BuilderRepairActivityService:_showRepaired()
 	end
 end
 
+function BuilderRepairActivityService:isActive(player: Player): boolean
+	return ActivityLeaseRules.isOwnedBy(self.lease, player.UserId, os.clock())
+end
+
 function BuilderRepairActivityService:start(player: Player, state): (boolean, string?)
-	if self.owner ~= nil and self.owner ~= player then
+	local now = os.clock()
+	if not ActivityLeaseRules.canAcquire(self.lease, player.UserId, now) then
 		return false, "Milo is already helping another builder. Try again in a moment."
 	end
-	self.owner = player
+	self.lease = ActivityLeaseRules.new(player.UserId, now)
 	state.repairProgress = 0
-	state.startedAt = os.clock()
+	state.startedAt = now
 	self:_showDamaged()
 	self.hooks.message(
 		player,
@@ -79,10 +85,11 @@ end
 
 function BuilderRepairActivityService:_repair(player: Player)
 	local state = self.hooks.getState(player)
-	if state == nil or state.id ~= "BuilderRepair" or self.owner ~= player then
+	if state == nil or state.id ~= "BuilderRepair" or not self:isActive(player) then
 		self.hooks.message(player, "Ask Milo to take a repair job first.")
 		return
 	end
+	ActivityLeaseRules.refresh(self.lease, player.UserId, os.clock())
 	state.repairProgress = math.min(3, (state.repairProgress or 0) + 1)
 	local board = self.boards[state.repairProgress]
 	if board then
@@ -98,7 +105,7 @@ function BuilderRepairActivityService:_repair(player: Player)
 	local elapsed = math.max(0, os.clock() - (state.startedAt or os.clock()))
 	local quality = VillageActivityRules.gradeTiming(elapsed, 40, 20)
 	self:_showRepaired()
-	self.owner = nil
+	self.lease = nil
 	self.hooks.finish(
 		player,
 		"BuilderRepair",
@@ -107,21 +114,25 @@ function BuilderRepairActivityService:_repair(player: Player)
 		0
 	)
 	task.delay(3, function()
-		if self.owner == nil then
+		if self.lease == nil then
 			self:_showDamaged()
 		end
 	end)
 end
 
-function BuilderRepairActivityService:removePlayer(player: Player)
-	if self.owner == player then
-		self.owner = nil
+function BuilderRepairActivityService:abandonPlayer(player: Player)
+	if self.lease ~= nil and self.lease.ownerId == player.UserId then
+		self.lease = nil
 		self:_showDamaged()
 	end
 end
 
+function BuilderRepairActivityService:removePlayer(player: Player)
+	self:abandonPlayer(player)
+end
+
 function BuilderRepairActivityService:stop()
-	self.owner = nil
+	self.lease = nil
 	self:_showDamaged()
 	if self.prompt then
 		self.prompt:Destroy()

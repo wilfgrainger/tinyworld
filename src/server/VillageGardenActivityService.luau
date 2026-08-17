@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local Profession = require(shared:WaitForChild("Profession"))
+local ActivityLeaseRules = require(shared:WaitForChild("ActivityLeaseRules"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
 local VillageGardenActivityService = {}
@@ -10,7 +11,7 @@ VillageGardenActivityService.__index = VillageGardenActivityService
 function VillageGardenActivityService.new(world, hooks)
 	local self = setmetatable({}, VillageGardenActivityService)
 	self.hooks = hooks
-	self.owner = nil
+	self.lease = nil
 	self.prompts = {}
 
 	local registry = world.r8Destinations
@@ -58,11 +59,16 @@ function VillageGardenActivityService:_resetBeds()
 	end
 end
 
+function VillageGardenActivityService:isActive(player: Player): boolean
+	return ActivityLeaseRules.isOwnedBy(self.lease, player.UserId, os.clock())
+end
+
 function VillageGardenActivityService:start(player: Player, state): (boolean, string?)
-	if self.owner ~= nil and self.owner ~= player then
+	local now = os.clock()
+	if not ActivityLeaseRules.canAcquire(self.lease, player.UserId, now) then
 		return false, "Pip is helping another gardener right now. Try again in a moment."
 	end
-	self.owner = player
+	self.lease = ActivityLeaseRules.new(player.UserId, now)
 	state.tended = {}
 	state.nextExpected = 1
 	self:_resetBeds()
@@ -80,7 +86,7 @@ end
 
 function VillageGardenActivityService:_tend(player: Player, index: number)
 	local state = self.hooks.getState(player)
-	if state == nil or state.id ~= "VillageGarden" or self.owner ~= player then
+	if state == nil or state.id ~= "VillageGarden" or not self:isActive(player) then
 		self.hooks.message(player, "Ask Pip to start a village garden round first.")
 		return
 	end
@@ -90,6 +96,7 @@ function VillageGardenActivityService:_tend(player: Player, index: number)
 		return
 	end
 
+	ActivityLeaseRules.refresh(self.lease, player.UserId, os.clock())
 	state.orderPerfect = if state.orderPerfect == nil then true else state.orderPerfect
 	if index ~= (state.nextExpected or 1) then
 		state.orderPerfect = false
@@ -112,24 +119,28 @@ function VillageGardenActivityService:_tend(player: Player, index: number)
 		Profession.addXp(profile, "Farmer", 50)
 	end
 	local quality = if state.orderPerfect then "perfect" else "normal"
-	self.owner = nil
+	self.lease = nil
 	self.hooks.finish(player, "VillageGarden", quality, "Pip's village garden is thriving.", 0)
 	task.delay(2, function()
-		if self.owner == nil then
+		if self.lease == nil then
 			self:_resetBeds()
 		end
 	end)
 end
 
-function VillageGardenActivityService:removePlayer(player: Player)
-	if self.owner == player then
-		self.owner = nil
+function VillageGardenActivityService:abandonPlayer(player: Player)
+	if self.lease ~= nil and self.lease.ownerId == player.UserId then
+		self.lease = nil
 		self:_resetBeds()
 	end
 end
 
+function VillageGardenActivityService:removePlayer(player: Player)
+	self:abandonPlayer(player)
+end
+
 function VillageGardenActivityService:stop()
-	self.owner = nil
+	self.lease = nil
 	self:_resetBeds()
 	for _, prompt in self.prompts do
 		prompt:Destroy()

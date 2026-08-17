@@ -10,6 +10,7 @@ local VillageGardenActivityService = require(script.Parent:WaitForChild("Village
 local FishingActivityService = require(script.Parent:WaitForChild("FishingActivityService"))
 local CoastalDeliveryActivityService = require(script.Parent:WaitForChild("CoastalDeliveryActivityService"))
 local BuilderRepairActivityService = require(script.Parent:WaitForChild("BuilderRepairActivityService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local VillageActivityService = {}
 VillageActivityService.__index = VillageActivityService
@@ -28,6 +29,7 @@ function VillageActivityService.new(world, ProfileStore, PlayerStateService, Rou
 	self.PlayerStateService = PlayerStateService
 	self.RouteService = RouteService
 	self.active = {}
+	self.characterConnections = {}
 
 	local hooks = {
 		getState = function(player)
@@ -60,6 +62,46 @@ function VillageActivityService:_clear(player: Player)
 	player:SetAttribute("TinyWorldVillageActivity", "")
 end
 
+function VillageActivityService:_handlerForState(state)
+	if state == nil or type(state.role) ~= "string" then
+		return nil
+	end
+	return self.handlersByRole[state.role]
+end
+
+function VillageActivityService:abandon(player: Player, silent: boolean?)
+	local state = self.active[player]
+	if state == nil then
+		return
+	end
+	local definition = VillageActivityDefinitions.get(state.id)
+	local handler = self:_handlerForState(state)
+	if handler then
+		if handler.abandonPlayer then
+			handler:abandonPlayer(player)
+		elseif handler.removePlayer then
+			handler:removePlayer(player)
+		end
+	end
+	self:_clear(player)
+	if silent ~= true then
+		self.PlayerStateService.message(
+			player,
+			"Left " .. (if definition then definition.displayName else "the current village activity") .. "."
+		)
+	end
+end
+
+function VillageActivityService:setupPlayer(player: Player)
+	local existing = self.characterConnections[player]
+	if existing then
+		existing:Disconnect()
+	end
+	self.characterConnections[player] = player.CharacterAdded:Connect(function()
+		self:abandon(player, true)
+	end)
+end
+
 function VillageActivityService:_finish(
 	player: Player,
 	activityId: string,
@@ -67,6 +109,10 @@ function VillageActivityService:_finish(
 	detail: string?,
 	extraCoins: number?
 )
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self:abandon(player, true)
+		return
+	end
 	local state = self.active[player]
 	if state == nil or state.id ~= activityId or not VillageActivityRules.canComplete(state.completed == true) then
 		return
@@ -111,7 +157,7 @@ function VillageActivityService:startForRole(player: Player, role: string)
 		self.PlayerStateService.message(player, "That village activity is not available yet.")
 		return
 	end
-	if self.ProfileStore.get(player) == nil then
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
 		return
 	end
 
@@ -123,18 +169,28 @@ function VillageActivityService:startForRole(player: Player, role: string)
 
 	local current = self.active[player]
 	if current ~= nil then
+		local currentHandler = self:_handlerForState(current)
+		if currentHandler and currentHandler.isActive and not currentHandler:isActive(player) then
+			self:abandon(player, true)
+			current = nil
+		end
+	end
+
+	if current ~= nil then
 		if current.id == definition.id then
 			handler:interact(player, current)
-		else
-			local currentDefinition = VillageActivityDefinitions.get(current.id)
-			self.PlayerStateService.message(
-				player,
-				"Finish "
-					.. (if currentDefinition then currentDefinition.displayName else "your current activity")
-					.. " first."
-			)
+			return
 		end
-		return
+		local currentDefinition = VillageActivityDefinitions.get(current.id)
+		self:abandon(player, true)
+		self.PlayerStateService.message(
+			player,
+			"Left "
+				.. (if currentDefinition then currentDefinition.displayName else "your current activity")
+				.. " to start "
+				.. definition.displayName
+				.. "."
+		)
 	end
 	if not VillageActivityRules.canStart(nil) then
 		return
@@ -163,9 +219,18 @@ function VillageActivityService:removePlayer(player: Player)
 		end
 	end
 	self.active[player] = nil
+	local connection = self.characterConnections[player]
+	if connection then
+		connection:Disconnect()
+		self.characterConnections[player] = nil
+	end
 end
 
 function VillageActivityService:stop()
+	for _, connection in self.characterConnections do
+		connection:Disconnect()
+	end
+	table.clear(self.characterConnections)
 	for _, handler in self.handlersByRole do
 		if handler.stop then
 			handler:stop()

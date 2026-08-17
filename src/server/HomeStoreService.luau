@@ -6,6 +6,7 @@ local ShopDefinitions = require(shared:WaitForChild("ShopDefinitions"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local RemoteGuard = require(script.Parent:WaitForChild("security"):WaitForChild("RemoteGuard"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local HomeStoreService = {}
 HomeStoreService.__index = HomeStoreService
@@ -131,6 +132,11 @@ function HomeStoreService:_handle(player: Player, payload: any)
 
 	if payload.action == "state" then
 		self:_sendState(player, profile)
+		return
+	end
+
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self:_reply(player, false, "onboarding_incomplete")
 		return
 	end
 

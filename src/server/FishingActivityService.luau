@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local shared = ReplicatedStorage:WaitForChild("TinyWorld"):WaitForChild("Shared")
 local VillageActivityRules = require(shared:WaitForChild("VillageActivityRules"))
+local ActivityLeaseRules = require(shared:WaitForChild("ActivityLeaseRules"))
 local VillageActivityLocations = require(script.Parent:WaitForChild("VillageActivityLocations"))
 local VisualTheme = require(script.Parent:WaitForChild("VisualTheme"))
 
@@ -15,7 +16,7 @@ function FishingActivityService.new(world, hooks)
 	local self = setmetatable({}, FishingActivityService)
 	self.hooks = hooks
 	self.streaks = {}
-	self.owner = nil
+	self.lease = nil
 	self.castNonce = 0
 
 	local registry = world.r8Destinations
@@ -65,14 +66,18 @@ function FishingActivityService:_setBobber(state: string, color: Color3)
 	self.bobber.Color = color
 end
 
+function FishingActivityService:isActive(player: Player): boolean
+	return ActivityLeaseRules.isOwnedBy(self.lease, player.UserId, os.clock())
+end
+
 function FishingActivityService:start(player: Player, state): (boolean, string?)
-	if self.owner ~= nil and self.owner ~= player then
+	local now = os.clock()
+	if not ActivityLeaseRules.canAcquire(self.lease, player.UserId, now) then
 		return false, "Finn already has a line in the water for another player. Try again in a moment."
 	end
-	self.owner = player
+	self.lease = ActivityLeaseRules.new(player.UserId, now)
 	self.castNonce += 1
 	local nonce = self.castNonce
-	local now = os.clock()
 	local delay = 1.5 + ((math.abs(player.UserId) % 4) * 0.35)
 	state.biteAt = now + delay
 	state.idealAt = state.biteAt + 0.9
@@ -82,7 +87,7 @@ function FishingActivityService:start(player: Player, state): (boolean, string?)
 
 	task.delay(delay, function()
 		local current = self.hooks.getState(player)
-		if self.owner == player and current == state and current.castNonce == nonce and current.id == "Fishing" then
+		if self:isActive(player) and current == state and current.castNonce == nonce and current.id == "Fishing" then
 			self:_setBobber("bite", BITE_COLOR)
 			self.hooks.message(player, "Bite! Pull the line now.")
 		end
@@ -96,7 +101,7 @@ end
 
 function FishingActivityService:_pull(player: Player)
 	local state = self.hooks.getState(player)
-	if state == nil or state.id ~= "Fishing" or self.owner ~= player then
+	if state == nil or state.id ~= "Fishing" or not self:isActive(player) then
 		self.hooks.message(player, "Ask Finn to start a fishing attempt first.")
 		return
 	end
@@ -116,25 +121,29 @@ function FishingActivityService:_pull(player: Player)
 	self:_setBobber("landed", if quality == "perfect" then BITE_COLOR else VisualTheme.Colors.water)
 	local streak = self.streaks[player] or 0
 	local detail = string.format("Fish landed: %s catch%s", quality, if streak > 1 then " · streak " .. streak else "")
-	self.owner = nil
+	self.lease = nil
 	self.hooks.finish(player, "Fishing", quality, detail, 0)
 	task.delay(2, function()
-		if self.owner == nil then
+		if self.lease == nil then
 			self:_setBobber("idle", WAITING_COLOR)
 		end
 	end)
 end
 
-function FishingActivityService:removePlayer(player: Player)
-	self.streaks[player] = nil
-	if self.owner == player then
-		self.owner = nil
+function FishingActivityService:abandonPlayer(player: Player)
+	if self.lease ~= nil and self.lease.ownerId == player.UserId then
+		self.lease = nil
 		self:_setBobber("idle", WAITING_COLOR)
 	end
 end
 
+function FishingActivityService:removePlayer(player: Player)
+	self.streaks[player] = nil
+	self:abandonPlayer(player)
+end
+
 function FishingActivityService:stop()
-	self.owner = nil
+	self.lease = nil
 	if self.prompt then
 		self.prompt:Destroy()
 	end

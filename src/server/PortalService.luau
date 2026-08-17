@@ -5,6 +5,7 @@ local PortalRules = require(shared:WaitForChild("PortalRules"))
 local PortalSessionRules = require(shared:WaitForChild("PortalSessionRules"))
 local AnalyticsEvents = require(shared:WaitForChild("AnalyticsEvents"))
 local TinyAnalyticsService = require(script.Parent:WaitForChild("AnalyticsService"))
+local GameplayAccessService = require(script.Parent:WaitForChild("GameplayAccessService"))
 
 local PortalService = {}
 PortalService.__index = PortalService
@@ -57,13 +58,15 @@ local function animateMechanic(worldId: string, part: BasePart)
 	end)
 end
 
-function PortalService.new(world, ProfileStore, PlayerStateService, PlotService)
+function PortalService.new(world, ProfileStore, PlayerStateService, PlotService, onPortalTransition)
 	local self = setmetatable({}, PortalService)
 	self.world = world
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
 	self.PlotService = PlotService
+	self.onPortalTransition = onPortalTransition
 	self.sessions = {}
+	self.characterConnections = {}
 	self.worlds = {
 		GiantKitchen = world.kitchen,
 		MoonlitMeadow = world.moonlitMeadow,
@@ -115,21 +118,63 @@ function PortalService:_connectWorld(worldId: string, startPrompt: ProximityProm
 	end)
 end
 
+function PortalService:_resetToVillageState(player: Player, teleportHome: boolean)
+	self.sessions[player] = nil
+	local resetState = PortalSessionRules.resetState()
+	player:SetAttribute("TinyWorldPortalCrystals", resetState.crystals)
+	player:SetAttribute("TinyWorldPortalMechanics", resetState.mechanics)
+	player:SetAttribute("TinyWorldPortalSecretFound", resetState.secretFound)
+	player:SetAttribute("TinyWorldPortalWorld", resetState.worldId)
+	if teleportHome then
+		task.defer(function()
+			if player.Parent ~= nil then
+				teleport(player, self.world.villageReturnCFrame)
+			end
+		end)
+	end
+end
+
+function PortalService:hasValidSession(player: Player): boolean
+	return PortalSessionRules.isValid(self.sessions[player], player:GetAttribute("TinyWorldPortalWorld"))
+end
+
+function PortalService:_getSessionForWorld(player: Player, worldId: string)
+	local session = self.sessions[player]
+	if not PortalSessionRules.isValid(session, player:GetAttribute("TinyWorldPortalWorld")) then
+		return nil
+	end
+	if session.worldId ~= worldId then
+		return nil
+	end
+	return session
+end
+
 function PortalService:setupPlayer(player: Player)
-	player:SetAttribute("TinyWorldPortalCrystals", 0)
-	player:SetAttribute("TinyWorldPortalMechanics", 0)
-	player:SetAttribute("TinyWorldPortalSecretFound", false)
-	player:SetAttribute("TinyWorldPortalWorld", "Village")
+	local existing = self.characterConnections[player]
+	if existing then
+		existing:Disconnect()
+	end
+
+	self:_resetToVillageState(player, false)
+	self.characterConnections[player] = player.CharacterAdded:Connect(function()
+		local portalWorld = player:GetAttribute("TinyWorldPortalWorld")
+		local wasInPortal = self.sessions[player] ~= nil
+			or (type(portalWorld) == "string" and portalWorld ~= "" and portalWorld ~= "Village")
+		self:_resetToVillageState(player, wasInPortal)
+	end)
 end
 
 function PortalService:_start(player: Player, worldId: string)
-	if self.ProfileStore.get(player) == nil then
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
 		return
 	end
 	local definition = PortalRules.getWorld(worldId)
 	local area = self.worlds[worldId]
 	if definition == nil or area == nil then
 		return
+	end
+	if self.onPortalTransition then
+		self.onPortalTransition(player)
 	end
 	self.sessions[player] = PortalSessionRules.new(worldId)
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
@@ -152,9 +197,9 @@ function PortalService:_start(player: Player, worldId: string)
 end
 
 function PortalService:_collect(player: Player, worldId: string, index: number)
-	local session = self.sessions[player]
+	local session = self:_getSessionForWorld(player, worldId)
 	local definition = PortalRules.getWorld(worldId)
-	if session == nil or not session.active or session.worldId ~= worldId or definition == nil then
+	if session == nil or definition == nil then
 		self.PlayerStateService.message(player, "Enter this world through its village portal to start the mission.")
 		return
 	end
@@ -174,9 +219,9 @@ function PortalService:_collect(player: Player, worldId: string, index: number)
 end
 
 function PortalService:_mechanic(player: Player, worldId: string, index: number)
-	local session = self.sessions[player]
+	local session = self:_getSessionForWorld(player, worldId)
 	local area = self.worlds[worldId]
-	if session == nil or not session.active or session.worldId ~= worldId or area == nil then
+	if session == nil or area == nil then
 		self.PlayerStateService.message(
 			player,
 			"Enter this world through its village portal before using its main mechanism."
@@ -201,9 +246,9 @@ function PortalService:_mechanic(player: Player, worldId: string, index: number)
 end
 
 function PortalService:_secret(player: Player, worldId: string)
-	local session = self.sessions[player]
+	local session = self:_getSessionForWorld(player, worldId)
 	local area = self.worlds[worldId]
-	if session == nil or not session.active or session.worldId ~= worldId or area == nil then
+	if session == nil or area == nil then
 		self.PlayerStateService.message(player, "That secret only makes sense while you are exploring this world.")
 		return
 	end
@@ -219,12 +264,11 @@ function PortalService:_secret(player: Player, worldId: string)
 end
 
 function PortalService:_finish(player: Player, worldId: string)
-	local session = self.sessions[player]
+	local session = self:_getSessionForWorld(player, worldId)
 	local definition = PortalRules.getWorld(worldId)
 	local area = self.worlds[worldId]
-	if session == nil or not session.active or session.worldId ~= worldId or definition == nil or area == nil then
-		teleport(player, self.world.villageReturnCFrame)
-		player:SetAttribute("TinyWorldPortalWorld", "Village")
+	if session == nil or definition == nil or area == nil then
+		self:_resetToVillageState(player, true)
 		self.PlayerStateService.message(player, "Returned to TinyWorld village.")
 		return
 	end
@@ -246,6 +290,10 @@ function PortalService:_finish(player: Player, worldId: string)
 		)
 		return
 	end
+	if not GameplayAccessService.requireAccess(player, self.ProfileStore, self.PlayerStateService) then
+		self:_resetToVillageState(player, true)
+		return
+	end
 	local profile = self.ProfileStore.get(player)
 	if profile == nil or not PortalRules.completeWorld(profile, worldId) then
 		self.PlayerStateService.message(
@@ -254,16 +302,12 @@ function PortalService:_finish(player: Player, worldId: string)
 		)
 		return
 	end
-	self.sessions[player] = nil
-	player:SetAttribute("TinyWorldPortalCrystals", 0)
-	player:SetAttribute("TinyWorldPortalMechanics", 0)
-	player:SetAttribute("TinyWorldPortalWorld", "Village")
+	self:_resetToVillageState(player, true)
 	self.PlayerStateService.sync(player, profile)
 	if self.PlotService then
 		self.PlotService:refreshKeepsakes(player, profile)
 	end
 	self.ProfileStore.save(player)
-	teleport(player, self.world.villageReturnCFrame)
 	TinyAnalyticsService.log(player, AnalyticsEvents.PortalCompleted)
 	TinyAnalyticsService.log(player, AnalyticsEvents.CurrencyEarned, definition.coins)
 	self.PlayerStateService.message(
@@ -274,6 +318,11 @@ end
 
 function PortalService:removePlayer(player: Player)
 	self.sessions[player] = nil
+	local connection = self.characterConnections[player]
+	if connection then
+		connection:Disconnect()
+		self.characterConnections[player] = nil
+	end
 end
 
 return PortalService
