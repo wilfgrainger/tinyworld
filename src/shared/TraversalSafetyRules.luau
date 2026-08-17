@@ -9,10 +9,6 @@ TraversalSafetyRules.Action = {
 }
 
 function TraversalSafetyRules.decide(input)
-	if input.y < TraversalSafetyRules.RECOVERY_Y then
-		return TraversalSafetyRules.Action.RecoverWorld
-	end
-
 	local portalWorld = input.portalWorld
 	if
 		type(portalWorld) == "string"
@@ -21,6 +17,10 @@ function TraversalSafetyRules.decide(input)
 		and input.hasValidPortalSession == true
 	then
 		return TraversalSafetyRules.Action.PortalExempt
+	end
+
+	if input.y < TraversalSafetyRules.RECOVERY_Y then
+		return TraversalSafetyRules.Action.RecoverWorld
 	end
 
 	if input.distance > input.shorelineDistance + input.waterBelt then
