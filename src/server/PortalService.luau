@@ -57,12 +57,13 @@ local function animateMechanic(worldId: string, part: BasePart)
 	end)
 end
 
-function PortalService.new(world, ProfileStore, PlayerStateService, PlotService)
+function PortalService.new(world, ProfileStore, PlayerStateService, PlotService, onPortalTransition)
 	local self = setmetatable({}, PortalService)
 	self.world = world
 	self.ProfileStore = ProfileStore
 	self.PlayerStateService = PlayerStateService
 	self.PlotService = PlotService
+	self.onPortalTransition = onPortalTransition
 	self.sessions = {}
 	self.characterConnections = {}
 	self.worlds = {
@@ -170,6 +171,9 @@ function PortalService:_start(player: Player, worldId: string)
 	local area = self.worlds[worldId]
 	if definition == nil or area == nil then
 		return
+	end
+	if self.onPortalTransition then
+		self.onPortalTransition(player)
 	end
 	self.sessions[player] = PortalSessionRules.new(worldId)
 	player:SetAttribute("TinyWorldPortalCrystals", 0)
