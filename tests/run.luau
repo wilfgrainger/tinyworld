@@ -20,6 +20,7 @@ local specs = {
 	require("./Profession.spec"),
 	require("./TransportRules.spec"),
 	require("./TraversalRules.spec"),
+	require("./TraversalSafetyRules.spec"),
 	require("./CompanionRules.spec"),
 	require("./VillageNpcDefinitions.spec"),
 	require("./VillageActivityDefinitions.spec"),
