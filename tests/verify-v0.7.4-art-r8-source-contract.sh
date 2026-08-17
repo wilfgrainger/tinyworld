@@ -57,7 +57,7 @@ fi
 test -f src/server/R8CoastBuilder.luau || fail "src/server/R8CoastBuilder.luau is required"
 grep -F 'R8CoastBuilder.build' src/server/Main.server.luau >/dev/null \
   || fail "Main must build the R8 coast"
-if grep -F 'CoastBuilder.build' src/server/Main.server.luau >/dev/null; then
+if grep -F 'world.coast = CoastBuilder.build' src/server/Main.server.luau >/dev/null; then
   fail "legacy CoastBuilder must not render alongside R8 coast"
 fi
 if grep -F 'HillSlope' src/server/R8CoastBuilder.luau >/dev/null; then
