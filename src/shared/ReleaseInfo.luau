@@ -1,8 +1,8 @@
 return {
 	productName = "TinyWorld",
-	productVersion = "0.7.4",
+	productVersion = "0.7.5",
 	channel = "DEV",
-	candidate = "ART R8",
-	artRevision = "ART R8",
-	releaseName = "Structural World Rebuild",
+	candidate = "ART R8.1",
+	artRevision = "ART R8.1",
+	releaseName = "Published Recovery",
 }
