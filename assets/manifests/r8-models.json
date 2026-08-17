@@ -1,5 +1,16 @@
 {
   "schemaVersion": 1,
   "artRevision": "ART R8",
-  "models": []
+  "models": [
+    {"id":"street-bench","path":"assets/models/r8/StreetKit/Bench.rbxmx","sha256":"82a4e41b0a229108370303fd46c129e31ec5114d70c2e815e8d5896661d6bf0e","role":"street-furniture","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"street-lamp","path":"assets/models/r8/StreetKit/Lamp.rbxmx","sha256":"1fec20f10f1623a6d716528772e11e0e1061b9e80ae300c2c49de25e39961db0","role":"street-furniture","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"street-planter","path":"assets/models/r8/StreetKit/Planter.rbxmx","sha256":"cfb46451a0c39f7554186b8b8e73c03b97168b6d2a122524ec12ae2e5ff2733e","role":"street-furniture","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"street-fence-section","path":"assets/models/r8/StreetKit/FenceSection.rbxmx","sha256":"b3e3da00e4834e8e6a17e392a5993f2dcda49c0330ec20e6064786e51493194d","role":"street-boundary","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"street-mailbox","path":"assets/models/r8/StreetKit/Mailbox.rbxmx","sha256":"cdecb9ca5987657028a2a241f906b8f583d7579ccbe9a9efed0f849684486b9a","role":"residential-street","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"nature-tree-small","path":"assets/models/r8/Nature/TreeSmall.rbxmx","sha256":"0ee6ce3943fc70a8e1da8502e4b1d730c1282aed7f636d6fe98c1ba95a968545","role":"nature","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"nature-tree-large","path":"assets/models/r8/Nature/TreeLarge.rbxmx","sha256":"cc32440d61d5b468a84704c012511e72bf49fb590eec75e3b9d028b5add76693","role":"nature","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"nature-hedge-section","path":"assets/models/r8/Nature/HedgeSection.rbxmx","sha256":"6e6c1c73d2a99c4d5656e501a2468d0bfeac8e8006db83d4fc3c65f07a77d075","role":"nature","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"architecture-window-assembly","path":"assets/models/r8/Architecture/WindowAssembly.rbxmx","sha256":"ea912990c6e89f36693fb1969e67343dcb6cafeb6239b7c89c6c559a372b2619","role":"architecture-kit","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true},
+    {"id":"architecture-porch-assembly","path":"assets/models/r8/Architecture/PorchAssembly.rbxmx","sha256":"ceb8ed74e80263c3fcf4ee9ee8b792dca2dc9ca1c9364687e78ccd964ed736eb","role":"architecture-kit","source":"TinyWorld original","license":"Project-owned original","revision":"r8.1","devApproved":true}
+  ]
 }
