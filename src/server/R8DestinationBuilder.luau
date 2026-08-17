@@ -85,23 +85,25 @@ function R8DestinationBuilder.apply(world, compatibleLayout)
 	local repairPrompt = requiredPart(repairStation, "PromptAnchor")
 	local deliveryPrompt = requiredPart(deliveryBuoy, "PromptAnchor")
 
-	for _, anchor in {
-		marketNpc,
-		marketPrompt,
-		gardenNpc,
-		gardenPrompt,
-		workshopNpc,
-		workshopPrompt,
-		harbourNpc,
-		harbourPrompt,
-		boatSpawn,
-		gardenPromptAnchor,
-		fishingNpc,
-		fishingPrompt,
-		fishingOrigin,
-		repairPrompt,
-		deliveryPrompt,
-	} do
+	for _, anchor in
+		{
+			marketNpc,
+			marketPrompt,
+			gardenNpc,
+			gardenPrompt,
+			workshopNpc,
+			workshopPrompt,
+			harbourNpc,
+			harbourPrompt,
+			boatSpawn,
+			gardenPromptAnchor,
+			fishingNpc,
+			fishingPrompt,
+			fishingOrigin,
+			repairPrompt,
+			deliveryPrompt,
+		}
+	do
 		prepareAnchor(anchor)
 	end
 
