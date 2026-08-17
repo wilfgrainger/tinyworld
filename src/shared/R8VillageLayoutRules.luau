@@ -40,6 +40,13 @@ function R8VillageLayoutRules.create()
 		Skye = point(174, -55, -90),
 	}
 
+	local activitySites = {
+		GardenBeds = point(-67, -45, 35),
+		FishingDock = point(SHORELINE_DISTANCE - 10, 50, -90),
+		RepairStation = point(-68, 57, 145),
+		CoastalDelivery = point(SHORELINE_DISTANCE + 65, -20, -90),
+	}
+
 	local routes = {
 		{ name = "MarketStreet", from = point(0, 0), to = destinations.Mara, width = 12 },
 		{ name = "GardenLane", from = point(0, 0), to = destinations.Pip, width = 11 },
@@ -53,7 +60,7 @@ function R8VillageLayoutRules.create()
 	}
 
 	return {
-		artRevision = "ART R8",
+		artRevision = "ART R8.1",
 		groundY = GROUND_Y,
 		waterY = WATER_Y,
 		shorelineDistance = SHORELINE_DISTANCE,
@@ -101,6 +108,7 @@ function R8VillageLayoutRules.create()
 			}),
 		},
 		destinations = destinations,
+		activitySites = activitySites,
 		routes = routes,
 		routesByDestination = {
 			Mara = true,
