@@ -20,4 +20,18 @@ function GameplayAccessService.requireAccess(player: Player, ProfileStore, Playe
 	return false
 end
 
+function GameplayAccessService.guardedProfileStore(ProfileStore)
+	local guarded = {}
+	setmetatable(guarded, { __index = ProfileStore })
+	guarded.get = function(player)
+		local profile = ProfileStore.get(player)
+		local allowed = PlayerPhaseRules.canEnterGameplay(profile)
+		if not allowed then
+			return nil
+		end
+		return profile
+	end
+	return guarded
+end
+
 return GameplayAccessService
