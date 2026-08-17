@@ -74,16 +74,16 @@ fi
 
 PATH="$TEMP_DIR/bin:$PATH" TINYWORLD_ALLOW_DIRTY_BUILD=1 ./scripts/build.sh
 
-artifact_path="dist/TinyWorld-v0.7.3.rbxlx"
+artifact_path="dist/TinyWorld-v0.7.4.rbxlx"
 manifest_path="dist/release.json"
 [[ -f "$artifact_path" ]]
 [[ -f "$manifest_path" ]]
 
 jq -e '
-  .productVersion == "0.7.3" and
-  .releaseName == "Premium Visual World Pass" and
+  .productVersion == "0.7.4" and
+  .releaseName == "Structural World Rebuild" and
   .rojoVersion == "7.7.0" and
-  .artifact == "TinyWorld-v0.7.3.rbxlx" and
+  .artifact == "TinyWorld-v0.7.4.rbxlx" and
   (.commit | test("^[0-9a-f]{40}$")) and
   (.sha256 | test("^[0-9a-f]{64}$")) and
   (.buildTimestampUtc | type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
@@ -110,7 +110,7 @@ while IFS= read -r runner; do
   [[ "$runner" == "ubuntu-latest" ]] || { echo "ERROR: non-standard runner configured: $runner" >&2; exit 1; }
 done < <(sed -nE 's/^[[:space:]]*runs-on:[[:space:]]*([^[:space:]#]+).*/\1/p' .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null || true)
 
-bash ./tests/verify-v0.7.3-art-r7-source-contract.sh
+bash ./tests/verify-v0.7.4-art-r8-source-contract.sh
 bash ./tests/publish-dev-contract.sh
 
-echo "PASS: shell build contract matches v0.7.3 ART R7 and enforces single free-only CI"
+echo "PASS: shell build contract matches v0.7.4 ART R8 and enforces single free-only CI"
