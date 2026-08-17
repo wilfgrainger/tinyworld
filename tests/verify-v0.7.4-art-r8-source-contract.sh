@@ -17,12 +17,17 @@ required_ids=(street-bench street-lamp street-planter street-fence-section stree
 for id in "${required_ids[@]}"; do
   jq -e --arg id "$id" '.models[] | select(.id == $id and .devApproved == true)' assets/manifests/r8-models.json >/dev/null || fail "missing DEV-approved authored model manifest entry: $id"
 done
-jq -c '.models[] | select(.devApproved == true)' assets/manifests/r8-models.json | while read -r item; do
+hash_failures=0
+while read -r item; do
   path="$(jq -r '.path' <<<"$item")"; expected="$(jq -r '.sha256' <<<"$item")"
   test -f "$path" || fail "manifest model file missing: $path"
   actual="$(sha256sum "$path" | awk '{print $1}')"
-  test "$actual" = "$expected" || fail "manifest hash mismatch: $path expected=$expected actual=$actual"
-done
+  if [[ "$actual" != "$expected" ]]; then
+    echo "ART R8 manifest hash mismatch: $path expected=$expected actual=$actual" >&2
+    hash_failures=$((hash_failures + 1))
+  fi
+done < <(jq -c '.models[] | select(.devApproved == true)' assets/manifests/r8-models.json)
+test "$hash_failures" -eq 0 || fail "$hash_failures manifest hash mismatch(es)"
 test -f docs/ART_AUTHORING.md || fail "docs/ART_AUTHORING.md is required"
 
 # Layout / ground authority.
